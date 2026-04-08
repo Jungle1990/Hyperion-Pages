@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interleaved Review · 少有人走的路 | Book Breakdown</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+
+/* ── Compact Hero ── */
+.hero { padding: 3rem 2rem 2rem; text-align: center; position: relative; }
+.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(255,107,107,0.06) 0%, transparent 50%); pointer-events: none; }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px rgba(108,99,255,0.3)); }
+.hero h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 900; margin-bottom: 0.3rem; }
+.hero-en { font-size: 1rem; color: var(--text-dim); font-weight: 300; margin-bottom: 0.5rem; }
+.hero-badge { display: inline-block; padding: 0.4rem 1.2rem; border: 1px solid var(--accent4); border-radius: 2rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; }
+.back-link { position: absolute; top: 1.5rem; left: 1.5rem; text-decoration: none; color: var(--text-dim); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; transition: color 0.3s; }
+.back-link:hover { color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Mode Selector ── */
+.mode-bar { display: flex; justify-content: center; gap: 12px; margin: 2rem 0; flex-wrap: wrap; }
+.mode-btn { padding: 10px 24px; border: 1px solid var(--border); border-radius: 2rem; background: transparent; color: var(--text-dim); font-family: var(--font-sans); font-size: 0.9rem; cursor: pointer; transition: all 0.3s; }
+.mode-btn:hover { border-color: var(--accent); color: var(--text); }
+.mode-btn.active { border-color: var(--accent); background: rgba(108,99,255,0.15); color: var(--accent); }
+
+/* ── Score Tracker ── */
+.score-bar { display: flex; align-items: center; justify-content: center; gap: 2rem; margin-bottom: 2rem; padding: 1rem; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); }
+.score-label { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim); letter-spacing: 1px; }
+.score-num { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; }
+.score-correct { color: var(--accent3); }
+.score-total { color: var(--text-dim); }
+.score-pct { color: var(--accent4); font-size: 1.2rem; }
+.reset-btn { padding: 6px 16px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.3s; letter-spacing: 1px; }
+.reset-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+/* ── Quiz Cards ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-card.correct { border-color: var(--accent3); }
+.quiz-card.incorrect { border-color: var(--accent2); }
+.quiz-chapter-tag { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 8px; display: inline-block; padding: 2px 10px; border-radius: 4px; }
+.quiz-chapter-tag.hidden { background: rgba(108,99,255,0.15); color: var(--accent); }
+.quiz-chapter-tag.visible { background: rgba(78,205,196,0.15); color: var(--accent3); }
+.quiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1rem; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* Chapter-ID mode */
+.chapter-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.ch-pick-btn { padding: 4px 12px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+.ch-pick-btn:hover { border-color: var(--accent); color: var(--text); }
+.ch-pick-btn.correct { border-color: var(--accent3); color: var(--accent3); background: rgba(78,205,196,0.1); }
+.ch-pick-btn.wrong { border-color: var(--accent2); color: var(--accent2); background: rgba(255,107,107,0.1); }
+
+/* ── Spaced Review ── */
+.section-header { margin: 3rem 0 1.5rem; }
+.section-badge { display: inline-block; font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.4rem; font-weight: 700; }
+.schedule-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.schedule-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; transition: all 0.3s; }
+.schedule-card:hover { border-color: var(--accent4); }
+.schedule-interval { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 1px; margin-bottom: 6px; }
+.schedule-date { font-size: 0.85rem; color: var(--text-dim); }
+
+/* ── Footer ── */
+.footer { text-align: center; padding: 4rem 0; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+
+/* ── Empty State ── */
+.empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-dim); }
+.empty-state-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 768px) {
+    .score-bar { flex-wrap: wrap; gap: 1rem; }
+    .schedule-grid { grid-template-columns: repeat(3, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<section class="hero">
+    <a href="index.html" class="back-link">← 返回目录</a>
+    <div class="hero-icon">🔀</div>
+    <h1>Interleaved Review · 交叉复习</h1>
+    <div class="hero-en">The Road Less Traveled</div>
+    <div class="hero-badge">SPACED PRACTICE</div>
+</section>
+
+<div class="container">
+    <div class="mode-bar" id="modeBar">
+        <button class="mode-btn active" data-mode="random">🎲 Random Quiz · 随机测验</button>
+        <button class="mode-btn" data-mode="chapter-id">🔍 Chapter ID · 章节识别</button>
+    </div>
+    <div class="score-bar" id="scoreBar" style="display:none">
+        <div><div class="score-label">CORRECT</div><div class="score-num score-correct" id="scoreCorrect">0</div></div>
+        <div><div class="score-label">TOTAL</div><div class="score-num score-total" id="scoreTotal">0</div></div>
+        <div><div class="score-label">ACCURACY</div><div class="score-num score-pct" id="scorePct">—</div></div>
+        <button class="reset-btn" id="resetBtn">RESET</button>
+    </div>
+    <div id="quizContainer"></div>
+
+    <div class="section-header fade-in">
+        <div class="section-badge">SPACED REVIEW SCHEDULE</div>
+        <div class="section-title">间隔复习计划</div>
+    </div>
+    <div class="schedule-grid" id="scheduleGrid"></div>
+</div>
+
+<div class="footer">
+    Book Breakdown · Interleaved Review · 少有人走的路
+</div>
+
+<script>
+const meta = {
+  "title": "少有人走的路",
+  "titleEn": "The Road Less Traveled",
+  "author": "斯科特·派克 (M. Scott Peck)",
+  "icon": "🛤️",
+  "slug": "shaoyouren-zou-de-lu",
+  "methodLabel": "FEYNMAN METHOD",
+  "stats": [
+    {
+      "num": "12",
+      "label": "Chapters"
+    },
+    {
+      "num": "4",
+      "label": "Parts"
+    },
+    {
+      "num": "∞",
+      "label": "Insights"
+    }
+  ]
+};
+const allQuizData = [
+  {
+    "chapterNum": 1,
+    "chapterTitle": "人生苦难重重：自律的起点",
+    "questions": [
+      {
+        "q": "为什么说「人生苦难重重」是一个伟大的真理？",
+        "options": [
+          "因为它让人感到绝望",
+          "因为一旦接受这个事实就能从苦难中解脱",
+          "因为它鼓励人逃避问题",
+          "因为它是一种宗教教条"
+        ],
+        "answer": 1,
+        "explain": "接受人生苦难重重的事实后，我们就不会对苦难耿耿于怀，反而能释然地面对它。"
+      },
+      {
+        "q": "自律的四个原则不包括以下哪一项？",
+        "options": [
+          "推迟满足感",
+          "追求完美",
+          "忠于事实",
+          "保持平衡"
+        ],
+        "answer": 1,
+        "explain": "自律的四个原则是：推迟满足感、承担责任、忠于事实、保持平衡。追求完美不在其中。"
+      },
+      {
+        "q": "荣格说的「神经官能症是人生痛苦最常见的替代品」意味着什么？",
+        "options": [
+          "神经官能症能替代痛苦",
+          "逃避问题会产生更大的心理痛苦",
+          "痛苦是无法避免的",
+          "神经官能症是正常现象"
+        ],
+        "answer": 1,
+        "explain": "逃避问题的人用神经官能症作替代品，但替代品带来的痛苦甚至比原始问题更强烈。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 2,
+    "chapterTitle": "推迟满足感：先苦后甜的智慧",
+    "questions": [
+      {
+        "q": "那位财务专家拖延工作的根本原因是什么？",
+        "options": [
+          "她不够聪明",
+          "她不重视自己的时间价值",
+          "她工作太忙",
+          "她的老板要求太高"
+        ],
+        "answer": 1,
+        "explain": "因为童年被忽视，她觉得自己不够重要，因此也不重视自己的时间，导致了拖延。"
+      },
+      {
+        "q": "为什么很多青少年不懂推迟满足感？",
+        "options": [
+          "智商不够",
+          "基因缺陷",
+          "家庭教育缺失",
+          "学校教育不好"
+        ],
+        "answer": 2,
+        "explain": "大部分迹象表明，家庭教育起着最大的作用。缺乏父母之爱的孩子难以学会先苦后甜。"
+      },
+      {
+        "q": "那位销售员对团体隐瞒与银行家妻子的关系，反映了什么问题？",
+        "options": [
+          "他有社交恐惧",
+          "他不愿推迟满足感，幻想问题自行消失",
+          "他不知道规则",
+          "他故意搞破坏"
+        ],
+        "answer": 1,
+        "explain": "他指望等待足够长的时间问题就会消失，这是典型的不愿推迟满足感、不愿面对痛苦的表现。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 3,
+    "chapterTitle": "承担责任：问题是你自己的",
+    "questions": [
+      {
+        "q": "神经官能症和人格失调症的本质���别是什么？",
+        "options": [
+          "智商不同",
+          "对责任的态度相反",
+          "年龄不同",
+          "性别不同"
+        ],
+        "answer": 1,
+        "explain": "神经官能症患者为自己强加责任，人格失调症患者则不愿承担属于自己的责任。"
+      },
+      {
+        "q": "派克的上司贝吉里主任为什么不帮他解决时间问题？",
+        "options": [
+          "他懒得管",
+          "这是派克自己的选择和责任",
+          "他不喜欢派克",
+          "他不是好上司"
+        ],
+        "answer": 1,
+        "explain": "派克自己选择了比同事更多的工作量，这是他的选择，他应该为此负责，而不是让上司替他做决定。"
+      },
+      {
+        "q": "「你不能解决问题，你就会成为问题」这句话的含义是？",
+        "options": [
+          "问题太难了",
+          "不承担责任解决问题的人会成为社会的负担",
+          "每个人都是问题",
+          "问题不需要解决"
+        ],
+        "answer": 1,
+        "explain": "推卸责任、不解决自己问题的人，不仅自己的心智无法成熟，还会给他人和社会带来负担。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 4,
+    "chapterTitle": "忠于事实：修订人生地图",
+    "questions": [
+      {
+        "q": "「移情」在心理学中的含义是什么？",
+        "options": [
+          "转移注意力",
+          "把童年的认知模式照搬到成年环境",
+          "传染情绪",
+          "改变立场"
+        ],
+        "answer": 1,
+        "explain": "移情是把产生和适用于童年时期的感知世界的方式，照搬到成年后的环境中，尽管这些方式已不再适用。"
+      },
+      {
+        "q": "���什么白色谎言比黑色谎言更危险？",
+        "options": [
+          "白色谎言更恶毒",
+          "白色谎言不易察觉，更容易被容忍和认可",
+          "白色谎言伤害更多人",
+          "白色谎言违法"
+        ],
+        "answer": 1,
+        "explain": "白色谎言常被认为是善意的，戴着「不想伤害别人感情」的面具，更容易得到社会宽容，但其隐瞒真相的危害可能更大。"
+      },
+      {
+        "q": "那位电脑技术员为什么反复更换工作？",
+        "options": [
+          "他能力不足",
+          "他童年被父母忽视，形成了「任何人都不可信」的移情",
+          "他喜欢新鲜感",
+          "他薪水太低"
+        ],
+        "answer": 1,
+        "explain": "他童年经历让他认定「没人值得信任」，这个结论被推广到所有权威人物身上，导致他与每个上司产生冲突。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 5,
+    "chapterTitle": "保持平衡：放弃与新生",
+    "questions": [
+      {
+        "q": "派克从骑自行车下坡的经历中学到了什么？",
+        "options": [
+          "骑车要戴头盔",
+          "失去平衡的代价远比放弃快感更痛苦",
+          "不应该骑自行车",
+          "要买更好的自行车"
+        ],
+        "answer": 1,
+        "explain": "不肯放弃风驰电掣的快感来换取转弯时的平衡，结果摔得四仰八叉。失去平衡远比放弃更痛苦。"
+      },
+      {
+        "q": "为什么潜意识「总是走在意识前面」？",
+        "options": [
+          "潜意识更聪明",
+          "心灵在意识层面还没准备好之前就已经开始了放弃和成长",
+          "潜意识不受大脑控制",
+          "这只是一种迷信"
+        ],
+        "answer": 1,
+        "explain": "很多人在意识层面还不知道旧自我需要变更时，潜意识已经开始了放弃与成长的过程，表现为莫名的抑郁。"
+      },
+      {
+        "q": "「兼容并包」的核心含义是什么？",
+        "options": [
+          "接受所有观点",
+          "既肯定自我保持稳定，又放弃自我接纳新事物",
+          "从不拒绝任何人",
+          "同时做很多事"
+        ],
+        "answer": 1,
+        "explain": "兼容并包意味着在保持自我稳定的同时，腾出空间接纳新的想法和观念，实现自我平衡。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 6,
+    "chapterTitle": "爱的定义：坠入情网不是爱",
+    "questions": [
+      {
+        "q": "按照派克的定义，爱最重要的特征是什么？",
+        "options": [
+          "强烈的感情",
+          "为促进心智成熟而拓展自我界限的意愿",
+          "坠入情网的感觉",
+          "为对方牺牲一切"
+        ],
+        "answer": 1,
+        "explain": "爱的定义：为了促进自己和他人心智成熟，而不断拓展自我界限、实现自我完善的一种意愿。"
+      },
+      {
+        "q": "为什么说坠入情网不是真正的爱？",
+        "options": [
+          "因为它不涉及性",
+          "因为它不需要努力，且自我界限会恢复原状",
+          "因为它持续时间短",
+          "因为它只涉及一个人"
+        ],
+        "answer": 1,
+        "explain": "坠入情网不需要努力，是自我界限的暂时崩溃，激情消退后界限恢复原状，心灵不会因此成长。"
+      },
+      {
+        "q": "浪漫爱情神话的核心谎言是什么？",
+        "options": [
+          "爱不存在",
+          "坠入情网的激情会永恒不变",
+          "婚姻是不必要的",
+          "男女不应该在一起"
+        ],
+        "answer": 1,
+        "explain": "浪漫爱情神话让人以为恋爱的激情应该永恒，一旦激情消退就认为选错了人，而非学会真正的爱。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 7,
+    "chapterTitle": "依赖与精神贯注：爱的误区",
+    "questions": [
+      {
+        "q": "那位机床工人在妻子离开后很快找到新对象，这说明什么？",
+        "options": [
+          "他忘性大",
+          "他是消极性依赖者，不在乎依赖谁",
+          "他很有魅力",
+          "他已经放下了"
+        ],
+        "answer": 1,
+        "explain": "消极性依赖者不在乎依赖的对象是谁，只要有人可以依赖就心满意足。来者不拒是典型特征。"
+      },
+      {
+        "q": "那位牧师对家人的「爱」为什么反而让家人变得更脆弱？",
+        "options": [
+          "他爱得不够多",
+          "过分包办一切让家人产生了更大的依赖性",
+          "他的方法不对",
+          "家人有基因问题"
+        ],
+        "answer": 1,
+        "explain": "越俎代庖地照顾有能力照顾自己的人，只会使对方产生更大的依赖性。该拒绝时一味给予，不是仁慈而是伤害。"
+      },
+      {
+        "q": "区分爱与非爱的关键标准是什么？",
+        "options": [
+          "感觉的强烈程度",
+          "行为的目的——是否促进心智成熟",
+          "付出的时间多少",
+          "牺牲的大小"
+        ],
+        "answer": 1,
+        "explain": "区别爱与非爱的关键不是自私或无私，而是行为的目的。真爱的目的永远是促进心智的成熟。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 8,
+    "chapterTitle": "关注与冒险：爱的行动",
+    "questions": [
+      {
+        "q": "为什么说倾听6岁孩子讲话是「爱的行动」？",
+        "options": [
+          "因为孩子说的话很有价值",
+          "因为需要对抗惰性、全神贯注，这需要真正的努力",
+          "因为不听孩子会生气",
+          "因为这是父母的义务"
+        ],
+        "answer": 1,
+        "explain": "6岁孩子的话通常单调乏味，认真倾听需要对抗惰性、排除杂念——正因为难，才证明是爱。没有爱，就难以产生倾听的动力。"
+      },
+      {
+        "q": "派克离开艾斯特中学的行为体现了什么？",
+        "options": [
+          "他不爱学习",
+          "他追求独立自主，冒险走自己的路",
+          "他性格叛逆",
+          "他成绩太差"
+        ],
+        "answer": 1,
+        "explain": "他听从内心的声音，放弃安全舒适的传统道路，冒着被当成疯子的风险追求独立。「人生唯一的安全感，来自于充分体验人生的不安全感。」"
+      },
+      {
+        "q": "为什么说「真正的友谊需要批评」？",
+        "options": [
+          "朋友应该互相挑毛病",
+          "适当的指责是爱的表现，能促进双方成长",
+          "批评让关系更紧张",
+          "批评是控制别人的手段"
+        ],
+        "answer": 1,
+        "explain": "以爱为出发点的批评，经过自我反省和谨慎考量，能够促进双方心智成熟，使关系更加健全。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 9,
+    "chapterTitle": "爱与自律和独立",
+    "questions": [
+      {
+        "q": "为什么那对「放荡不羁」的夫妻最终离婚了？",
+        "options": [
+          "他们不爱对方",
+          "他们把自律视为枷锁，缺乏对感情的约束",
+          "他们经济困难",
+          "他们性格不合"
+        ],
+        "answer": 1,
+        "explain": "他们认为自律会剥夺热情和活力，拒绝约束感情。缺少自律的感情只有混乱没有深度，如同幼儿随意涂抹的色彩。"
+      },
+      {
+        "q": "苏珊的母亲X女士的核心问题是什么？",
+        "options": [
+          "她不关心女儿",
+          "她是自恋者，无法区分自己和女儿",
+          "她精神分裂",
+          "她不够聪明"
+        ],
+        "answer": 1,
+        "explain": "X女士不觉得苏珊和她有什么区别，把苏珊当成表达自己情感的工具，无法把女儿视为独立的个体。"
+      },
+      {
+        "q": "纪伯伦说「你是弓，儿女是从你那里射出的箭」意味着什么？",
+        "options": [
+          "父母应该控制子女",
+          "父母的作用是帮助子女独立飞翔，而非把子女变成自己的翻版",
+          "子女会离开父母",
+          "父母不重要"
+        ],
+        "answer": 1,
+        "explain": "弓的作用是把箭射得又快又远，而不是把箭绑在弓上。父母应该帮助子女走向独立，而不是控制他们。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 10,
+    "chapterTitle": "成长与信仰：从小宇宙到大宇宙",
+    "questions": [
+      {
+        "q": "斯图尔特的抑郁症与他的信仰有什么关系？",
+        "options": [
+          "他不信上帝所以抑郁",
+          "他潜意识中信仰一个恐怖的上帝，源于童年被父母虐待",
+          "他工作太忙",
+          "他婚姻不幸"
+        ],
+        "answer": 1,
+        "explain": "尽管自称无神论者，他潜意识中相信世界被邪恶势力操控，任何错误都会受到最严厉的惩罚——这源于童年被父母天天毒打的经历。"
+      },
+      {
+        "q": "为什么说「盲人摸象」的寓言与信仰有关？",
+        "options": [
+          "信仰是看不见的",
+          "每个人只接触到世界的一小部分，却以为那就是全部",
+          "盲人不能有信仰",
+          "大象代表上帝"
+        ],
+        "answer": 1,
+        "explain": "我们都像摸大象的盲人，根据有限的童年经验形成对世界的看法，却一味坚持自己的小宇宙观。"
+      },
+      {
+        "q": "心理医生为什么要了解患者的信仰和世界观？",
+        "options": [
+          "为了传教",
+          "患者的心理问题常常与世界观密切相关",
+          "信仰能治病",
+          "这是规定"
+        ],
+        "answer": 1,
+        "explain": "患者的心理问题常与其世界观有密切关联。治疗涉及对其世界观的纠正和调整——即使患者自称没有信仰。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 11,
+    "chapterTitle": "恩典的奇迹：潜意识的智慧",
+    "questions": [
+      {
+        "q": "派克用「恩典」这个概念想要解释什么？",
+        "options": [
+          "宗教信仰的力量",
+          "为什么有些人在遭受重大创伤后依然能够健康成长",
+          "命运的安排",
+          "运气好坏"
+        ],
+        "answer": 1,
+        "explain": "恩典是一种超越常规科学解释的力量，它解释了为什么有人经历重重打击却依然心智成熟——这不能简单归结为运气或基因。"
+      },
+      {
+        "q": "为什么说「抵抗力」这个概念不足以解释健康？",
+        "options": [
+          "抵抗力不存在",
+          "我们对抵抗力的了解远远不够，很多健康现象无法用已知机制解释",
+          "抵抗力只适用于传染病",
+          "抵抗力是迷信"
+        ],
+        "answer": 1,
+        "explain": "虽然免疫系统确实存在，但为什么同样携带病原体的人中只有极少数发病？为什么有的意外事故中不可能有人幸存却有人活下来？已知的「抵抗力」无法完全解释。"
+      },
+      {
+        "q": "那个14岁男孩连续五年在11月遭遇意外事故，最可能的解释是什么？",
+        "options": [
+          "他运气不好",
+          "母亲在11月去世的创伤在潜意识中导致他「自我惩罚」",
+          "11月天气不好",
+          "纯属巧合"
+        ],
+        "answer": 1,
+        "explain": "他母亲在他8岁时的11月去世。虽然他说不记得母亲了，但潜意识中的创伤每年11月都在驱使他通过意外事故来「纪念」和自我惩罚。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 12,
+    "chapterTitle": "恩典的本质：熵与原罪",
+    "questions": [
+      {
+        "q": "派克认为人类的「原罪」本质是什么？",
+        "options": [
+          "性欲",
+          "贪婪",
+          "懒惰",
+          "骄傲"
+        ],
+        "answer": 2,
+        "explain": "派克认为原罪的本质是懒惰——亚当夏娃没有和上帝辩论，没有聆听内心的声音，选择了省力的捷径。懒惰是爱的对立面。"
+      },
+      {
+        "q": "为什么说「每周工作60小时也可能很懒」？",
+        "options": [
+          "因为工作效率低",
+          "因为可能在用工作逃避更重要的心灵成长",
+          "因为工作没有价值",
+          "因为他在偷懒"
+        ],
+        "answer": 1,
+        "explain": "懒惰与工作时长无关。一个人可能用忙碌来逃避修复婚姻、面对内心、承担新责任等更重要的事。真正的勤奋是让心灵成长。"
+      },
+      {
+        "q": "为什么90%的患者在康复前就退出治疗？",
+        "options": [
+          "治疗无效",
+          "治疗太贵",
+          "恐惧改变——懒惰使他们害怕面对困难并做出努力",
+          "医生不好"
+        ],
+        "answer": 2,
+        "explain": "恐惧改变的本质是懒惰。患者意识到要改变现状需要付出艰苦的努力，就编造各种借口退出，宁可维持可怜的现状。"
+      }
+    ]
+  }
+];
+const chapterManifest = [
+  {
+    "num": 1,
+    "slug": "ch01",
+    "title": "人生苦难重重：自律的起点",
+    "titleEn": "Life Is Difficult: The Starting Point of Discipline",
+    "icon": "⛰️"
+  },
+  {
+    "num": 2,
+    "slug": "ch02",
+    "title": "推迟满足感：先苦后甜的智慧",
+    "titleEn": "Delaying Gratification: The Wisdom of Pain Before Pleasure",
+    "icon": "⏳"
+  },
+  {
+    "num": 3,
+    "slug": "ch03",
+    "title": "承担责任：问题是你自己的",
+    "titleEn": "Assuming Responsibility: The Problem Is Yours",
+    "icon": "🎯"
+  },
+  {
+    "num": 4,
+    "slug": "ch04",
+    "title": "忠于事实：修订人生地图",
+    "titleEn": "Dedication to Reality: Revising Your Life Map",
+    "icon": "🗺️"
+  },
+  {
+    "num": 5,
+    "slug": "ch05",
+    "title": "保持平衡：放弃与新生",
+    "titleEn": "Balancing: Giving Up and Rebirth",
+    "icon": "⚖️"
+  },
+  {
+    "num": 6,
+    "slug": "ch06",
+    "title": "爱的定义：坠入情网不是爱",
+    "titleEn": "Defining Love: Falling in Love Is Not Love",
+    "icon": "💔"
+  },
+  {
+    "num": 7,
+    "slug": "ch07",
+    "title": "依赖与精神贯注：爱的误区",
+    "titleEn": "Dependency and Cathexis: Misconceptions of Love",
+    "icon": "🔗"
+  },
+  {
+    "num": 8,
+    "slug": "ch08",
+    "title": "关注与冒险：爱的行动",
+    "titleEn": "Attention and Risk: Love in Action",
+    "icon": "🎭"
+  },
+  {
+    "num": 9,
+    "slug": "ch09",
+    "title": "爱与自律和独立",
+    "titleEn": "Love, Discipline and Independence",
+    "icon": "🦅"
+  },
+  {
+    "num": 10,
+    "slug": "ch10",
+    "title": "成长与信仰：从小宇宙到大宇宙",
+    "titleEn": "Growth and Religion: From Microcosm to Macrocosm",
+    "icon": "🔭"
+  },
+  {
+    "num": 11,
+    "slug": "ch11",
+    "title": "恩典的奇迹：潜意识的智慧",
+    "titleEn": "The Miracle of Grace: Wisdom of the Unconscious",
+    "icon": "✨"
+  },
+  {
+    "num": 12,
+    "slug": "ch12",
+    "title": "恩典的本质：熵与原罪",
+    "titleEn": "The Nature of Grace: Entropy and Original Sin",
+    "icon": "🌱"
+  }
+];
+
+(function() {
+    const container = document.getElementById('quizContainer');
+    const scoreBar = document.getElementById('scoreBar');
+
+    if (typeof allQuizData === 'undefined' || !allQuizData || !allQuizData.length) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔀</div><div>No quiz data available yet.</div></div>';
+        return;
+    }
+
+    // Flatten and shuffle questions
+    let questions = [];
+    allQuizData.forEach(ch => {
+        (ch.questions || []).forEach(q => {
+            questions.push({ ...q, chapterNum: ch.chapterNum, chapterTitle: ch.chapterTitle });
+        });
+    });
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    let shuffled = shuffle([...questions]);
+    let mode = 'random';
+    let correct = 0, total = 0;
+
+    function updateScore() {
+        document.getElementById('scoreCorrect').textContent = correct;
+        document.getElementById('scoreTotal').textContent = total;
+        document.getElementById('scorePct').textContent = total > 0 ? Math.round(correct / total * 100) + '%' : '—';
+    }
+
+    function renderQuiz() {
+        scoreBar.style.display = mode === 'chapter-id' ? 'flex' : 'none';
+        container.innerHTML = '';
+        shuffled = shuffle([...questions]);
+        correct = 0; total = 0; updateScore();
+
+        shuffled.forEach((q, i) => {
+            const card = document.createElement('div');
+            card.className = 'quiz-card fade-in';
+
+            if (mode === 'random') {
+                const chTag = `<span class="quiz-chapter-tag hidden">CH.${String(q.chapterNum).padStart(2, '0')}</span>`;
+                card.innerHTML = `
+                    ${chTag}
+                    <div class="quiz-question">${q.question}</div>
+                    <div class="quiz-answer"><div>${q.answer}</div><div style="margin-top:8px;font-family:var(--font-mono);font-size:0.75rem;color:var(--accent3)">— Chapter ${q.chapterNum}: ${q.chapterTitle}</div></div>
+                    <div class="quiz-toggle">CLICK TO REVEAL</div>`;
+                card.addEventListener('click', function() {
+                    if (this.classList.contains('open')) return;
+                    this.classList.add('open');
+                    const ans = this.querySelector('.quiz-answer');
+                    ans.style.maxHeight = ans.scrollHeight + 'px';
+                    this.querySelector('.quiz-toggle').textContent = '';
+                    const tag = this.querySelector('.quiz-chapter-tag');
+                    tag.className = 'quiz-chapter-tag visible';
+                });
+            } else {
+                // Chapter-ID mode
+                card.innerHTML = `
+                    <span class="quiz-chapter-tag hidden">WHICH CHAPTER?</span>
+                    <div class="quiz-question">${q.question}</div>
+                    <div class="chapter-picker" id="picker-${i}"></div>
+                    <div class="quiz-answer"><div>${q.answer}</div></div>`;
+                card.style.cursor = 'default';
+
+                // Build chapter picker after insertion
+                setTimeout(() => {
+                    const picker = document.getElementById('picker-' + i);
+                    if (!picker) return;
+                    const chNums = [...new Set(questions.map(x => x.chapterNum))].sort((a, b) => a - b);
+                    chNums.forEach(num => {
+                        const btn = document.createElement('button');
+                        btn.className = 'ch-pick-btn';
+                        btn.textContent = 'Ch.' + num;
+                        btn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            if (picker.dataset.answered) return;
+                            picker.dataset.answered = 'true';
+                            total++;
+                            if (num === q.chapterNum) {
+                                correct++;
+                                btn.classList.add('correct');
+                                card.classList.add('correct');
+                            } else {
+                                btn.classList.add('wrong');
+                                card.classList.add('incorrect');
+                                // Highlight correct
+                                picker.querySelectorAll('.ch-pick-btn').forEach(b => {
+                                    if (b.textContent === 'Ch.' + q.chapterNum) b.classList.add('correct');
+                                });
+                            }
+                            updateScore();
+                            // Reveal answer
+                            card.classList.add('open');
+                            const ans = card.querySelector('.quiz-answer');
+                            ans.style.maxHeight = ans.scrollHeight + 'px';
+                            const tag = card.querySelector('.quiz-chapter-tag');
+                            tag.className = 'quiz-chapter-tag visible';
+                            tag.textContent = 'CH.' + String(q.chapterNum).padStart(2, '0');
+                        });
+                        picker.appendChild(btn);
+                    });
+                }, 0);
+            }
+            container.appendChild(card);
+        });
+
+        // Observe fade-ins
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        container.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+    }
+
+    // Mode buttons
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            mode = this.dataset.mode;
+            renderQuiz();
+        });
+    });
+
+    // Reset
+    document.getElementById('resetBtn').addEventListener('click', renderQuiz);
+
+    // Spaced review schedule
+    (function() {
+        const grid = document.getElementById('scheduleGrid');
+        const intervals = [
+            { label: 'TODAY', days: 0 },
+            { label: '+1 DAY', days: 1 },
+            { label: '+3 DAYS', days: 3 },
+            { label: '+7 DAYS', days: 7 },
+            { label: '+14 DAYS', days: 14 },
+            { label: '+30 DAYS', days: 30 },
+        ];
+        const now = new Date();
+        intervals.forEach(iv => {
+            const d = new Date(now);
+            d.setDate(d.getDate() + iv.days);
+            const dateStr = d.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+            const card = document.createElement('div');
+            card.className = 'schedule-card fade-in';
+            card.innerHTML = `<div class="schedule-interval">${iv.label}</div><div class="schedule-date">${dateStr}</div>`;
+            grid.appendChild(card);
+        });
+    })();
+
+    renderQuiz();
+
+    // Global fade-in observer for schedule cards
+    const obs2 = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs2.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.schedule-grid .fade-in').forEach(el => obs2.observe(el));
+})();
+</script>
+</body>
+</html>

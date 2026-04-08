@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X-Ray · 看人的艺术 | Book Breakdown</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+
+/* ── Compact Hero ── */
+.hero { padding: 3rem 2rem 2rem; text-align: center; position: relative; }
+.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(255,107,107,0.06) 0%, transparent 50%); pointer-events: none; }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px rgba(108,99,255,0.3)); }
+.hero h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 900; margin-bottom: 0.3rem; }
+.hero-en { font-size: 1rem; color: var(--text-dim); font-weight: 300; margin-bottom: 0.5rem; }
+.hero-badge { display: inline-block; padding: 0.4rem 1.2rem; border: 1px solid var(--accent3); border-radius: 2rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent3); letter-spacing: 2px; }
+.back-link { position: absolute; top: 1.5rem; left: 1.5rem; text-decoration: none; color: var(--text-dim); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; transition: color 0.3s; }
+.back-link:hover { color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Section Header ── */
+.section-header { margin: 3rem 0 1.5rem; }
+.section-badge { display: inline-block; font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.4rem; font-weight: 700; }
+
+/* ── Unity Statement ── */
+.unity-card { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.08)); border: 1px solid var(--accent); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.unity-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; margin-bottom: 1rem; }
+.unity-text { font-size: 1.2rem; font-weight: 500; line-height: 1.9; }
+
+/* ── Core Questions ── */
+.question-list { list-style: none; counter-reset: q; margin-bottom: 2rem; }
+.question-item { counter-increment: q; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px 20px 60px; margin-bottom: 12px; position: relative; transition: all 0.3s; }
+.question-item:hover { border-color: var(--accent4); transform: translateX(4px); }
+.question-item::before { content: counter(q, decimal-leading-zero); position: absolute; left: 20px; top: 20px; font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent4); font-weight: 700; }
+.question-text { font-weight: 500; }
+.question-context { font-size: 0.85rem; color: var(--text-dim); margin-top: 6px; }
+
+/* ── Logical Outline ── */
+.outline-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; position: relative; padding-left: 60px; transition: all 0.3s; }
+.outline-card:hover { border-color: var(--accent); }
+.outline-num { position: absolute; left: 20px; top: 24px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 1px; }
+.outline-title { font-weight: 600; font-size: 1.05rem; margin-bottom: 4px; }
+.outline-desc { font-size: 0.9rem; color: var(--text-dim); }
+.outline-chapters { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent3); margin-top: 8px; }
+.outline-connector { width: 2px; height: 16px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 0 0 33px; }
+
+/* ── Key Terms ── */
+.terms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 2rem; }
+.term-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all 0.3s; }
+.term-card:hover { border-color: var(--accent3); transform: translateY(-3px); box-shadow: 0 8px 30px var(--glow); }
+.term-name { font-weight: 700; font-size: 1.05rem; color: var(--accent3); margin-bottom: 6px; }
+.term-name-en { font-size: 0.8rem; color: var(--text-dim); font-weight: 400; margin-left: 8px; }
+.term-def { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; }
+.term-chapter { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); margin-top: 8px; }
+.term-chapter a { color: var(--accent); text-decoration: none; }
+.term-chapter a:hover { text-decoration: underline; }
+
+/* ── Footer ── */
+.footer { text-align: center; padding: 4rem 0; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Empty State ── */
+.empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-dim); }
+.empty-state-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+.empty-state-text { font-size: 1rem; }
+
+@media (max-width: 768px) {
+    .terms-grid { grid-template-columns: 1fr; }
+    .question-item { padding-left: 50px; }
+    .outline-card { padding-left: 50px; }
+}
+</style>
+</head>
+<body>
+
+<section class="hero">
+    <a href="index.html" class="back-link">← 返回目录</a>
+    <div class="hero-icon">🩻</div>
+    <h1>X-Ray · 透视这本书</h1>
+    <div class="hero-en">Snoop: What Your Stuff Says About You</div>
+    <div class="hero-badge">INSPECTIONAL READING</div>
+</section>
+
+<div class="container" id="content"></div>
+
+<div class="footer">
+    Book Breakdown · X-Ray View · 看人的艺术
+</div>
+
+<script>
+const meta = {
+  "title": "看人的艺术",
+  "titleEn": "Snoop: What Your Stuff Says About You",
+  "author": "山姆·高斯林 (Sam Gosling)",
+  "icon": "🔍",
+  "slug": "kanren-de-yishu",
+  "methodLabel": "FEYNMAN METHOD",
+  "stats": [
+    {
+      "num": "11",
+      "label": "Chapters"
+    },
+    {
+      "num": "3",
+      "label": "Parts"
+    },
+    {
+      "num": "∞",
+      "label": "Insights"
+    }
+  ]
+};
+
+const xray = {
+  "unity": "每个人都在自己的私人空间里留下个性的指纹——通过系统地观察身份标签、情感调节器和行为痕迹这三类线索，结合大五人格模型，我们可以比面对面交谈更准确地了解一个人的真实个性。",
+  "coreQuestions": [
+    "为什么私人空间（卧室、办公室、网页）比面对面接触更能揭示一个人的真实个性？",
+    "身份标签、情感调节器和行为痕迹这三种线索机制有什么区别？各自传达了什么信息？",
+    "大五人格理论（OCEAN）的五个维度如何在日常空间中留下可观察的痕迹？",
+    "人们真的会刻意伪装自己的空间来误导他人吗？伪装的极限在哪里？",
+    "固有的传统看法（stereotypes）在观察中应该扮演什么角色——是起点还是终点？"
+  ],
+  "outline": [
+    {
+      "group": "理论框架：从线索到个性",
+      "chapters": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "why": "先建立「偷窥学」的基本框架——三种线索机制提供观察的「眼睛」，大五人格模型提供测量的「标尺」，McAdams的三层次模型揭示个性的「深度」，三者合一才能从物品推导出人。"
+    },
+    {
+      "group": "观察方法论：从空间到身体",
+      "chapters": [
+        4,
+        5,
+        6
+      ],
+      "why": "从比利时方法（系统化空间分析）到肢体语言解码，再到识别伪装——这三章提供了一套从粗到细的观察操作手册，教你如何收集、解读和验证线索。"
+    },
+    {
+      "group": "实践应用：在真实世界识人",
+      "chapters": [
+        7,
+        8,
+        9,
+        10
+      ],
+      "why": "将理论带入现实：何时该信任传统看法、不同领域（卧室vs办公室vs网站）揭示不同特征、五种常见的判断陷阱、以及一次完整的办公室观察实战——从知识到技能的最后一步。"
+    }
+  ],
+  "keyTerms": [
+    {
+      "term": "身份标签",
+      "termEn": "Identity Claims",
+      "def": "人们有意摆放的、向自己或他人传达「我是谁」的物品。分为「针对他人」的（如保险杠贴纸）和「针对自己」的（如激励性便条）。身份标签是最容易伪造但也最容易被识别的线索类型。"
+    },
+    {
+      "term": "情感调节器",
+      "termEn": "Feeling Regulators",
+      "def": "人们用来调节自身情绪状态的物品，如照片、音乐、励志海报。这些物品不是给别人看的，而是为了让自己感觉好——神经质高的人尤其依赖情感调节器来保持心理平衡。"
+    },
+    {
+      "term": "行为痕迹",
+      "termEn": "Behavioral Residue",
+      "def": "日常行为无意间留下的物理痕迹——未整理的百叶窗、磨损的跑鞋、散落的书籍。这是最难伪造的线索类型，因为它是行为的副产品而非有意为之。"
+    },
+    {
+      "term": "大五人格模型",
+      "termEn": "Big Five / OCEAN",
+      "def": "心理学界共识的五大人格维度：开放性（Openness）、责任感（Conscientiousness）、外向性（Extraversion）、宜人性（Agreeableness）、神经质（Neuroticism）。每个维度是一个连续的光谱而非非此即彼。"
+    },
+    {
+      "term": "比利时方法",
+      "termEn": "Belgian Method",
+      "def": "作者借用波洛侦探的风格命名的空间观察法：先退后一步整体观察，然后系统地分析每个物品的来源、位置和状态，区分线索类型，交叉验证形成判断。"
+    },
+    {
+      "term": "布伦斯维克透镜模型",
+      "termEn": "Brunswik's Lens Model",
+      "def": "分析判断准确性的经典框架：区分四种情况——正确使用有效线索、正确忽略无效线索、错过有效线索、错误使用无效线索。解释了为什么面试官擅长评估社交能力却不擅长判断工作动机。"
+    },
+    {
+      "term": "自我验证理论",
+      "termEn": "Self-Verification Theory",
+      "def": "Bill Swann提出：人们更希望他人对自己的看法与自我认知一致，即使自我认知是消极的。这解释了为什么人们在私人空间中倾向于表达真实自我而非理想自我。"
+    },
+    {
+      "term": "过度宣称问卷",
+      "termEn": "Over-Claiming Questionnaire (OCQ)",
+      "def": "Paulhus开发的工具：在真实名人列表中混入虚构名字，看受测者是否会声称认识不存在的人。自恋者即使被警告有假名也会坚持过度宣称，因为他们真的相信自己认识这些人。"
+    },
+    {
+      "term": "区块分析",
+      "termEn": "Block Analysis",
+      "def": "作者的跨领域研究框架：比较从不同观察领域（卧室、办公室、网站、音乐集、面对面接触）获得的人格印象的准确性。结论是不同领域揭示不同特征，最准确的印象来自多领域综合观察。"
+    },
+    {
+      "term": "五种障眼法",
+      "termEn": "Five Optical Illusions",
+      "def": "观察中的五种认知陷阱：1）锚定效应（第一印象过度影响后续判断）；2）线索互相染色（同一线索因上下文不同而意义改变）；3）间接线索（看似无关却有效的线索）；4）公开vs私密维度差异；5）领域专业知识不足导致误读。"
+    }
+  ]
+};
+
+const chapterManifest = [
+  {
+    "num": 0,
+    "slug": "ch00",
+    "title": "神秘盒子的出现：偷窥学的诞生",
+    "titleEn": "The Mystery Box: Birth of Snoopology",
+    "icon": "📦"
+  },
+  {
+    "num": 1,
+    "slug": "ch01",
+    "title": "私人印记会说话：三大线索机制",
+    "titleEn": "Personal Imprints: Three Clue Mechanisms",
+    "icon": "🏷️"
+  },
+  {
+    "num": 2,
+    "slug": "ch02",
+    "title": "大五人格理论：个性的度量衡",
+    "titleEn": "Big Five Personality: The Measuring Scale",
+    "icon": "⭐"
+  },
+  {
+    "num": 3,
+    "slug": "ch03",
+    "title": "暗处观察：个性的三个层次",
+    "titleEn": "Observing in the Dark: Three Levels of Personality",
+    "icon": "🔦"
+  },
+  {
+    "num": 4,
+    "slug": "ch04",
+    "title": "卧室里的秘密：比利时方法",
+    "titleEn": "Bedroom Secrets: The Belgian Method",
+    "icon": "🛏️"
+  },
+  {
+    "num": 5,
+    "slug": "ch05",
+    "title": "身体会说话：肢体语言与数字痕迹",
+    "titleEn": "Body Language & Digital Traces",
+    "icon": "🚶"
+  },
+  {
+    "num": 6,
+    "slug": "ch06",
+    "title": "所有的伪装都有破绽",
+    "titleEn": "Every Disguise Has a Flaw",
+    "icon": "🎭"
+  },
+  {
+    "num": 7,
+    "slug": "ch07",
+    "title": "忠于常识还是保持怀疑",
+    "titleEn": "Trust Stereotypes or Stay Skeptical",
+    "icon": "⚖️"
+  },
+  {
+    "num": 8,
+    "slug": "ch08",
+    "title": "不同领域的个性密码",
+    "titleEn": "Personality Codes in Different Domains",
+    "icon": "🗂️"
+  },
+  {
+    "num": 9,
+    "slug": "ch09",
+    "title": "摆脱障眼法：五种观察陷阱",
+    "titleEn": "Five Optical Illusions of Observation",
+    "icon": "👁️"
+  },
+  {
+    "num": 10,
+    "slug": "ch10",
+    "title": "从办公室看人：观察术的实战",
+    "titleEn": "Office Snooping: Observation in Action",
+    "icon": "🏢"
+  }
+];
+
+
+(function() {
+    const container = document.getElementById('content');
+    if (typeof xray === 'undefined' || !xray) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🩻</div><div class="empty-state-text">X-Ray data not yet available for this book.<br>Add an <code>xray</code> section to book.json to populate this page.</div></div>';
+        return;
+    }
+
+    let html = '';
+
+    // Unity Statement
+    if (xray.unity) {
+        html += `
+        <div class="section-header fade-in">
+            <div class="section-badge">01 — UNITY STATEMENT</div>
+            <div class="section-title">这本书的核心命题</div>
+        </div>
+        <div class="unity-card fade-in">
+            <div class="unity-label">THE BOOK IN ONE SENTENCE</div>
+            <div class="unity-text">${xray.unity}</div>
+        </div>`;
+    }
+
+    // Core Questions
+    if (xray.coreQuestions && xray.coreQuestions.length) {
+        html += `
+        <div class="section-header fade-in">
+            <div class="section-badge">02 — CORE QUESTIONS</div>
+            <div class="section-title">这本书回答的核心问题</div>
+        </div>
+        <ol class="question-list">`;
+        xray.coreQuestions.forEach(q => {
+            html += `
+            <li class="question-item fade-in">
+                <div class="question-text">${q.question || q}</div>
+                ${q.context ? `<div class="question-context">${q.context}</div>` : ''}
+            </li>`;
+        });
+        html += '</ol>';
+    }
+
+    // Logical Outline
+    if (xray.outline && xray.outline.length) {
+        html += `
+        <div class="section-header fade-in">
+            <div class="section-badge">03 — LOGICAL OUTLINE</div>
+            <div class="section-title">逻辑结构（可能不同于目录顺序）</div>
+        </div>`;
+        xray.outline.forEach((group, i) => {
+            if (i > 0) html += '<div class="outline-connector"></div>';
+            html += `
+            <div class="outline-card fade-in">
+                <div class="outline-num">${String(i + 1).padStart(2, '0')}</div>
+                <div class="outline-title">${group.title}</div>
+                <div class="outline-desc">${group.desc || ''}</div>
+                ${group.chapters ? `<div class="outline-chapters">Chapters: ${group.chapters.join(', ')}</div>` : ''}
+            </div>`;
+        });
+    }
+
+    // Key Terms
+    if (xray.keyTerms && xray.keyTerms.length) {
+        html += `
+        <div class="section-header fade-in">
+            <div class="section-badge">04 — KEY TERMS</div>
+            <div class="section-title">关键术语词汇表</div>
+        </div>
+        <div class="terms-grid">`;
+        xray.keyTerms.forEach(t => {
+            const chLink = t.firstChapter ? `<a href="ch${String(t.firstChapter).padStart(2, '0')}.html">Ch.${t.firstChapter}</a>` : '';
+            html += `
+            <div class="term-card fade-in">
+                <div class="term-name">${t.term}${t.termEn ? `<span class="term-name-en">${t.termEn}</span>` : ''}</div>
+                <div class="term-def">${t.definition}</div>
+                ${chLink ? `<div class="term-chapter">First appears: ${chLink}</div>` : ''}
+            </div>`;
+        });
+        html += '</div>';
+    }
+
+    container.innerHTML = html;
+
+    // Observe fade-ins
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    container.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+})();
+</script>
+</body>
+</html>

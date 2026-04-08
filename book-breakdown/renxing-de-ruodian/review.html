@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interleaved Review · 人性的弱点 | Book Breakdown</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+
+/* ── Compact Hero ── */
+.hero { padding: 3rem 2rem 2rem; text-align: center; position: relative; }
+.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(255,107,107,0.06) 0%, transparent 50%); pointer-events: none; }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px rgba(108,99,255,0.3)); }
+.hero h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 900; margin-bottom: 0.3rem; }
+.hero-en { font-size: 1rem; color: var(--text-dim); font-weight: 300; margin-bottom: 0.5rem; }
+.hero-badge { display: inline-block; padding: 0.4rem 1.2rem; border: 1px solid var(--accent4); border-radius: 2rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; }
+.back-link { position: absolute; top: 1.5rem; left: 1.5rem; text-decoration: none; color: var(--text-dim); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; transition: color 0.3s; }
+.back-link:hover { color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Mode Selector ── */
+.mode-bar { display: flex; justify-content: center; gap: 12px; margin: 2rem 0; flex-wrap: wrap; }
+.mode-btn { padding: 10px 24px; border: 1px solid var(--border); border-radius: 2rem; background: transparent; color: var(--text-dim); font-family: var(--font-sans); font-size: 0.9rem; cursor: pointer; transition: all 0.3s; }
+.mode-btn:hover { border-color: var(--accent); color: var(--text); }
+.mode-btn.active { border-color: var(--accent); background: rgba(108,99,255,0.15); color: var(--accent); }
+
+/* ── Score Tracker ── */
+.score-bar { display: flex; align-items: center; justify-content: center; gap: 2rem; margin-bottom: 2rem; padding: 1rem; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); }
+.score-label { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim); letter-spacing: 1px; }
+.score-num { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; }
+.score-correct { color: var(--accent3); }
+.score-total { color: var(--text-dim); }
+.score-pct { color: var(--accent4); font-size: 1.2rem; }
+.reset-btn { padding: 6px 16px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.3s; letter-spacing: 1px; }
+.reset-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+/* ── Quiz Cards ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-card.correct { border-color: var(--accent3); }
+.quiz-card.incorrect { border-color: var(--accent2); }
+.quiz-chapter-tag { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 8px; display: inline-block; padding: 2px 10px; border-radius: 4px; }
+.quiz-chapter-tag.hidden { background: rgba(108,99,255,0.15); color: var(--accent); }
+.quiz-chapter-tag.visible { background: rgba(78,205,196,0.15); color: var(--accent3); }
+.quiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1rem; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* Chapter-ID mode */
+.chapter-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.ch-pick-btn { padding: 4px 12px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+.ch-pick-btn:hover { border-color: var(--accent); color: var(--text); }
+.ch-pick-btn.correct { border-color: var(--accent3); color: var(--accent3); background: rgba(78,205,196,0.1); }
+.ch-pick-btn.wrong { border-color: var(--accent2); color: var(--accent2); background: rgba(255,107,107,0.1); }
+
+/* ── Spaced Review ── */
+.section-header { margin: 3rem 0 1.5rem; }
+.section-badge { display: inline-block; font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.4rem; font-weight: 700; }
+.schedule-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.schedule-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; transition: all 0.3s; }
+.schedule-card:hover { border-color: var(--accent4); }
+.schedule-interval { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 1px; margin-bottom: 6px; }
+.schedule-date { font-size: 0.85rem; color: var(--text-dim); }
+
+/* ── Footer ── */
+.footer { text-align: center; padding: 4rem 0; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+
+/* ── Empty State ── */
+.empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-dim); }
+.empty-state-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 768px) {
+    .score-bar { flex-wrap: wrap; gap: 1rem; }
+    .schedule-grid { grid-template-columns: repeat(3, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<section class="hero">
+    <a href="index.html" class="back-link">← 返回目录</a>
+    <div class="hero-icon">🔀</div>
+    <h1>Interleaved Review · 交叉复习</h1>
+    <div class="hero-en">How to Win Friends and Influence People</div>
+    <div class="hero-badge">SPACED PRACTICE</div>
+</section>
+
+<div class="container">
+    <div class="mode-bar" id="modeBar">
+        <button class="mode-btn active" data-mode="random">🎲 Random Quiz · 随机测验</button>
+        <button class="mode-btn" data-mode="chapter-id">🔍 Chapter ID · 章节识别</button>
+    </div>
+    <div class="score-bar" id="scoreBar" style="display:none">
+        <div><div class="score-label">CORRECT</div><div class="score-num score-correct" id="scoreCorrect">0</div></div>
+        <div><div class="score-label">TOTAL</div><div class="score-num score-total" id="scoreTotal">0</div></div>
+        <div><div class="score-label">ACCURACY</div><div class="score-num score-pct" id="scorePct">—</div></div>
+        <button class="reset-btn" id="resetBtn">RESET</button>
+    </div>
+    <div id="quizContainer"></div>
+
+    <div class="section-header fade-in">
+        <div class="section-badge">SPACED REVIEW SCHEDULE</div>
+        <div class="section-title">间隔复习计划</div>
+    </div>
+    <div class="schedule-grid" id="scheduleGrid"></div>
+</div>
+
+<div class="footer">
+    Book Breakdown · Interleaved Review · 人性的弱点
+</div>
+
+<script>
+const meta = {
+  "title": "人性的弱点",
+  "titleEn": "How to Win Friends and Influence People",
+  "author": "戴尔·卡耐基 (Dale Carnegie)",
+  "icon": "🤝",
+  "slug": "renxing-de-ruodian",
+  "methodLabel": "FEYNMAN METHOD",
+  "stats": [
+    {
+      "num": "15",
+      "label": "Chapters"
+    },
+    {
+      "num": "4",
+      "label": "Parts"
+    },
+    {
+      "num": "∞",
+      "label": "Insights"
+    }
+  ]
+};
+const allQuizData = [
+  {
+    "chapterNum": 1,
+    "chapterTitle": "成书缘起与阅读建议",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "卡耐基基金会的调研发现了什么关于成功要素的重要比例？",
+        "answer": "即使在工程技术领域，高薪员工的成功大约只有15%与专业知识有关，其余85%取决于他们处理人际关系的技巧、人格魅力和领导力。"
+      },
+      {
+        "id": "q2",
+        "question": "卡耐基为什么说这本书不是理论读物，而是「行动手册」？",
+        "answer": "因为书中的法则来自15年的实验和数千学员的实践反馈，而非学术理论推演。斯宾塞说「学习的最大目的不是学习本身，而是行动」，读者应该寻找每个机会把法则付诸实践，而非仅仅记住它们。"
+      },
+      {
+        "id": "q3",
+        "question": "卡耐基提出的9条阅读建议中，哪一条他认为是最重要的前提条件？",
+        "answer": "强烈的求知欲。卡耐基认为没有强烈的学习欲望，即使学一千条技巧也徒然无用。要不断对自己强调人际交往能力的重要性，才能保持学习的动力。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 2,
+    "chapterTitle": "想采蜜就请善待蜂巢",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么卡耐基用「双枪手」科洛利和卡彭这样的极端案例来说明「不要批���」？",
+        "answer": "因为连杀人犯和黑帮头目都不会认为自己做错了——科洛利自称「仁善的心」，卡彭自视为「公众利益捍卫者」。如果最极端的罪犯都不会自责，那么普通人遇到批评更只会辩护和反击。这说明批评是一种对人性本能的对抗，注定无效。"
+      },
+      {
+        "id": "q2",
+        "question": "林肯写给米德将军的那封愤怒信件为什么最终没有寄出？这说明了什么？",
+        "answer": "林肯写完信后冷静思考：如果自己在葛底斯堡战场上亲历血战，或许也会做出同样的决定。寄出信虽然能暂时发泄怒火，但只会引起米德的辩护和反感，对战局毫无帮助。这说明林肯从年轻时差点决斗的教训中领悟到：任何刻薄的批评都毫无意义，理解比指责更有价值。"
+      },
+      {
+        "id": "q3",
+        "question": "试飞员胡佛面对差点害死他的机械师，为什么选择拥抱而不是批评？用你自己的话解释。",
+        "answer": "因为年轻机械师已经泪流满面，他完全知道自己犯了大错。此时批评只会摧毁他的信心，让他更紧张，将来可能犯更多错误。胡佛用拥抱和信任（让他明天继续保养飞机）传达了两个信息：我相信你的能力、我相信你不会再犯。这种做法比批评更能促使对方改变。"
+      },
+      {
+        "id": "q4",
+        "question": "「批评、指责和抱怨，傻子都懂」——用费曼方法解释为什么理解和宽容更难但更有效？",
+        "answer": "批评是人类的本能反应，不需要任何思考就能做到。但理解需要你暂停自己的情绪，站在对方的角度思考他为什么那么做。这需要修养和自制力，所以更难。但正因为需要付出努力，理解能催生同情和善意，让对方感受到尊重而非攻击，从而真正愿意改变。正如约翰逊博士所说：上帝不到末日也不会轻易评判世人。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 3,
+    "chapterTitle": "人际交往的秘诀：真诚赞美",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "施瓦布为什么能拿到年薪百万？他的钢铁专业知识是关键吗？",
+        "answer": "不是。施瓦布自己承认手下很多员工比他更懂钢铁。他的核心能力是激发员工潜能：「嘉赞以诚，不吝褒扬」。他从不批评人，只用鼓励和赞扬，这才是卡内基给他百万年薪的原因。"
+      },
+      {
+        "id": "q2",
+        "question": "为什么卡耐基特别强调赞美和奉承的区别？",
+        "answer": "因为阿谀奉承像假钞，短期可能骗过饥不择食的人，但长期一定会被识破、惹来麻烦。真诚的赞美发自内心、关注他人真实的优点，是无私的；奉承则是虚假的、有目的的。乔治五世的座右铭就是「不说也不接受廉价的赞美」。"
+      },
+      {
+        "id": "q3",
+        "question": "用你自己的话解释：为什么说「人们都渴望被赞赏，就像食物一样不可或缺」？",
+        "answer": "就像身体需要食物来维持生命，人的心理需要被认可和赞赏来维持自尊和动力。我们每天给家人提供饭菜，却可能六十年都不给一句真诚的赞美。卡耐基曾参加六天禁食活动发现不难，但六十年不给人赞美却是常态——这才是真正的心理「饥荒」。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 4,
+    "chapterTitle": "换位思考：激发他人的主动性",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "卡耐基为什么用「钓鱼」来比喻影响他人的方法？",
+        "answer": "因为钓鱼时你不会用自己爱吃的草莓当鱼饵，而是用鱼爱吃的虫子。同理，影响他人不是大谈你自己的需求，而是了解对方想要什么，说对方想听的话。英国首相劳埃德·乔治能长期活跃在政坛，正是因为深谙这种「钓鱼」之术。"
+      },
+      {
+        "id": "q2",
+        "question": "酒店涨租金3倍的案例中，卡耐基为什么能成功讨价还价？",
+        "answer": "他没有一句话谈自己的诉求，而是站在酒店经理的角度算账：涨价会失去租金收入（他会搬走）、失去免费宣传（600多名商务人士带来的曝光）。让经理自己权衡利弊，最终主动降到涨50%。核心方法：说对方关心的事，而不是你自己的需求。"
+      },
+      {
+        "id": "q3",
+        "question": "「表现自我是人类重要的天性」——这和激发他人主动性有什么关系？",
+        "answer": "当你让别人参与、让他们觉得事情是自己的选择和成就时，他们会更主动。例如让小女孩自己做早餐，她吃了两碗；让男孩自己买床，他就不再尿床。关键是把你的想法变成对方的「早餐」——让他们在参与中实现自我价值。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 5,
+    "chapterTitle": "真心关注他人与微笑的力量",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么卡耐基说「向小狗学习交友」？小狗具备了哪些人际交往的核心品质？",
+        "answer": "小狗见到你就摇尾巴、蹦跳、示爱，不会向你推销房产也不想和你结婚——它的关��完全无私且主动。卡耐基认为这正是人际交往的核心：真心付出关爱而不求回报。如果人能像小狗一样主动、真诚地关注他人，两个月收获的友谊将远超只想索取的人两年的成果。"
+      },
+      {
+        "id": "q2",
+        "question": "微笑为什么能改变斯坦哈特18年的婚姻状态？",
+        "answer": "斯坦哈特18年来每天上班不给妻子笑脸，甚至话也懒得说。当他开始每天微笑着说「早上好」，妻子最初迷惑甚至吃惊，但两个月后家中的欢声笑语比之前一年还多。这验证了詹姆斯的心理学原理：行为能影响情感。主动微笑改变了他的态度，进而改变了整个家庭氛围。"
+      },
+      {
+        "id": "q3",
+        "question": "为什么说「对他人漠不关心的人，命运注定多舛」？",
+        "answer": "阿德勒这句话揭示了人际关系的核心真相：漠不关心意味着只关注自己，无法建立真正的友谊和信任。这样的人会给他人造成伤害，自己也难以获得帮助和支持。相反，像罗斯福那样连仆人都记得名字的人，走到哪里都受到发自内心的爱戴。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 6,
+    "chapterTitle": "记住名字与善于倾听",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "安德鲁·卡内基为什么把新公司命名为「普尔曼皇室列车公司」？这体现了什么人际法则？",
+        "answer": "因为在争夺订单的僵局中，用对方的名字命名公司能满足普尔曼「被重视」的需求。普尔曼一听到自己的名字立刻「脸上放光」，主动邀请卡内基详谈。这体现了「记住并尊重别人的名字」这条法则——人们对自己的名字比全世界所有名字加起来都更感兴趣。"
+      },
+      {
+        "id": "q2",
+        "question": "卡耐基在宴会上为什么被评为「最有趣最健谈的人」？",
+        "answer": "因为他几乎什么都没说！他只是认真倾听植物学家讲了几个小时，表现出真诚的兴趣和赞叹。植物学家感受到了这种尊重，就认为他是最好的谈话对象。这证明了倾听才是真正的「健谈」——做一个好的聆听者比做一个好的演说家更能赢得友谊。"
+      },
+      {
+        "id": "q3",
+        "question": "电话公司的调解员如何化解了极端难缠的顾客？核心方法是什么？",
+        "answer": "调解员拜访四次，每次都只是默默倾听，最多说几个「是」表示理解。他没有辩解、没有争论、没有提出解决方案。因为顾客真正需要的不是解决问题，而是「被重视的感觉」——通过不断投诉来获得关注。当这种需求被满足后，之前的恩怨自然被抛到九霄云外。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 7,
+    "chapterTitle": "谈论对方兴趣与让人感到重要",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "罗斯福为什么能让牛仔、外交家、政客都和他谈得投机？",
+        "answer": "他每次会见客人前都会头天晚上加班阅读对方可能感兴趣的话题。这不是天赋而是准备——他深谙「谈论对方感兴趣的事」这条法则。加上他真诚地关注每个人（包括仆人和清洁工），所以走到哪里都受人爱戴。"
+      },
+      {
+        "id": "q2",
+        "question": "为什么卡耐基说「让对方感到重要」是世界上最重要的法则？",
+        "answer": "因为这条法则跨越了所有文化和时代：从2500年前的琐罗亚斯德到孔子、老子、佛陀、耶稣，都在教导同一个道理。每个人内心都渴望被重视和尊重，满足这种渴望就是赢得友谊和信任的关键。"
+      },
+      {
+        "id": "q3",
+        "question": "凯恩的故事说明了什么？为什么一篇赞美文章能改变一个人的命运？",
+        "answer": "凯恩是铁匠的儿子，只读了8年书，但他写了一篇真诚赞美诗人罗塞蒂成就的演讲稿。罗塞蒂读后非常高兴，邀请他当秘书，由此凯恩接触到众多著名作家，走上写作道路，最终享誉世界。这说明发自内心的赞美是一种伟大的力量，命运有时仅仅因受到一次赏识就会发生巨大改变。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 8,
+    "chapterTitle": "避免争辩与尊重他人意见",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "加蒙德为什么在餐桌下踢了卡耐基一脚，明知道那句话出自莎士比亚却说「出自《圣经》」？",
+        "answer": "因为他们是宴会的客人，没有必要当众证明别人错了。纠正那位先生不会让他高兴，只会让他丢面子和不舒服。加蒙德的智慧是：永远避免做无意义的争辩，给别人留够面子比证明自己正确更重要。"
+      },
+      {
+        "id": "q2",
+        "question": "推销员奥海尔为什么在「赢了辩论」之后却卖不出卡车？",
+        "answer": "因为他每次和客户争论竞品的缺点，客户就会更加维护自己的立场——辩论越激烈，客户越喜欢对手的产品。奥海尔的精力全用在争辩上，没有机会展示自己产品的优势。改变策略后，他先赞同客户，终止争论，等对方自然停下来再见缝插针介绍怀特汽车。"
+      },
+      {
+        "id": "q3",
+        "question": "为什么说「我或许不对」这句话在人际关系中具有魔力？",
+        "answer": "这句话同时做到了两件事：①承认自己可能犯错，降低了对方的防御心理；②表达了对对方观点的尊重，给了对方面子。当对方感受到尊重而非挑衅，就更愿意冷静地讨论问题而非争辩。道奇汽车代理商莱因克用这个方法化解了无数客户投诉，甚至有客户主动介绍朋友来买车。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 9,
+    "chapterTitle": "坦然认错与友善开始",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "卡耐基遛狗被警察抓到的案例中，为什么主动认错比辩护更有效？",
+        "answer": "因为当你抢先承认「我违法了，该罚就罚」时，警察准备好的批评无处释放——他的目标是让你认错，而你已经做到了。对方反而会表现出宽容：「我也知道没人时谁都想让狗撒撒欢。」如果你辩护说狗不会咬人，警察只会更强硬地执法。"
+      },
+      {
+        "id": "q2",
+        "question": "洛克菲勒如何用友善化解了两年的罢工冲突？",
+        "answer": "他没有威逼利诱，而是花了两周时间亲自走访工人家庭。在演讲中他说「我们是朋友不是陌生人」「我见过你们的家人」——用真实的关系建立信任。关键是他以朋友身份而非公司代表身份出现，用友善的态度替代了对抗。结果工人心满意足地回到岗位，甚至没有再提加薪。"
+      },
+      {
+        "id": "q3",
+        "question": "「太阳和北风」的寓言如何解释友善比愤怒更有效？",
+        "answer": "北风越猛烈地吹，旅人就裹得越紧——就像你越愤怒地批评，对方越会防御和抵抗。太阳温和地照耀，旅人自己脱下了大衣——就像你用友善的态度对待对方，对方会自愿放下防备。威尔逊总统的话概括了这个道理：握紧拳头只会遇到更硬的拳头，心平气和才能找到共识。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 10,
+    "chapterTitle": "让对方说「是」与鼓励多说话",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么谈话开始就要让对方说「是」？心理学机制是什么？",
+        "answer": "一旦说出「不」，自尊心就会固执地维护这个立场，全身（五脏六腑、神经、肌肉）都进入对抗模式。就像打桌球，开局方向定了就很难逆转。相反，说「是」后身体表现出接纳和宽容。所以一开始就获得肯定态度，对方就容易持续说「是」，接受你的想法。"
+      },
+      {
+        "id": "q2",
+        "question": "R先生为什么嗓子哑了反而拿到了最大的订单？",
+        "answer": "因为他被迫让对方替他说话。总经理主动替他介绍产品，管理者们在讨论中自己说服了自己。这比R先生自己推销更有效——每个人都更相信自己的判断。这个案例证明了「让对方多说话」和「让想法变成别人的」这两条法则的威力。"
+      },
+      {
+        "id": "q3",
+        "question": "韦森为什么拜访同一客户150次被拒，改变了什么策略后成功了？",
+        "answer": "之前他拿着成品去推销，客户只会说「不行，现在不能买」。改变策略后，他拿未完成的草图去请教：「您能告诉我怎么做才能让您满意吗？」客户开始参与设计过程，提出修改建议。当作品按客户的意见完成时，客户自然就买了——因为这已经变成了「他的」作品。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 11,
+    "chapterTitle": "让对方觉得是自己的主意",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么「让对方觉得是自己的主意」比直接命令更有效？",
+        "answer": "因为被逼迫着做事没人愿意，每个人都喜欢遵循自己的判断和决定。当对方认为想法是自己的，他会投入全部热情去执行。就像韦森让客户参与面料设计——客户从被动的买家变成了主动的创作者，自然就下了订单。"
+      },
+      {
+        "id": "q2",
+        "question": "「我理解你的感受，如果我是你也会一样」这句话为什么能化解敌意？",
+        "answer": "因为它满足了对方三个深层需求：被理解（我懂你的感受）、被尊重（我不责怪你）、被认同（我也会这样做）。当对方感觉到被完全接纳时，防御心理自然消退。卡耐基用这个方法把最毒舌的批评者变成了朋友。关键前提是必须真诚发自内心，否则对方能感觉到虚伪。"
+      },
+      {
+        "id": "q3",
+        "question": "道格拉斯的「草坪顿悟」说明了换位思考的什么力量？",
+        "answer": "之前他站在自己的角度批评妻子修剪草坪无意义，导致家庭气氛冰冷。换位思考后他发现：修剪草坪本身让妻子快乐，妻子的付出应该得到嘉奖而非批评。当他陪妻子一起除草时，家庭气氛彻底改变。这说明换位思考不只是理解对方，更是放下自我的评判，真心感受对方的世界。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 12,
+    "chapterTitle": "激发高尚动机与戏剧化表达",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "「激发高尚动机」为什么比直接谈利益更有效？",
+        "answer": "因为每个人心里都有一个理想化的自己，渴望被视为守信、善良、值得尊重的人。当你说「我相信你是守信的人」，对方会努力去匹配这个形象。直接谈利益容易引起防御心理，而诉诸高尚动机则让对方自愿配合。"
+      },
+      {
+        "id": "q2",
+        "question": "施瓦布为什么只在地上写一个数字就解决了工厂产量低迷的问题？",
+        "answer": "因为他激发了人内心最原始的竞争欲。白班写了6，夜班就要证明自己更强，改成7；白班看到7不甘示弱，写下10。施瓦布没有命令、没有威胁、没有说教——他只是提出了一个隐形的挑战。这证明了「人人都有超越对手的欲望」这条人性法则。"
+      },
+      {
+        "id": "q3",
+        "question": "为什么说「戏剧化表达」比讲道理更有说服力？举例说明。",
+        "answer": "因为我们的时代充满了信息，仅靠长篇大论无法吸引注意力。灭鼠公司在橱窗放了两只活老鼠，比任何文字说明都更能展示产品效果，一周内销量增加5倍。收银机推销员把硬币扔到地上让店主直观感受「丢钱」的痛苦，店主立刻下单。戏剧化的方式能调动感官和情感���比理性论证更能打动人心。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 13,
+    "chapterTitle": "以称赞开始与间接批评",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么「先赞美再批评」比直接批评更有效？",
+        "answer": "就像理发师先涂肥皂再刮胡子——赞美创造了良好的心理氛围，让对方处于开放和接纳的状态。如果直接批评，对方立刻进入防御模式。柯立芝先夸秘书衣服漂亮，再提标点问题，秘书就不会觉得受攻击。"
+      },
+      {
+        "id": "q2",
+        "question": "施瓦布处理工人违规吸烟的方式为什么比直接批评高明？",
+        "answer": "直接指着标识说「你们不识字吗」会让工人觉得被羞辱，产生怨恨。施瓦布送每人一支雪茄说「能到外面抽就好了」——既提醒了违规，又维护了工人的自尊。工人不但不怨恨，反而感激他的体面做法。间接暗示让人自愿遵守规则，直接批评只会引起抵抗。"
+      },
+      {
+        "id": "q3",
+        "question": "为什么要用「而且」代替「但是」？两者有什么不同效果？",
+        "answer": "「你做得很好，但是这里有问题」——「但是」会让前面的赞美变得虚假，对方觉得赞美只是铺垫批评的套路。「你做得很好，而且如果这里再改进就更完美了」——「而且」保持了赞美的真诚，让建议变成锦上添花而非否定。小小的措辞变化，带来的心理感受完全不同。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 14,
+    "chapterTitle": "先说自己的错与保全面子",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "卡耐基为什么在批评侄女之前要先说「我19岁时做过更蠢的事」？",
+        "answer": "这样做有两个效果：①让对方感到被理解（你也犯过错，所以不是高高在上地批评）；②降低了批评的攻击性（你先承认自己不完美，对方就不觉得被针对）。先亮出自己的缺点再提建议，比居高临下的批评更容易被接受。"
+      },
+      {
+        "id": "q2",
+        "question": "通用电气如何在不伤害斯坦梅茨的情况下解决了管理问题？",
+        "answer": "给了他一个新的高大上头衔「通用电气工程部顾问」，实际上他还是做老本行的技术工作，只是不再管人了。斯坦梅茨很满意（保全了面子），公司也解决了管理问题。关键是没有直接免职，而是用新的定位让调整变得体面。"
+      },
+      {
+        "id": "q3",
+        "question": "为什么用提问代替命令更有效？举一个具体例子。",
+        "answer": "因为命令式的指示会侮辱对方的自主权，引起防御和抵触。提问则让对方参与决策，感到被尊重。例如南非工厂经理面对大订单不是催赶工，而是问「大家有按时完成的好方法吗？」员工主动提出加班方案，甚至有人自愿工作14小时——因为这是他们自己的决定，不是被强迫的。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 15,
+    "chapterTitle": "鼓励进步与赋予美誉",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么卡鲁索的母亲比他的第一位老师更能影响他的命运？",
+        "answer": "第一位老师说他嗓子「像穿堂风一样刺耳」，差点扼杀了他的信心和梦想。但母亲始终赞赏他、相信他能唱好歌，节衣缩食供他上音乐课。母亲的持续鼓励给了他坚持的勇气，最终成为那个时代最伟大的歌剧音乐家。这证明了批评只能摧毁信心，而真诚的鼓励可以创造奇迹。"
+      },
+      {
+        "id": "q2",
+        "question": "「赋予美誉」为什么能改变人的行为？用莎士比亚的话解释。",
+        "answer": "莎士比亚说：「假若渴望具备别人的优点，就应公开认可别人的优点。这样别人会加倍努力，避免让你失望。」当你对一个人说「你是最守信的人」，他会把这句话当作一个承诺和标签，努力用行为去匹配。这比批评他「不守信」有效得多——因为人们愿意活出被赋予的美好形象。"
+      },
+      {
+        "id": "q3",
+        "question": "豪斯上校如何让布莱恩乐意接受「不被派去欧洲」的决定？",
+        "answer": "他没有直接告诉布莱恩「总统不想让你去」，而是重新定义了角色：「你的位置太重要了，以官方身份去会引起争议。」言外之意是布莱恩的地位比这个任务更高，留下比去更荣耀。布莱恩的失望被荣誉感取代，乐意地接受了安排。这就是「让别人在乐意的前提下按照你的意图行事」的智慧。"
+      },
+      {
+        "id": "q4",
+        "question": "用费曼方法总结全书的核心思想：如何赢得友谊并影响他人？",
+        "answer": "全书的核心可以归结为三个层次：①基础层——不批评、真诚赞美、换位思考，这是一切人际关系的根基；②方法层——真心关注他人、微笑、记名字、倾听、谈对方兴趣、让人感到重要，这是赢得喜爱的具体方法；③领导层——避免争辩、认错、引导说是、赋予美誉、鼓励进步，这是影响和改变他人的高级技巧。贯穿始终的是一条核心人性法则：每个人最深的渴望是被重视和被认可。满足这种渴望，就能赢得友谊并影响他人。"
+      }
+    ]
+  }
+];
+const chapterManifest = [
+  {
+    "num": 1,
+    "slug": "ch01",
+    "title": "成书缘起与阅读建议",
+    "titleEn": "Origin Story & How to Read This Book",
+    "icon": "📖"
+  },
+  {
+    "num": 2,
+    "slug": "ch02",
+    "title": "想采蜜就请善待蜂巢",
+    "titleEn": "Don't Criticize, Condemn or Complain",
+    "icon": "🐝"
+  },
+  {
+    "num": 3,
+    "slug": "ch03",
+    "title": "人际交往的秘诀：真诚赞美",
+    "titleEn": "Give Honest and Sincere Appreciation",
+    "icon": "⭐"
+  },
+  {
+    "num": 4,
+    "slug": "ch04",
+    "title": "换位思考：激发他人的主动性",
+    "titleEn": "Arouse in the Other Person an Eager Want",
+    "icon": "🎯"
+  },
+  {
+    "num": 5,
+    "slug": "ch05",
+    "title": "真心关注他人与微笑的力量",
+    "titleEn": "Be Genuinely Interested & Smile",
+    "icon": "😊"
+  },
+  {
+    "num": 6,
+    "slug": "ch06",
+    "title": "记住名字与善于倾听",
+    "titleEn": "Remember Names & Be a Good Listener",
+    "icon": "👂"
+  },
+  {
+    "num": 7,
+    "slug": "ch07",
+    "title": "谈论对方兴趣与让人感到重要",
+    "titleEn": "Talk About Their Interests & Make Them Feel Important",
+    "icon": "💎"
+  },
+  {
+    "num": 8,
+    "slug": "ch08",
+    "title": "避免争辩与尊重他人意见",
+    "titleEn": "Avoid Arguments & Respect Opinions",
+    "icon": "🤝"
+  },
+  {
+    "num": 9,
+    "slug": "ch09",
+    "title": "坦然认错与友善开始",
+    "titleEn": "Admit Mistakes & Begin in a Friendly Way",
+    "icon": "🕊️"
+  },
+  {
+    "num": 10,
+    "slug": "ch10",
+    "title": "让对方说「是」与鼓励多说话",
+    "titleEn": "Get Yes-Responses & Let Them Talk",
+    "icon": "✅"
+  },
+  {
+    "num": 11,
+    "slug": "ch11",
+    "title": "让对方觉得是自己的主意",
+    "titleEn": "Let the Other Person Feel It's Their Idea",
+    "icon": "💡"
+  },
+  {
+    "num": 12,
+    "slug": "ch12",
+    "title": "激发高尚动机与戏剧化表达",
+    "titleEn": "Appeal to Noble Motives & Dramatize",
+    "icon": "🎭"
+  },
+  {
+    "num": 13,
+    "slug": "ch13",
+    "title": "以称赞开始与间接批评",
+    "titleEn": "Begin with Praise & Call Attention Indirectly",
+    "icon": "🌟"
+  },
+  {
+    "num": 14,
+    "slug": "ch14",
+    "title": "先说自己的错与保全面子",
+    "titleEn": "Own Mistakes First & Save Face",
+    "icon": "🛡️"
+  },
+  {
+    "num": 15,
+    "slug": "ch15",
+    "title": "鼓励进步与赋予美誉",
+    "titleEn": "Encourage & Give a Reputation to Live Up To",
+    "icon": "🏆"
+  }
+];
+
+(function() {
+    const container = document.getElementById('quizContainer');
+    const scoreBar = document.getElementById('scoreBar');
+
+    if (typeof allQuizData === 'undefined' || !allQuizData || !allQuizData.length) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔀</div><div>No quiz data available yet.</div></div>';
+        return;
+    }
+
+    // Flatten and shuffle questions
+    let questions = [];
+    allQuizData.forEach(ch => {
+        (ch.questions || []).forEach(q => {
+            questions.push({ ...q, chapterNum: ch.chapterNum, chapterTitle: ch.chapterTitle });
+        });
+    });
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    let shuffled = shuffle([...questions]);
+    let mode = 'random';
+    let correct = 0, total = 0;
+
+    function updateScore() {
+        document.getElementById('scoreCorrect').textContent = correct;
+        document.getElementById('scoreTotal').textContent = total;
+        document.getElementById('scorePct').textContent = total > 0 ? Math.round(correct / total * 100) + '%' : '—';
+    }
+
+    function renderQuiz() {
+        scoreBar.style.display = mode === 'chapter-id' ? 'flex' : 'none';
+        container.innerHTML = '';
+        shuffled = shuffle([...questions]);
+        correct = 0; total = 0; updateScore();
+
+        shuffled.forEach((q, i) => {
+            const card = document.createElement('div');
+            card.className = 'quiz-card fade-in';
+
+            if (mode === 'random') {
+                const chTag = `<span class="quiz-chapter-tag hidden">CH.${String(q.chapterNum).padStart(2, '0')}</span>`;
+                card.innerHTML = `
+                    ${chTag}
+                    <div class="quiz-question">${q.question}</div>
+                    <div class="quiz-answer"><div>${q.answer}</div><div style="margin-top:8px;font-family:var(--font-mono);font-size:0.75rem;color:var(--accent3)">— Chapter ${q.chapterNum}: ${q.chapterTitle}</div></div>
+                    <div class="quiz-toggle">CLICK TO REVEAL</div>`;
+                card.addEventListener('click', function() {
+                    if (this.classList.contains('open')) return;
+                    this.classList.add('open');
+                    const ans = this.querySelector('.quiz-answer');
+                    ans.style.maxHeight = ans.scrollHeight + 'px';
+                    this.querySelector('.quiz-toggle').textContent = '';
+                    const tag = this.querySelector('.quiz-chapter-tag');
+                    tag.className = 'quiz-chapter-tag visible';
+                });
+            } else {
+                // Chapter-ID mode
+                card.innerHTML = `
+                    <span class="quiz-chapter-tag hidden">WHICH CHAPTER?</span>
+                    <div class="quiz-question">${q.question}</div>
+                    <div class="chapter-picker" id="picker-${i}"></div>
+                    <div class="quiz-answer"><div>${q.answer}</div></div>`;
+                card.style.cursor = 'default';
+
+                // Build chapter picker after insertion
+                setTimeout(() => {
+                    const picker = document.getElementById('picker-' + i);
+                    if (!picker) return;
+                    const chNums = [...new Set(questions.map(x => x.chapterNum))].sort((a, b) => a - b);
+                    chNums.forEach(num => {
+                        const btn = document.createElement('button');
+                        btn.className = 'ch-pick-btn';
+                        btn.textContent = 'Ch.' + num;
+                        btn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            if (picker.dataset.answered) return;
+                            picker.dataset.answered = 'true';
+                            total++;
+                            if (num === q.chapterNum) {
+                                correct++;
+                                btn.classList.add('correct');
+                                card.classList.add('correct');
+                            } else {
+                                btn.classList.add('wrong');
+                                card.classList.add('incorrect');
+                                // Highlight correct
+                                picker.querySelectorAll('.ch-pick-btn').forEach(b => {
+                                    if (b.textContent === 'Ch.' + q.chapterNum) b.classList.add('correct');
+                                });
+                            }
+                            updateScore();
+                            // Reveal answer
+                            card.classList.add('open');
+                            const ans = card.querySelector('.quiz-answer');
+                            ans.style.maxHeight = ans.scrollHeight + 'px';
+                            const tag = card.querySelector('.quiz-chapter-tag');
+                            tag.className = 'quiz-chapter-tag visible';
+                            tag.textContent = 'CH.' + String(q.chapterNum).padStart(2, '0');
+                        });
+                        picker.appendChild(btn);
+                    });
+                }, 0);
+            }
+            container.appendChild(card);
+        });
+
+        // Observe fade-ins
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        container.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+    }
+
+    // Mode buttons
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            mode = this.dataset.mode;
+            renderQuiz();
+        });
+    });
+
+    // Reset
+    document.getElementById('resetBtn').addEventListener('click', renderQuiz);
+
+    // Spaced review schedule
+    (function() {
+        const grid = document.getElementById('scheduleGrid');
+        const intervals = [
+            { label: 'TODAY', days: 0 },
+            { label: '+1 DAY', days: 1 },
+            { label: '+3 DAYS', days: 3 },
+            { label: '+7 DAYS', days: 7 },
+            { label: '+14 DAYS', days: 14 },
+            { label: '+30 DAYS', days: 30 },
+        ];
+        const now = new Date();
+        intervals.forEach(iv => {
+            const d = new Date(now);
+            d.setDate(d.getDate() + iv.days);
+            const dateStr = d.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+            const card = document.createElement('div');
+            card.className = 'schedule-card fade-in';
+            card.innerHTML = `<div class="schedule-interval">${iv.label}</div><div class="schedule-date">${dateStr}</div>`;
+            grid.appendChild(card);
+        });
+    })();
+
+    renderQuiz();
+
+    // Global fade-in observer for schedule cards
+    const obs2 = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs2.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.schedule-grid .fade-in').forEach(el => obs2.observe(el));
+})();
+</script>
+</body>
+</html>

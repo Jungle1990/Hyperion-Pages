@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interleaved Review · 社会性动物 | Book Breakdown</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+
+/* ── Compact Hero ── */
+.hero { padding: 3rem 2rem 2rem; text-align: center; position: relative; }
+.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(255,107,107,0.06) 0%, transparent 50%); pointer-events: none; }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px rgba(108,99,255,0.3)); }
+.hero h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 900; margin-bottom: 0.3rem; }
+.hero-en { font-size: 1rem; color: var(--text-dim); font-weight: 300; margin-bottom: 0.5rem; }
+.hero-badge { display: inline-block; padding: 0.4rem 1.2rem; border: 1px solid var(--accent4); border-radius: 2rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; }
+.back-link { position: absolute; top: 1.5rem; left: 1.5rem; text-decoration: none; color: var(--text-dim); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; transition: color 0.3s; }
+.back-link:hover { color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Mode Selector ── */
+.mode-bar { display: flex; justify-content: center; gap: 12px; margin: 2rem 0; flex-wrap: wrap; }
+.mode-btn { padding: 10px 24px; border: 1px solid var(--border); border-radius: 2rem; background: transparent; color: var(--text-dim); font-family: var(--font-sans); font-size: 0.9rem; cursor: pointer; transition: all 0.3s; }
+.mode-btn:hover { border-color: var(--accent); color: var(--text); }
+.mode-btn.active { border-color: var(--accent); background: rgba(108,99,255,0.15); color: var(--accent); }
+
+/* ── Score Tracker ── */
+.score-bar { display: flex; align-items: center; justify-content: center; gap: 2rem; margin-bottom: 2rem; padding: 1rem; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); }
+.score-label { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim); letter-spacing: 1px; }
+.score-num { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; }
+.score-correct { color: var(--accent3); }
+.score-total { color: var(--text-dim); }
+.score-pct { color: var(--accent4); font-size: 1.2rem; }
+.reset-btn { padding: 6px 16px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.3s; letter-spacing: 1px; }
+.reset-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+/* ── Quiz Cards ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-card.correct { border-color: var(--accent3); }
+.quiz-card.incorrect { border-color: var(--accent2); }
+.quiz-chapter-tag { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 8px; display: inline-block; padding: 2px 10px; border-radius: 4px; }
+.quiz-chapter-tag.hidden { background: rgba(108,99,255,0.15); color: var(--accent); }
+.quiz-chapter-tag.visible { background: rgba(78,205,196,0.15); color: var(--accent3); }
+.quiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1rem; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* Chapter-ID mode */
+.chapter-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.ch-pick-btn { padding: 4px 12px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+.ch-pick-btn:hover { border-color: var(--accent); color: var(--text); }
+.ch-pick-btn.correct { border-color: var(--accent3); color: var(--accent3); background: rgba(78,205,196,0.1); }
+.ch-pick-btn.wrong { border-color: var(--accent2); color: var(--accent2); background: rgba(255,107,107,0.1); }
+
+/* ── Spaced Review ── */
+.section-header { margin: 3rem 0 1.5rem; }
+.section-badge { display: inline-block; font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.4rem; font-weight: 700; }
+.schedule-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.schedule-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; transition: all 0.3s; }
+.schedule-card:hover { border-color: var(--accent4); }
+.schedule-interval { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 1px; margin-bottom: 6px; }
+.schedule-date { font-size: 0.85rem; color: var(--text-dim); }
+
+/* ── Footer ── */
+.footer { text-align: center; padding: 4rem 0; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+
+/* ── Empty State ── */
+.empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-dim); }
+.empty-state-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 768px) {
+    .score-bar { flex-wrap: wrap; gap: 1rem; }
+    .schedule-grid { grid-template-columns: repeat(3, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<section class="hero">
+    <a href="index.html" class="back-link">← 返回目录</a>
+    <div class="hero-icon">🔀</div>
+    <h1>Interleaved Review · 交叉复习</h1>
+    <div class="hero-en">The Social Animal (12th Edition)</div>
+    <div class="hero-badge">SPACED PRACTICE</div>
+</section>
+
+<div class="container">
+    <div class="mode-bar" id="modeBar">
+        <button class="mode-btn active" data-mode="random">🎲 Random Quiz · 随机测验</button>
+        <button class="mode-btn" data-mode="chapter-id">🔍 Chapter ID · 章节识别</button>
+    </div>
+    <div class="score-bar" id="scoreBar" style="display:none">
+        <div><div class="score-label">CORRECT</div><div class="score-num score-correct" id="scoreCorrect">0</div></div>
+        <div><div class="score-label">TOTAL</div><div class="score-num score-total" id="scoreTotal">0</div></div>
+        <div><div class="score-label">ACCURACY</div><div class="score-num score-pct" id="scorePct">—</div></div>
+        <button class="reset-btn" id="resetBtn">RESET</button>
+    </div>
+    <div id="quizContainer"></div>
+
+    <div class="section-header fade-in">
+        <div class="section-badge">SPACED REVIEW SCHEDULE</div>
+        <div class="section-title">间隔复习计划</div>
+    </div>
+    <div class="schedule-grid" id="scheduleGrid"></div>
+</div>
+
+<div class="footer">
+    Book Breakdown · Interleaved Review · 社会性动物
+</div>
+
+<script>
+const meta = {
+  "title": "社会性动物",
+  "titleEn": "The Social Animal (12th Edition)",
+  "author": "埃利奥特·阿伦森 (Elliot Aronson)",
+  "icon": "🦁",
+  "slug": "shehuixing-dongwu",
+  "methodLabel": "FEYNMAN METHOD",
+  "stats": [
+    {
+      "num": "9",
+      "label": "Chapters"
+    },
+    {
+      "num": "3",
+      "label": "Parts"
+    },
+    {
+      "num": "∞",
+      "label": "Insights"
+    }
+  ]
+};
+const allQuizData = [
+  {
+    "chapterNum": 1,
+    "chapterTitle": "什么是社会心理学",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "用你自己的话解释「阿伦森第一定律」，并举一个生活中的例子。",
+        "answer": "阿伦森第一定律是说：做出疯狂举动的人未必是疯子。强大的情境力量可以让正常人做出不正常的事。例如：一个平时温和的人在路怒症发作时可能会做出激烈举动——不是因为他「性格暴躁」，而是交通拥堵、迟到压力、密闭空间等情境因素叠加，突破了他的忍耐阈值。"
+      },
+      {
+        "id": "q2",
+        "question": "什么是「基本归因错误」？为什么它如此普遍？",
+        "answer": "基本归因错误是指人们在解释他人行为时，系统性地高估性格因素、低估情境因素的重要性。它之所以普遍，是因为：1）性格归因直觉、快速、省认知资源（认知吝啬者的本能）；2）情境因素往往是隐形的，不容易被观察到；3）我们看到的是「人在做事」，而不是「情境在塑造行为」，注意力自然集中在行为者身上。"
+      },
+      {
+        "id": "q3",
+        "question": "「事后聪明偏见」会给社会带来什么危害？",
+        "answer": "事后聪明偏见让人们在事件发生后觉得结果「显而易见」，由此产生多种危害：1）不公平地责怪决策者——「你当时怎么看不出来？」忽视了决策时信息不充分；2）阻碍从失败中学习——如果觉得结果本来就「很明显」，就不会去分析真正的系统性原因；3）助长偏见——对受害者说「你早该知道会这样」，把结构性问题归咎于个人。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 2,
+    "chapterTitle": "社会认知",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "什么是「认知吝啬者」？用一个日常例子说明它如何运作。",
+        "answer": "「认知吝啬者」是指人类大脑倾向于节省认知能量，使用简化策略来处理复杂社会信息。例如：你走进一家新餐厅，服务员穿着邋遢、态度冷淡，你立刻判断「这家餐厅不行」——你没有去看菜单、品尝食物、了解厨师背景，而是用一个简单的线索（服务员外表）触发了一个现成的图式（「邋遢=不靠谱」），一秒钟内就下了结论。这个判断可能对也可能错，但大脑选择了最省力的路径。"
+      },
+      {
+        "id": "q2",
+        "question": "解释「易得性便捷判断」为什么会让人高估罕见事件的发生概率。",
+        "answer": "易得性便捷判断的核心逻辑是：越容易想到具体例子的事件，我们越觉得它常发生。罕见但戏剧性的事件（如飞机坠毁、鲨鱼袭击）在媒体上获得大量报道，画面生动、印象深刻，因此非常「容易想到」。大脑把「容易想到」误解为「经常发生」，从而严重高估了这类事件的概率。实际上，你开车去机场的路上遇到车祸的概率远高于飞机出事的概率，但后者的新闻画面更难忘。"
+      },
+      {
+        "id": "q3",
+        "question": "自证预言是如何在教育场景中发挥作用的？（费曼检验）",
+        "answer": "三步机制：1）老师对学生形成了预期（比如认为张三是「潜力股」，李四是「差生」）；2）这个预期影响老师的行为——给张三更多关注、更多思考时间、更温暖的语气，对李四则更冷淡、更少互动；3）张三在更多支持下表现更好，李四在冷落中表现更差——两人都「验证」了老师的预期。关键洞察：预期本身不具有因果力量，它通过改变老师的行为来间接创造了结果。罗森塔尔实验中，被随机标记为「即将迎来智力爆发」的学生成绩真的提高了。"
+      },
+      {
+        "id": "q4",
+        "question": "损失厌恶如何影响日常决策？",
+        "answer": "损失厌恶意味着失去某物的痛苦大约是获得等值物的快乐的两倍。这会导致：1）宁愿维持不满意的现状也不愿冒险改变（比如留在不喜欢的工作中）；2）在谈判中过度保护已有的东西而不是争取新收益；3）在投资中持有亏损的股票太久（「卖了就真的亏了」），却过早卖出盈利的股票（「赶紧锁定收益」）。本质上，损失厌恶让我们在面对不确定性时系统性地偏向保守。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 3,
+    "chapterTitle": "自我辩护",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "费斯廷格的1美元实验为什么说明「外部辩护越少，态度改变越大」？",
+        "answer": "实验中，被试被要求向下一个人谎称无聊的实验很有趣。收到20美元的人有充分的外部辩护（「我是为了钱才说谎的」），所以不需要改变态度。但只收到1美元的人没有足够的外部理由来解释自己的说谎行为，产生了强烈的失调。为了减少失调，他们真的开始认为那个实验「其实蛮有趣的」。外部辩护越少，人们越需要内部辩护——即改变自己的真实态度。"
+      },
+      {
+        "id": "q2",
+        "question": "用认知失调理论解释：为什么严苛的入会仪式反而让成员更喜欢组织？",
+        "answer": "这是「竭力辩护」（effort justification）效应。经历痛苦的入会仪式后加入一个无聊的组织，会产生失调：「我经历了那么多痛苦，就为了加入这个？」为了减少失调，成员会高估组织的价值（「其实讨论内容很有深度」）。阿伦森-米尔斯实验证实了这一点：经历严苛入会仪式的被试对同一段无聊讨论的评价显著高于温和仪式或无仪式的被试。"
+      },
+      {
+        "id": "q3",
+        "question": "「为残忍辩护」如何解释战争中的暴行升级？（费曼检验）",
+        "answer": "第一步：士兵在战场上杀了敌方平民（可能是误杀或命令驱使）。第二步：「我是好人，但我杀了无辜的人」产生巨大失调。第三步：为减少失调，士兵贬低受害者——「他们不是无辜的」「他们支持恐怖分子」「他们不是真正的人」。第四步：受害者被非人化后，下一次杀害变得更容易，需要更少的心理挣扎。第五步：更多杀害→更多贬低→更多非人化→暴行升级。这就是为什么暴力几乎总是滋生更多暴力——认知失调驱动的自我辩护把人推上了一条不断下滑的道路。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 4,
+    "chapterTitle": "从众",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "区分「信息性社会影响」和「规范性社会影响」，各举一个例子。",
+        "answer": "信息性社会影响：你在陌生城市不知道哪家餐厅好吃，看到一家门口排长队就选了它——你把他人的行为当作有用信息来源，认为「这么多人选一定不差」。规范性社会影响：开会时老板提了一个你觉得有问题的方案，其他同事都在点头，你也跟着点头——不是因为你觉得方案好，而是因为你不想成为唯一反对的人。区别在于动机：前者是为了做出正确决策，后者是为了被群体接纳。"
+      },
+      {
+        "id": "q2",
+        "question": "米尔格拉姆服从实验中，哪些情境因素增加了服从率？哪些降低了服从率？",
+        "answer": "增加服从率的因素：1）权威人物穿白大褂、在场、具有合法性；2）受害者在隔壁房间（距离远、看不到痛苦）；3）实验渐进升级（每次只增加一小步电压）；4）没有其他人示范拒绝。降低服从率的因素：1）权威人物离开房间（通过电话指导）；2）受害者在同一房间（能看到痛苦）；3）有另一个「被试」先拒绝服从；4）由普通人而非「科学家」发出命令。核心洞察：服从不是性格问题，而是情境设计的结果。"
+      },
+      {
+        "id": "q3",
+        "question": "如何利用旁观者效应的知识来提高紧急情况下获得帮助的概率？",
+        "answer": "关键策略：打破「责任扩散」和「多元无知」。具体做法：1）不要泛泛地喊「有人帮帮我」，而是指定具体的人：「穿蓝色外套的那位先生，请帮我打120！」——把扩散的责任集中到一个人身上；2）明确表达情况的严重性（「我心脏病发作了！」），消除其他旁观者对情境的模糊解读；3）如果你是旁观者，提醒自己：其他人不动不代表没事，他们也在等你动。知识本身就是对旁观者效应的免疫。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 5,
+    "chapterTitle": "大众传播、宣传与说服",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "什么情况下恐惧唤起（Fear Appeal）最有效？什么情况下适得其反？",
+        "answer": "最有效：中等程度的恐惧+清晰可行的行动方案。例如：「吸烟会导致肺癌（中等恐惧），这里有三个科学验证的戒烟方法（行动方案）。」适得其反：高度恐惧+没有行动方案。例如：「全球变暖将毁灭地球（极度恐惧），但个人无能为力（无行动方案）。」人们面对无法应对的威胁时，会启动心理防御机制，否认威胁的存在或严重性。"
+      },
+      {
+        "id": "q2",
+        "question": "为什么说「接种效应」比「一味重复正面信息」更能抵御说服？",
+        "answer": "一味重复正面信息就像只锻炼进攻不练防守——遇到对方的反面论点时毫无招架之力。接种效应的逻辑是：先让人接触弱化的反面论点，迫使大脑主动生成反驳论据。这个主动反驳的过程训练了「心理免疫系统」：1）人们认识到反面论点的存在（不会措手不及）；2）已经练习过反驳（有现成的回应策略）；3）自己生成的反驳比别人告诉你的更有说服力。这和疫苗的原理完全一样——弱化的「病毒」激活免疫系统，产生抗体。"
+      },
+      {
+        "id": "q3",
+        "question": "在日常生活中，如何判断某个说服信息走的是中心路径还是外围路径？",
+        "answer": "判断标准：看信息试图让你关注的是什么。中心路径特征：呈现数据、证据、逻辑推理，要求你思考和判断，论据经得起质疑。例如：药品广告列出临床试验数据。外围路径特征：使用明星代言、情感故事、大量重复、视觉吸引力，不要求深入思考，论据经不起推敲。例如：用美女明星代言护肤品。实践建议：当你被说服时，问自己「我是被论据说服了，还是被其他东西打动了？」如果说不清被哪个论据说服了，你很可能走的是外围路径。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 6,
+    "chapterTitle": "人类的攻击性",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "布什曼的沙袋实验如何推翻了弗洛伊德的宣泄假说？",
+        "answer": "弗洛伊德的宣泄假说认为攻击能量需要释放，否则会累积爆发，因此「发泄」（如击打物体）应该能减少攻击性。但布什曼的实验发现完全相反的结果：被侮辱后安静坐着的人最不攻击，击打沙袋同时想着「敌人」的人最攻击——不仅没有释放能量，反而增加了后续的攻击强度和持续时间。这表明攻击行为不是在「释放压力」，而是在「练习和加强」攻击性模式。"
+      },
+      {
+        "id": "q2",
+        "question": "为什么说「报复总是会升级」？神经科学如何解释这一点？",
+        "answer": "英国神经科学家的实验揭示了机制：让两人互相在对方手指上施加「相同」的压力。尽管被试非常谨慎地尝试「等量反击」，但每次反击的力量都会略大于接受的力量。原因是「痛苦的升级是神经加工的自然副产品」——我们感受到的自身痛苦总是被放大，而施加给他人的痛苦总是被低估。所以每一方都真诚地认为自己只是在「扯平」，但实际上每次都在升级。这解释了从操场上男孩打闹升级为拳脚相向，到国家间冲突不断升级的普遍现象。"
+      },
+      {
+        "id": "q3",
+        "question": "荣誉文化的研究如何证明攻击性主要是文化/情境驱动而非生理驱动？",
+        "answer": "科恩和尼斯贝特的实验提供了关键证据：南方和北方的白人男性大学生拥有相同的生理基础（包括基线睾酮水平），但面对同样的侮辱时，南方男生的皮质醇和睾酮飙升、认为男子气概受到挑战、做出攻击性回应；北方男生则不屑一顾。差异不在于生理「硬件」，而在于文化「软件」——荣誉文化要求男性对任何侮辱立即用攻击性回应来维护声誉。更有说服力的是，这些学生的家庭已经好几代人没有从事放牧了，但文化规范仍然在传承。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 7,
+    "chapterTitle": "偏见",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么奥尔波特说「尽管可能在智力上被击败，偏见在情感上依然存在」？",
+        "answer": "因为偏见的情感成分（直觉好恶）先于理性认知、独立于逻辑推理。你可以用事实反驳一个人的刻板印象（认知层），但他对目标群体的本能不适感（情感层）不会因此消失。奥尔波特用X先生的例子说明：无论Y先生提供什么反驳犹太人刻板印象的证据，X先生都能歪曲证据或转换攻击方向——因为他的偏见不是由逻辑构建的，所以也不能用逻辑拆除。情感是偏见的发动机，刻板印象只是事后的合理化工具。"
+      },
+      {
+        "id": "q2",
+        "question": "「善意的性别歧视」如何与「敌对的性别歧视」共同维持不平等？",
+        "answer": "格里克和菲斯克发现这两种形式是互补的：敌对性别歧视（女性不如男性聪明能干）直接贬低女性能力；善意性别歧视（女性更温柔需要保护）表面上赞美女性但预设她们是弱者。两者的共同效果是：把女性限制在「需要保护的温柔角色」中，为男性在工作和政治中的主导地位提供「正当」理由。善意性别歧视更难识别和对抗，因为它看起来是「善意的」，但实际上同样在维持权力不对等。"
+      },
+      {
+        "id": "q3",
+        "question": "刻板印象为什么「大部分时候准确但仍然有害」？用一个具体例子说明。",
+        "answer": "刻板印象在群体统计层面可能准确（亚洲学生平均数学成绩确实较高），但应用到个体时经常出错且有害。阿伦森的学生的例子：一个讨厌数学的亚洲男性，因为「亚洲人数学好」的刻板印象而经历：1）老师认为他无聊或懒惰（不帮他）；2）同学考试时坐在他旁边抄答案（更尴尬）；3）他感觉「像一个没有感情的机器人」（被剥夺了个体性）。即使是统计上准确的刻板印象，用在不符合模式的个体身上就变成了歧视和伤害。更何况，刻板印象掩盖了差异背后的系统性原因（教育资源、文化期望），让人误以为差异是「天生的」。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 8,
+    "chapterTitle": "喜欢、爱与联系",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "出丑效应（pratfall effect）为什么对「优秀的人」和「平庸的人」产生相反的效果？",
+        "answer": "对优秀的人来说，小错误打破了「完美」的距离感，让他们显得更有人情味、更容易接近——「原来他也会犯错，和我们一样」。这增加了亲近感。但对平庸的人来说，他们本来就没有什么特别的优势，犯错只是在原本就不多的吸引力上再减分——「这个人能力一般，还这么笨手笨脚」。关键前提是：出丑效应只在高能力被充分确立后才起作用，它是「锦上添花」而不是「雪中送炭」。"
+      },
+      {
+        "id": "q2",
+        "question": "选择悖论如何影响现代人的恋爱关系？",
+        "answer": "施瓦茨的选择悖论在恋爱中的表现：1）约会App提供了看似无限的选择，让人永远觉得「也许还有更好的」而不愿意承诺；2）过多选择导致「完美主义」——对伴侣的期望越来越高，因为理论上可以找到「完美匹配」；3）最终做出选择后也不满意，因为总在想「如果选了别人会不会更好」；4）社会比较加剧问题——朋友的婚礼誓言让人怀疑自己的关系是否「够好」。安萨里的「德里克」案例完美说明：一个条件不错的女士仅因「喜欢红袜队」就被一键删除，而20年前这种「缺点」根本不会阻止约会。"
+      },
+      {
+        "id": "q3",
+        "question": "斯奈德等人的电话实验如何证明美貌偏见通过自证预言运作？（费曼检验）",
+        "answer": "实验设计巧妙地拆分了因果链：1）男性被试收到一张假照片（漂亮或不漂亮），以为是电话搭档；2）认为搭档漂亮的男性用更热情、更有趣的方式与她交谈——这是美貌偏见改变了他们的行为；3）被热情对待的女性（不知道照片的事）也变得更自信、更活泼、更有魅力；4）关键一步：独立听众只听女性那边的录音（不看任何照片），也认为「被当作漂亮的」那位女性更有吸引力。这证明：不是漂亮的人天生性格更好，而是被当作漂亮人对待时，人真的会表现出更好的品质。美貌偏见→差异化对待→行为差异→「证实」了偏见——完整的自证预言循环。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 9,
+    "chapterTitle": "作为一门科学的社会心理学",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么阿伦森说实验法最重要的特点不是「控制」而是「随机分配」？",
+        "answer": "控制确保所有被试经历相同的实验情境（如听同一段录音），消除了情境差异。但仅有控制不够——被试本身的差异（性格、能力、动机）仍然可能混淆结果。随机分配解决了这个问题：它让所有个体差异（包括研究者不知道的）在各实验条件间均匀分布。这意味着如果不同条件之间出现了差异，那几乎可以确定是自变量造成的，而不是被试本身的差异。这是从「相关」跨越到「因果」的关键一步。"
+      },
+      {
+        "id": "q2",
+        "question": "米尔格拉姆的服从实验如何体现「实验现实性高但世俗现实性低」？",
+        "answer": "世俗现实性低：现实生活中我们不会被要求坐在控制台前给隔壁房间的人施加电击——这个场景在日常生活中完全不会发生。实验现实性高：被试经历了真实而强烈的心理冲突——出汗、颤抖、拉耳朵、捶前额、喃喃自语「天哪让我们停下来吧」。一个成熟商人在不到20分钟内从沉着自信变成接近神经崩溃。这些反应不是表演，被试确实在经历真实的道德挣扎。关键洞察：判断实验有效性的标准不是「场景像不像真的」，而是「被试的反应是不是真的」。"
+      },
+      {
+        "id": "q3",
+        "question": "为什么社会心理学实验常常需要使用欺骗手段？不用欺骗会怎样？",
+        "answer": "核心原因：如果被试知道实验真正研究什么，他们的行为就不再自然。阿伦森的阿希从众实验案例说明：如果告诉被试「我们想研究你是否会从众」，几乎没有人会从众——因为从众被视为软弱和不吸引人的行为。得出的「人不从众」的结论将是完全错误的。同样，当阿伦森问学生是否会服从米尔格拉姆实验中的命令时，只有1%说会——但实际服从率是65%。不用欺骗，我们看到的是「人们希望自己怎样表现」，而不是「人们实际怎样表现」。这就是为什么欺骗（加上充分的事后纾解）是社会心理学实验中不完美但必要的工具。"
+      }
+    ]
+  }
+];
+const chapterManifest = [
+  {
+    "num": 1,
+    "slug": "ch01",
+    "title": "什么是社会心理学",
+    "titleEn": "What Is Social Psychology?",
+    "icon": "🔍"
+  },
+  {
+    "num": 2,
+    "slug": "ch02",
+    "title": "社会认知",
+    "titleEn": "Social Cognition",
+    "icon": "🧠"
+  },
+  {
+    "num": 3,
+    "slug": "ch03",
+    "title": "自我辩护",
+    "titleEn": "Self-Justification",
+    "icon": "🔄"
+  },
+  {
+    "num": 4,
+    "slug": "ch04",
+    "title": "从众",
+    "titleEn": "Conformity",
+    "icon": "👥"
+  },
+  {
+    "num": 5,
+    "slug": "ch05",
+    "title": "大众传播、宣传与说服",
+    "titleEn": "Mass Communication, Propaganda, and Persuasion",
+    "icon": "📢"
+  },
+  {
+    "num": 6,
+    "slug": "ch06",
+    "title": "人类的攻击性",
+    "titleEn": "Human Aggression",
+    "icon": "⚡"
+  },
+  {
+    "num": 7,
+    "slug": "ch07",
+    "title": "偏见",
+    "titleEn": "Prejudice",
+    "icon": "🚧"
+  },
+  {
+    "num": 8,
+    "slug": "ch08",
+    "title": "喜欢、爱与联系",
+    "titleEn": "Liking, Loving, and Interpersonal Sensitivity",
+    "icon": "❤️"
+  },
+  {
+    "num": 9,
+    "slug": "ch09",
+    "title": "作为一门科学的社会心理学",
+    "titleEn": "Social Psychology as a Science",
+    "icon": "🔬"
+  }
+];
+
+(function() {
+    const container = document.getElementById('quizContainer');
+    const scoreBar = document.getElementById('scoreBar');
+
+    if (typeof allQuizData === 'undefined' || !allQuizData || !allQuizData.length) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔀</div><div>No quiz data available yet.</div></div>';
+        return;
+    }
+
+    // Flatten and shuffle questions
+    let questions = [];
+    allQuizData.forEach(ch => {
+        (ch.questions || []).forEach(q => {
+            questions.push({ ...q, chapterNum: ch.chapterNum, chapterTitle: ch.chapterTitle });
+        });
+    });
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    let shuffled = shuffle([...questions]);
+    let mode = 'random';
+    let correct = 0, total = 0;
+
+    function updateScore() {
+        document.getElementById('scoreCorrect').textContent = correct;
+        document.getElementById('scoreTotal').textContent = total;
+        document.getElementById('scorePct').textContent = total > 0 ? Math.round(correct / total * 100) + '%' : '—';
+    }
+
+    function renderQuiz() {
+        scoreBar.style.display = mode === 'chapter-id' ? 'flex' : 'none';
+        container.innerHTML = '';
+        shuffled = shuffle([...questions]);
+        correct = 0; total = 0; updateScore();
+
+        shuffled.forEach((q, i) => {
+            const card = document.createElement('div');
+            card.className = 'quiz-card fade-in';
+
+            if (mode === 'random') {
+                const chTag = `<span class="quiz-chapter-tag hidden">CH.${String(q.chapterNum).padStart(2, '0')}</span>`;
+                card.innerHTML = `
+                    ${chTag}
+                    <div class="quiz-question">${q.question}</div>
+                    <div class="quiz-answer"><div>${q.answer}</div><div style="margin-top:8px;font-family:var(--font-mono);font-size:0.75rem;color:var(--accent3)">— Chapter ${q.chapterNum}: ${q.chapterTitle}</div></div>
+                    <div class="quiz-toggle">CLICK TO REVEAL</div>`;
+                card.addEventListener('click', function() {
+                    if (this.classList.contains('open')) return;
+                    this.classList.add('open');
+                    const ans = this.querySelector('.quiz-answer');
+                    ans.style.maxHeight = ans.scrollHeight + 'px';
+                    this.querySelector('.quiz-toggle').textContent = '';
+                    const tag = this.querySelector('.quiz-chapter-tag');
+                    tag.className = 'quiz-chapter-tag visible';
+                });
+            } else {
+                // Chapter-ID mode
+                card.innerHTML = `
+                    <span class="quiz-chapter-tag hidden">WHICH CHAPTER?</span>
+                    <div class="quiz-question">${q.question}</div>
+                    <div class="chapter-picker" id="picker-${i}"></div>
+                    <div class="quiz-answer"><div>${q.answer}</div></div>`;
+                card.style.cursor = 'default';
+
+                // Build chapter picker after insertion
+                setTimeout(() => {
+                    const picker = document.getElementById('picker-' + i);
+                    if (!picker) return;
+                    const chNums = [...new Set(questions.map(x => x.chapterNum))].sort((a, b) => a - b);
+                    chNums.forEach(num => {
+                        const btn = document.createElement('button');
+                        btn.className = 'ch-pick-btn';
+                        btn.textContent = 'Ch.' + num;
+                        btn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            if (picker.dataset.answered) return;
+                            picker.dataset.answered = 'true';
+                            total++;
+                            if (num === q.chapterNum) {
+                                correct++;
+                                btn.classList.add('correct');
+                                card.classList.add('correct');
+                            } else {
+                                btn.classList.add('wrong');
+                                card.classList.add('incorrect');
+                                // Highlight correct
+                                picker.querySelectorAll('.ch-pick-btn').forEach(b => {
+                                    if (b.textContent === 'Ch.' + q.chapterNum) b.classList.add('correct');
+                                });
+                            }
+                            updateScore();
+                            // Reveal answer
+                            card.classList.add('open');
+                            const ans = card.querySelector('.quiz-answer');
+                            ans.style.maxHeight = ans.scrollHeight + 'px';
+                            const tag = card.querySelector('.quiz-chapter-tag');
+                            tag.className = 'quiz-chapter-tag visible';
+                            tag.textContent = 'CH.' + String(q.chapterNum).padStart(2, '0');
+                        });
+                        picker.appendChild(btn);
+                    });
+                }, 0);
+            }
+            container.appendChild(card);
+        });
+
+        // Observe fade-ins
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        container.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+    }
+
+    // Mode buttons
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            mode = this.dataset.mode;
+            renderQuiz();
+        });
+    });
+
+    // Reset
+    document.getElementById('resetBtn').addEventListener('click', renderQuiz);
+
+    // Spaced review schedule
+    (function() {
+        const grid = document.getElementById('scheduleGrid');
+        const intervals = [
+            { label: 'TODAY', days: 0 },
+            { label: '+1 DAY', days: 1 },
+            { label: '+3 DAYS', days: 3 },
+            { label: '+7 DAYS', days: 7 },
+            { label: '+14 DAYS', days: 14 },
+            { label: '+30 DAYS', days: 30 },
+        ];
+        const now = new Date();
+        intervals.forEach(iv => {
+            const d = new Date(now);
+            d.setDate(d.getDate() + iv.days);
+            const dateStr = d.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+            const card = document.createElement('div');
+            card.className = 'schedule-card fade-in';
+            card.innerHTML = `<div class="schedule-interval">${iv.label}</div><div class="schedule-date">${dateStr}</div>`;
+            grid.appendChild(card);
+        });
+    })();
+
+    renderQuiz();
+
+    // Global fade-in observer for schedule cards
+    const obs2 = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs2.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.schedule-grid .fade-in').forEach(el => obs2.observe(el));
+})();
+</script>
+</body>
+</html>

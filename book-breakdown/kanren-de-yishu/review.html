@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interleaved Review · 看人的艺术 | Book Breakdown</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+
+/* ── Compact Hero ── */
+.hero { padding: 3rem 2rem 2rem; text-align: center; position: relative; }
+.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(255,107,107,0.06) 0%, transparent 50%); pointer-events: none; }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px rgba(108,99,255,0.3)); }
+.hero h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 900; margin-bottom: 0.3rem; }
+.hero-en { font-size: 1rem; color: var(--text-dim); font-weight: 300; margin-bottom: 0.5rem; }
+.hero-badge { display: inline-block; padding: 0.4rem 1.2rem; border: 1px solid var(--accent4); border-radius: 2rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; }
+.back-link { position: absolute; top: 1.5rem; left: 1.5rem; text-decoration: none; color: var(--text-dim); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; transition: color 0.3s; }
+.back-link:hover { color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Mode Selector ── */
+.mode-bar { display: flex; justify-content: center; gap: 12px; margin: 2rem 0; flex-wrap: wrap; }
+.mode-btn { padding: 10px 24px; border: 1px solid var(--border); border-radius: 2rem; background: transparent; color: var(--text-dim); font-family: var(--font-sans); font-size: 0.9rem; cursor: pointer; transition: all 0.3s; }
+.mode-btn:hover { border-color: var(--accent); color: var(--text); }
+.mode-btn.active { border-color: var(--accent); background: rgba(108,99,255,0.15); color: var(--accent); }
+
+/* ── Score Tracker ── */
+.score-bar { display: flex; align-items: center; justify-content: center; gap: 2rem; margin-bottom: 2rem; padding: 1rem; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); }
+.score-label { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim); letter-spacing: 1px; }
+.score-num { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; }
+.score-correct { color: var(--accent3); }
+.score-total { color: var(--text-dim); }
+.score-pct { color: var(--accent4); font-size: 1.2rem; }
+.reset-btn { padding: 6px 16px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.3s; letter-spacing: 1px; }
+.reset-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+/* ── Quiz Cards ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-card.correct { border-color: var(--accent3); }
+.quiz-card.incorrect { border-color: var(--accent2); }
+.quiz-chapter-tag { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 8px; display: inline-block; padding: 2px 10px; border-radius: 4px; }
+.quiz-chapter-tag.hidden { background: rgba(108,99,255,0.15); color: var(--accent); }
+.quiz-chapter-tag.visible { background: rgba(78,205,196,0.15); color: var(--accent3); }
+.quiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1rem; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* Chapter-ID mode */
+.chapter-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.ch-pick-btn { padding: 4px 12px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+.ch-pick-btn:hover { border-color: var(--accent); color: var(--text); }
+.ch-pick-btn.correct { border-color: var(--accent3); color: var(--accent3); background: rgba(78,205,196,0.1); }
+.ch-pick-btn.wrong { border-color: var(--accent2); color: var(--accent2); background: rgba(255,107,107,0.1); }
+
+/* ── Spaced Review ── */
+.section-header { margin: 3rem 0 1.5rem; }
+.section-badge { display: inline-block; font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.4rem; font-weight: 700; }
+.schedule-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.schedule-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; transition: all 0.3s; }
+.schedule-card:hover { border-color: var(--accent4); }
+.schedule-interval { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 1px; margin-bottom: 6px; }
+.schedule-date { font-size: 0.85rem; color: var(--text-dim); }
+
+/* ── Footer ── */
+.footer { text-align: center; padding: 4rem 0; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+
+/* ── Empty State ── */
+.empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-dim); }
+.empty-state-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 768px) {
+    .score-bar { flex-wrap: wrap; gap: 1rem; }
+    .schedule-grid { grid-template-columns: repeat(3, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<section class="hero">
+    <a href="index.html" class="back-link">← 返回目录</a>
+    <div class="hero-icon">🔀</div>
+    <h1>Interleaved Review · 交叉复习</h1>
+    <div class="hero-en">Snoop: What Your Stuff Says About You</div>
+    <div class="hero-badge">SPACED PRACTICE</div>
+</section>
+
+<div class="container">
+    <div class="mode-bar" id="modeBar">
+        <button class="mode-btn active" data-mode="random">🎲 Random Quiz · 随机测验</button>
+        <button class="mode-btn" data-mode="chapter-id">🔍 Chapter ID · 章节识别</button>
+    </div>
+    <div class="score-bar" id="scoreBar" style="display:none">
+        <div><div class="score-label">CORRECT</div><div class="score-num score-correct" id="scoreCorrect">0</div></div>
+        <div><div class="score-label">TOTAL</div><div class="score-num score-total" id="scoreTotal">0</div></div>
+        <div><div class="score-label">ACCURACY</div><div class="score-num score-pct" id="scorePct">—</div></div>
+        <button class="reset-btn" id="resetBtn">RESET</button>
+    </div>
+    <div id="quizContainer"></div>
+
+    <div class="section-header fade-in">
+        <div class="section-badge">SPACED REVIEW SCHEDULE</div>
+        <div class="section-title">间隔复习计划</div>
+    </div>
+    <div class="schedule-grid" id="scheduleGrid"></div>
+</div>
+
+<div class="footer">
+    Book Breakdown · Interleaved Review · 看人的艺术
+</div>
+
+<script>
+const meta = {
+  "title": "看人的艺术",
+  "titleEn": "Snoop: What Your Stuff Says About You",
+  "author": "山姆·高斯林 (Sam Gosling)",
+  "icon": "🔍",
+  "slug": "kanren-de-yishu",
+  "methodLabel": "FEYNMAN METHOD",
+  "stats": [
+    {
+      "num": "11",
+      "label": "Chapters"
+    },
+    {
+      "num": "3",
+      "label": "Parts"
+    },
+    {
+      "num": "∞",
+      "label": "Insights"
+    }
+  ]
+};
+const allQuizData = [
+  {
+    "chapterNum": 0,
+    "chapterTitle": "神秘盒子的出现：偷窥学的诞生",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么作者认为观察私人空间比面对面交谈更能揭示真实个性？",
+        "answer": "面对面交谈中，人们会进行「印象管理」——控制自己的表情、言语和行为来呈现理想形象。但私人空间是长期行为的累积结果：书架上的书是多年阅读习惯的痕迹，桌面的整洁度是每天行为模式的产物，这些极难在短时间内伪造。而且人们不会意识到自己留下了哪些线索���如百叶窗叶片的角度），所以这些「行为痕迹」比口头陈述更诚实。"
+      },
+      {
+        "id": "q2",
+        "question": "偷窥学研究的核心方法论是什么？它是如何验证观察的准确性的？",
+        "answer": "核心方法论是让完全陌生的判断者进入房间主人的私人空间（卧室/办公室），仅通过观察物品环境形成对房间主人的人格评估，然后将这些评估与房间主人的自评以及亲密朋友的评价进行比对。如果陌生判断者的评估与真实人格一致，就说明空间中确实包含可被解读的有效个性线索。"
+      },
+      {
+        "id": "q3",
+        "question": "用你自己的话解释「房间是个性指纹」这个类比。（费曼检验）",
+        "answer": "参考答案：指纹是你的手指反复接触物体时自然形成的独一无二的纹路——你不需要刻意去「创造」它，它就是你的生物属性的自然结果。同样，你的房间也是你日复一日的习惯、偏好和价值观反复「按压」后形成的——你不需要刻意布置，它自然就反映了你是什么样的人。而且就像指纹很难完全抹除一样，你的房间里的个性痕迹也很难完全伪造。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 1,
+    "chapterTitle": "私人印记会说话：三大线索机制",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "一个人在办公桌抽屉里放了一张写着「你能行！」的便条，这属于哪种线索机制？为什么？",
+        "answer": "这属于「针对自己的身份标签」。因为它放在抽屉里（私密位置），不是给别人看的，而是给自己的激励和提醒——传达的是「我想成为那种能行的人」的自我认知。同时也有情感调节器的成分，因为看到这张便条能帮助缓解焦虑、增强信心。"
+      },
+      {
+        "id": "q2",
+        "question": "为什么行为痕迹是三种线索中最难伪造的？",
+        "answer": "因为行为痕迹是日常行为的「副产品」而非有意为之——百叶窗叶片不整齐是因为主人匆忙拉开时不在意细节，跑鞋磨损是因为主人确实常跑步。要伪造这些痕迹，你需要「假装」过一种你并没有过的生活，而且要做得天衣无缝——不仅要磨损跑鞋，还要确保门口有跑步路线的地图、垃圾桶里有运动饮料的瓶子。这种系统性的伪装需要极大的精力和专业知识。"
+      },
+      {
+        "id": "q3",
+        "question": "邓肯房间里的风景照片和辛迪房间里的励志标语，虽然都不是给别人看的，但属于不同的线索机制。请解释它们的区别。",
+        "answer": "邓肯的风景照片是「情感调节器」——它的功能是调节情绪状态，帮助邓肯在高压环境中保持平静，就像一剂「心理镇静药」。辛迪的励志标语是「针对自己的身份标签」——它的功能是强化自我认知，提醒自己「我想成为什么样的人」，就像贴在镜子上的「个人宣言」。区别在于：情感调节器改变的是「你的感受」，而身份标签强化的是「你的身份认同」。"
+      },
+      {
+        "id": "q4",
+        "question": "如果你走进一个完全陌生人的房间，你会优先关注哪种线索？为什么？（费曼检验）",
+        "answer": "参考答案：应该优先关注行为痕迹，因为它们最难伪造、最能反映真实个性。比如：桌面是否整洁（责任感）、书架上的书是否有翻阅痕迹（真的读了vs只是摆设）、衣物是如何放置的（叠放vs散落）。身份标签虽然信息量大但可能是刻意营造的形象；情感调节器提供有价值的情绪信息但需要知道哪些是给自己看的。行为痕迹是「行为口误」——主人不知道自己留下了什么线索，所以最接近真相。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 2,
+    "chapterTitle": "大五人格理论：个性的度量衡",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "用你自己的话解释「大五就像GPS坐标」这个类比。（费曼检验）",
+        "answer": "参考答案：GPS用经度和纬度两个数字就能精确定位地球上的任何一个点——不需要街道名、城市名等额外信息。同样，大五用五个维度的分数（比如O=75, C=40, E=82, A=55, N=30）就能在「人格空间」中定位任何一个人。就像同一个经纬度不可能指向两个不同的地点一样，同一组五维分数也描述了一个独特的人格特征组合。"
+      },
+      {
+        "id": "q2",
+        "question": "为什么作者用流行文化人物来代表每个维度？达·芬奇（开放性）和机器战警（责任感）有什么本质区别？",
+        "answer": "用流行文化人物是为了让抽象的人格维度变得具体可感。达·芬奇代表「开放性」的核心——对世界的无尽好奇和创造性探索，他同时是画家、科学家、工程师，兴趣极其广泛。机器战警代表「责任感」的核心——严格遵循规则、有序执行任务、一丝不苟。本质区别在于：开放性关乎「你对新经验的接纳程度」，责任感关乎「你对秩序和目标的坚持程度」。一个人可以同时在两个维度上都高或都低。"
+      },
+      {
+        "id": "q3",
+        "question": "如果一个人的房间里有各种类型的书但排列混乱，这在大五维度上意味着什么？",
+        "answer": "书的种类繁多表明高开放性（兴趣广泛、对新事物好奇），但排列混乱表明较低的责任感（缺乏系统性组织的习惯）。这是一个典型的「高O低C」组合——一个充满好奇心但不太注重秩序的人。这也说明大五的五个维度是相互独立的：一个人可以在开放性上很高，同时在责任感上很低。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 3,
+    "chapterTitle": "暗处观察：个性的三个层次",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "McAdams人格三层次模型中，「一个人正在努力减肥」属于哪个层次？为什么？",
+        "answer": "属于第二层「个人关注」（Personal Concerns）。因为减肥是一个当前的、具体的人生目标，反映了这个人在特定人生阶段的关注焦点和行动方向。第一层只能告诉我们「他责任感偏低」（导致暴饮暴食），第三层则是「他童年被嘲笑体型所以体重对他意味着自我价值」——这才是身份叙事。"
+      },
+      {
+        "id": "q2",
+        "question": "为什么偷窥学主要擅长识别第一层特质，却很难触及第三层身份叙事？",
+        "answer": "因为特质（如外向性、责任感）会在物品和空间中留下持续的、可观察的痕迹——整洁的桌面反映高责任感，各种类型的书反映高开放性。但身份叙事是主观的、内在的人生故事——「我为什么选择这份工作」「童年经历如何塑造了我」——这些深层意义不会自动附着在物品上。一本海明威的书可能是随便买的，也可能代表了他一生中最重要的转折点——仅凭观察无法区分。"
+      },
+      {
+        "id": "q3",
+        "question": "用「了解一首歌」的类比来解释三层次模型。（费曼检验）",
+        "answer": "参考答案：第一层像知道「这是一首摇滚歌曲」——你知道了它的类型、节奏风格、大致情绪，这相当于知道一个人的大五人格分数。第二层像读懂歌词「这首歌讲的是一个人失恋后的挣扎」——你知道了它具体在表达什么，相当于知道一个人当前的目标和困境。第三层像了解到「这首歌是作者在父亲去世后写的，每一句歌词都是他对父亲的告别」——你理解了它对创作者的深层意义，相当于理解了一个人的核心身份叙事。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 4,
+    "chapterTitle": "卧室里的秘密：比利时方法",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "比利时方法的第一步为什么是「退后观察」而不是「仔细检查」？",
+        "answer": "因为直接仔细检查容易让你被第一个引人注目的物品锚定判断。比如一进门看到地上的高跟鞋就判断主人是女性，然后用「女性」这个框架来解读所有后续线索。退后观察先获取整体氛围（整洁/杂乱、明亮/阴暗、温馨/冷清），然后再有意识地进入细节，这样第一印象不会过度影响后续判断。"
+      },
+      {
+        "id": "q2",
+        "question": "斯蒂芬妮的海鸥挂件如果放在三个不同的位置——桌子旁、抽屉里、门口的钩子上——分别意味着什么？",
+        "answer": "桌子旁（显眼且靠近自己）：可能是情感调节器——每次看到它就想起海边的美好回忆，帮助调节工作压力中的情绪。抽屉里（隐蔽）：可能是私密的身份标签——海洋对她很重要但她不想公开表达。门口钩子上（面向访客）：可能是针对他人的身份标签——告诉每个进来的人「我是热爱海洋/旅行的人」。同一件物品，位置不同，线索类型和含义完全改变。"
+      },
+      {
+        "id": "q3",
+        "question": "为什么「关注缺失的线索」是高级观察技巧？举一个例子。（费曼检验）",
+        "answer": "参考答案：缺失的线索之所以高级，是因为人类天生擅长注意「有什么」而不擅长注意「没有什么」——这需要你心里有一个「正常情况下应该有什么」的参照框架。例如：你参观一个已婚男性的办公室，桌上有大量工作相关物品但没有一张家人照片。在85%的成年人都会在办公室放家人照片的背景下，这种「缺失」就是一条有力的线索——可能意味着他工作与家庭界限分明，或者家庭关系不亲密。但要确认，你需要看看同一公司的其他已婚同事的办公室作为参照。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 5,
+    "chapterTitle": "身体会说话：肢体语言与数字痕迹",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么Pennebaker认为功能词比内容词更能揭示人格？",
+        "answer": "内容词（名词、动词）是人们有意识选择的——你可以刻意谈论某个话题来塑造印象。但功能词（代词、介词、冠词）的使用频率是无意识的——没有人会刻意控制自己一天说了多少个「我」。正因为不被注意，功能词的使用模式极其稳定且难以伪造。研究发现频繁使用「我」的人神经质更高（更关注自我感受），频繁使用「我们」的人宜人性更高（更注重集体归属）。"
+      },
+      {
+        "id": "q2",
+        "question": "光环效应如何干扰我们通过外貌判断人格？请举例说明。",
+        "answer": "光环效应让我们把一个维度上的优势泛化到所有维度——「好看=好人=聪明=可靠」。例如：面试时一个穿着得体、相貌端正的候选人会被认为更有责任感、更善良、更聪明，但研究表明外貌只能准确预测外向性（好看的人确实更善于社交）。一个长相平凡但责任感极高的候选人可能因为外貌不占优势而被错误地低估。对策：有意识地将外貌判断与性格判断分开，只用外貌来估计外向性。"
+      },
+      {
+        "id": "q3",
+        "question": "EAR方法为什么比传统行为观察更能捕捉真实个性？（费曼检验）",
+        "answer": "参考答案：传统观察就像有人一直拿着摄像机对着你——你知道有人在看，所以你会表演。EAR方法就像一个你忘记了的闹钟：微型记录器每12.5分钟随机录音30秒，几天后你完全忘了它的存在。这样录到的是你真正的日常：跟谁聊天、聊什么、语气如何、沉默了多久。这些自然行为片段比任何精心准备的面试或问卷都更真实地反映你的个性。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 6,
+    "chapterTitle": "所有的伪装都有破绽",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "Paulhus的过度宣称问卷如何区分「印象管理」和「自欺性拔高」？",
+        "answer": "在警告受测者「名单中有虚构名字」之后观察变化：普通的印象管理者会立刻变诚实（因为他们知道自己在假装），过度宣称分数急剧下降。但自欺性拔高者（尤其是自恋者）的分数几乎不变——因为他们不是在假装，而是真的相信自己认识这些虚构的人。他们甚至会与研究者争论这些假名是真实存在的。"
+      },
+      {
+        "id": "q2",
+        "question": "自我验证理论如何解释「低自评者获得加薪后反而离职」的现象？",
+        "answer": "自我验证理论认为��们更渴望获得与自我认知一致的反馈，即使自我认知是消极的。一个认为自己「能力一般」的人获得加薪后，这个正面反馈与他的自我认知产生了不一致（「我不配这个薪水」），这种不一致带来的焦虑和不安感比薪水带来的快乐更强烈，所以他选择离开寻找一个与自我认知一致的环境。"
+      },
+      {
+        "id": "q3",
+        "question": "用「冒充当地人」的类比解释为什么长期伪装空间几乎不可能。（费曼检验）",
+        "answer": "参考答案：你去一个陌生国家冒充当地人。你可以学会语言（=身份标签），穿当地服装（=外在形象），甚至学会当地的问候方式。但是：你不会知道当地人在超市买什么品牌的牛奶（=行为痕迹细节），你不会在受惊时用当地方言骂人（=无意识反应），你不知道当地人觉得什么程度的杂乱是「正常」的（=不同的标准）。同样，你可以挂一张格瓦拉海报假装左翼，但你不会知道一个真正的左翼分子的书架上应该有哪些书、以什么顺序排列、哪些有翻阅痕迹。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 7,
+    "chapterTitle": "忠于常识还是保持怀疑",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "用「GPS初始定位」的类比解释传统看法在观察中的正确使用方式。（费曼检验）",
+        "answer": "参考答案：刚打开GPS时它给你一个大致位置——可能偏差几百米。你不会把这个位置当成精确地址来用，但它告诉你「大概在这个区域」。传统看法也是这样：知道新同事来自巴西，你可以初步假设他对时间可能比较随意（Levine的研究支持这一点），但这只是初始定位。接下来你需要通过具体观察（他的办公桌是否整洁？日历是否更新？）来精确修正这个假设。一旦卫星信号（具体线索）足够多，你就应该抛弃初始定位（传统看法），使用精确坐标。"
+      },
+      {
+        "id": "q2",
+        "question": "为什么在卧室研究中，「女性更有宜人性」的传统看法反而降低了判断准确性？",
+        "answer": "判断者进入房间后会根据线索推断主人的性别（女性房间通常更多装饰、更色彩丰富），然后套用「女性更善良」的传统看法，给女性房主的宜人性打更高分。问题是：在研究的实际数据中，男性和女性在宜人性方面的真实得分并没有差异。所以判断者使用了一个不正确的传统看法来替代对具体线索的分析，结果反而降低了判断准确性。"
+      },
+      {
+        "id": "q3",
+        "question": "为什么作者要同时讨论「传统看法有用」和「传统看法有害」？",
+        "answer": "因为两个极端都是错误的。完全否定传统看法会让你失去一种有效的认知工具——女性确实在神经质上得分更高，这是有数据支持的有效线索。但完全依赖传统看法会让你忽略个体差异并使用错误的泛化——不是每个女性都比每个男性更神经质。作者的核心观点是：传统看法是「有效的假设」——保持开放地使用它们，但一旦获得具体线索就立刻修正或丢弃。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 8,
+    "chapterTitle": "不同领域的个性密码",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "布伦斯维克透镜模型中，面试官判断「社交能力」准确但判断「工作动机」不准确，原因分别是什么？",
+        "answer": "判断社交能力准确是因为面试官正确使用了有效线索——交谈量、手势和穿着正式度确实与社交能力相关。判断工作动机不准确是因为面试官错误地使用了无效线索——他们用手势来判断工作动机，但手势与工作动机无关；他们错过了真正有效的线索——应聘者的前倾程度（前倾越多，工作动机越强）。"
+      },
+      {
+        "id": "q2",
+        "question": "为什么个人网站是所有观察领域中信息量最大的？",
+        "answer": "因为个人网站综合了多种线索类型：身份标签（个人简介、偏好列表）、情感调节器（喜欢的音乐和图片）、行为痕迹（更新频率、写作风格）。而且网站覆盖了人生的多个方面——从工作到娱乐、从政治到宗教、从社交到审美，相当于同时打开了多扇观察窗口。其他领域通常只提供某一方面的信息：卧室偏重日常生活，办公室偏重工作状态，音乐集只反映品味。"
+      },
+      {
+        "id": "q3",
+        "question": "用「体检」的类比解释为什么需要多领域观察。（费曼检验）",
+        "answer": "参考答案：就像体检不能只做一项检查：验血能查出贫血和糖尿病但查不出骨折，X光能发现骨折但看不到血糖水平，心电图能检测心律但对肝脏一无所知。要全面了解健康状况，你需要多项检查互相补充。同样，卧室能看到责任感和开放性（相当于验血），音乐集能听到外向性和情绪倾向（相当于心电图），面对面接触能感受社交风格（相当于体格检查）。最准确的「人格体检报告」来自多个领域的综合观察。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 9,
+    "chapterTitle": "摆脱障眼法：五种观察陷阱",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "FBI犯罪现场调查员为什么建议「进入空间后先坐一会儿」？这对抗的是哪种障眼法？",
+        "answer": "对抗的是障眼法1（锚定效应）和障眼法2（线索染色）。当你刚走进一个房间时，最引人注目的物品会立刻抓住你的注意力并锚定你的判断——比如地上的一双高跟鞋或墙上的一幅巨大海报。坐下来等一会儿，让这些「抢眼」的线索在注意力中褪色，其他不起眼但可能同样重要的线索就有机会浮现——比如角落里的日历是否更新、书架上的书是否有翻阅痕迹。"
+      },
+      {
+        "id": "q2",
+        "question": "障眼法3（间接线索）为什么是最隐蔽的陷阱？请用「伴侣照片判断主人吸引力」的例子解释。",
+        "answer": "它最隐蔽是因为有效线索表面上看与目标毫无关系——「照片里伴侣的外貌」跟「房间主人的外貌」看似毫不相关。但心理学研究证明人们倾向于找魅力相当的伴侣（魅力匹配），所以伴侣好看→主人大概率也好看。这种推理路径需要你知道魅力匹配理论才能走通——如果你不知道这个知识，这条线索对你来说就是隐形的。这是障眼法5（专业知识）的叠加效果。"
+      },
+      {
+        "id": "q3",
+        "question": "用「五个盲区」的类比解释五种障眼法的共同特点。（费曼检验）",
+        "answer": "参考答案：开车时你知道左后方、右后方等位置有盲区——但每次变道你还是需要刻意转头去看，因为大脑默认不会自动检查这些位置。五种障眼法也是这样：即使你知道锚定效应存在（盲区存在），下次走进一个房间时你还是会被第一印象锚定（还是会忘记检查盲区）。区别在于：新手司机根本不知道盲区在哪里（不知道有哪些障眼法），老司机知道但偶尔会忘，最安全的做法是养成系统性检查的习惯（比利时方法+五种障眼法的清单）。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 10,
+    "chapterTitle": "从办公室看人：观察术的实战",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "吉布森的办公室中有哪三条线索交叉印证了他「有想法没行动」的个性？",
+        "answer": "1）两幅画（普林斯顿建筑和家里画的复制品）都没有挂在墙上——一幅靠在墙边，一幅在打印机上摇晃；2）桌上的日历已经20天没有更新——说明他意识到时间管理的价值但没有坚持执行；3）有办公桌文具盒但橡皮筋散落在外面——他买了整理工具但没有持续使用。这三条线索从不同角度指向同一个结论：他渴望有序但行动跟不上想法。"
+      },
+      {
+        "id": "q2",
+        "question": "巴兹的家人照片为什么同时包含身份标签和情感调节器两种机制？请具体分析。",
+        "answer": "巴兹的照片分为两组：窗台上精心装框的家庭照面向访客座位（访客能看到但巴兹需要转身才看到）——这是身份标签，告诉每个来访者「家庭对我很重要，我是好丈夫好父亲」。公告板上的孩子照片排成一排、只有自己工作时才能看到——这是情感调节器，帮助他在工作中感受与家人的连接，缓解分离带来的孤独感。Gardner的研究证实：这些照片确实能抑制社交孤独感带来的情绪低落。"
+      },
+      {
+        "id": "q3",
+        "question": "如果你只能观察一个人的办公室（无法进入他的家），你会按什么顺序运用本书介绍的方法论？（费曼检验）",
+        "answer": "参考答案：1）先用比利时方法（第4章）退后观察整体，记录第一印象但标记为「待验证」；2）系统扫描每件物品，按三种线索机制（第1章）分类——哪些是身份标签、哪些是情感调节器、哪些是行为痕迹；3）在大五模型（第2章）的五个维度上初步打分；4）检查五种障眼法（第9章）：我是否被锚定效应误导？线索之间是否互相染色？有没有我因为专业知识不足而看不懂的线索？5）与同一公司的其他办公室做对比（障眼法5），排除公司政策的影响；6）特别关注缺失的线索——没有家人照片、空着的书架——它们可能和存在的线索一样有信息量。"
+      },
+      {
+        "id": "q4",
+        "question": "本书的核心观点可以用一句话概括吗？",
+        "answer": "每个人都在私人空间留下了个性的指纹——通过系统地观察身份标签、情感调节器和行为痕迹，结合大五人格模型和五种障眼法的知识，我们可以比面对面交谈更准确地了解一个人的真实个性，但必须保持谦逊，因为观察有其边界——深层的身份叙事仍然需要直接对话。"
+      }
+    ]
+  }
+];
+const chapterManifest = [
+  {
+    "num": 0,
+    "slug": "ch00",
+    "title": "神秘盒子的出现：偷窥学的诞生",
+    "titleEn": "The Mystery Box: Birth of Snoopology",
+    "icon": "📦"
+  },
+  {
+    "num": 1,
+    "slug": "ch01",
+    "title": "私人印记会说话：三大线索机制",
+    "titleEn": "Personal Imprints: Three Clue Mechanisms",
+    "icon": "🏷️"
+  },
+  {
+    "num": 2,
+    "slug": "ch02",
+    "title": "大五人格理论：个性的度量衡",
+    "titleEn": "Big Five Personality: The Measuring Scale",
+    "icon": "⭐"
+  },
+  {
+    "num": 3,
+    "slug": "ch03",
+    "title": "暗处观察：个性的三个层次",
+    "titleEn": "Observing in the Dark: Three Levels of Personality",
+    "icon": "🔦"
+  },
+  {
+    "num": 4,
+    "slug": "ch04",
+    "title": "卧室里的秘密：比利时方法",
+    "titleEn": "Bedroom Secrets: The Belgian Method",
+    "icon": "🛏️"
+  },
+  {
+    "num": 5,
+    "slug": "ch05",
+    "title": "身体会说话：肢体语言与数字痕迹",
+    "titleEn": "Body Language & Digital Traces",
+    "icon": "🚶"
+  },
+  {
+    "num": 6,
+    "slug": "ch06",
+    "title": "所有的伪装都有破绽",
+    "titleEn": "Every Disguise Has a Flaw",
+    "icon": "🎭"
+  },
+  {
+    "num": 7,
+    "slug": "ch07",
+    "title": "忠于常识还是保持怀疑",
+    "titleEn": "Trust Stereotypes or Stay Skeptical",
+    "icon": "⚖️"
+  },
+  {
+    "num": 8,
+    "slug": "ch08",
+    "title": "不同领域的个性密码",
+    "titleEn": "Personality Codes in Different Domains",
+    "icon": "🗂️"
+  },
+  {
+    "num": 9,
+    "slug": "ch09",
+    "title": "摆脱障眼法：五种观察陷阱",
+    "titleEn": "Five Optical Illusions of Observation",
+    "icon": "👁️"
+  },
+  {
+    "num": 10,
+    "slug": "ch10",
+    "title": "从办公室看人：观察术的实战",
+    "titleEn": "Office Snooping: Observation in Action",
+    "icon": "🏢"
+  }
+];
+
+(function() {
+    const container = document.getElementById('quizContainer');
+    const scoreBar = document.getElementById('scoreBar');
+
+    if (typeof allQuizData === 'undefined' || !allQuizData || !allQuizData.length) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔀</div><div>No quiz data available yet.</div></div>';
+        return;
+    }
+
+    // Flatten and shuffle questions
+    let questions = [];
+    allQuizData.forEach(ch => {
+        (ch.questions || []).forEach(q => {
+            questions.push({ ...q, chapterNum: ch.chapterNum, chapterTitle: ch.chapterTitle });
+        });
+    });
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    let shuffled = shuffle([...questions]);
+    let mode = 'random';
+    let correct = 0, total = 0;
+
+    function updateScore() {
+        document.getElementById('scoreCorrect').textContent = correct;
+        document.getElementById('scoreTotal').textContent = total;
+        document.getElementById('scorePct').textContent = total > 0 ? Math.round(correct / total * 100) + '%' : '—';
+    }
+
+    function renderQuiz() {
+        scoreBar.style.display = mode === 'chapter-id' ? 'flex' : 'none';
+        container.innerHTML = '';
+        shuffled = shuffle([...questions]);
+        correct = 0; total = 0; updateScore();
+
+        shuffled.forEach((q, i) => {
+            const card = document.createElement('div');
+            card.className = 'quiz-card fade-in';
+
+            if (mode === 'random') {
+                const chTag = `<span class="quiz-chapter-tag hidden">CH.${String(q.chapterNum).padStart(2, '0')}</span>`;
+                card.innerHTML = `
+                    ${chTag}
+                    <div class="quiz-question">${q.question}</div>
+                    <div class="quiz-answer"><div>${q.answer}</div><div style="margin-top:8px;font-family:var(--font-mono);font-size:0.75rem;color:var(--accent3)">— Chapter ${q.chapterNum}: ${q.chapterTitle}</div></div>
+                    <div class="quiz-toggle">CLICK TO REVEAL</div>`;
+                card.addEventListener('click', function() {
+                    if (this.classList.contains('open')) return;
+                    this.classList.add('open');
+                    const ans = this.querySelector('.quiz-answer');
+                    ans.style.maxHeight = ans.scrollHeight + 'px';
+                    this.querySelector('.quiz-toggle').textContent = '';
+                    const tag = this.querySelector('.quiz-chapter-tag');
+                    tag.className = 'quiz-chapter-tag visible';
+                });
+            } else {
+                // Chapter-ID mode
+                card.innerHTML = `
+                    <span class="quiz-chapter-tag hidden">WHICH CHAPTER?</span>
+                    <div class="quiz-question">${q.question}</div>
+                    <div class="chapter-picker" id="picker-${i}"></div>
+                    <div class="quiz-answer"><div>${q.answer}</div></div>`;
+                card.style.cursor = 'default';
+
+                // Build chapter picker after insertion
+                setTimeout(() => {
+                    const picker = document.getElementById('picker-' + i);
+                    if (!picker) return;
+                    const chNums = [...new Set(questions.map(x => x.chapterNum))].sort((a, b) => a - b);
+                    chNums.forEach(num => {
+                        const btn = document.createElement('button');
+                        btn.className = 'ch-pick-btn';
+                        btn.textContent = 'Ch.' + num;
+                        btn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            if (picker.dataset.answered) return;
+                            picker.dataset.answered = 'true';
+                            total++;
+                            if (num === q.chapterNum) {
+                                correct++;
+                                btn.classList.add('correct');
+                                card.classList.add('correct');
+                            } else {
+                                btn.classList.add('wrong');
+                                card.classList.add('incorrect');
+                                // Highlight correct
+                                picker.querySelectorAll('.ch-pick-btn').forEach(b => {
+                                    if (b.textContent === 'Ch.' + q.chapterNum) b.classList.add('correct');
+                                });
+                            }
+                            updateScore();
+                            // Reveal answer
+                            card.classList.add('open');
+                            const ans = card.querySelector('.quiz-answer');
+                            ans.style.maxHeight = ans.scrollHeight + 'px';
+                            const tag = card.querySelector('.quiz-chapter-tag');
+                            tag.className = 'quiz-chapter-tag visible';
+                            tag.textContent = 'CH.' + String(q.chapterNum).padStart(2, '0');
+                        });
+                        picker.appendChild(btn);
+                    });
+                }, 0);
+            }
+            container.appendChild(card);
+        });
+
+        // Observe fade-ins
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        container.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+    }
+
+    // Mode buttons
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            mode = this.dataset.mode;
+            renderQuiz();
+        });
+    });
+
+    // Reset
+    document.getElementById('resetBtn').addEventListener('click', renderQuiz);
+
+    // Spaced review schedule
+    (function() {
+        const grid = document.getElementById('scheduleGrid');
+        const intervals = [
+            { label: 'TODAY', days: 0 },
+            { label: '+1 DAY', days: 1 },
+            { label: '+3 DAYS', days: 3 },
+            { label: '+7 DAYS', days: 7 },
+            { label: '+14 DAYS', days: 14 },
+            { label: '+30 DAYS', days: 30 },
+        ];
+        const now = new Date();
+        intervals.forEach(iv => {
+            const d = new Date(now);
+            d.setDate(d.getDate() + iv.days);
+            const dateStr = d.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+            const card = document.createElement('div');
+            card.className = 'schedule-card fade-in';
+            card.innerHTML = `<div class="schedule-interval">${iv.label}</div><div class="schedule-date">${dateStr}</div>`;
+            grid.appendChild(card);
+        });
+    })();
+
+    renderQuiz();
+
+    // Global fade-in observer for schedule cards
+    const obs2 = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs2.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.schedule-grid .fade-in').forEach(el => obs2.observe(el));
+})();
+</script>
+</body>
+</html>
