@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>查找应用 · Searching Applications | Chapter 15</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: code-evolution */
+.evolution-timeline { position: relative; padding-left: 50px; }
+.evolution-timeline::before { content: ''; position: absolute; left: 30px; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--accent), var(--accent3), var(--accent2)); border-radius: 2px; }
+.evo-step { position: relative; padding-left: 30px; margin-bottom: 2rem; }
+.evo-dot { position: absolute; left: -30px; top: 5px; width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--accent); background: var(--bg); z-index: 1; }
+.evo-step.active .evo-dot { background: var(--accent); box-shadow: 0 0 12px rgba(108,99,255,0.5); }
+.evo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all 0.3s; }
+.evo-card:hover { border-color: var(--accent); }
+.evo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+.evo-title { font-weight: 700; }
+.evo-speed { font-family: var(--font-mono); font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 1rem; }
+.evo-speed.success { background: rgba(52,211,153,0.15); color: var(--success); }
+.evo-speed.danger { background: rgba(248,113,113,0.15); color: var(--danger); }
+.evo-speed.neutral { background: rgba(136,136,160,0.15); color: var(--text-dim); }
+.evo-desc { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 10px; }
+.evo-code { background: #12141c; border: 1px solid #1e2030; border-radius: 0.5rem; padding: 1rem; font-family: var(--font-mono); font-size: 0.8rem; color: #a0a0c0; overflow-x: auto; white-space: pre; }
+
+
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* Block: pipeline */
+.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
+.pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(108,99,255,0.3); }
+.pipe-node.highlight { background: linear-gradient(135deg, var(--accent2), #ef4444); }
+.pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
+.pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
+@media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
+
+
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 15 / 25 · Part III · Searching 查找</div>
+        <div class="hero-icon">🔍</div>
+        <h1 class="hero-title">查找应用</h1>
+        <p class="hero-sub">符号表不只是数据结构——它是连接「名字」与「含义」的桥梁，从DNS到PageRank，现代计算基础设施的核心都建立在高效查找之上</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">核心类比：符号表 = 现代世界的翻译官</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">📖</div>
+            <div class="analogy-label">现实世界的通讯录</div>
+            <div class="analogy-desc">名字 → 电话号码（正向查找）
+电话号码 → 名字（反向查找）
+筛掉骚扰电话（黑名单过滤）
+「所有住在北京的朋友」（索引查询）</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">💻</div>
+            <div class="analogy-label">程序中的符号表</div>
+            <div class="analogy-desc">URL → IP 地址（DNS 字典）
+关键词 → 网页列表（搜索引擎反向索引）
+IP 黑名单 → 防火墙过滤
+稀疏矩阵 → 只存非零元素（PageRank）</div>
+        </div>
+    </div>
+    
+</section>
+
+<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">哈希表 vs 红黑BST：如何选择？</div>
+    <div class="comparison-grid">
+        <div class="comparison-side hard">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">哈希表 (HashST)</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">// 优势：
+// 1. 查找/插入平均 O(1)
+// 2. 代码更简单
+// 3. 对标准类型有内置 hashCode()
+
+HashST<String, Integer> st =
+    new HashST<>();
+st.put("key", 42);
+int val = st.get("key"); // O(1)</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side smart">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">红黑BST (ST)</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">// 优势：
+// 1. 最坏情况 O(lg N) 有保证
+// 2. 支持有序操作：rank, select,
+//    range, min, max, floor, ceiling
+// 3. 不需要设计 hash 函数
+
+ST<String, Integer> st = new ST<>();
+st.put("key", 42);
+st.rank("key"); // 有序操作！</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">经验法则：大多数程序员默认用哈希表，除非需要有序操作（rank、select、范围查找）时才用红黑BST。
+当键是长字符串时，Trie（第5章）比两者都更好。</div></div>
+</section>
+
+<!-- Block: code-evolution — Step-by-step code transformation timeline -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">从 ST 到 SET：当你不需要值的时候</div>
+    <p class="section-intro" style="color:var(--text-dim);margin-bottom:2rem;">SET 是符号表的退化形式——只关心键是否存在，不关心关联的值。去重、白名单、黑名单都是 SET 的典型应用。</p>
+    <div class="evolution-timeline" id="evoTimeline-block3"></div>
+</section>
+
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block4" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">字典客户端：符号表的八大经典应用场景</div>
+    <div class="tips-grid" id="tipsGrid-block4"></div>
+</section>
+
+<!-- Block: pipeline — Flow diagram with connected nodes -->
+<section id="sec-block5" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">索引与反向索引：从一对多到多对一</div>
+    <div class="pipeline-flow" id="pipeline-block5"></div>
+    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;">LookupIndex 的双向构建过程</div>
+</section>
+
+<!-- Block: code-evolution — Step-by-step code transformation timeline -->
+<section id="sec-block6" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">稀疏向量：符号表带来十亿倍加速</div>
+    <p class="section-intro" style="color:var(--text-dim);margin-bottom:2rem;">当矩阵中 99.99% 的元素为零时，用符号表只存非零元素，矩阵-向量乘法从 O(N²) 降到 O(N + 非零元素数)。</p>
+    <div class="evolution-timeline" id="evoTimeline-block6"></div>
+</section>
+
+<!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block7" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">💎 </div>
+        <div class="insight-content">Google 的 PageRank 算法本质上就是反复做稀疏矩阵-向量乘法，直到结果收敛。
+网页数 N ≈ 10¹⁰，但每个网页平均只链接到不到 10 个其他网页（极度稀疏）。
+用标准数组：N² = 10²⁰ 次运算 → 不可能完成。
+用 SparseVector：N × 10 = 10¹¹ 次运算 → 加速十亿倍（10⁹），变为可行！
+「不利用稀疏性的程序员严重限制了自己解决实际问题的能力。」</div>
+    </div>
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "符号表的应用 = 用「名字」快速找到「东西」—— 字典、过滤器、索引、稀疏矩阵都是同一个抽象的不同面孔"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "想象你有一本巨大的通讯录：查电话号码是字典查找，标记骚扰电话是黑名单过滤，而「哪些人住在北京」就是反向索引"
+  },
+  {
+    "step": 3,
+    "title": "发现盲点",
+    "desc": "哈希表查找是 O(1) 但不支持有序操作；红黑树支持 rank/select/range 但需要 compareTo()。选错了实现，要么功能缺失，要么性能浪费"
+  },
+  {
+    "step": 4,
+    "title": "简化与类比",
+    "desc": "稀疏矩阵用符号表替代二维数组，就像只记录地图上有建筑的地方而不是每一寸土地——当 99.99% 的格子都是零时，这能带来十亿倍的加速"
+  }
+];
+const takeaways = [
+  {
+    "icon": "⚖️",
+    "title": "哈希 vs BST 的选择",
+    "text": "默认用哈希表（O(1)查找、代码简单）；需要有序操作（rank/select/range）时用红黑BST；长字符串键考虑 Trie。"
+  },
+  {
+    "icon": "🔍",
+    "title": "SET 是轻量级 ST",
+    "text": "不需要值时用 SET——去重、白名单、黑名单都是 SET 的经典应用，本质是符号表忽略值的包装。"
+  },
+  {
+    "icon": "🔄",
+    "title": "反向索引的威力",
+    "text": "正向索引（电影→演员）加上反向索引（演员→电影）= 数据的双向导航能力，搜索引擎的核心就是反向索引。"
+  },
+  {
+    "icon": "💡",
+    "title": "稀疏性 = 十亿倍加速",
+    "text": "当矩阵大部分为零时，用符号表替代数组存储非零元素，可将 O(N²) 降到 O(非零元素数)，这是 PageRank 可行的关键。"
+  },
+  {
+    "icon": "📋",
+    "title": "CSV 文件是万能字典",
+    "text": "LookupCSV 展示了符号表的灵活性：同一个程序可以查 IP 地址、股票价格、基因编码——数据驱动，无需改代码。"
+  },
+  {
+    "icon": "🧩",
+    "title": "符号表是程序员的必备工具",
+    "text": "从编译器到文件系统，从 DNS 到基因组学——凡是通过名字查找信息的地方，背后都有符号表在工作。"
+  }
+];
+const quiz = [
+  {
+    "id": "q1",
+    "question": "在选择符号表实现时，哈希表和红黑BST各自最大的优势是什么？什么时候应该选红黑BST？",
+    "answer": "哈希表最大优势是平均 O(1) 的查找/插入时间，且代码简单。红黑BST最大优势是支持有序操作（rank、select、min/max、范围查找）并提供最坏情况 O(lg N) 的保证。当你需要有序操作（如「找出排名第5的键」「找出所有在A和Z之间的键」）时，应选红黑BST。当只需要查找/插入且键有良好的哈希函数时，用哈希表。"
+  },
+  {
+    "id": "q2",
+    "question": "白名单过滤和黑名单过滤的区别是什么？各举一个实际应用场景。",
+    "answer": "白名单过滤：只放行在名单中的键，拒绝其他一切。应用场景：防火墙只允许特定IP访问服务器。\n黑名单过滤：拦截名单中的键，放行其他一切。应用场景：信用卡公司拦截被盗卡号的交易。\n两者的代码只差一个 contains() 判断的取反（!）。"
+  },
+  {
+    "id": "q3",
+    "question": "为什么 SparseVector 能将矩阵-向量乘法加速十亿倍？关键前提是什么？",
+    "answer": "标准实现对 N×N 矩阵需要 N² 次乘法。SparseVector 用符号表只存非零元素，dot() 只遍历非零项，乘法次数等于非零元素数。\n关键前提是矩阵必须足够稀疏。以 Google PageRank 为例：N ≈ 10¹⁰ 个网页，每页平均只链接约10个页面，所以每行只有约10个非零元素。总运算从 10²⁰（N²）降到 10¹¹（N×10），加速约 10⁹（十亿）倍。如果矩阵不稀疏，符号表的开销反而会更大。"
+  },
+  {
+    "id": "q4",
+    "question": "LookupIndex 如何同时支持正向查找和反向查找？用 IMDB 电影数据举例说明。",
+    "answer": "LookupIndex 在读取数据时同时构建两个符号表：\n正向索引 st：key → Queue<String>，如「Titanic (1997)」→ [DiCaprio, Leonardo, ...]。\n反向索引 ts：val → Queue<String>，如「DiCaprio, Leonardo」→ [Titanic (1997), ...]。\n查询「Titanic (1997)」时用 st 找到所有演员；查询「Bacon, Kevin」时用 ts 找到他参演的所有电影。两个方向的查找都是 O(lg N)（用红黑BST时）。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "你能说出日常生活中至少三个「通过名字查找信息」的场景吗？它们背后可能用了什么数据结构？",
+    "hint": "想想你用手机、浏览器、搜索引擎时发生了什么"
+  },
+  {
+    "question": "如果一个矩阵有 100 亿行 × 100 亿列，但每行只有 10 个非零元素，你会怎么存储它？",
+    "hint": "用二维数组需要 10²⁰ 个格子的空间——想想有没有更聪明的办法"
+  },
+  {
+    "question": "搜索引擎是怎么做到输入一个关键词就能立刻返回包含该词的所有网页的？",
+    "hint": "如果每次搜索都遍历所有网页就太慢了——预先建好什么结构就能秒查？"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "大多数程序员应该默认使用哈希表，只有需要有序操作时才用红黑BST",
+    "evidence": "哈希表平均 O(1) 查找/插入，代码简单，Java 标准库的 HashMap 就是基于哈希的。现实中大量应用只需要 get/put，不需要 rank/select。",
+    "counterpoint": "哈希表的 O(1) 依赖于良好的哈希函数和均匀分布假设。对于自定义类型或恶意输入（哈希碰撞攻击），最坏情况退化到 O(N)。红黑BST 的 O(lg N) 是确定性保证，在安全敏感场景（如网络服务）中更可靠。"
+  },
+  {
+    "claim": "稀疏矩阵的符号表表示可以带来十亿倍加速",
+    "evidence": "当 N=10¹⁰ 且每行平均 10 个非零元素时，运算量从 N²=10²⁰ 降到约 N×10=10¹¹，加速比约 10⁹。Google PageRank 的实际案例证实了这一点。",
+    "counterpoint": "加速比完全取决于稀疏度。当矩阵不够稀疏（如非零元素占比超过 10%）时，符号表的额外开销（哈希计算、内存间接访问、缓存不友好）反而可能比数组慢。此外，现代硬件（GPU、SIMD）对密集矩阵运算有极好的加速效果。"
+  },
+  {
+    "claim": "SET 可以简单地通过忽略符号表中的值来实现",
+    "evidence": "书中明确指出任何 ST 实现都可以通过忽略值或使用包装类变成 SET 实现（练习 3.5.1-3.5.3）",
+    "counterpoint": "虽然逻辑上正确，但存储无用的 value 引用会浪费内存。对于大规模集合（如数十亿元素的布隆过滤器场景），专用 SET 实现可以显著节省空间。Java 的 HashSet 内部确实包装了 HashMap，但这被认为是一种工程上的权衡而非最优设计。"
+  }
+];
+const application = [
+  {
+    "scenario": "构建搜索引擎或全文检索系统",
+    "action": "使用反向索引（inverted index）：预处理阶段为每个词建立「词 → 文档列表」的映射，查询时通过符号表在 O(lg N) 内定位所有包含该词的文档。多关键词查询则对多个文档列表取交集。"
+  },
+  {
+    "scenario": "处理超大规模稀疏数据（推荐系统、社交网络图）",
+    "action": "用类似 SparseVector 的思路只存储非零元素。例如用户-商品评分矩阵中，每个用户只评价了极少商品，用符号表存储评分可以将空间从 O(用户数×商品数) 降到 O(评分总数)，同时加速矩阵分解等运算。"
+  },
+  {
+    "scenario": "实现实时安全过滤（防火墙、反欺诈）",
+    "action": "用 HashSET 构建黑名单/白名单，对每个请求做 O(1) 的 contains() 检查。信用卡公司拦截被盗卡号、邮件服务过滤垃圾邮件、网络防火墙过滤恶意 IP 都是这个模式。名单需要动态更新时，符号表的 add/delete 操作保证高效。"
+  }
+];
+const chapterNav = {"prev": {"num": 14, "title": "散列表", "href": "ch14.html"}, "next": {"num": 16, "title": "无向图", "href": "ch16.html"}};
+window.evoData_block3 = [
+  {
+    "title": "SET API — 集合的本质",
+    "badge": "核心接口",
+    "desc": "SET 可以由任何符号表实现包装而成——忽略值即可。有序版本还支持 min/max/rank/select 等操作。",
+    "code": "public class SET<Key> {\n    void add(Key key)          // 添加键\n    boolean contains(Key key)  // 键是否存在？\n    void delete(Key key)       // 删除键\n    int size()                 // 集合大小\n}"
+  },
+  {
+    "title": "DeDup — 去重过滤器",
+    "badge": "过滤模式",
+    "desc": "维护一个已见键的集合。如果新键已在集合中就忽略，否则加入集合并输出。空间正比于不同键的数量。",
+    "code": "HashSET<String> set = new HashSET<>();\nwhile (!StdIn.isEmpty()) {\n    String key = StdIn.readString();\n    if (!set.contains(key)) {\n        set.add(key);\n        StdOut.println(key); // 首次出现才输出\n    }\n}"
+  },
+  {
+    "title": "WhiteFilter — 白名单过滤",
+    "badge": "安全应用",
+    "desc": "只放行在名单中的键。典型应用：邮件白名单、防火墙规则。BlackFilter 则相反——拦截名单中的键。",
+    "code": "// 构建白名单\nHashSET<String> set = new HashSET<>();\nIn in = new In(args[0]);\nwhile (!in.isEmpty())\n    set.add(in.readString());\n\n// 过滤：只放行白名单中的键\nwhile (!StdIn.isEmpty()) {\n    String word = StdIn.readString();\n    if (set.contains(word))    // 在名单中？\n        StdOut.println(word);  // 放行\n}"
+  }
+];
+window.tipsData_block4 = [
+  {
+    "icon": "📞",
+    "title": "电话簿",
+    "text": "名字→号码，也可反向查找号码→名字"
+  },
+  {
+    "icon": "📚",
+    "title": "词典",
+    "text": "单词→定义，拼写检查器的基础"
+  },
+  {
+    "icon": "💰",
+    "title": "账户信息",
+    "text": "股票代码→价格，账号→余额"
+  },
+  {
+    "icon": "🧬",
+    "title": "基因组学",
+    "text": "密码子→氨基酸，如 TTA→亮氨酸"
+  },
+  {
+    "icon": "🔬",
+    "title": "实验数据",
+    "text": "从天体物理到动物学，组织海量实验数据"
+  },
+  {
+    "icon": "⚙️",
+    "title": "编译器",
+    "text": "变量名→内存地址，符号表因此得名"
+  },
+  {
+    "icon": "📁",
+    "title": "文件系统",
+    "text": "文件名→内容位置，歌曲名→音频位置"
+  },
+  {
+    "icon": "🌐",
+    "title": "互联网DNS",
+    "text": "URL→IP地址，每秒数十亿次查找"
+  }
+];
+window.pipeData_block5 = [
+  {
+    "cmd": "读取文件",
+    "annotation": "每行: key, val1, val2, ..."
+  },
+  {
+    "cmd": "构建正向索引 st",
+    "annotation": "key → Queue<val>"
+  },
+  {
+    "cmd": "同时构建反向索引 ts",
+    "annotation": "val → Queue<key>"
+  },
+  {
+    "cmd": "查询 Bacon, Kevin",
+    "annotation": "正向: 获取他的所有电影"
+  },
+  {
+    "cmd": "查询 Titanic (1997)",
+    "annotation": "反向: 获取所有演员"
+  }
+];
+window.evoData_block6 = [
+  {
+    "title": "标准实现 — O(N²) 无法承受",
+    "badge": "N=10¹⁰ 时不可行",
+    "desc": "用二维数组存储矩阵，即使 99.99% 是零也要遍历全部 N² 个元素。当 N 是百亿级别时，N² 超过 10²⁰。",
+    "code": "double[][] a = new double[N][N];\ndouble[] x = new double[N];\ndouble[] b = new double[N];\nfor (int i = 0; i < N; i++) {\n    double sum = 0.0;\n    for (int j = 0; j < N; j++) // N²次乘法！\n        sum += a[i][j] * x[j];\n    b[i] = sum;\n}"
+  },
+  {
+    "title": "SparseVector — 用符号表只存非零元素",
+    "badge": "核心突破",
+    "desc": "HashST<Integer, Double> 只存储非零的 (索引, 值) 对。dot() 方法只遍历非零元素，乘法次数 = 非零元素数。",
+    "code": "public class SparseVector {\n    private HashST<Integer, Double> st;\n    \n    public double dot(double[] that) {\n        double sum = 0.0;\n        for (int i : st.keys())  // 只遍历非零元素！\n            sum += that[i] * this.get(i);\n        return sum;\n    }\n}"
+  },
+  {
+    "title": "稀疏矩阵-向量乘法 — 代码更简洁",
+    "badge": "十亿倍加速",
+    "desc": "矩阵表示为 SparseVector 数组。Google PageRank 就是反复做这个运算：网页数 N=10¹⁰，平均每行只有不到10个非零元素。",
+    "code": "SparseVector[] a = new SparseVector[N];\ndouble[] x = new double[N];\ndouble[] b = new double[N];\n// ... 初始化 ...\nfor (int i = 0; i < N; i++)\n    b[i] = a[i].dot(x);  // 每次dot只算非零元素！"
+  }
+];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: pipeline
+(function() {
+    document.querySelectorAll('[id^="pipeline-"]').forEach(container => {
+        const blockId = container.id.replace('pipeline-', '');
+        const dataVar = window['pipeData_' + blockId];
+        if (!dataVar) return;
+        const pipeData = dataVar;
+        pipeData.forEach((node, i) => {
+            if (i > 0) {
+                const arrow = document.createElement('div');
+                arrow.className = 'pipe-arrow';
+                arrow.textContent = '→';
+                container.appendChild(arrow);
+            }
+            const wrapper = document.createElement('div');
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'pipe-node' + (node.bottleneck ? ' highlight' : '');
+            nodeDiv.textContent = node.cmd || node.name || '';
+            wrapper.appendChild(nodeDiv);
+            if (node.annotation || node.data) {
+                const dataDiv = document.createElement('div');
+                dataDiv.className = 'pipe-data';
+                dataDiv.textContent = node.annotation || node.data;
+                wrapper.appendChild(dataDiv);
+            }
+            container.appendChild(wrapper);
+        });
+    });
+})();
+
+
+// Block: tips-grid
+(function() {
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'tip-card fade-in';
+            div.innerHTML = `
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: code-evolution
+(function() {
+    document.querySelectorAll('[id^="evoTimeline-"]').forEach(container => {
+        const blockId = container.id.replace('evoTimeline-', '');
+        const dataVar = window['evoData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach((step, i) => {
+            const div = document.createElement('div');
+            div.className = 'evo-step' + (i === 0 ? ' active' : '') + ' fade-in';
+            const badge = step.badge || '';
+            const speedClass = badge.match(/O\(1\)|\u03B1|lg/) ? 'success' : badge.match(/O\(N\)/) ? 'danger' : 'neutral';
+            div.innerHTML = `
+                <div class="evo-dot"></div>
+                <div class="evo-card">
+                    <div class="evo-header">
+                        <span class="evo-title">${step.title}</span>
+                        <span class="evo-speed ${speedClass}">${badge}</span>
+                    </div>
+                    <div class="evo-desc">${step.desc || ''}</div>
+                    ${step.code ? '<pre class="evo-code">' + step.code + '</pre>' : ''}
+                </div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

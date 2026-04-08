@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>二叉搜索树 · Binary Search Trees | Chapter 12</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: code-evolution */
+.evolution-timeline { position: relative; padding-left: 50px; }
+.evolution-timeline::before { content: ''; position: absolute; left: 30px; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--accent), var(--accent3), var(--accent2)); border-radius: 2px; }
+.evo-step { position: relative; padding-left: 30px; margin-bottom: 2rem; }
+.evo-dot { position: absolute; left: -30px; top: 5px; width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--accent); background: var(--bg); z-index: 1; }
+.evo-step.active .evo-dot { background: var(--accent); box-shadow: 0 0 12px rgba(108,99,255,0.5); }
+.evo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all 0.3s; }
+.evo-card:hover { border-color: var(--accent); }
+.evo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+.evo-title { font-weight: 700; }
+.evo-speed { font-family: var(--font-mono); font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 1rem; }
+.evo-speed.success { background: rgba(52,211,153,0.15); color: var(--success); }
+.evo-speed.danger { background: rgba(248,113,113,0.15); color: var(--danger); }
+.evo-speed.neutral { background: rgba(136,136,160,0.15); color: var(--text-dim); }
+.evo-desc { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 10px; }
+.evo-code { background: #12141c; border: 1px solid #1e2030; border-radius: 0.5rem; padding: 1rem; font-family: var(--font-mono); font-size: 0.8rem; color: #a0a0c0; overflow-x: auto; white-space: pre; }
+
+
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* Block: pipeline */
+.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
+.pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(108,99,255,0.3); }
+.pipe-node.highlight { background: linear-gradient(135deg, var(--accent2), #ef4444); }
+.pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
+.pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
+@media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
+
+
+/* Block: bar-chart */
+.bar-chart { display: flex; flex-direction: column; gap: 12px; }
+.bar-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 1rem; }
+.bar-label { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; color: var(--text-dim); }
+.bar-track { height: 32px; background: rgba(255,255,255,0.03); border-radius: 0.5rem; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 0.5rem; display: flex; align-items: center; padding-left: 0.75rem; font-size: 0.75rem; font-family: var(--font-mono); color: #fff; transition: width 1.5s ease-out; }
+.bar-fill.success { background: linear-gradient(90deg, var(--accent3), #2dd4bf); }
+.bar-fill.danger { background: linear-gradient(90deg, var(--accent2), #ef4444); }
+.bar-fill.neutral { background: linear-gradient(90deg, var(--accent), #8b5cf6); }
+.bar-fill.warning { background: linear-gradient(90deg, var(--accent4), var(--warning)); }
+.bar-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; }
+
+
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 12 / 25 · Part III · Searching 查找</div>
+        <div class="hero-icon">🌲</div>
+        <h1 class="hero-title">二叉搜索树</h1>
+        <p class="hero-sub">如同图书馆用字母顺序排列书架一样，BST 用左小右大的规则组织数据，让查找、插入和删除都能沿着一条路径高效完成</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">核心类比：BST 就是动态的二分查找</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">📚</div>
+            <div class="analogy-label">有序数组 + 二分查找</div>
+            <div class="analogy-desc">查找快（lgN），但插入慢（N）
+每次插入都要移动大量元素
+就像在一排紧密排列的书架中间插入一本书，后面的书都得往后挪</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">🌲</div>
+            <div class="analogy-label">二叉搜索树</div>
+            <div class="analogy-desc">查找快（~1.39lgN），插入也快（~1.39lgN）
+插入只需在底部挂一个新节点
+就像在家谱树上添加一个新成员，只需找到正确的位置连上去</div>
+        </div>
+    </div>
+    
+</section>
+
+<!-- Block: code-evolution — Step-by-step code transformation timeline -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">BST 核心操作的递归之美</div>
+    <p class="section-intro" style="color:var(--text-dim);margin-bottom:2rem;">BST 的 get/put/delete 都遵循同一个递归模式：比较 -> 选择方向 -> 递归到子树 -> 回溯时更新。</p>
+    <div class="evolution-timeline" id="evoTimeline-block2"></div>
+</section>
+
+<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">select() 与 rank()：一对互逆操作</div>
+    <div class="comparison-grid">
+        <div class="comparison-side hard">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">select(k) -- 找排名第 k 的键</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">private Node select(Node x, int k) {
+    if (x == null) return null;
+    int t = size(x.left);  // 左子树大小
+    if      (t > k) return select(x.left,  k);
+    else if (t < k) return select(x.right, k-t-1);
+    else            return x;  // 就是当前节点
+}</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side smart">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">rank(key) -- 找键的排名</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">private int rank(Key key, Node x) {
+    if (x == null) return 0;
+    int cmp = key.compareTo(x.key);
+    if      (cmp < 0) return rank(key, x.left);
+    else if (cmp > 0) return 1 + size(x.left)
+                           + rank(key, x.right);
+    else              return size(x.left);
+}</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">两者都依赖每个节点维护的子树大小 N。select 类似快速排序的 partition 选择：左子树有 t 个节点，如果 k < t 就在左边找，k > t 就在右边找，k == t 就是当前节点。rank 是 select 的逆运算。</div></div>
+</section>
+
+<!-- Block: bar-chart — Horizontal bar chart -->
+<section id="sec-block4" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">BST 性能：最好、平均、最坏</div>
+    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
+    <div class="bar-chart" id="barChart-block4"></div>
+</section>
+
+<!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block5" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">💡 </div>
+        <div class="insight-content">BST 和快速排序本质上是同一个算法的两种表达形式！
+
+根节点 = 第一个 partition 元素：左子树所有键都小于根，右子树所有键都大于根。
+子树递归构建 = quicksort 的递归子数组排序。
+
+这就是为什么随机 BST 的搜索成本 ~2lnN 和 quicksort 的比较次数 ~2NlnN 有相同的 2lnN 因子。
+同样，如果输入已排序，quicksort 退化为 O(N^2)，BST 退化为链表 —— 根源都是 partition 元素选得太极端。</div>
+    </div>
+</section>
+
+<!-- Block: pipeline — Flow diagram with connected nodes -->
+<section id="sec-block6" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">范围查询：中序遍历的威力</div>
+    <div class="pipeline-flow" id="pipeline-block6"></div>
+    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;">keys(lo, hi) 的递归流程</div>
+</section>
+
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block7" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">BST 的陷阱与实践要点</div>
+    <div class="tips-grid" id="tipsGrid-block7"></div>
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "BST = 一棵每个节点都满足「左子树所有键 < 当前键 < 右子树所有键」的二叉树，兼具链表的插入灵活性和有序数组的查找效率"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "想象一本字典：你翻到中间某页，要找的词在前面就往前翻，在后面就往后翻。BST 就是把这个过程变成了树形结构，每个节点就是一次「翻页」的决策点"
+  },
+  {
+    "step": 3,
+    "title": "发现盲点",
+    "desc": "BST 的性能完全取决于树的形状！随机插入平均 ~1.39lgN 次比较，但按顺序插入会退化成链表（N 次比较）。而 Hibbard 删除在大量操作后会让树逐渐失衡，平均路径长度退化到 ~sqrt(N)"
+  },
+  {
+    "step": 4,
+    "title": "简化与类比",
+    "desc": "BST 就像一棵「决策树」：从根节点开始，每次比较告诉你往左走还是往右走，走到底就找到答案（或确认不存在）。它本质上就是二分查找的动态版本"
+  }
+];
+const takeaways = [
+  {
+    "icon": "🌲",
+    "title": "左小右大",
+    "text": "BST 的核心规则就一条：左子树所有键 < 当前节点 < 右子树所有键。这确保中序遍历得到有序序列。"
+  },
+  {
+    "icon": "🔍",
+    "title": "动态二分查找",
+    "text": "BST 把二分查找从静态数组搬到了动态树结构，查找和插入都是 ~1.39lgN（随机键），而有序数组插入需要 N。"
+  },
+  {
+    "icon": "🎯",
+    "title": "形状决定性能",
+    "text": "BST 的性能完全取决于树的形状。最好 lgN，平均 1.39lgN，最坏 N。形状由插入顺序决定。"
+  },
+  {
+    "icon": "🔗",
+    "title": "BST = 快速排序的对偶",
+    "text": "BST 的构建过程本质上就是快速排序的分区过程。理解其中一个就理解了另一个。"
+  },
+  {
+    "icon": "⚠️",
+    "title": "Hibbard 删除的缺陷",
+    "text": "简单的「用后继替换」删除法不对称，大量操作后会让树失衡。这是追求平衡 BST 的重要动机之一。"
+  },
+  {
+    "icon": "📊",
+    "title": "有序操作全家桶",
+    "text": "BST 天然支持 min/max/floor/ceiling/select/rank/range 等有序操作，这是它相比哈希表的核心优势。"
+  }
+];
+const quiz = [
+  {
+    "id": "q1",
+    "question": "为什么说 BST 是快速排序的「对偶」？请用具体例子说明。",
+    "answer": "BST 的根节点就像快速排序的第一个 pivot：所有比它小的键在左子树，所有比它大的键在右子树。子树的构建过程递归地对应快速排序对子数组的递归排序。例如，将 S E A R C H 依次插入 BST，S 成为根（pivot），E A R C H 按大小分到左右子树 —— 这和以 S 为 pivot 对数组做 partition 的结果完全一样。因此，随机 BST 的平均搜索路径长度 ~2lnN，与快速排序的平均比较次数 ~2NlnN 有相同的 2lnN 因子。"
+  },
+  {
+    "id": "q2",
+    "question": "BST 的 floor(G) 操作如何工作？假设树中有键 A C E H M R S X。",
+    "answer": "floor(G) 要找 <= G 的最大键。从根 S 开始：G < S，所以 floor(G) 一定在左子树。到节点 E：G > E，所以 floor(G) 可能在 E 的右子树，也可能就是 E 本身。到节点 H：G < H，所以在 H 的左子树找。H 的左子树为空（null），返回 null。回溯到 E：右子树返回 null，所以 floor(G) = E。关键逻辑：当 key > 当前节点时，先去右子树找，找不到才用当前节点作为答案。"
+  },
+  {
+    "id": "q3",
+    "question": "Hibbard 删除法在删除有两个子节点的节点时，具体执行哪四步？为什么这种方法有缺陷？",
+    "answer": "四步操作：(1) 保存待删节点引用到 t；(2) 令 x 指向 t 的后继 min(t.right)；(3) 令 x.right = deleteMin(t.right)，即删除后继原位置；(4) 令 x.left = t.left，继承原节点的左子树。\n\n缺陷：总是选择后继（右子树最小节点）来替换是不对称的。实验表明（习题 3.2.42），经过 N^2 次随机删除+插入后，平均路径长度退化到 ~sqrt(N)，远差于随机 BST 的 ~lgN。解决方案是随机选择前驱或后继来替换。"
+  },
+  {
+    "id": "q4",
+    "question": "用你自己的话，向不懂编程的朋友解释什么是二叉搜索树。（费曼检验）",
+    "answer": "参考答案：想象你在整理一堆扑克牌。你拿到第一张放桌上当「中心」。之后每拿到一张：比中心小就放左边，比中心大就放右边。左边和右边各自再用同样的规则继续分。最后你得到一个树形结构 —— 从任意位置开始，左边永远比它小，右边永远比它大。要找某张牌？从顶部开始，每次比较只需走一个方向，很快就能找到或确认不存在。这就是二叉搜索树。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "如果你有一组数据需要频繁查找和插入，有序数组和链表各有什么优缺点？有没有两者兼得的方案？",
+    "hint": "思考有序数组查找快但插入慢，链表插入快但查找慢"
+  },
+  {
+    "question": "你觉得一棵树的「形状」会如何影响在其中查找数据的效率？",
+    "hint": "对比一棵又高又瘦的树和一棵又矮又宽的树"
+  },
+  {
+    "question": "删除树中的一个节点为什么比插入复杂得多？特别是被删节点有两个子节点时？",
+    "hint": "插入总是在叶子位置，但删除可能在树的中间"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "随机构建的 BST 中，搜索命中平均需要 ~2lnN（约 1.39lgN）次比较",
+    "evidence": "Sedgewick 通过与快速排序分析的对偶性严格证明了这一点（命题 C）。递推关系 C_N = N-1 + (C_0+C_{N-1})/N + ... 与快速排序的递推几乎相同，解得 C_N ~ 2NlnN。FrequencyCounter 实验数据与理论预测吻合良好（误差 < 2 次比较）",
+    "counterpoint": "1.39lgN 的前提是「键随机插入」。实际应用中键往往有局部有序性（如时间戳、自增 ID），导致树严重倾斜。这也是为什么实际系统几乎都用平衡 BST（红黑树）而非裸 BST"
+  },
+  {
+    "claim": "Hibbard 删除是正确的但有性能缺陷，大量删除后树会失衡",
+    "evidence": "习题 3.2.42 的实验表明，经过 N^2 次随机删除+插入后，平均路径长度增长到 ~sqrt(N)，远差于 ~lgN。这是一个至今未完全解决的理论问题",
+    "counterpoint": "如果随机交替使用前驱和后继来替换被删节点，实验显示性能退化会显著缓解。此外，在读多写少的场景中，删除操作较少，Hibbard 删除的缺陷影响有限"
+  },
+  {
+    "claim": "BST 的所有操作（搜索、插入、有序操作）在最坏情况下都正比于树高",
+    "evidence": "命题 E 直接从定义得出 —— 所有操作都沿着从根到某节点的路径进行，路径长度不超过树高",
+    "counterpoint": "树高的期望值 ~2.99lgN（Robson 1979, Devroye），但最坏情况下树高 = N（退化为链表）。平衡 BST 保证树高 = O(lgN)，是解决这一问题的根本方案"
+  }
+];
+const application = [
+  {
+    "scenario": "实现一个支持范围查询的内存数据库索引",
+    "action": "使用 BST（实际中用红黑树等平衡 BST）作为索引结构。BST 天然支持 min/max/floor/ceiling/range 等有序操作，可以高效回答「查找价格在 100-200 之间的所有商品」这类范围查询。哈希表虽然单点查找更快，但无法支持有序操作。"
+  },
+  {
+    "scenario": "需要在日志流中实时维护「第 k 大的值」",
+    "action": "利用 BST 的 select(k) 操作。每条新日志插入 BST 后，调用 select(size-k) 即可在 O(lgN) 时间内获取第 k 大的值。这比每次排序整个数组（O(NlgN)）高效得多。"
+  },
+  {
+    "scenario": "调试一个基于 BST 的符号表出现性能退化",
+    "action": "检查插入顺序是否接近有序（导致树退化为链表），以及删除操作是否频繁（Hibbard 删除导致失衡）。可以通过计算实际树高与 lgN 的比值来诊断。如果树高 >> 3lgN，应考虑切换到平衡 BST 实现。"
+  }
+];
+const chapterNav = {"prev": {"num": 11, "title": "符号表", "href": "ch11.html"}, "next": {"num": 13, "title": "平衡搜索树", "href": "ch13.html"}};
+window.evoData_block2 = [
+  {
+    "title": "get() -- 查找",
+    "badge": "基础操作",
+    "desc": "从根节点开始，比目标小往左走，比目标大往右走，相等则命中。本质就是二分查找的树形版本。",
+    "code": "private Value get(Node x, Key key) {\n    if (x == null) return null;       // 未命中\n    int cmp = key.compareTo(x.key);\n    if      (cmp < 0) return get(x.left, key);  // 往左找\n    else if (cmp > 0) return get(x.right, key); // 往右找\n    else return x.val;                // 命中!\n}"
+  },
+  {
+    "title": "put() -- 插入",
+    "badge": "核心操作",
+    "desc": "查找key，找到则更新值，找不到（遇到null链接）则在该位置创建新节点。递归回溯时更新每个节点的计数。",
+    "code": "private Node put(Node x, Key key, Value val) {\n    if (x == null) return new Node(key, val, 1); // 创建新节点\n    int cmp = key.compareTo(x.key);\n    if      (cmp < 0) x.left  = put(x.left,  key, val);\n    else if (cmp > 0) x.right = put(x.right, key, val);\n    else x.val = val;                // 更新已有值\n    x.N = size(x.left) + size(x.right) + 1; // 回溯更新计数\n    return x;\n}"
+  },
+  {
+    "title": "floor() -- 向下取整",
+    "badge": "有序操作",
+    "desc": "找 <=key 的最大键。如果 key < 当前节点，答案一定在左子树；如果 key > 当前节点，答案可能在右子树，也可能就是当前节点。",
+    "code": "private Node floor(Node x, Key key) {\n    if (x == null) return null;\n    int cmp = key.compareTo(x.key);\n    if (cmp == 0) return x;\n    if (cmp < 0)  return floor(x.left, key);  // 一定在左边\n    Node t = floor(x.right, key);  // 可能在右边\n    if (t != null) return t;\n    else           return x;       // 右边没有就是当前节点\n}"
+  },
+  {
+    "title": "delete() -- Hibbard 删除",
+    "badge": "最难操作",
+    "desc": "删除有两个子节点的节点时，用其后继（右子树的最小节点）替换它。这是 Hibbard 1962 年提出的经典方法。",
+    "code": "private Node delete(Node x, Key key) {\n    if (x == null) return null;\n    int cmp = key.compareTo(x.key);\n    if      (cmp < 0) x.left  = delete(x.left,  key);\n    else if (cmp > 0) x.right = delete(x.right, key);\n    else {\n        if (x.right == null) return x.left;   // 0或1个子节点\n        if (x.left  == null) return x.right;\n        Node t = x;\n        x = min(t.right);          // 找后继\n        x.right = deleteMin(t.right); // 删除后继原位置\n        x.left = t.left;          // 继承左子树\n    }\n    x.N = size(x.left) + size(x.right) + 1;\n    return x;\n}"
+  }
+];
+window.barData_block4 = [
+  {
+    "label": "完美平衡",
+    "value": "lgN",
+    "pct": 20,
+    "note": "最佳情况"
+  },
+  {
+    "label": "随机构建",
+    "value": "1.39lgN",
+    "pct": 28,
+    "note": "平均情况"
+  },
+  {
+    "label": "顺序插入",
+    "value": "N",
+    "pct": 100,
+    "note": "最差!",
+    "warning": true
+  },
+  {
+    "label": "有序数组查找",
+    "value": "lgN",
+    "pct": 20,
+    "note": "参考基准"
+  },
+  {
+    "label": "有序数组插入",
+    "value": "N",
+    "pct": 100,
+    "note": "移动元素",
+    "warning": true
+  }
+];
+window.pipeData_block6 = [
+  {
+    "cmd": "检查当前节点",
+    "annotation": "x == null 则返回"
+  },
+  {
+    "cmd": "lo < x.key ?",
+    "annotation": "是 -> 递归搜索左子树"
+  },
+  {
+    "cmd": "lo <= x.key <= hi ?",
+    "annotation": "是 -> 加入结果队列"
+  },
+  {
+    "cmd": "hi > x.key ?",
+    "annotation": "是 -> 递归搜索右子树"
+  },
+  {
+    "cmd": "返回 Queue",
+    "annotation": "包含范围内所有键（有序）"
+  }
+];
+window.tipsData_block7 = [
+  {
+    "icon": "⚠️",
+    "title": "Hibbard 删除的不对称性",
+    "text": "总是用后继替换被删节点会导致树逐渐失衡。大量删除+插入后，平均路径长度退化到 ~sqrt(N)。解决方案：随机选择前驱或后继。"
+  },
+  {
+    "icon": "🔄",
+    "title": "递归模式统一",
+    "text": "所有 BST 方法都遵循同一递归框架：比较 -> 递归左/右子树 -> 回溯时更新链接和计数。理解这个模式就理解了全部。"
+  },
+  {
+    "icon": "📐",
+    "title": "维护子树计数 N",
+    "text": "每个节点的 N = size(left) + size(right) + 1。这个不变量是 select/rank 的基础，在每次结构变化后都必须正确更新。"
+  },
+  {
+    "icon": "🎲",
+    "title": "随机性是关键",
+    "text": "BST 性能依赖输入顺序的随机性。如果无法保证随机插入，就应该使用平衡BST（红黑树等），下一节会讲。"
+  }
+];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: pipeline
+(function() {
+    document.querySelectorAll('[id^="pipeline-"]').forEach(container => {
+        const blockId = container.id.replace('pipeline-', '');
+        const dataVar = window['pipeData_' + blockId];
+        if (!dataVar) return;
+        const pipeData = dataVar;
+        pipeData.forEach((node, i) => {
+            if (i > 0) {
+                const arrow = document.createElement('div');
+                arrow.className = 'pipe-arrow';
+                arrow.textContent = '→';
+                container.appendChild(arrow);
+            }
+            const wrapper = document.createElement('div');
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'pipe-node' + (node.bottleneck ? ' highlight' : '');
+            nodeDiv.textContent = node.cmd || node.name || '';
+            wrapper.appendChild(nodeDiv);
+            if (node.annotation || node.data) {
+                const dataDiv = document.createElement('div');
+                dataDiv.className = 'pipe-data';
+                dataDiv.textContent = node.annotation || node.data;
+                wrapper.appendChild(dataDiv);
+            }
+            container.appendChild(wrapper);
+        });
+    });
+})();
+
+
+// Block: bar-chart
+(function() {
+    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
+        const blockId = container.id.replace('barChart-', '');
+        const dataVar = window['barData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(bar => {
+            const div = document.createElement('div');
+            div.className = 'bar-row fade-in';
+            const colorClass = bar.warning ? 'danger' : 'success';
+            div.innerHTML = `
+                <div class="bar-label">${bar.label}</div>
+                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
+                <div class="bar-value">${bar.value || ''}</div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: tips-grid
+(function() {
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'tip-card fade-in';
+            div.innerHTML = `
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: code-evolution
+(function() {
+    document.querySelectorAll('[id^="evoTimeline-"]').forEach(container => {
+        const blockId = container.id.replace('evoTimeline-', '');
+        const dataVar = window['evoData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach((step, i) => {
+            const div = document.createElement('div');
+            div.className = 'evo-step' + (i === 0 ? ' active' : '') + ' fade-in';
+            const badge = step.badge || '';
+            const speedClass = badge.match(/O\(1\)|\u03B1|lg/) ? 'success' : badge.match(/O\(N\)/) ? 'danger' : 'neutral';
+            div.innerHTML = `
+                <div class="evo-dot"></div>
+                <div class="evo-card">
+                    <div class="evo-header">
+                        <span class="evo-title">${step.title}</span>
+                        <span class="evo-speed ${speedClass}">${badge}</span>
+                    </div>
+                    <div class="evo-desc">${step.desc || ''}</div>
+                    ${step.code ? '<pre class="evo-code">' + step.code + '</pre>' : ''}
+                </div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>散列表 · Hash Tables | Chapter 14</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: code-evolution */
+.evolution-timeline { position: relative; padding-left: 50px; }
+.evolution-timeline::before { content: ''; position: absolute; left: 30px; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--accent), var(--accent3), var(--accent2)); border-radius: 2px; }
+.evo-step { position: relative; padding-left: 30px; margin-bottom: 2rem; }
+.evo-dot { position: absolute; left: -30px; top: 5px; width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--accent); background: var(--bg); z-index: 1; }
+.evo-step.active .evo-dot { background: var(--accent); box-shadow: 0 0 12px rgba(108,99,255,0.5); }
+.evo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all 0.3s; }
+.evo-card:hover { border-color: var(--accent); }
+.evo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+.evo-title { font-weight: 700; }
+.evo-speed { font-family: var(--font-mono); font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 1rem; }
+.evo-speed.success { background: rgba(52,211,153,0.15); color: var(--success); }
+.evo-speed.danger { background: rgba(248,113,113,0.15); color: var(--danger); }
+.evo-speed.neutral { background: rgba(136,136,160,0.15); color: var(--text-dim); }
+.evo-desc { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 10px; }
+.evo-code { background: #12141c; border: 1px solid #1e2030; border-radius: 0.5rem; padding: 1rem; font-family: var(--font-mono); font-size: 0.8rem; color: #a0a0c0; overflow-x: auto; white-space: pre; }
+
+
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* Block: bar-chart */
+.bar-chart { display: flex; flex-direction: column; gap: 12px; }
+.bar-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 1rem; }
+.bar-label { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; color: var(--text-dim); }
+.bar-track { height: 32px; background: rgba(255,255,255,0.03); border-radius: 0.5rem; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 0.5rem; display: flex; align-items: center; padding-left: 0.75rem; font-size: 0.75rem; font-family: var(--font-mono); color: #fff; transition: width 1.5s ease-out; }
+.bar-fill.success { background: linear-gradient(90deg, var(--accent3), #2dd4bf); }
+.bar-fill.danger { background: linear-gradient(90deg, var(--accent2), #ef4444); }
+.bar-fill.neutral { background: linear-gradient(90deg, var(--accent), #8b5cf6); }
+.bar-fill.warning { background: linear-gradient(90deg, var(--accent4), var(--warning)); }
+.bar-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; }
+
+
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 14 / 25 · Part III · Searching 查找</div>
+        <div class="hero-icon">🔑</div>
+        <h1 class="hero-title">散列表</h1>
+        <p class="hero-sub">如同电话簿让你通过名字直接找到电话号码一样，散列表让程序通过「键」直接跳到「值」——用空间换时间的经典范例</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">核心类比：快递柜 vs 散列表</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">📦</div>
+            <div class="analogy-label">自助快递柜</div>
+            <div class="analogy-desc">取件码 → 映射到柜号
+同一个柜号可能被多人占用（冲突）
+柜子满了就需要扩容换大柜
+取件几乎是瞬间完成的</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">🔑</div>
+            <div class="analogy-label">散列表</div>
+            <div class="analogy-desc">散列函数 → 映射到数组下标
+不同的键可能映射到同一下标（碰撞）
+负载因子过高就需要 resize 扩容
+查找/插入期望 O(1) 时间</div>
+        </div>
+    </div>
+    
+</section>
+
+<!-- Block: code-evolution — Step-by-step code transformation timeline -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">散列函数的设计演进</div>
+    <p class="section-intro" style="color:var(--text-dim);margin-bottom:2rem;">从简单取模到 Java hashCode()，散列函数的设计目标始终是：一致性、高效、均匀分布。</p>
+    <div class="evolution-timeline" id="evoTimeline-block2"></div>
+</section>
+
+<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">两大碰撞解决策略对比</div>
+    <div class="comparison-grid">
+        <div class="comparison-side hard">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">拉链法 (Separate Chaining)</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">public class SeparateChainingHashST<Key, Value> {
+    private int M; // 散列表大小
+    private SequentialSearchST<Key, Value>[] st;
+
+    public Value get(Key key) {
+        return st[hash(key)].get(key);
+    }
+    public void put(Key key, Value val) {
+        st[hash(key)].put(key, val);
+    }
+}
+// 每个桶是一条链表，碰撞的键挂在同一条链上</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side smart">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">线性探测法 (Linear Probing)</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">public class LinearProbingHashST<Key, Value> {
+    private Key[] keys;
+    private Value[] vals;
+    private int M;
+
+    public void put(Key key, Value val) {
+        int i;
+        for (i = hash(key); keys[i] != null;
+             i = (i + 1) % M)
+            if (keys[i].equals(key))
+                { vals[i] = val; return; }
+        keys[i] = key; vals[i] = val;
+    }
+}
+// 碰撞时向后探测，找到空位插入</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">拉链法：实现简单、删除容易、负载因子可 > 1，但需要额外链表内存。
+线性探测法：缓存友好（连续内存）、空间紧凑，但负载因子必须 < 1，删除需要重新插入后续键，且会出现「聚集」现象。</div></div>
+</section>
+
+<!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block4" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">⚠️ </div>
+        <div class="insight-content">线性探测中，连续被占用的位置形成「簇」(cluster)。长簇就像高速公路上的连环追尾——新车（键）撞上车队尾部后，车队变得更长，后面的车更容易撞上来。
+
+Knuth 在 1962 年证明：当负载因子 α = N/M 时，搜索命中平均探测次数约为 ½(1 + 1/(1-α))，搜索未命中约为 ½(1 + 1/(1-α)²)。
+
+当 α = 1/2 时：命中 ~1.5 次，未命中 ~2.5 次 —— 很快！
+当 α = 3/4 时：命中 ~2.5 次，未命中 ~8.5 次 —— 已经明显变慢。
+当 α → 1 时：探测次数趋向无穷 —— 完全不可用！
+
+因此必须通过数组扩容保持 α ≤ 1/2。</div>
+    </div>
+</section>
+
+<!-- Block: bar-chart — Horizontal bar chart -->
+<section id="sec-block5" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">线性探测：不同负载因子下的平均探测次数</div>
+    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
+    <div class="bar-chart" id="barChart-block5"></div>
+</section>
+
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block6" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">内存使用与工程选择指南</div>
+    <div class="tips-grid" id="tipsGrid-block6"></div>
+</section>
+
+<!-- Block: custom — Escape hatch for raw HTML content -->
+<section id="sec-block7" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">线性探测的删除陷阱</div>
+    
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "散列表 = 一个「智能储物柜」，通过散列函数把钥匙变成柜号，直接开柜取物"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "想象一个图书馆，每本书按书名算出一个编号放到对应书架上。查书时只需算编号、去书架找，不用一排排地翻"
+  },
+  {
+    "step": 3,
+    "title": "发现盲点",
+    "desc": "两本书算出了同一个编号怎么办？这就是「冲突」——拉链法在书架上挂一条链、线性探测法就去隔壁书架看看"
+  },
+  {
+    "step": 4,
+    "title": "简化与类比",
+    "desc": "散列表就像自助快递柜：取件码（散列函数）→ 柜号（数组下标）→ 开柜取件（常数时间访问）。柜满了就需要换一面更大的柜子（数组扩容）"
+  }
+];
+const takeaways = [
+  {
+    "icon": "🔑",
+    "title": "散列 = 算术寻址",
+    "text": "散列函数把键转换为数组下标，让我们跳过比较、直接定位。这是从「逐个比较」到「算术计算」的思维跃迁。"
+  },
+  {
+    "icon": "⚖️",
+    "title": "时间-空间权衡",
+    "text": "散列表是时间-空间权衡的经典案例：无限内存可做到一次访问，无限时间可用最少内存。散列通过调参在两个极端间找平衡。"
+  },
+  {
+    "icon": "⚠️",
+    "title": "散列函数决定一切",
+    "text": "一个糟糕的散列函数是经典的「性能 bug」——程序正确运行，但比预期慢得多。必须让键的所有位都参与散列。"
+  },
+  {
+    "icon": "📊",
+    "title": "负载因子是核心参数",
+    "text": "拉链法中 α = N/M 是平均链长；线性探测中 α 是表的占用率。通过数组扩容保持 α 在合理范围内，是保证常数时间操作的关键。"
+  },
+  {
+    "icon": "🚫",
+    "title": "散列表不支持有序操作",
+    "text": "散列的本质是打乱键的顺序。如果你需要最大/最小值、范围查找或排名操作，请使用二叉搜索树而非散列表。"
+  },
+  {
+    "icon": "🧪",
+    "title": "理论预测，实践验证",
+    "text": "均匀散列假设是理想模型，但 Proposition K 和 M 的预测在实践中被反复验证。用 χ² 统计检验你的散列函数分布是否均匀。"
+  }
+];
+const quiz = [
+  {
+    "id": "q1",
+    "question": "为什么模除散列中 M 应选择素数而非 2 的幂？",
+    "answer": "如果 M 是 2 的幂（如 M = 2^k），则 k % M 只取决于 k 的低 k 位，高位完全不参与散列，容易导致分布不均匀。例如电话区号用 M=100 会因中间位缺乏多样性而聚集。选择素数可以让所有位都影响结果，更接近均匀分布。当使用数组扩容（M 总是 2 的幂）时，可以先对一个更大的素数取模来缓解此问题。"
+  },
+  {
+    "id": "q2",
+    "question": "在线性探测法中，为什么删除一个键不能直接把该位置设为 null？正确的做法是什么？",
+    "answer": "直接置 null 会截断探测序列。例如键 H 散列到位置 4，但因碰撞实际在位置 7。如果中间位置 5 被置 null，搜索 H 时会在位置 5 误判为「不存在」。正确做法是：删除目标键后，把该位置右侧同一簇（cluster）内的所有键取出并重新插入（put），保持探测序列完整。另一种方案是「惰性删除」——保留键作为墓碑（tombstone），在 resize() 时清理。"
+  },
+  {
+    "id": "q3",
+    "question": "拉链法和线性探测法各自的优缺点是什么？在什么场景下你会选择哪一种？",
+    "answer": "拉链法优点：实现简单，删除容易，负载因子可 > 1，对散列函数质量不太敏感。缺点：链表节点分散在内存中，缓存不友好；每个节点有额外的指针开销。\n线性探测法优点：数据存储在连续数组中，缓存友好；无链表指针开销，空间更紧凑。缺点：负载因子必须 < 1（通常 ≤ 1/2），删除操作复杂，聚集效应会随负载因子升高急剧恶化。\n选择：当键的数量不确定且删除频繁时选拉链法；当追求极致性能且能控制负载因子时选线性探测法。"
+  },
+  {
+    "id": "q4",
+    "question": "用你自己的话，向一个完全不懂编程的朋友解释什么是「散列冲突」以及为什么它不可避免？",
+    "answer": "参考答案：假设学校有 1000 个学生，但衣帽间只有 100 个挂钩。每个学生根据学号算出一个挂钩编号（比如学号末两位）。当两个学生算出相同的编号时，他们的衣服就「撞」到了同一个挂钩上——这就是冲突。\n\n为什么不可避免？因为学生数（1000）远多于挂钩数（100），根据「鸽巢原理」至少有些挂钩必须挂多件衣服。即使学生数少于挂钩数，只要分配不是一对一的（实际上随机分配几乎做不到完美一对一），冲突也会发生——这就像「生日悖论」，23 个人中就有超过 50% 的概率有两人同一天生日。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "如果你有一本 1000 页的电话簿，怎样才能在不翻遍全书的情况下找到某个人的号码？",
+    "hint": "想想电话簿为什么按姓氏首字母排列，以及还有没有更快的方法"
+  },
+  {
+    "question": "你觉得在一个有 100 个格子的表格中随机放入 50 个物品，会不会有格子放了两个以上的物品？",
+    "hint": "想想「生日悖论」——23 人中就有超过 50% 概率有同一天生日的两人"
+  },
+  {
+    "question": "使用数组可以通过下标 O(1) 访问元素，但如果键不是整数（而是字符串或复杂对象），还能做到吗？",
+    "hint": "有没有办法把「字符串」变成一个「数字」来当下标？"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "散列表的搜索和插入操作可以在常数（均摊）时间内完成",
+    "evidence": "Proposition N 证明：使用数组扩容的散列表，任意 t 次搜索/插入/删除操作的期望时间与 t 成正比。FrequencyCounter 实验（10,679 个键）的累计平均探测次数稳定在 3~4 次",
+    "counterpoint": "这依赖于「均匀散列假设」(Assumption J)。如果散列函数质量差（如只用键的部分位），最坏情况会退化到 O(N)。此外「均摊」意味着单次扩容操作可能非常昂贵（需要重新散列所有键），对延迟敏感的实时系统不一定合适"
+  },
+  {
+    "claim": "散列表是实现符号表最快的通用选择",
+    "evidence": "Sedgewick 在文中明确表示：「hashing is a classic example of a time-space tradeoff」且是「the method of choice for implementing basic symbol tables in many situations」",
+    "counterpoint": "散列表不支持有序操作（min/max、range、rank、select），任何需要有序性的场景必须用 BST。此外，散列表的最坏性能高度依赖散列函数质量，而红黑树可以无条件保证 O(log N)。对于安全敏感的应用，恶意构造的输入可以让散列表退化为 O(N)（散列攻击）"
+  },
+  {
+    "claim": "在拉链法散列表中，链表长度在 N/M 附近高度集中（Proposition K）",
+    "evidence": "泊松分布分析表明：当平均链长 α=10 时，某条链超过 20 个键的概率不到 0.84%；α=20 时超过 40 个键的概率不到 0.00016%。FrequencyCounter 实验的链长分布与泊松分布精确吻合",
+    "counterpoint": "此结论完全依赖均匀散列假设。最长链的期望长度是 O(log N / log log N) 而非 O(N/M)，极端情况下仍可能出现比平均值长很多的链。Java 8 之后 HashMap 在链长超过 8 时将链表转换为红黑树，就是为了防御这种最坏情况"
+  }
+];
+const application = [
+  {
+    "scenario": "设计一个 Web 应用的用户会话缓存系统",
+    "action": "使用散列表（如 Java HashMap 或 Redis）以 sessionId 为键快速查找/插入/删除用户会话。选择好的散列函数避免热点，设定合理的初始容量和负载因子（Java 默认 0.75），避免频繁扩容导致的延迟尖刺。"
+  },
+  {
+    "scenario": "实现一个编程语言的符号表（变量名 → 类型/地址）",
+    "action": "编译器中变量查找是最高频操作之一。使用拉链法散列表配合作用域链：每进入一个新作用域就在链头创建新的散列表，退出时弹出。这样既有 O(1) 查找效率，又能正确处理变量遮蔽（shadowing）。"
+  },
+  {
+    "scenario": "在分布式系统中实现一致性散列（Consistent Hashing）",
+    "action": "传统散列中增减节点会导致几乎所有键重新映射。一致性散列将节点和键都映射到散列环上，增删节点时只影响相邻区间的键。这是负载均衡器、CDN、分布式缓存（如 Memcached）的核心数据结构，背后的散列函数设计直接影响负载均衡效果。"
+  }
+];
+const chapterNav = {"prev": {"num": 13, "title": "平衡搜索树", "href": "ch13.html"}, "next": {"num": 15, "title": "查找应用", "href": "ch15.html"}};
+window.evoData_block2 = [
+  {
+    "title": "模除散列：最基本的散列函数",
+    "badge": "基础",
+    "desc": "对正整数键 k，计算 k % M。要求 M 为素数，否则某些位不参与散列，分布不均匀。\n例：电话区号用 M=100 会导致中间位为 0 或 1 的号码集中在前 20 个桶，改用 M=97 效果好得多。",
+    "code": "private int hash(Key key) {\n    return (key.hashCode() & 0x7fffffff) % M;\n}\n// 0x7fffffff 屏蔽符号位，保证非负"
+  },
+  {
+    "title": "字符串散列：Horner 法则",
+    "badge": "进阶",
+    "desc": "把字符串视为 R 进制大整数，用 Horner 法则在 O(N) 时间内计算散列值。Java 的 String.hashCode() 就用此方法，R=31。",
+    "code": "int hash = 0;\nfor (int i = 0; i < s.length(); i++)\n    hash = (R * hash + s.charAt(i)) % M;\n// R=31, 每个字符都参与运算"
+  },
+  {
+    "title": "复合键散列：多字段组合",
+    "badge": "实战",
+    "desc": "对有多个字段的键（如 Date 的 day/month/year），按 Horner 法则逐字段混合。Java 惯例：用 31 作乘数，逐字段叠加 hashCode()。",
+    "code": "public int hashCode() {\n    int hash = 17;\n    hash = 31 * hash + who.hashCode();\n    hash = 31 * hash + when.hashCode();\n    hash = 31 * hash\n        + ((Double) amount).hashCode();\n    return hash;\n}"
+  },
+  {
+    "title": "软件缓存：避免重复计算",
+    "badge": "优化",
+    "desc": "如果散列值计算代价高，可在对象中缓存 hashCode() 的结果。Java 的 String 就是这样做的——第一次计算后存起来，后续直接返回。\n前提：键必须是不可变类型（immutable）。",
+    "code": "// Java String 内部缓存散列值\nprivate int hash; // 默认为 0\npublic int hashCode() {\n    int h = hash;\n    if (h == 0 && value.length > 0) {\n        // 第一次计算\n        for (char c : value)\n            h = 31 * h + c;\n        hash = h; // 缓存结果\n    }\n    return h;\n}"
+  }
+];
+window.barData_block5 = [
+  {
+    "label": "α=1/8",
+    "value": "命中1.07 / 未命中1.07",
+    "pct": 7
+  },
+  {
+    "label": "α=1/4",
+    "value": "命中1.17 / 未命中1.39",
+    "pct": 14
+  },
+  {
+    "label": "α=1/2",
+    "value": "命中1.50 / 未命中2.50",
+    "pct": 25
+  },
+  {
+    "label": "α=3/4",
+    "value": "命中2.50 / 未命中8.50",
+    "pct": 55
+  },
+  {
+    "label": "α=7/8",
+    "value": "命中4.50 / 未命中32.5",
+    "pct": 100,
+    "warning": true
+  }
+];
+window.tipsData_block6 = [
+  {
+    "icon": "💾",
+    "title": "拉链法内存",
+    "text": "~48N + 64M 字节（引用类型）。每个 Node 有 24 字节对象开销 + 3 个引用。M 条链表本身需要 ~64M 字节的数组和对象头。"
+  },
+  {
+    "icon": "📐",
+    "title": "线性探测内存",
+    "text": "介于 ~32N 到 ~128N 字节之间。取决于负载因子（1/8 到 1/2）。用两个并行数组（keys[] 和 vals[]），无链表开销。"
+  },
+  {
+    "icon": "🌲",
+    "title": "BST 内存",
+    "text": "~56N 字节。每个节点存 key、value、left、right 四个引用 + 对象开销。介于拉链法和线性探测之间。"
+  },
+  {
+    "icon": "📏",
+    "title": "数组扩容策略",
+    "text": "线性探测中 α > 1/2 时翻倍，α < 1/8 时减半。拉链法中也可选用此策略保持链长在 2~8 之间。扩容时需要重新散列所有键。"
+  },
+  {
+    "icon": "⚖️",
+    "title": "散列 vs 红黑树",
+    "text": "散列表期望 O(1)，红黑树保证 O(log N)。但散列表不支持有序操作（最大/最小值、范围查找、排名）。需要有序操作时必须选红黑树。"
+  },
+  {
+    "icon": "🎲",
+    "title": "均匀散列假设",
+    "text": "所有分析都依赖「均匀散列假设」：散列函数将键均匀独立地分布在 0~M-1。这在实际中难以完美实现，但良好的 hashCode() 实现已足够接近。"
+  }
+];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: bar-chart
+(function() {
+    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
+        const blockId = container.id.replace('barChart-', '');
+        const dataVar = window['barData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(bar => {
+            const div = document.createElement('div');
+            div.className = 'bar-row fade-in';
+            const colorClass = bar.warning ? 'danger' : 'success';
+            div.innerHTML = `
+                <div class="bar-label">${bar.label}</div>
+                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
+                <div class="bar-value">${bar.value || ''}</div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: tips-grid
+(function() {
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'tip-card fade-in';
+            div.innerHTML = `
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: code-evolution
+(function() {
+    document.querySelectorAll('[id^="evoTimeline-"]').forEach(container => {
+        const blockId = container.id.replace('evoTimeline-', '');
+        const dataVar = window['evoData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach((step, i) => {
+            const div = document.createElement('div');
+            div.className = 'evo-step' + (i === 0 ? ' active' : '') + ' fade-in';
+            const badge = step.badge || '';
+            const speedClass = badge.match(/O\(1\)|\u03B1|lg/) ? 'success' : badge.match(/O\(N\)/) ? 'danger' : 'neutral';
+            div.innerHTML = `
+                <div class="evo-dot"></div>
+                <div class="evo-card">
+                    <div class="evo-header">
+                        <span class="evo-title">${step.title}</span>
+                        <span class="evo-speed ${speedClass}">${badge}</span>
+                    </div>
+                    <div class="evo-desc">${step.desc || ''}</div>
+                    ${step.code ? '<pre class="evo-code">' + step.code + '</pre>' : ''}
+                </div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

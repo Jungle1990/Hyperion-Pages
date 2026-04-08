@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>平衡搜索树 · Balanced Search Trees | Chapter 13</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: code-evolution */
+.evolution-timeline { position: relative; padding-left: 50px; }
+.evolution-timeline::before { content: ''; position: absolute; left: 30px; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--accent), var(--accent3), var(--accent2)); border-radius: 2px; }
+.evo-step { position: relative; padding-left: 30px; margin-bottom: 2rem; }
+.evo-dot { position: absolute; left: -30px; top: 5px; width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--accent); background: var(--bg); z-index: 1; }
+.evo-step.active .evo-dot { background: var(--accent); box-shadow: 0 0 12px rgba(108,99,255,0.5); }
+.evo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all 0.3s; }
+.evo-card:hover { border-color: var(--accent); }
+.evo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+.evo-title { font-weight: 700; }
+.evo-speed { font-family: var(--font-mono); font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 1rem; }
+.evo-speed.success { background: rgba(52,211,153,0.15); color: var(--success); }
+.evo-speed.danger { background: rgba(248,113,113,0.15); color: var(--danger); }
+.evo-speed.neutral { background: rgba(136,136,160,0.15); color: var(--text-dim); }
+.evo-desc { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 10px; }
+.evo-code { background: #12141c; border: 1px solid #1e2030; border-radius: 0.5rem; padding: 1rem; font-family: var(--font-mono); font-size: 0.8rem; color: #a0a0c0; overflow-x: auto; white-space: pre; }
+
+
+/* Block: bar-chart */
+.bar-chart { display: flex; flex-direction: column; gap: 12px; }
+.bar-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 1rem; }
+.bar-label { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; color: var(--text-dim); }
+.bar-track { height: 32px; background: rgba(255,255,255,0.03); border-radius: 0.5rem; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 0.5rem; display: flex; align-items: center; padding-left: 0.75rem; font-size: 0.75rem; font-family: var(--font-mono); color: #fff; transition: width 1.5s ease-out; }
+.bar-fill.success { background: linear-gradient(90deg, var(--accent3), #2dd4bf); }
+.bar-fill.danger { background: linear-gradient(90deg, var(--accent2), #ef4444); }
+.bar-fill.neutral { background: linear-gradient(90deg, var(--accent), #8b5cf6); }
+.bar-fill.warning { background: linear-gradient(90deg, var(--accent4), var(--warning)); }
+.bar-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; }
+
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
+/* Block: pipeline */
+.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
+.pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(108,99,255,0.3); }
+.pipe-node.highlight { background: linear-gradient(135deg, var(--accent2), #ef4444); }
+.pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
+.pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
+@media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
+
+
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 13 / 25 · Part III · Searching 查找</div>
+        <div class="hero-icon">⚖️</div>
+        <h1 class="hero-title">平衡搜索树</h1>
+        <p class="hero-sub">如同建筑师用对称结构抵抗地震一样，平衡搜索树用局部变换抵抗最坏情况——无论键以什么顺序到来，都能保证对数级性能</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">核心类比：为什么需要平衡？</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">📚</div>
+            <div class="analogy-label">普通BST = 随手堆书架</div>
+            <div class="analogy-desc">书按到来顺序插入
+运气好：书架两边平衡，找书只翻 lg N 层
+运气差：所有书堆成一条线（如按字母序插入），找书要翻 N 层
+最坏情况：退化成链表</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">🏛️</div>
+            <div class="analogy-label">红黑BST = 自动整理书架</div>
+            <div class="analogy-desc">每次插入后自动调整
+无论书以什么顺序到来，始终保持近乎完美的平衡
+找书最多翻 2 lg N 层
+实际平均只需 ~1.00 lg N 次比较</div>
+        </div>
+    </div>
+    
+</section>
+
+<!-- Block: code-evolution — Step-by-step code transformation timeline -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">从2-3树到红黑BST的演化之路</div>
+    <p class="section-intro" style="color:var(--text-dim);margin-bottom:2rem;">理解红黑BST的关键是先理解2-3树，然后看它如何被巧妙编码为二叉树。</p>
+    <div class="evolution-timeline" id="evoTimeline-block2"></div>
+</section>
+
+<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">左旋 vs 右旋：红黑树的两把扳手</div>
+    <div class="comparison-grid">
+        <div class="comparison-side hard">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">左旋 rotateLeft(h)</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">Node rotateLeft(Node h) {
+    Node x = h.right;
+    h.right = x.left;
+    x.left = h;
+    x.color = h.color;
+    h.color = RED;
+    x.N = h.N;
+    h.N = 1 + size(h.left)
+            + size(h.right);
+    return x;
+}
+// 场景: 右链接是红色 -> 转为左倾
+// h 下沉, x 上升, 红色转移到左边</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side smart">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">右旋 rotateRight(h)</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">Node rotateRight(Node h) {
+    Node x = h.left;
+    h.left = x.right;
+    x.right = h;
+    x.color = h.color;
+    h.color = RED;
+    x.N = h.N;
+    h.N = 1 + size(h.left)
+            + size(h.right);
+    return x;
+}
+// 场景: 连续两个左红链接 -> 右旋上层
+// h 下沉, x 上升, 修正连续红链接</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">两个操作完全对称，只是 left/right 互换。关键性质：旋转保持有序性和完美黑色平衡。返回的链接继承原来 h 的颜色（x.color = h.color），被旋转下去的节点变成红色（h.color = RED）。</div></div>
+</section>
+
+<!-- Block: code-evolution — Step-by-step code transformation timeline -->
+<section id="sec-block4" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">红黑BST的put()：三行代码搞定平衡</div>
+    <p class="section-intro" style="color:var(--text-dim);margin-bottom:2rem;">整个平衡逻辑只需要在递归put()的末尾加三个if语句，这就是红黑BST最优雅的地方。</p>
+    <div class="evolution-timeline" id="evoTimeline-block4"></div>
+</section>
+
+<!-- Block: pipeline — Flow diagram with connected nodes -->
+<section id="sec-block5" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">删除操作：向下变换 + 向上修复</div>
+    <div class="pipeline-flow" id="pipeline-block5"></div>
+    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;">红黑BST删除的两阶段策略</div>
+</section>
+
+<!-- Block: bar-chart — Horizontal bar chart -->
+<section id="sec-block6" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">符号表实现的最坏情况比较（N次插入后）</div>
+    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
+    <div class="bar-chart" id="barChart-block6"></div>
+</section>
+
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block7" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">红黑BST实战要点</div>
+    <div class="tips-grid" id="tipsGrid-block7"></div>
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "红黑BST = 用颜色编码的二叉树，本质是2-3树的「伪装」，保证所有操作都是O(lg N)"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "想象一个文件柜：普通BST像随手堆文件（可能歪成一条线），2-3树像每个抽屉最多放2-3个文件夹并自动整理，红黑树就是用「红色标签」在普通文件柜上模拟这种自动整理"
+  },
+  {
+    "step": 3,
+    "title": "发现盲点",
+    "desc": "左旋、右旋、颜色翻转三个操作看似独立，实际必须按特定顺序执行：先修正右倾红链接→再修正连续红链接→最后分裂4-节点。顺序错了树就坏了"
+  },
+  {
+    "step": 4,
+    "title": "简化与类比",
+    "desc": "红黑BST就像自动扶梯的平衡系统——无论乘客（键）从哪边上来，扶梯（树）始终保持水平。三个if语句就是三个传感器，检测并修正每一次失衡"
+  }
+];
+const takeaways = [
+  {
+    "icon": "⚖️",
+    "title": "核心保证",
+    "text": "红黑BST的搜索、插入、删除以及所有有序操作在最坏情况下都是O(lg N)——这是第一个同时为搜索和插入提供对数级保证的数据结构。"
+  },
+  {
+    "icon": "🎭",
+    "title": "一体两面",
+    "text": "红黑BST和2-3树是同一事物的两种表示：2-3树容易理解（完美平衡），红黑BST容易实现（只需三个if）。理解这个对应关系是掌握红黑树的关键。"
+  },
+  {
+    "icon": "🔧",
+    "title": "三行代码的魔法",
+    "text": "整个平衡逻辑浓缩在put()末尾的三个if语句中：左旋右倾红链接、右旋连续红链接、翻转双红子节点。简洁得令人震惊。"
+  },
+  {
+    "icon": "📊",
+    "title": "实践性能优异",
+    "text": "理论最坏2 lg N，但实际平均搜索路径约 1.00 lg N，比普通BST的 1.39 lg N 还短约40%。搜索不检查颜色，无额外开销。"
+  },
+  {
+    "icon": "🌳",
+    "title": "向上生长的树",
+    "text": "普通BST从顶部向下生长容易失衡，2-3树/红黑BST通过根分裂向上生长——10个键按升序插入，BST高度9，2-3树高度仅2。"
+  }
+];
+const quiz = [
+  {
+    "id": "q1",
+    "question": "红黑BST的三条定义性质是什么？它们和2-3树有什么对应关系？",
+    "answer": "三条性质：(1) 红链接必须左倾；(2) 没有节点同时连接两条红链接（即不出现连续红链接）；(3) 完美黑色平衡——根到每个空链接经过的黑链接数相同。对应关系：红链接把两个2-节点绑成一个3-节点，黑链接对应2-3树的普通链接。完美黑色平衡 ⟺ 2-3树的完美平衡（所有空链接到根距离相同）。三条性质保证了红黑BST和2-3树之间的一一对应。"
+  },
+  {
+    "id": "q2",
+    "question": "put()中三个if语句的顺序能不能调换？为什么？",
+    "answer": "不能随意调换。当前顺序是：(1) 右红→左旋；(2) 连续左红→右旋；(3) 双红→翻转。这个顺序确保了所有可能的临时违规状态都被正确处理。例如，插入到3-节点的中间位置时，会先产生一个右倾红链接（由第1步处理为左倾），然后出现连续的左红链接（由第2步右旋处理），最后出现双红子节点（由第3步翻转处理）。如果先翻转再旋转，可能会留下未修复的违规。"
+  },
+  {
+    "id": "q3",
+    "question": "为什么红黑BST的get()方法完全不需要修改（不需要看颜色）？这带来什么好处？",
+    "answer": "因为红黑BST首先是一棵合法的BST——所有键满足BST的有序性。颜色只用于维持平衡，不影响搜索逻辑。搜索时只需比较键然后走左/右链接，和普通BST完全一样。好处：(1) 搜索不检查颜色，没有额外开销；(2) min/max/rank/select/floor/ceiling等有序操作的代码可以直接从BST复用；(3) 平衡带来的收益是「免费的」——树更矮，每次搜索的比较次数更少。"
+  },
+  {
+    "id": "q4",
+    "question": "用你自己的话向一个不懂编程的朋友解释：为什么10个键按升序插入普通BST会变成一条线，而红黑BST不会？",
+    "answer": "参考答案：想象你在墙上钉挂钩挂衣服。普通BST就像每次都把新挂钩钉在最右边——最后所有衣服挂成一串，找最后一件要从头数到尾。红黑BST就像一个智能衣架：每挂三件衣服，它就自动把中间那件抬高一层，变成新的「分叉点」。这样挂10件衣服后，不是一条线，而是一棵矮胖的树——最多只需要翻两三层就能找到任何一件。秘密在于：红黑BST的树不是从顶部向下长，而是从底部分裂向上长。当底部太挤时，就把中间元素「向上推」，树的高度只在根分裂时才增加。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "你知道为什么按升序插入普通BST会导致性能灾难吗？",
+    "hint": "想想BST的形状会变成什么样"
+  },
+  {
+    "question": "如果一棵树保证了「完美平衡」，它的搜索效率和二分搜索相比如何？",
+    "hint": "完美平衡的树高度约为 lg N"
+  },
+  {
+    "question": "你认为实现一棵自平衡二叉搜索树需要多少额外代码？",
+    "hint": "答案可能会让你大吃一惊"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "红黑BST的高度不超过 2 lg N",
+    "evidence": "最坏情况是除了最左路径为3-节点外其余都是2-节点，此时左路径长度是纯2-节点路径（~lg N）的两倍",
+    "counterpoint": "2 lg N 是保守上界。实际中随机插入构建的红黑BST平均路径长度约 1.00 lg N，接近理论最优。很难构造出真正接近 2 lg N 的实例。"
+  },
+  {
+    "claim": "左倾红黑BST比传统红黑BST（允许右倾）实现更简单",
+    "evidence": "Sedgewick的左倾约束将插入的情况数大幅减少，核心平衡逻辑仅需三行if语句",
+    "counterpoint": "左倾约束使删除操作变得更复杂（需要额外的 moveRedLeft/moveRedRight），且实际工程中（如Java的TreeMap）多使用传统红黑树（允许右倾），因为其删除实现虽然情况更多但每种情况更简单"
+  },
+  {
+    "claim": "红黑BST的搜索不检查颜色，因此搜索性能没有额外开销",
+    "evidence": "get()方法和普通BST代码完全一样，颜色位只在插入/删除时使用",
+    "counterpoint": "虽然搜索逻辑无开销，但红链接对应的额外层级（3-节点被展开为两个2-节点）会增加实际树高。不过由于保证了 ≤ 2 lg N，这个代价是可接受的。"
+  }
+];
+const application = [
+  {
+    "scenario": "需要实现一个支持高频插入和搜索的内存索引（如数据库引擎的内部索引）",
+    "action": "使用红黑BST。它保证插入和搜索都是O(lg N)，且搜索路径短（~1.00 lg N），适合读写混合的高频场景。Java的TreeMap、C++的std::map内部都使用红黑树。"
+  },
+  {
+    "scenario": "需要实现一个有序的符号表，支持rank、select、floor、ceiling等有序操作",
+    "action": "红黑BST是最佳选择。它不仅提供O(lg N)的搜索和插入，还能直接复用BST的所有有序操作代码，且所有操作都享受对数级保证——这是线性结构（链表、有序数组）无法同时做到的。"
+  },
+  {
+    "scenario": "设计磁盘存储系统的索引结构（如文件系统、数据库）",
+    "action": "考虑B-树而非红黑BST。B-树是2-3树思想的推广（允许每个节点存M个键），大幅减少磁盘I/O次数。红黑BST的每次比较可能触发一次磁盘读取，而B-树的宽节点可以一次读取一个磁盘页的键。"
+  }
+];
+const chapterNav = {"prev": {"num": 12, "title": "二叉搜索树", "href": "ch12.html"}, "next": {"num": 14, "title": "散列表", "href": "ch14.html"}};
+window.evoData_block2 = [
+  {
+    "title": "2-3树：允许节点持有多个键",
+    "badge": "概念基础",
+    "desc": "2-节点：1个键 + 2条链接（和BST一样）\n3-节点：2个键 + 3条链接（左、中、右）\n所有空链接到根的距离完全相同——完美平衡！",
+    "code": "// 2-3 树的定义（概念性）\n// 2-node: [key] -> left, right\n// 3-node: [keyA, keyB] -> left, middle, right\n// 搜索：和 BST 类似，但在 3-节点中需要比较两个键"
+  },
+  {
+    "title": "2-3树的插入：向上生长",
+    "badge": "核心机制",
+    "desc": "插入到2-节点：直接变成3-节点\n插入到3-节点：临时变成4-节点，然后分裂——把中间键上传给父节点\n如果根也分裂了，树的高度+1（这是树唯一长高的方式！）",
+    "code": "// 插入到 2-节点（简单）\n[H] insert K -> [H, K]  // 2-node 变 3-node\n\n// 插入到 3-节点（需要分裂）\n[S, X] insert Z -> [S, X, Z] (临时4-node)\n  -> 分裂: X 上传, [S] 和 [Z] 成为两个 2-node"
+  },
+  {
+    "title": "红黑编码：用颜色模拟3-节点",
+    "badge": "关键转换",
+    "desc": "用一条左倾的红色链接把两个2-节点绑在一起，就能表示一个3-节点\n红链接 = 3-节点的内部连接\n黑链接 = 2-3树的普通连接\nget() 方法完全不用修改——它根本不看颜色！",
+    "code": "// 3-node [a, b] 编码为：\n//     b          (黑链接连父节点)\n//    / \n//   a            (红链接, 左倾)\n//  / \\   \\\n// <a  a~b  >b\n\nprivate static final boolean RED   = true;\nprivate static final boolean BLACK = false;\n\nprivate boolean isRed(Node x) {\n    if (x == null) return false;\n    return x.color == RED;\n}"
+  },
+  {
+    "title": "三条铁律定义红黑BST",
+    "badge": "不变量",
+    "desc": "1. 红链接必须左倾\n2. 没有节点同时连接两条红链接\n3. 完美黑色平衡：根到每个空链接经过的黑链接数相同\n满足这三条 ⟺ 与一棵2-3树一一对应",
+    "code": "// 红黑BST 的三条不变量\n// 1. 红链接左倾: if (isRed(h.right)) -> 需要左旋\n// 2. 不连续红:   if (isRed(h.left) && isRed(h.left.left)) -> 需要右旋\n// 3. 不同时红:   if (isRed(h.left) && isRed(h.right)) -> 颜色翻转\n// 满足以上三条 <=> 合法的 2-3 树"
+  }
+];
+window.evoData_block4 = [
+  {
+    "title": "标准BST插入 + 红链接",
+    "badge": "Step 1",
+    "desc": "新节点总是用红链接连接到父节点（对应2-3树中「先合并再分裂」的策略）",
+    "code": "private Node put(Node h, Key key, Value val) {\n    if (h == null)  // 新节点, 红链接\n        return new Node(key, val, 1, RED);\n\n    int cmp = key.compareTo(h.key);\n    if      (cmp < 0) h.left  = put(h.left,  key, val);\n    else if (cmp > 0) h.right = put(h.right, key, val);\n    else              h.val = val;  // 命中, 更新值"
+  },
+  {
+    "title": "三行平衡代码（核心！）",
+    "badge": "Step 2",
+    "desc": "第1行：右红 → 左旋（修正右倾）\n第2行：连续左红 → 右旋上层（修正连续红）\n第3行：双红 → 颜色翻转（分裂4-节点，向上传递红链接）\n顺序很重要！",
+    "code": "    // === 平衡修复（递归返回时执行）===\n    if (isRed(h.right) && !isRed(h.left))     h = rotateLeft(h);\n    if (isRed(h.left)  && isRed(h.left.left)) h = rotateRight(h);\n    if (isRed(h.left)  && isRed(h.right))     flipColors(h);\n\n    h.N = size(h.left) + size(h.right) + 1;\n    return h;\n}"
+  },
+  {
+    "title": "颜色翻转 flipColors()",
+    "badge": "分裂4-节点",
+    "desc": "当一个节点的左右子节点都是红色时，等价于2-3树中出现了临时4-节点\n把两个红色子链接变黑，父链接变红 = 把中间键上传给父节点",
+    "code": "void flipColors(Node h) {\n    h.color = RED;          // 中间键上传(变红)\n    h.left.color = BLACK;   // 左子分离\n    h.right.color = BLACK;  // 右子分离\n}\n// 注意: 根节点在 put() 外层被强制设为 BLACK\n// root.color = BLACK;"
+  }
+];
+window.pipeData_block5 = [
+  {
+    "cmd": "检查根",
+    "annotation": "如果根的两个子节点都是黑色，先把根变红"
+  },
+  {
+    "cmd": "向下搜索",
+    "annotation": "确保当前节点不是2-节点（借用/合并）"
+  },
+  {
+    "cmd": "moveRedLeft/Right",
+    "annotation": "从兄弟或父节点借一个键",
+    "cpuPct": 40,
+    "bottleneck": true
+  },
+  {
+    "cmd": "到达目标",
+    "annotation": "删除键（底部直接删，中间换后继）"
+  },
+  {
+    "cmd": "balance()",
+    "annotation": "向上分裂残留4-节点 + 修复红链接",
+    "cpuPct": 35
+  },
+  {
+    "cmd": "恢复根",
+    "annotation": "如果树非空，根强制设为黑色"
+  }
+];
+window.barData_block6 = [
+  {
+    "label": "顺序搜索\n(链表)",
+    "value": "N",
+    "pct": 100,
+    "note": "搜索和插入都是O(N)"
+  },
+  {
+    "label": "二分搜索\n(有序数组)",
+    "value": "lg N / N",
+    "pct": 50,
+    "note": "搜索快但插入慢"
+  },
+  {
+    "label": "BST",
+    "value": "N",
+    "pct": 100,
+    "note": "最坏退化为链表",
+    "warning": true
+  },
+  {
+    "label": "红黑BST",
+    "value": "2 lg N",
+    "pct": 15,
+    "note": "搜索+插入都保证对数级"
+  }
+];
+window.tipsData_block7 = [
+  {
+    "icon": "🔍",
+    "title": "get()零开销",
+    "text": "搜索代码和普通BST完全一样，不检查颜色。平衡带来的好处是免费的——树更矮，搜索更快。"
+  },
+  {
+    "icon": "🔄",
+    "title": "三步修复口诀",
+    "text": "右红→左旋；连续左红→右旋；双红→翻转。按此顺序在递归返回时执行，自底向上修复。"
+  },
+  {
+    "icon": "📏",
+    "title": "高度保证",
+    "text": "N个节点的红黑BST高度 ≤ 2 lg N。10亿个键最多30层！实际平均路径 ~1.00 lg N。"
+  },
+  {
+    "icon": "🌳",
+    "title": "从底部生长",
+    "text": "和普通BST从顶部向下生长不同，2-3树（红黑BST）通过根分裂向上生长，这是保持平衡的秘密。"
+  },
+  {
+    "icon": "🎯",
+    "title": "有序操作全免费",
+    "text": "min/max、select、rank、floor、ceiling等有序操作的代码直接复用BST的，无需修改，全部享受O(lg N)保证。"
+  },
+  {
+    "icon": "⚠️",
+    "title": "删除最复杂",
+    "text": "删除需要向下变换（保证不在2-节点上删）+ 向上修复。moveRedLeft/moveRedRight是关键辅助方法。"
+  }
+];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: bar-chart
+(function() {
+    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
+        const blockId = container.id.replace('barChart-', '');
+        const dataVar = window['barData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(bar => {
+            const div = document.createElement('div');
+            div.className = 'bar-row fade-in';
+            const colorClass = bar.warning ? 'danger' : 'success';
+            div.innerHTML = `
+                <div class="bar-label">${bar.label}</div>
+                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
+                <div class="bar-value">${bar.value || ''}</div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: pipeline
+(function() {
+    document.querySelectorAll('[id^="pipeline-"]').forEach(container => {
+        const blockId = container.id.replace('pipeline-', '');
+        const dataVar = window['pipeData_' + blockId];
+        if (!dataVar) return;
+        const pipeData = dataVar;
+        pipeData.forEach((node, i) => {
+            if (i > 0) {
+                const arrow = document.createElement('div');
+                arrow.className = 'pipe-arrow';
+                arrow.textContent = '→';
+                container.appendChild(arrow);
+            }
+            const wrapper = document.createElement('div');
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'pipe-node' + (node.bottleneck ? ' highlight' : '');
+            nodeDiv.textContent = node.cmd || node.name || '';
+            wrapper.appendChild(nodeDiv);
+            if (node.annotation || node.data) {
+                const dataDiv = document.createElement('div');
+                dataDiv.className = 'pipe-data';
+                dataDiv.textContent = node.annotation || node.data;
+                wrapper.appendChild(dataDiv);
+            }
+            container.appendChild(wrapper);
+        });
+    });
+})();
+
+
+// Block: tips-grid
+(function() {
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'tip-card fade-in';
+            div.innerHTML = `
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: code-evolution
+(function() {
+    document.querySelectorAll('[id^="evoTimeline-"]').forEach(container => {
+        const blockId = container.id.replace('evoTimeline-', '');
+        const dataVar = window['evoData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach((step, i) => {
+            const div = document.createElement('div');
+            div.className = 'evo-step' + (i === 0 ? ' active' : '') + ' fade-in';
+            const badge = step.badge || '';
+            const speedClass = badge.match(/O\(1\)|\u03B1|lg/) ? 'success' : badge.match(/O\(N\)/) ? 'danger' : 'neutral';
+            div.innerHTML = `
+                <div class="evo-dot"></div>
+                <div class="evo-card">
+                    <div class="evo-header">
+                        <span class="evo-title">${step.title}</span>
+                        <span class="evo-speed ${speedClass}">${badge}</span>
+                    </div>
+                    <div class="evo-desc">${step.desc || ''}</div>
+                    ${step.code ? '<pre class="evo-code">' + step.code + '</pre>' : ''}
+                </div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

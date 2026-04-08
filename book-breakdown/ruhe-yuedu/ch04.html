@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>阅读的第二个层次：检视阅读 · The Second Level: Inspectional Reading | Chapter 4</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* Block: code-evolution */
+.evolution-timeline { position: relative; padding-left: 50px; }
+.evolution-timeline::before { content: ''; position: absolute; left: 30px; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--accent), var(--accent3), var(--accent2)); border-radius: 2px; }
+.evo-step { position: relative; padding-left: 30px; margin-bottom: 2rem; }
+.evo-dot { position: absolute; left: -30px; top: 5px; width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--accent); background: var(--bg); z-index: 1; }
+.evo-step.active .evo-dot { background: var(--accent); box-shadow: 0 0 12px rgba(108,99,255,0.5); }
+.evo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all 0.3s; }
+.evo-card:hover { border-color: var(--accent); }
+.evo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+.evo-title { font-weight: 700; }
+.evo-speed { font-family: var(--font-mono); font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 1rem; }
+.evo-speed.success { background: rgba(52,211,153,0.15); color: var(--success); }
+.evo-speed.danger { background: rgba(248,113,113,0.15); color: var(--danger); }
+.evo-speed.neutral { background: rgba(136,136,160,0.15); color: var(--text-dim); }
+.evo-desc { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 10px; }
+.evo-code { background: #12141c; border: 1px solid #1e2030; border-radius: 0.5rem; padding: 1rem; font-family: var(--font-mono); font-size: 0.8rem; color: #a0a0c0; overflow-x: auto; white-space: pre; }
+
+
+/* Block: bar-chart */
+.bar-chart { display: flex; flex-direction: column; gap: 12px; }
+.bar-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 1rem; }
+.bar-label { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; color: var(--text-dim); }
+.bar-track { height: 32px; background: rgba(255,255,255,0.03); border-radius: 0.5rem; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 0.5rem; display: flex; align-items: center; padding-left: 0.75rem; font-size: 0.75rem; font-family: var(--font-mono); color: #fff; transition: width 1.5s ease-out; }
+.bar-fill.success { background: linear-gradient(90deg, var(--accent3), #2dd4bf); }
+.bar-fill.danger { background: linear-gradient(90deg, var(--accent2), #ef4444); }
+.bar-fill.neutral { background: linear-gradient(90deg, var(--accent), #8b5cf6); }
+.bar-fill.warning { background: linear-gradient(90deg, var(--accent4), var(--warning)); }
+.bar-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 4 / 21 · Part I · 阅读的层次 — The Dimensions of Reading</div>
+        <div class="hero-icon">🔍</div>
+        <h1 class="hero-title">阅读的第二个层次：检视阅读</h1>
+        <p class="hero-sub">检视阅读就像侦探到达犯罪现场的前30分钟——不是要破案，而是要快速扫描现场，判断这个案子值不值得深入调查</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">检视阅读的一体两面</div>
+    <div class="comparison-grid">
+        <div class="comparison-side hard">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">检视阅读一：有系统的略读</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">目标：判断这本书值不值得深读
+时间：几分钟到一小时
+
+做法：
+① 看书名页和序
+② 研究目录页
+③ 检阅索引
+④ 读出版者介绍
+⑤ 挑关键章节翻读
+⑥ 东翻西翻，不忘读最后两三页
+
+类比：卫星视图看整体布局</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side smart">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">检视阅读二：粗浅的阅读</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">目标：对全书有个初步的整体理解
+核心规则：碰到不懂的地方不要停
+
+做法：
+从头到尾读一遍
+只注意你能理解的部分
+跳过看不懂的章节和注释
+读完后你至少了解了50%
+
+类比：街景模式快速浏览
+
+关键：第一遍的50%理解
+比纠缠于细节的0%好太多</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">有经验的阅读者能同时运用两种步骤。对新手来说，最好先分开练习。</div></div>
+</section>
+
+<!-- Block: code-evolution — Step-by-step code transformation timeline -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">有系统的略读：六步法实战</div>
+    <p class="section-intro" style="color:var(--text-dim);margin-bottom:2rem;">像侦探勘查现场一样，按顺序检查关键线索。</p>
+    <div class="evolution-timeline" id="evoTimeline-block2"></div>
+</section>
+
+<!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block3" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">🎭 </div>
+        <div class="insight-content">一代代高中生被逼着一幕一幕地念、一个生字接一个查、一个注脚接一个读莎士比亚的剧本。
+结果？他们从来没有真正「读过」莎士比亚。
+等读到最后，已经忘了开头是什么，更无法洞察全剧的意义。
+
+正确的做法：先快速读完全剧，再讨论第一次阅读的收获，然后才做仔细的研究。
+因为你已经有了整体的了解，才有能力准备学习更细节的东西。</div>
+    </div>
+</section>
+
+<!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block4" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">速度的艺术：快≠好，慢≠深</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">🐇</div>
+            <div class="analogy-label">错误的速读观</div>
+            <div class="analogy-desc">一味求快，所有内容用同一速度读
+速读课程只矫正了基础阅读的问题
+读得快但不理解 = 白读
+就像开快车但不看路牌</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">🎵</div>
+            <div class="analogy-label">正确的速度感</div>
+            <div class="analogy-desc">用不同的速度读不同的内容
+无关紧要的部分快速扫过
+重要的段落放慢、反复咀嚼
+就像音乐中快慢交替的节奏感</div>
+        </div>
+    </div>
+    
+</section>
+
+<!-- Block: bar-chart — Horizontal bar chart -->
+<section id="sec-block5" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">眼睛的秘密：逗留与倒退</div>
+    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
+    <div class="bar-chart" id="barChart-block5"></div>
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "检视阅读 = 有系统的「侦察」。分两步：先略读（扫描全书架构），再粗浅阅读（从头到尾快速读一遍，不懂的地方跳过）"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "你走进一家书店，看到一本可能有用的书。你不会花一个月读完它才决定买不买——你会翻翻目录、看看简介、抽读几段。这就是检视阅读！但大多数人在图书馆却不这么做"
+  },
+  {
+    "step": 3,
+    "title": "发现盲点",
+    "desc": "「读不懂就停下来查」这条从小学到的规则，在面对一本难书时反而是最大的障碍！一幕一幕地查注释读莎士比亚，读到最后反而忘了整个剧情"
+  },
+  {
+    "step": 4,
+    "title": "简化与类比",
+    "desc": "检视阅读就像谷歌地图的两个模式：略读=卫星视图（看清城市的整体形状和道路布局），粗浅阅读=街景模式快速浏览（不用每条街都走，但大概知道城市长什么样）"
+  }
+];
+const takeaways = [
+  {
+    "icon": "🔍",
+    "title": "两步检视法",
+    "text": "检视阅读有两个步骤：先有系统地略读（判断值不值得读），再粗浅地从头到尾读一遍（跳过不懂的地方）。"
+  },
+  {
+    "icon": "🎭",
+    "title": "不懂就跳过",
+    "text": "面对难书时，碰到不懂的地方不要停——先读完整本，第一遍的50%理解比纠缠细节的0%好太多。"
+  },
+  {
+    "icon": "📋",
+    "title": "目录是地图",
+    "text": "开始阅读前先研究目录。这就像出发旅行前看地图——大多数读者甚至连目录都不看一眼。"
+  },
+  {
+    "icon": "🎵",
+    "title": "变速阅读",
+    "text": "好的阅读不是一味求快，而是用不同速度读不同内容：无关紧要的快速扫过，重要的放慢咀嚼。"
+  },
+  {
+    "icon": "🖐️",
+    "title": "用手指引导",
+    "text": "用手指沿着文字移动，速度比眼睛自然扫描略快。这能矫正逗留和倒退的坏习惯，同时帮助集中注意力。"
+  }
+];
+const quiz = [
+  {
+    "id": "q1",
+    "question": "检视阅读的两个步骤分别解决什么问题？为什么作者建议新手先分开练习？",
+    "answer": "第一步「有系统的略读」解决的问题是：这本书值不值得我花更多时间？通过看书名、目录、索引、关键章节等，你在几分钟内就能判断。第二步「粗浅的阅读」解决的问题是：这本书的整体内容是什么？通过从头到尾快速读一遍（跳过不懂的部分），你获得对全书的初步理解。作者建议新手分开练习，因为这两种方法的心态和目标不同：略读时你像侦探在扫描线索，是跳跃式的；粗浅阅读时你是在流水式地通读。有经验的阅读者能同时做两件事，但新手需要先分别掌握每种技巧，就像学乐器先分手练再合手。"
+  },
+  {
+    "id": "q2",
+    "question": "「头一次面对一本难读的书，从头到尾先读完一遍，碰到不懂的地方不要停下来」——这条规则为什么违反大多数人从小接受的教育？它为什么反而是正确的？",
+    "answer": "违反教育的原因：我们从小被教导「碰到生字查字典、碰到不懂的去查百科、读注脚和注释」。这些做法在学习基础阅读时是对的，但在面对一本超出当前理解力的难书时，反而成了最大的障碍。它反而正确的原因：(1) 如果你在每个不懂的地方都停下来，你会被困在细节中，失去对全书的整体把握——就像逐个音符分析交响乐却听不到旋律。(2) 很多在第一遍看不懂的内容，在你读完全书了解了整体脉络后，第二遍就自然理解了。(3) 对一本难书了解50%，远比因为纠缠细节而了解0%要好。莎士比亚剧本就是最好的例子：逐字逐句查注释的高中生，往往从未真正「读过」莎士比亚。"
+  },
+  {
+    "id": "q3",
+    "question": "作者用《独立宣言》做例子，说明不同部分应该用不同速度阅读。请解释这个例子，并举一个你自己的例子。",
+    "answer": "《独立宣言》的例子：中间两页是杰斐逊列举的「事实」（英王的罪行清单），这部分可以快速扫过——除非你是历史学者。最后一段也是修辞性的声明，值得快读。但前两段——包含「不可剥夺的权利」「自由」「幸福」「正义的力量」等概念——需要反复玩味、推敲，甚至花几天到几年的时间。这说明同一份文献的不同部分，需要截然不同的阅读速度。自己的例子（参考答案）：读一本编程教程时，你已经熟悉的语法部分可以快速略过；但核心算法的推导过程可能需要放慢到一行一行地跟着思考，甚至拿出纸笔手动演算。用同一速度读完全书，要么浪费时间在已懂的部分，要么错过了需要深思的关键内容。"
+  },
+  {
+    "id": "q4",
+    "question": "速读课程的根本局限性是什么？本章认为真正需要提升的是什么？",
+    "answer": "速读课程的根本局限性在于：它们主要解决的是基础阅读层次的问题——矫正「逗留」和「倒退」等阅读习惯，提高眼睛扫描文字的速度。这确实有用，但只能提升你处理已经理解的文字的速度。真正需要提升的是「超越基础阅读层次的理解力」。速度快了但看不懂，等于白读。分析阅读要求你能回答远比「这在说什么」更深的问题——比如「作者的论证有没有道理」「这本书跟我有什么关系」。这些能力不是靠读得快就能获得的，而是需要特定的阅读技巧和心智活动。本书要改进的，正是这种更深层次的理解力。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "当你拿到一本新书时，你会先做什么？直接从第一页开始读，还是先翻翻目录和序言？",
+    "hint": "想想你平时的阅读习惯"
+  },
+  {
+    "question": "读到不懂的地方你会怎么办？停下来查清楚再继续，还是跳过去先读完？",
+    "hint": "回忆你读一本难书时的体验"
+  },
+  {
+    "question": "你觉得阅读速度越快越好吗？",
+    "hint": "想想读不同类型的内容时你的速度是否应该不同"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "碰到不懂的地方不要停下来查询，先读完全书再说——第一遍的50%理解比纠缠于细节的0%好太多",
+    "evidence": "莎士比亚的戏剧被迫逐字逐句查注释的高中生，从来没有真正「读过」莎士比亚；读到最后已经忘了开头",
+    "counterpoint": "但对于某些逻辑严密的数学或哲学著作，前面不理解可能导致后面完全无法跟上——这条规则可能更适合叙事性或松散结构的作品"
+  },
+  {
+    "claim": "阅读的速度应该因内容而异，而不是一味求快",
+    "evidence": "《独立宣言》中间的事实清单可以快读，但前两段关于「不可剥夺的权利」的论述需要花几天甚至几年来思考",
+    "counterpoint": "但在实际操作中，很多读者缺乏判断「哪里该慢、哪里该快」的经验，需要大量练习才能培养出这种节奏感"
+  }
+];
+const application = [
+  {
+    "scenario": "当你想了解一本新书是否值得花时间深入阅读时",
+    "action": "用检视阅读的六步法：看书名和序→研究目录→检阅索引→读出版者介绍→挑关键章节翻读→东翻西翻不忘结尾。整个过程不超过一小时"
+  },
+  {
+    "scenario": "当你拿到一本很厚很难的经典著作，感到无从下手时",
+    "action": "不要从第一页开始逐字精读。先粗浅阅读一遍，碰到不懂的地方跳过去，读完后你至少了解了全书的一半，第二遍再深入细节"
+  },
+  {
+    "scenario": "当你觉得自己读书太慢，想报名速读课程时",
+    "action": "先评估你的瓶颈在哪里：如果是眼睛逗留和倒退的习惯，用手指引导法自行矫正即可；如果是理解力不足，速读课程帮不了你，你需要的是分析阅读的技巧"
+  }
+];
+const chapterNav = {"prev": {"num": 3, "title": "阅读的第一个层次：基础阅读", "href": "ch03.html"}, "next": {"num": 5, "title": "如何做一个自我要求的读者", "href": "ch05.html"}};
+window.evoData_block2 = [
+  {
+    "title": "第一步：书名页和序",
+    "badge": "10秒定位",
+    "desc": "快速扫描书名、副标题、作者背景、写作角度。完成后你已经能把这本书归类了。",
+    "code": "✓ 书名 → 主题是什么？\n✓ 副标题 → 作者的切入角度？\n✓ 序言 → 作者的写作目的？"
+  },
+  {
+    "title": "第二步：研究目录页",
+    "badge": "地图导航",
+    "desc": "目录就像旅行前的地图。许多作者花了大量心血写目录，但大多数读者连看都不看一眼。",
+    "code": "✓ 全书结构 → 几个大部分？\n✓ 章节标题 → 论述的逻辑线？\n✓ 小节副标 → 细节覆盖了什么？"
+  },
+  {
+    "title": "第三步：检阅索引",
+    "badge": "关键词扫描",
+    "desc": "索引告诉你这本书实际覆盖了哪些议题。某个词条被引用的页数越多，通常越重要。",
+    "code": "✓ 覆盖范围 → 涉及哪些议题？\n✓ 引用频率 → 哪些是关键概念？\n✓ 抽读相关段落 → 作者的核心论点？"
+  },
+  {
+    "title": "第四步：出版者介绍",
+    "badge": "快速摘要",
+    "desc": "许多论说性作品的宣传文案，是作者在出版社帮助下亲自撰写的摘要，不应被忽视。",
+    "code": "✓ 核心主张 → 作者认为最重要的是什么？\n✓ 如果文案空洞无物 → 这本书可能也没什么干货"
+  },
+  {
+    "title": "第五步：挑关键章节翻读",
+    "badge": "重点突击",
+    "desc": "根据目录印象，挑几个与主题最相关的篇章。如果开头或结尾有摘要，仔细阅读。",
+    "code": "✓ 选2-3个核心章节\n✓ 重点读开头和结尾\n✓ 有摘要就仔细读摘要"
+  },
+  {
+    "title": "第六步：东翻西翻，不忘结尾",
+    "badge": "收网",
+    "desc": "随机翻阅，寻找主要论点的讯号。特别注意：不要忽略最后两三页——大多数作者都忍不住在结尾重申核心观点。",
+    "code": "✓ 随机抽读几段感受写作风格\n✓ 最后2-3页通常有全书要点总结\n✓ 完成！你已经系统性地略读完了"
+  }
+];
+window.barData_block5 = [
+  {
+    "label": "未训练读者",
+    "value": "每行5-6次逗留",
+    "pct": 100,
+    "note": "频繁停顿+倒退"
+  },
+  {
+    "label": "经过训练",
+    "value": "每行2-3次逗留",
+    "pct": 45,
+    "note": "减少停顿"
+  },
+  {
+    "label": "熟练读者",
+    "value": "每行1-2次逗留",
+    "pct": 25,
+    "note": "一瞥掌握整句"
+  }
+];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: bar-chart
+(function() {
+    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
+        const blockId = container.id.replace('barChart-', '');
+        const dataVar = window['barData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(bar => {
+            const div = document.createElement('div');
+            div.className = 'bar-row fade-in';
+            const colorClass = bar.warning ? 'danger' : 'success';
+            div.innerHTML = `
+                <div class="bar-label">${bar.label}</div>
+                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
+                <div class="bar-value">${bar.value || ''}</div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: code-evolution
+(function() {
+    document.querySelectorAll('[id^="evoTimeline-"]').forEach(container => {
+        const blockId = container.id.replace('evoTimeline-', '');
+        const dataVar = window['evoData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach((step, i) => {
+            const div = document.createElement('div');
+            div.className = 'evo-step' + (i === 0 ? ' active' : '') + ' fade-in';
+            const badge = step.badge || '';
+            const speedClass = badge.match(/O\(1\)|\u03B1|lg/) ? 'success' : badge.match(/O\(N\)/) ? 'danger' : 'neutral';
+            div.innerHTML = `
+                <div class="evo-dot"></div>
+                <div class="evo-card">
+                    <div class="evo-header">
+                        <span class="evo-title">${step.title}</span>
+                        <span class="evo-speed ${speedClass}">${badge}</span>
+                    </div>
+                    <div class="evo-desc">${step.desc || ''}</div>
+                    ${step.code ? '<pre class="evo-code">' + step.code + '</pre>' : ''}
+                </div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

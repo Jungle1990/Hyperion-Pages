@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorting · 排序算法 | Algo Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(108, 99, 255, 0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+  --success: #34d399;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ─── Progress Bar ─── */
+#progressBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  width: 0%;
+  z-index: 100;
+  transition: width 0.1s linear;
+}
+
+/* ─── Hero (compact) ─── */
+.hero {
+  padding: 6rem 2rem 3rem;
+  text-align: center;
+  position: relative;
+}
+.hero-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px var(--glow));
+}
+.hero h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.2rem;
+}
+.hero-zh {
+  font-size: 1.2rem;
+  color: var(--text-dim);
+  font-weight: 300;
+  margin-bottom: 0.8rem;
+}
+.hero-desc {
+  font-size: 1rem;
+  color: var(--accent3);
+  font-family: var(--font-mono);
+  margin-bottom: 1.5rem;
+}
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.back-link {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  transition: color 0.3s ease;
+}
+.back-link:hover { color: var(--accent); }
+
+/* ─── Container ─── */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+}
+
+/* ─── Controls ─── */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.control-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.ctrl-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.ctrl-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.ctrl-btn.active {
+  background: rgba(108, 99, 255, 0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.expand-all-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.expand-all-btn:hover {
+  border-color: var(--accent3);
+  color: var(--accent3);
+}
+
+/* ─── Badge System ─── */
+.badge {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 1rem;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.badge--time {
+  background: rgba(108, 99, 255, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(108, 99, 255, 0.3);
+}
+.badge--space {
+  background: rgba(78, 205, 196, 0.1);
+  color: var(--accent3);
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+.badge--easy {
+  background: rgba(78, 205, 196, 0.15);
+  color: var(--accent3);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+}
+.badge--medium {
+  background: rgba(255, 230, 109, 0.15);
+  color: var(--accent4);
+  border: 1px solid rgba(255, 230, 109, 0.3);
+}
+.badge--hard {
+  background: rgba(255, 107, 107, 0.15);
+  color: var(--accent2);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+}
+.badge--source {
+  background: rgba(136, 136, 160, 0.1);
+  color: var(--text-dim);
+  border: 1px solid rgba(136, 136, 160, 0.2);
+}
+
+/* ─── Algorithm Card ─── */
+.algo-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 0.75rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+.algo-card:hover {
+  border-color: rgba(108, 99, 255, 0.3);
+}
+.algo-card.expanded-l1 {
+  border-color: var(--accent);
+  box-shadow: 0 4px 20px var(--glow);
+}
+
+/* ─── Algo Header (Level 0 — always visible) ─── */
+.algo-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease;
+}
+.algo-header:hover {
+  background: var(--card-hover);
+}
+.algo-title-group {
+  flex-shrink: 0;
+  min-width: 0;
+}
+.algo-name {
+  font-size: 1rem;
+  font-weight: 700;
+}
+.algo-name-zh {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+.algo-oneliner {
+  flex: 1;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.algo-badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+.algo-chevron {
+  font-size: 1rem;
+  color: var(--text-dim);
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+.algo-card.expanded-l1 .algo-chevron {
+  transform: rotate(180deg);
+}
+
+/* ─── Algo Detail (Level 1 — expand on click) ─── */
+.algo-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.algo-detail-inner {
+  padding: 0 1.25rem 1.25rem;
+}
+.detail-section {
+  margin-bottom: 1.25rem;
+}
+.detail-section:last-child { margin-bottom: 0; }
+.detail-section h3 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-mono);
+}
+.detail-section p {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--text);
+}
+.detail-section ul {
+  list-style: none;
+  padding: 0;
+}
+.detail-section ul li {
+  font-size: 0.85rem;
+  color: var(--text);
+  padding: 0.25rem 0;
+  padding-left: 1.2rem;
+  position: relative;
+}
+.detail-section ul li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+.insight-box {
+  background: rgba(108, 99, 255, 0.08);
+  border-left: 3px solid var(--accent);
+  padding: 0.8rem 1rem;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.insight-box-zh {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+}
+
+/* ─── Code Block ─── */
+.code-block {
+  background: #12141c;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #c0c0d8;
+  overflow-x: auto;
+  white-space: pre;
+  line-height: 1.7;
+  position: relative;
+}
+.code-block::before {
+  content: 'Python';
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.code-keyword { color: var(--accent); }
+.code-string { color: var(--accent3); }
+.code-comment { color: #5a5a7a; font-style: italic; }
+.code-number { color: var(--accent4); }
+.code-func { color: var(--accent2); }
+.code-builtin { color: #c792ea; }
+
+/* ─── Complexity Table ─── */
+.complexity-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+}
+.complexity-table th {
+  color: var(--text-dim);
+  font-weight: 400;
+  text-align: left;
+  padding: 0.4rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.7rem;
+}
+.complexity-table td {
+  padding: 0.4rem 0.8rem;
+  border-bottom: 1px solid rgba(42, 45, 58, 0.5);
+}
+.complexity-table tr:last-child td { border-bottom: none; }
+
+/* ─── Deep Dive Button ─── */
+.deep-dive-btn {
+  display: block;
+  width: 100%;
+  background: rgba(108, 99, 255, 0.06);
+  border: 1px dashed rgba(108, 99, 255, 0.3);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  padding: 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 1rem;
+}
+.deep-dive-btn:hover {
+  background: rgba(108, 99, 255, 0.12);
+  border-color: var(--accent);
+}
+
+/* ─── Deep Dive (Level 2) ─── */
+.algo-deep-dive {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.algo-deep-dive-inner {
+  padding-top: 1rem;
+}
+.variation-list, .related-list, .app-list {
+  display: grid;
+  gap: 0.4rem;
+}
+.variation-item, .related-item, .app-item {
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  background: rgba(108, 99, 255, 0.04);
+  border-radius: 6px;
+  border-left: 2px solid var(--accent);
+}
+.related-item { border-left-color: var(--accent3); }
+.app-item { border-left-color: var(--accent4); }
+.vs-box {
+  background: rgba(255, 107, 107, 0.06);
+  border-left: 3px solid var(--accent2);
+  padding: 0.8rem 1rem;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+.walkthrough-block {
+  background: #12141c;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: #c0c0d8;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+/* ─── Navigation ─── */
+.nav-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+.nav-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  text-decoration: none;
+  color: var(--text);
+  padding: 0.8rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: all 0.3s ease;
+  min-width: 0;
+}
+.nav-btn:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 15px var(--glow);
+}
+.nav-prev { align-items: flex-start; }
+.nav-next { align-items: flex-end; }
+.nav-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+.nav-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.nav-placeholder { flex: 1; }
+
+/* ─── Coming Soon (category page) ─── */
+.coming-soon-container {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+.coming-soon-msg {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+}
+.coming-soon-msg-zh {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  margin-bottom: 2rem;
+}
+.planned-list {
+  list-style: none;
+  padding: 0;
+  max-width: 400px;
+  margin: 0 auto;
+}
+.planned-list li {
+  padding: 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  border-bottom: 1px dashed var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.planned-check {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* ─── Footer ─── */
+.footer {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ─── Fade-in ─── */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .hero { padding: 4rem 1.5rem 2rem; }
+  .hero h1 { font-size: 1.8rem; }
+  .algo-header { flex-wrap: wrap; gap: 0.5rem; }
+  .algo-oneliner { display: none; }
+  .controls { flex-direction: column; align-items: flex-start; }
+  .nav-footer { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<section class="hero">
+  <div class="hero-icon">🔀</div>
+  <h1>Sorting</h1>
+  <div class="hero-zh">排序算法</div>
+  <div class="hero-desc">From O(N²) to O(N log N) — the evolution of sorting</div>
+  <div class="hero-stats" id="heroStats"></div>
+  <a href="index.html" class="back-link">← Back to Atlas</a>
+</section>
+
+<div class="container">
+  <div class="controls" id="controls">
+    <div class="control-group">
+      <span class="control-label">Sort</span>
+      <button class="ctrl-btn active" data-sort="default" onclick="sortBy('default', this)">Default</button>
+      <button class="ctrl-btn" data-sort="difficulty" onclick="sortBy('difficulty', this)">Difficulty</button>
+      <button class="ctrl-btn" data-sort="complexity" onclick="sortBy('complexity', this)">Complexity</button>
+    </div>
+    <div class="control-group">
+      <span class="control-label">Filter</span>
+      <button class="ctrl-btn active" data-filter="all" onclick="filterBy('all', this)">All</button>
+      <button class="ctrl-btn" data-filter="easy" onclick="filterBy('easy', this)">Easy</button>
+      <button class="ctrl-btn" data-filter="medium" onclick="filterBy('medium', this)">Medium</button>
+      <button class="ctrl-btn" data-filter="hard" onclick="filterBy('hard', this)">Hard</button>
+    </div>
+    <button class="expand-all-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand All</button>
+  </div>
+
+  <div class="algo-list" id="algoList"></div>
+
+  <nav class="nav-footer">
+    <a href="foundations.html" class="nav-btn nav-prev"><span class="nav-label">← prev</span><span class="nav-title">🧱 Foundations</span></a>
+    <a href="stacks-queues.html" class="nav-btn nav-next"><span class="nav-label">next →</span><span class="nav-title">📚 Stacks & Queues</span></a>
+  </nav>
+</div>
+
+<div class="footer">
+  Algo Atlas · Sorting
+</div>
+
+<script>
+const categoryMeta = {
+  "id": "sorting",
+  "name": "Sorting",
+  "nameZh": "排序算法",
+  "icon": "🔀",
+  "description": "From O(N²) to O(N log N) — the evolution of sorting",
+  "descriptionZh": "从 O(N²) 到 O(N log N) 的排序进化",
+  "dataFile": "sorting.json",
+  "outputFile": "sorting.html",
+  "status": "active",
+  "order": 2,
+  "algoCount": 11
+};
+
+const algorithms = [
+  {
+    "id": "selection-sort",
+    "name": "Selection Sort",
+    "nameZh": "选择排序",
+    "difficulty": "easy",
+    "source": "algs4",
+    "sourceChapter": "2.1",
+    "oneLiner": "Repeatedly find the minimum element and swap it into position",
+    "oneLinerZh": "反复找到最小元素并将其交换到正确位置",
+    "complexity": {
+      "time": {
+        "best": "O(N²)",
+        "average": "O(N²)",
+        "worst": "O(N²)"
+      },
+      "space": "O(1)"
+    },
+    "problemDefinition": "Sort an array of N comparable elements in ascending order by repeatedly selecting the smallest remaining element and placing it at the front of the unsorted portion.",
+    "problemDefinitionZh": "将 N 个可比较元素的数组按升序排序：反复从未排序部分选出最小元素，放到未排序部分的最前面。",
+    "whenToUse": [
+      "Array is very small (N < 20)",
+      "Number of swaps must be minimized (selection sort does exactly N swaps)",
+      "Simplicity is more important than performance"
+    ],
+    "keyInsight": "Selection sort always performs exactly N exchanges — the minimum possible. Each element is moved at most once to its final position. The running time is insensitive to input order: it always does ~N²/2 comparisons, making it predictable but slow.",
+    "keyInsightZh": "选择排序恰好执行 N 次交换——这是最少的交换次数。每个元素最多被移动一次到最终位置。运行时间与输入顺序无关：始终进行约 N²/2 次比较，可预测但较慢。",
+    "implementation": "def selection_sort(a: list) -> None:\n    \"\"\"Sort array in-place using selection sort.\"\"\"\n    n = len(a)\n    for i in range(n):\n        min_idx = i\n        for j in range(i + 1, n):\n            if a[j] < a[min_idx]:\n                min_idx = j\n        a[i], a[min_idx] = a[min_idx], a[i]",
+    "deepDive": {
+      "explanation": "Selection sort divides the array into two parts: a sorted prefix a[0..i-1] and an unsorted suffix a[i..N-1]. In each iteration, it scans the unsorted suffix to find the index of the minimum element, then swaps it with a[i]. After N iterations every element is in its correct position. The invariant is: after iteration i, the i smallest elements are in sorted order in a[0..i-1], and no element in a[i..N-1] is smaller than a[i-1].",
+      "walkthrough": "a = [64, 25, 12, 22, 11]\n\ni=0: scan [64,25,12,22,11], min=11 at index 4 → swap a[0]↔a[4] → [11, 25, 12, 22, 64]\ni=1: scan [25,12,22,64], min=12 at index 2 → swap a[1]↔a[2] → [11, 12, 25, 22, 64]\ni=2: scan [25,22,64], min=22 at index 3 → swap a[2]↔a[3] → [11, 12, 22, 25, 64]\ni=3: scan [25,64], min=25 at index 3 → swap a[3]↔a[3] → [11, 12, 22, 25, 64]\ni=4: single element, done.\nResult: [11, 12, 22, 25, 64] ✓",
+      "variations": [
+        "Double selection sort — find both min and max in each pass, reducing passes by half",
+        "Bingo sort — an optimization when many duplicate values exist",
+        "Tournament sort (tree selection) — use a tournament tree to find the minimum in O(log N), giving O(N log N) total"
+      ],
+      "relatedProblems": [
+        "Kth Largest Element in an Array (LeetCode 215) — partial selection sort idea",
+        "Sort Colors (LeetCode 75) — selection-based partitioning",
+        "Pancake Sorting (LeetCode 969)"
+      ],
+      "realWorldApps": [
+        "Sorting a hand of playing cards when swaps are expensive (physical movement)",
+        "Embedded systems with extremely limited memory and no recursion support",
+        "Teaching tool — simplest sorting algorithm to understand and verify"
+      ],
+      "vsAlternatives": "Selection sort always does ~N²/2 comparisons and N exchanges regardless of input. Insertion sort also does ~N²/2 comparisons in the worst case but is much faster on nearly-sorted input (O(N)). For large arrays, mergesort O(N log N) or quicksort O(N log N) average are far superior. Selection sort's only advantage is its minimal number of swaps."
+    },
+    "complexityRank": 10,
+    "defaultOrder": 0
+  },
+  {
+    "id": "insertion-sort",
+    "name": "Insertion Sort",
+    "nameZh": "插入排序",
+    "difficulty": "easy",
+    "source": "algs4",
+    "sourceChapter": "2.1",
+    "oneLiner": "Insert each element into its correct position among the already-sorted prefix",
+    "oneLinerZh": "将每个元素插入到已排序前缀的正确位置",
+    "complexity": {
+      "time": {
+        "best": "O(N)",
+        "average": "O(N²)",
+        "worst": "O(N²)"
+      },
+      "space": "O(1)"
+    },
+    "problemDefinition": "Sort an array of N comparable elements by iterating from left to right and inserting each element into its correct position within the sorted prefix to its left, shifting larger elements one position to the right.",
+    "problemDefinitionZh": "将 N 个可比较元素的数组排序：从左到右迭代，将每个元素插入到其左侧已排序前缀的正确位置，较大元素右移一位。",
+    "whenToUse": [
+      "Array is small (N < 50, used as base case in mergesort/quicksort)",
+      "Array is nearly sorted — insertion sort runs in O(N) on such input",
+      "Stability is required (insertion sort is stable)",
+      "Online sorting — elements arrive one at a time"
+    ],
+    "keyInsight": "The number of swaps equals the number of inversions in the input. An inversion is a pair (i, j) where i < j but a[i] > a[j]. For nearly-sorted arrays the inversion count is small, so insertion sort is nearly linear. This makes it the ideal subroutine for finishing off small or partially-sorted subarrays.",
+    "keyInsightZh": "交换次数等于输入中的逆序对数。逆序对是指 i < j 但 a[i] > a[j] 的配对。对于几乎有序的数组，逆序对数很少，因此插入排序接近线性。这使它成为处理小型或部分有序子数组的理想子程序。",
+    "implementation": "def insertion_sort(a: list) -> None:\n    \"\"\"Sort array in-place using insertion sort.\"\"\"\n    n = len(a)\n    for i in range(1, n):\n        key = a[i]\n        j = i - 1\n        while j >= 0 and a[j] > key:\n            a[j + 1] = a[j]\n            j -= 1\n        a[j + 1] = key",
+    "deepDive": {
+      "explanation": "Insertion sort maintains the invariant that a[0..i-1] is sorted. For each new element a[i], it shifts elements in the sorted prefix rightward until it finds the correct insertion point. Unlike selection sort, the work per iteration depends on how far the element must travel — for sorted input this is zero shifts per element, yielding O(N) total. In the worst case (reverse-sorted), every element travels all the way to position 0, yielding ~N²/2 comparisons and shifts.",
+      "walkthrough": "a = [5, 2, 4, 6, 1, 3]\n\ni=1: key=2, shift 5 right → [_, 5, 4, 6, 1, 3], insert 2 → [2, 5, 4, 6, 1, 3]\ni=2: key=4, shift 5 right → [2, _, 5, 6, 1, 3], insert 4 → [2, 4, 5, 6, 1, 3]\ni=3: key=6, no shift needed → [2, 4, 5, 6, 1, 3]\ni=4: key=1, shift 6,5,4,2 right → insert 1 → [1, 2, 4, 5, 6, 3]\ni=5: key=3, shift 6,5,4 right → insert 3 → [1, 2, 3, 4, 5, 6] ✓",
+      "variations": [
+        "Binary insertion sort — use binary search to find insertion point, reducing comparisons to O(N log N) but shifts remain O(N²)",
+        "Insertion sort with sentinel — place the minimum at a[0] to eliminate the j >= 0 boundary check",
+        "Shell sort — generalized insertion sort with diminishing gap sequences"
+      ],
+      "relatedProblems": [
+        "Sort an Almost Sorted Array (elements at most k positions from final position)",
+        "Insertion Sort List (LeetCode 147) — apply insertion sort to a linked list",
+        "Count of Smaller Numbers After Self (LeetCode 315) — inversion counting"
+      ],
+      "realWorldApps": [
+        "TimSort (Python, Java) uses insertion sort for small runs (< 64 elements)",
+        "Sorting a hand of playing cards — the natural human algorithm",
+        "Real-time systems where data arrives incrementally (online sorting)",
+        "Database engines for small result-set sorting"
+      ],
+      "vsAlternatives": "Selection sort always does N²/2 comparisons. Insertion sort adapts to input: O(N) for nearly sorted, O(N²) worst case. Shell sort extends insertion sort with gap sequences to achieve O(N^(3/2)) or better. For large random arrays, mergesort/quicksort at O(N log N) are far superior, but they often use insertion sort as a base case for small subarrays."
+    },
+    "complexityRank": 10,
+    "defaultOrder": 1
+  },
+  {
+    "id": "shellsort",
+    "name": "Shellsort",
+    "nameZh": "希尔排序",
+    "difficulty": "medium",
+    "source": "algs4",
+    "sourceChapter": "2.1",
+    "oneLiner": "Insertion sort with diminishing gap sequences for faster long-range movement",
+    "oneLinerZh": "使用递减间隔序列的插入排序，加速远距离元素移动",
+    "complexity": {
+      "time": {
+        "best": "O(N)",
+        "average": "O(N^(3/2))",
+        "worst": "O(N^(3/2))"
+      },
+      "space": "O(1)"
+    },
+    "problemDefinition": "Sort an array of N comparable elements by performing insertion sort on interleaved subsequences defined by a decreasing gap sequence. Starting with a large gap, elements far apart are compared and moved; the gap shrinks until it reaches 1, at which point the array is nearly sorted and a final insertion sort finishes in near-linear time.",
+    "problemDefinitionZh": "使用递减间隔序列对 N 个可比较元素排序：对由间隔定义的交错子序列执行插入排序。从大间隔开始，比较并移动远距离元素；间隔逐渐缩小到 1，此时数组几乎有序，最后一次插入排序在接近线性时间内完成。",
+    "whenToUse": [
+      "Moderate-sized arrays where O(N log N) algorithms feel like overkill",
+      "Embedded systems — no recursion, no extra memory, simple code",
+      "When you need a substantial improvement over insertion sort with minimal code complexity"
+    ],
+    "keyInsight": "By h-sorting the array for decreasing values of h, each pass partially sorts the array, reducing the number of inversions. When h reaches 1, the array is nearly sorted and insertion sort runs in near-linear time. Knuth's sequence h = 3h + 1 (1, 4, 13, 40, 121, ...) gives worst-case O(N^(3/2)).",
+    "keyInsightZh": "通过对递减的 h 值进行 h-排序，每次遍历都会部分排序数组，减少逆序对数。当 h 到达 1 时，数组几乎有序，插入排序在接近线性时间内完成。Knuth 序列 h = 3h + 1（1, 4, 13, 40, 121, ...）给出最坏情况 O(N^(3/2))。",
+    "implementation": "def shellsort(a: list) -> None:\n    \"\"\"Sort array in-place using shellsort with Knuth's gap sequence.\"\"\"\n    n = len(a)\n    h = 1\n    while h < n // 3:\n        h = 3 * h + 1  # 1, 4, 13, 40, 121, 364, ...\n    while h >= 1:\n        for i in range(h, n):\n            key = a[i]\n            j = i\n            while j >= h and a[j - h] > key:\n                a[j] = a[j - h]\n                j -= h\n            a[j] = key\n        h //= 3",
+    "deepDive": {
+      "explanation": "Shellsort is a generalization of insertion sort. An h-sorted array has the property that a[i] <= a[i+h] for all valid i — every h-th subsequence is sorted. By first making the array h-sorted for large h, elements move long distances with few comparisons. As h decreases, each pass refines the order. The key theoretical result: an array that is h-sorted remains h-sorted after being g-sorted for any smaller g. This compounding effect means the final h=1 pass (plain insertion sort) encounters very few inversions.",
+      "walkthrough": "a = [8, 3, 6, 1, 5, 2, 7, 4]\nN = 8, Knuth sequence: h starts at 1, then 4, then 13 > 8/3 → start with h=4\n\nh=4: insertion sort on subsequences {a[0],a[4]}, {a[1],a[5]}, {a[2],a[6]}, {a[3],a[7]}\n  [8,3,6,1,5,2,7,4] → [5,2,6,1,8,3,7,4]\nh=1: regular insertion sort on nearly-sorted array\n  [5,2,6,1,8,3,7,4] → [1,2,3,4,5,6,7,8] ✓\n\nThe h=4 pass moved elements long distances; the h=1 pass only needed short shifts.",
+      "variations": [
+        "Knuth's sequence: h = 3h + 1 → worst case O(N^(3/2))",
+        "Sedgewick's sequence: merges powers of 2 and 3 → empirically ~O(N^(4/3))",
+        "Ciura's gap sequence: [1, 4, 10, 23, 57, 132, 301, 701] — empirically optimal for moderate N",
+        "Pratt's sequence: all products 2^p · 3^q → worst case O(N log² N) but many passes"
+      ],
+      "relatedProblems": [
+        "Sort an Array (LeetCode 912) — can be solved with shellsort",
+        "Count inversions in an array — shellsort reduces inversions with each pass",
+        "H-Index (LeetCode 274) — conceptually related to h-sorting"
+      ],
+      "realWorldApps": [
+        "Linux kernel's sorting routine used shellsort for years (small code footprint)",
+        "uClibc embedded C library — shellsort as the default sort",
+        "Network packet reordering in constrained embedded routers",
+        "Firmware sorting where recursion stack depth is limited"
+      ],
+      "vsAlternatives": "Insertion sort is O(N²) worst case. Shellsort with Knuth's sequence improves to O(N^(3/2)) with the same O(1) space and no recursion. Mergesort guarantees O(N log N) but needs O(N) extra space. Quicksort averages O(N log N) but needs recursion. Shellsort fills the niche of a simple, in-place, non-recursive algorithm that is substantially faster than O(N²)."
+    },
+    "complexityRank": 99,
+    "defaultOrder": 2
+  },
+  {
+    "id": "mergesort-top-down",
+    "name": "Mergesort (Top-Down)",
+    "nameZh": "归并排序（自顶向下）",
+    "difficulty": "medium",
+    "source": "algs4",
+    "sourceChapter": "2.2",
+    "oneLiner": "Recursively divide array in half, sort each half, merge the sorted halves",
+    "oneLinerZh": "递归地将数组一分为二，分别排序，再合并两个有序半部分",
+    "complexity": {
+      "time": {
+        "best": "O(N log N)",
+        "average": "O(N log N)",
+        "worst": "O(N log N)"
+      },
+      "space": "O(N)"
+    },
+    "problemDefinition": "Sort an array of N comparable elements using divide-and-conquer: recursively split the array into two halves, sort each half, and merge them into a single sorted sequence using an auxiliary array.",
+    "problemDefinitionZh": "使用分治法对 N 个可比较元素排序：递归地将数组分成两半，分别排序，然后使用辅助数组将它们合并为一个有序序列。",
+    "whenToUse": [
+      "Guaranteed O(N log N) performance is required (no worst-case degradation)",
+      "Stability is required — mergesort preserves relative order of equal elements",
+      "Sorting linked lists — merge operation needs no extra space on linked lists",
+      "External sorting — merging sorted runs from disk"
+    ],
+    "keyInsight": "The merge operation is the heart of mergesort: given two sorted halves, produce a sorted whole in O(N) time using a two-pointer technique. Recursion ensures both halves are sorted before merging. The recurrence T(N) = 2T(N/2) + O(N) solves to O(N log N). There are exactly log₂ N levels of recursion, and each level processes all N elements once.",
+    "keyInsightZh": "合并操作是归并排序的核心：给定两个有序半部分，使用双指针技术在 O(N) 时间内生成有序整体。递归确保合并前两半已排序。递推关系 T(N) = 2T(N/2) + O(N) 解为 O(N log N)。共有 log₂ N 层递归，每层处理所有 N 个元素一次。",
+    "implementation": "def mergesort(a: list) -> list:\n    \"\"\"Return a new sorted list using top-down mergesort.\"\"\"\n    if len(a) <= 1:\n        return a\n    mid = len(a) // 2\n    left = mergesort(a[:mid])\n    right = mergesort(a[mid:])\n    return _merge(left, right)\n\ndef _merge(left: list, right: list) -> list:\n    \"\"\"Merge two sorted lists into one sorted list.\"\"\"\n    result = []\n    i = j = 0\n    while i < len(left) and j < len(right):\n        if left[i] <= right[j]:\n            result.append(left[i])\n            i += 1\n        else:\n            result.append(right[j])\n            j += 1\n    result.extend(left[i:])\n    result.extend(right[j:])\n    return result",
+    "deepDive": {
+      "explanation": "Top-down mergesort follows the classic divide-and-conquer paradigm: (1) Divide — split the array at the midpoint. (2) Conquer — recursively sort both halves. (3) Combine — merge the two sorted halves. The merge step uses a two-pointer scan: compare the front elements of the left and right halves, take the smaller one, advance that pointer. The <= comparison (not <) ensures stability. Sedgewick's optimizations include: switching to insertion sort for small subarrays (N < 15), skipping the merge if a[mid] <= a[mid+1] (already sorted), and alternating the role of the input and auxiliary arrays to avoid copies.",
+      "walkthrough": "a = [38, 27, 43, 3, 9, 82, 10]\n\nDivide: [38,27,43,3] | [9,82,10]\nDivide: [38,27] | [43,3] | [9,82] | [10]\nDivide: [38] | [27] | [43] | [3] | [9] | [82] | [10]\n\nMerge: [27,38] [3,43] [9,82] [10]\nMerge: [3,27,38,43] [9,10,82]\nMerge: [3,9,10,27,38,43,82] ✓\n\n3 levels of recursion × N work per level = O(N log N)",
+      "variations": [
+        "In-place merge using rotation — O(N log N) time, O(1) space, but complex",
+        "Natural mergesort — detect existing sorted runs instead of always splitting at midpoint",
+        "TimSort (Python, Java) — hybrid of natural mergesort + insertion sort for small runs",
+        "Parallel mergesort — sort halves on different threads/cores"
+      ],
+      "relatedProblems": [
+        "Sort an Array (LeetCode 912)",
+        "Sort List (LeetCode 148) — mergesort on linked list in O(1) space",
+        "Count of Smaller Numbers After Self (LeetCode 315) — merge-based inversion counting",
+        "Merge k Sorted Lists (LeetCode 23) — generalized merge"
+      ],
+      "realWorldApps": [
+        "Python's sorted() and list.sort() use TimSort, a mergesort variant",
+        "External sorting — merge sorted runs from multiple files (database systems)",
+        "Java's Arrays.sort() for objects uses mergesort (stability required by spec)",
+        "Hadoop MapReduce — sort-merge is fundamental to the shuffle phase"
+      ],
+      "vsAlternatives": "Quicksort averages O(N log N) with better cache performance but has O(N²) worst case and is not stable. Heapsort is O(N log N) in-place but not stable and has poor cache locality. Mergesort guarantees O(N log N) and is stable but needs O(N) extra space. For linked lists, mergesort is the best choice since merge needs no extra space."
+    },
+    "complexityRank": 7,
+    "defaultOrder": 3
+  },
+  {
+    "id": "mergesort-bottom-up",
+    "name": "Mergesort (Bottom-Up)",
+    "nameZh": "归并排序（自底向上）",
+    "difficulty": "medium",
+    "source": "algs4",
+    "sourceChapter": "2.2",
+    "oneLiner": "Iteratively merge subarrays of size 1, 2, 4, 8, ... without recursion",
+    "oneLinerZh": "迭代地合并大小为 1、2、4、8、... 的子数组，无需递归",
+    "complexity": {
+      "time": {
+        "best": "O(N log N)",
+        "average": "O(N log N)",
+        "worst": "O(N log N)"
+      },
+      "space": "O(N)"
+    },
+    "problemDefinition": "Sort an array of N comparable elements without recursion by treating the array as N sorted subarrays of size 1, then merging adjacent pairs to form sorted subarrays of size 2, then 4, doubling the subarray size each pass until the entire array is sorted.",
+    "problemDefinitionZh": "无需递归地排序 N 个可比较元素：将数组视为 N 个大小为 1 的有序子数组，然后合并相邻对形成大小为 2 的有序子数组，再形成 4，每次翻倍直到整个数组有序。",
+    "whenToUse": [
+      "Environments where recursion is not available or stack depth is limited",
+      "Sorting linked lists — natural bottom-up merge with O(1) extra space",
+      "When you want mergesort's guarantees with a simpler iterative structure"
+    ],
+    "keyInsight": "Bottom-up mergesort inverts the recursion: instead of splitting top-down, it builds up sorted sequences bottom-up. Each pass merges adjacent pairs of sorted subarrays of size sz into sorted subarrays of size 2·sz. After log₂ N passes, the entire array is sorted. It does the same comparisons as top-down mergesort but avoids recursion overhead.",
+    "keyInsightZh": "自底向上归并排序颠倒了递归方向：不是自顶向下分割，而是自底向上构建有序序列。每次遍历将大小为 sz 的相邻有序子数组对合并为大小为 2·sz 的有序子数组。经过 log₂ N 次遍历后，整个数组有序。它执行与自顶向下相同的比较，但避免了递归开销。",
+    "implementation": "def mergesort_bu(a: list) -> None:\n    \"\"\"Sort array in-place using bottom-up mergesort.\"\"\"\n    n = len(a)\n    aux = [0] * n\n    sz = 1\n    while sz < n:\n        for lo in range(0, n - sz, 2 * sz):\n            mid = lo + sz - 1\n            hi = min(lo + 2 * sz - 1, n - 1)\n            _merge_inplace(a, aux, lo, mid, hi)\n        sz *= 2\n\ndef _merge_inplace(a, aux, lo, mid, hi):\n    \"\"\"Merge a[lo..mid] and a[mid+1..hi] using auxiliary array.\"\"\"\n    aux[lo:hi+1] = a[lo:hi+1]\n    i, j = lo, mid + 1\n    for k in range(lo, hi + 1):\n        if i > mid:\n            a[k] = aux[j]; j += 1\n        elif j > hi:\n            a[k] = aux[i]; i += 1\n        elif aux[j] < aux[i]:\n            a[k] = aux[j]; j += 1\n        else:\n            a[k] = aux[i]; i += 1",
+    "deepDive": {
+      "explanation": "Bottom-up mergesort processes the array in log₂ N passes. Pass 1 merges subarrays of size 1 into sorted pairs of size 2. Pass 2 merges sorted subarrays of size 2 into sorted runs of size 4. Each pass doubles the sorted run length. The merge operation is identical to top-down mergesort. The approach is especially natural for linked lists, where splitting at the midpoint is expensive but traversing and re-linking is cheap. The total work is still O(N log N): log₂ N passes, each processing all N elements.",
+      "walkthrough": "a = [5, 2, 4, 7, 1, 3, 2, 6]\n\nsz=1: merge pairs of 1\n  merge(5,2)→[2,5] merge(4,7)→[4,7] merge(1,3)→[1,3] merge(2,6)→[2,6]\n  → [2, 5, 4, 7, 1, 3, 2, 6]\n\nsz=2: merge pairs of 2\n  merge([2,5],[4,7])→[2,4,5,7] merge([1,3],[2,6])→[1,2,3,6]\n  → [2, 4, 5, 7, 1, 2, 3, 6]\n\nsz=4: merge pairs of 4\n  merge([2,4,5,7],[1,2,3,6])→[1,2,2,3,4,5,6,7]\n  → [1, 2, 2, 3, 4, 5, 6, 7] ✓",
+      "variations": [
+        "Natural bottom-up mergesort — scan for existing sorted runs instead of fixed sizes",
+        "Polyphase merge — used in external sorting with limited number of tapes/files",
+        "Strand sort — extract sorted subsequences and merge them"
+      ],
+      "relatedProblems": [
+        "Sort List (LeetCode 148) — bottom-up mergesort on linked list achieves O(1) space",
+        "Sort an Array (LeetCode 912)",
+        "Count of Range Sum (LeetCode 327)"
+      ],
+      "realWorldApps": [
+        "External sorting — merging sorted runs from disk is inherently bottom-up",
+        "Tape-based sorting — classic application from Knuth's era",
+        "GPU-based sorting — iterative algorithms map better to GPU architectures",
+        "Functional programming — bottom-up merge is natural for immutable lists"
+      ],
+      "vsAlternatives": "Top-down mergesort uses recursion which adds O(log N) stack space. Bottom-up avoids recursion entirely, which matters in stack-constrained environments. Both perform the same number of comparisons. For arrays, top-down is often slightly faster in practice due to better cache behavior from the recursive structure. For linked lists, bottom-up is preferred."
+    },
+    "complexityRank": 7,
+    "defaultOrder": 4
+  },
+  {
+    "id": "quicksort",
+    "name": "Quicksort",
+    "nameZh": "快速排序",
+    "difficulty": "medium",
+    "source": "algs4",
+    "sourceChapter": "2.3",
+    "oneLiner": "Partition around a pivot so all smaller elements are left, all larger are right, then recurse",
+    "oneLinerZh": "围绕枢轴分区，使所有较小元素在左、较大在右，然后递归排序",
+    "complexity": {
+      "time": {
+        "best": "O(N log N)",
+        "average": "O(N log N)",
+        "worst": "O(N²)"
+      },
+      "space": "O(log N)"
+    },
+    "problemDefinition": "Sort an array of N comparable elements using divide-and-conquer: choose a pivot element, partition the array so that all elements less than the pivot come before it and all greater elements come after it, then recursively sort the two partitions.",
+    "problemDefinitionZh": "使用分治法对 N 个可比较元素排序：选择一个枢轴元素，将数组分区使所有小于枢轴的元素在前、大于枢轴的在后，然后递归排序两个分区。",
+    "whenToUse": [
+      "General-purpose sorting where average-case performance matters most",
+      "In-place sorting with O(log N) stack space is needed",
+      "Arrays with good random access — quicksort has excellent cache behavior",
+      "When combined with shuffle or median-of-3 to avoid worst case"
+    ],
+    "keyInsight": "Partitioning places the pivot in its final sorted position in O(N) time. Unlike mergesort which does work in the merge step (after recursion), quicksort does work in the partition step (before recursion). Randomized pivot selection gives O(N log N) expected time. The key equation: on average, each element is involved in O(log N) partitions.",
+    "keyInsightZh": "分区操作在 O(N) 时间内将枢轴放到最终排序位置。与归并排序在合并步骤（递归之后）做工作不同，快速排序在分区步骤（递归之前）做工作。随机化枢轴选择给出 O(N log N) 期望时间。关键等式：平均每个元素参与 O(log N) 次分区。",
+    "implementation": "import random\n\ndef quicksort(a: list) -> None:\n    \"\"\"Sort array in-place using quicksort with shuffle.\"\"\"\n    random.shuffle(a)  # eliminate dependence on input\n    _sort(a, 0, len(a) - 1)\n\ndef _sort(a: list, lo: int, hi: int) -> None:\n    if lo >= hi:\n        return\n    j = _partition(a, lo, hi)\n    _sort(a, lo, j - 1)\n    _sort(a, j + 1, hi)\n\ndef _partition(a: list, lo: int, hi: int) -> int:\n    \"\"\"Partition a[lo..hi] and return index j such that\n    a[lo..j-1] <= a[j] <= a[j+1..hi].\"\"\"\n    pivot = a[lo]\n    i, j = lo + 1, hi\n    while True:\n        while i <= hi and a[i] < pivot:\n            i += 1\n        while a[j] > pivot:\n            j -= 1\n        if i >= j:\n            break\n        a[i], a[j] = a[j], a[i]\n        i += 1\n        j -= 1\n    a[lo], a[j] = a[j], a[lo]\n    return j",
+    "deepDive": {
+      "explanation": "Quicksort's partition uses two scanning pointers: i scans left-to-right for elements >= pivot, j scans right-to-left for elements <= pivot. When both stop, their elements are on the wrong side, so swap them. When i and j cross, the partition is complete: swap the pivot (at lo) with a[j] to place it in its final position. Sedgewick's key optimizations: (1) Shuffle the array first to guarantee O(N log N) expected time. (2) Use median-of-3 pivot selection for better balance. (3) Switch to insertion sort for small subarrays (N < 10). (4) Use 3-way partitioning (Dijkstra's Dutch National Flag) for arrays with many duplicates.",
+      "walkthrough": "a = [3, 5, 2, 6, 1, 4] (assume no shuffle for illustration)\n\nPartition with pivot=3:\n  i=1, j=5: a[1]=5 >= 3, a[5]=4 > 3 → j=4: a[4]=1 < 3 → swap a[1]↔a[4]\n  → [3, 1, 2, 6, 5, 4], i=2, j=3: a[2]=2 < 3 → i=3, a[3]=6 >= 3 → j=2\n  i > j → swap a[0]↔a[2]: [2, 1, 3, 6, 5, 4], pivot at index 2\n\nRecurse on [2,1] and [6,5,4]\n  [2,1] → partition → [1,2]\n  [6,5,4] → partition → [4,5,6]\nResult: [1, 2, 3, 4, 5, 6] ✓",
+      "variations": [
+        "3-way quicksort (Dijkstra) — handles many duplicate keys in O(N) for equal keys",
+        "Dual-pivot quicksort — Java's Arrays.sort() for primitives uses this",
+        "Introsort — quicksort that switches to heapsort if recursion depth exceeds 2 log N",
+        "Median-of-3 partitioning — pick median of first, middle, last elements as pivot"
+      ],
+      "relatedProblems": [
+        "Sort an Array (LeetCode 912)",
+        "Sort Colors / Dutch National Flag (LeetCode 75) — 3-way partitioning",
+        "Kth Largest Element (LeetCode 215) — quickselect variant",
+        "Wiggle Sort II (LeetCode 324)"
+      ],
+      "realWorldApps": [
+        "C stdlib qsort() — typically quicksort with fallback",
+        "Java Arrays.sort() for primitives uses dual-pivot quicksort",
+        "C++ std::sort uses introsort (quicksort + heapsort fallback)",
+        "Database query engines for in-memory sort operations"
+      ],
+      "vsAlternatives": "Mergesort guarantees O(N log N) and is stable but needs O(N) extra space. Quicksort averages O(N log N) with O(log N) space (in-place) and has superior cache performance, but worst case is O(N²). Heapsort guarantees O(N log N) in-place but has poor cache locality. In practice, quicksort is fastest for random data on modern hardware due to sequential memory access patterns."
+    },
+    "complexityRank": 10,
+    "defaultOrder": 5
+  },
+  {
+    "id": "quick-select",
+    "name": "Quick Select",
+    "nameZh": "快速选择",
+    "difficulty": "medium",
+    "source": "algs4",
+    "sourceChapter": "2.5",
+    "oneLiner": "Find the kth smallest element in O(N) average time using quicksort's partition",
+    "oneLinerZh": "利用快速排序的分区操作，以平均 O(N) 时间找到第 k 小的元素",
+    "complexity": {
+      "time": {
+        "best": "O(N)",
+        "average": "O(N)",
+        "worst": "O(N²)"
+      },
+      "space": "O(1)"
+    },
+    "problemDefinition": "Given an unsorted array of N elements and an integer k (0-indexed), find the element that would be at position k if the array were sorted, without fully sorting the array. This is the selection problem.",
+    "problemDefinitionZh": "给定 N 个元素的无序数组和整数 k（0 索引），找出数组排序后位于位置 k 的元素，而无需完全排序数组。这就是选择问题。",
+    "whenToUse": [
+      "Finding the median of an unsorted array",
+      "Finding the kth smallest or largest element",
+      "When you need order statistics without full sorting",
+      "Top-k problems where k is fixed and relatively small"
+    ],
+    "keyInsight": "After partitioning around a pivot, the pivot is at its final sorted position j. If j == k, we found the answer. If j > k, the answer is in the left partition. If j < k, the answer is in the right partition. Unlike quicksort, we only recurse into one partition, giving a geometric series: N + N/2 + N/4 + ... = O(2N) = O(N) on average.",
+    "keyInsightZh": "围绕枢轴分区后，枢轴在最终排序位置 j。若 j == k，找到答案。若 j > k，答案在左分区。若 j < k，答案在右分区。与快速排序不同，我们只递归进入一个分区，形成等比级数：N + N/2 + N/4 + ... = O(2N) = O(N)。",
+    "implementation": "import random\n\ndef quick_select(a: list, k: int):\n    \"\"\"Return the kth smallest element (0-indexed).\"\"\"\n    random.shuffle(a)\n    lo, hi = 0, len(a) - 1\n    while lo < hi:\n        pivot = a[lo]\n        i, j = lo + 1, hi\n        while True:\n            while i <= hi and a[i] < pivot:\n                i += 1\n            while a[j] > pivot:\n                j -= 1\n            if i >= j:\n                break\n            a[i], a[j] = a[j], a[i]\n            i += 1\n            j -= 1\n        a[lo], a[j] = a[j], a[lo]\n        if j == k:\n            return a[k]\n        elif j > k:\n            hi = j - 1\n        else:\n            lo = j + 1\n    return a[lo]",
+    "deepDive": {
+      "explanation": "Quick select is Hoare's selection algorithm, a modification of quicksort. The key insight is that partitioning places the pivot at its final index j. We only need to recurse into the partition that contains index k. On average, each partition halves the search space, giving expected time N + N/2 + N/4 + ... = 2N = O(N). The worst case O(N²) occurs when every partition is maximally unbalanced (e.g., already sorted array with first-element pivot). Shuffling the input eliminates this. The median-of-medians algorithm guarantees O(N) worst case but is slower in practice due to large constant factors.",
+      "walkthrough": "a = [7, 10, 4, 3, 20, 15], k = 3 (find 4th smallest, 0-indexed)\n\nPartition with pivot=7: [4, 3, 7, 10, 20, 15], j=2\nk=3 > j=2 → search right partition a[3..5]\n\nPartition a[3..5] with pivot=10: [4, 3, 7, 10, 15, 20], j=3\nk=3 == j=3 → return a[3] = 10 ✓\n\nVerification: sorted = [3, 4, 7, 10, 15, 20], index 3 = 10 ✓",
+      "variations": [
+        "Median-of-medians (BFPRT) — guarantees O(N) worst case by choosing a good pivot",
+        "Introselect ��� quick select with fallback to median-of-medians if too many recursions",
+        "Partial quicksort — find the top-k elements by only sorting the relevant partition",
+        "Floyd-Rivest algorithm — improved quick select with better pivot selection"
+      ],
+      "relatedProblems": [
+        "Kth Largest Element in an Array (LeetCode 215)",
+        "Top K Frequent Elements (LeetCode 347)",
+        "Find Median from Data Stream (LeetCode 295)",
+        "Wiggle Sort II (LeetCode 324) — uses median finding"
+      ],
+      "realWorldApps": [
+        "Finding the median for statistical analysis without full sorting",
+        "Database query optimization — finding percentiles efficiently",
+        "Image processing — median filters use selection algorithms",
+        "Networking — finding the kth percentile latency for SLA monitoring"
+      ],
+      "vsAlternatives": "Sorting the array and indexing gives O(N log N). A min-heap of size k gives O(N log k) which is better when k is small. Quick select gives O(N) average for any k, making it optimal for median finding. The trade-off: quick select modifies the input array, while heap-based approaches do not."
+    },
+    "complexityRank": 10,
+    "defaultOrder": 6
+  },
+  {
+    "id": "heapsort",
+    "name": "Heapsort",
+    "nameZh": "堆排序",
+    "difficulty": "hard",
+    "source": "algs4",
+    "sourceChapter": "2.4",
+    "oneLiner": "Build a max-heap, then repeatedly extract the maximum to sort in-place",
+    "oneLinerZh": "构建最大堆，然后反复提取最大值以实现原地排序",
+    "complexity": {
+      "time": {
+        "best": "O(N log N)",
+        "average": "O(N log N)",
+        "worst": "O(N log N)"
+      },
+      "space": "O(1)"
+    },
+    "problemDefinition": "Sort an array of N comparable elements in-place using a binary heap. Phase 1: build a max-heap in O(N) time using bottom-up heap construction. Phase 2: repeatedly swap the maximum (root) with the last unsorted element and sink it down to restore the heap property, shrinking the heap by one each time.",
+    "problemDefinitionZh": "使用二叉堆原地排序 N 个可比较元素。第一阶段：使用自底向上堆构造在 O(N) 时间内建立最大堆。第二阶段：反复将最大值（根）与最后一个未排序元素交换，然后下沉以恢复堆性质，每次堆大小减一。",
+    "whenToUse": [
+      "Guaranteed O(N log N) with O(1) extra space is required",
+      "Worst-case performance guarantee is critical (unlike quicksort)",
+      "Memory is extremely constrained — heapsort is truly in-place",
+      "Priority queue operations are also needed (heap serves dual purpose)"
+    ],
+    "keyInsight": "Heap construction is O(N) because most nodes are near the bottom and sink only a short distance. The sortdown phase does N-1 sink operations, each O(log N). Total: O(N) + O(N log N) = O(N log N). Heapsort achieves the optimal comparison-based bound with O(1) extra space, but its cache performance is poor because it accesses memory in a tree pattern (parent ↔ child jumps) rather than sequentially.",
+    "keyInsightZh": "堆构造是 O(N)，因为大多数节点靠近底部，下沉距离很短。排序阶段执行 N-1 次下沉操作，每次 O(log N)。总计：O(N) + O(N log N) = O(N log N)。堆排序以 O(1) 额外空间达到最优比较排序界，但缓存性能较差，因为它按树模式（父子跳跃）而非顺序访问内存。",
+    "implementation": "def heapsort(a: list) -> None:\n    \"\"\"Sort array in-place using heapsort (1-indexed logic).\"\"\"\n    n = len(a)\n    # Phase 1: build max-heap (bottom-up)\n    for k in range(n // 2 - 1, -1, -1):\n        _sink(a, k, n)\n    # Phase 2: sortdown\n    end = n - 1\n    while end > 0:\n        a[0], a[end] = a[end], a[0]\n        _sink(a, 0, end)\n        end -= 1\n\ndef _sink(a: list, k: int, n: int) -> None:\n    \"\"\"Sink a[k] down to restore heap order in a[0..n-1].\"\"\"\n    while 2 * k + 1 < n:\n        j = 2 * k + 1  # left child\n        if j + 1 < n and a[j] < a[j + 1]:\n            j += 1  # right child is larger\n        if a[k] >= a[j]:\n            break\n        a[k], a[j] = a[j], a[k]\n        k = j",
+    "deepDive": {
+      "explanation": "Heapsort uses an implicit binary heap stored in the array itself. For 0-indexed arrays, node k's children are at 2k+1 and 2k+2, and its parent is at (k-1)//2. Phase 1 (heap construction) calls sink on each internal node from bottom to top. The key insight for O(N) construction: nodes at depth d have at most h-d levels to sink, where h = log N. Summing over all nodes gives O(N). Phase 2 repeatedly moves the root (maximum) to the end, shrinks the heap, and sinks the new root. After N-1 iterations, the array is sorted. Heapsort is not stable because the sink operation can change the relative order of equal elements.",
+      "walkthrough": "a = [4, 1, 3, 2, 16, 9, 10, 14, 8, 7]\n\nPhase 1 — build max-heap (sink from n//2-1 down to 0):\n  Sink index 4 (value 16): no children > 16, stays\n  Sink index 3 (value 2): children 14,8 → swap with 14 → [4,1,3,14,16,9,10,2,8,7]\n  Sink index 2 (value 3): children 9,10 → swap with 10 → [4,1,10,14,16,9,3,2,8,7]\n  Sink index 1 (value 1): children 14,16 → swap with 16 → sink again → [4,16,10,14,7,9,3,2,8,1]\n  Sink index 0 (value 4): children 16,10 → swap with 16 → sink again → [16,14,10,8,7,9,3,2,4,1]\n  Max-heap built ✓\n\nPhase 2 — sortdown:\n  Swap a[0]=16 ↔ a[9]=1, sink → extract 16\n  Swap a[0]=14 ↔ a[8]=4, sink → extract 14\n  ... continue until sorted: [1,2,3,4,7,8,9,10,14,16] ✓",
+      "variations": [
+        "Bottom-up heapsort — sink using only 1 comparison per level (improves constant factor)",
+        "Smoothsort (Dijkstra) — adaptive heapsort that runs in O(N) on nearly-sorted input",
+        "Ternary heapsort — use 3-way heap for better cache behavior",
+        "Weak heapsort — uses a weak heap to reduce comparisons"
+      ],
+      "relatedProblems": [
+        "Kth Largest Element (LeetCode 215) — partial heapsort idea",
+        "Top K Frequent Elements (LeetCode 347)",
+        "Merge k Sorted Lists (LeetCode 23) — uses min-heap",
+        "Find Median from Data Stream (LeetCode 295) — two heaps"
+      ],
+      "realWorldApps": [
+        "Operating system schedulers — priority queues for process scheduling",
+        "Introsort (C++ std::sort) — falls back to heapsort when quicksort degrades",
+        "Event-driven simulation — priority queue processes events in time order",
+        "Dijkstra's shortest path algorithm — min-priority queue is the bottleneck"
+      ],
+      "vsAlternatives": "Quicksort has better cache performance and is faster in practice but O(N²) worst case. Mergesort is stable and O(N log N) but needs O(N) space. Heapsort is the only comparison sort that achieves O(N log N) worst case with O(1) extra space, but it pays for this with poor cache locality (~2x slower than quicksort in practice). Introsort combines the best: quicksort for speed, heapsort as insurance."
+    },
+    "complexityRank": 7,
+    "defaultOrder": 7
+  },
+  {
+    "id": "counting-sort",
+    "name": "Counting Sort",
+    "nameZh": "计数排序",
+    "difficulty": "medium",
+    "source": "algs4",
+    "sourceChapter": "supplement",
+    "oneLiner": "Sort N integers in range [0, R) by counting occurrences, achieving O(N+R) time",
+    "oneLinerZh": "对范围 [0, R) 内的 N 个整数计数出现次数，达到 O(N+R) 时间",
+    "complexity": {
+      "time": {
+        "best": "O(N + R)",
+        "average": "O(N + R)",
+        "worst": "O(N + R)"
+      },
+      "space": "O(N + R)"
+    },
+    "problemDefinition": "Sort an array of N integers where each element is in the range [0, R). Instead of comparing elements, count the occurrences of each value, compute prefix sums to determine final positions, and place elements directly into the output array.",
+    "problemDefinitionZh": "对 N 个整数排序，每个元素在范围 [0, R) 内。不比较元素，而是统计每个值的出现次数，计算前缀和确定最终位置，然后直接将元素放入输出数组。",
+    "whenToUse": [
+      "Elements are integers (or can be mapped to integers) in a small range R",
+      "R is O(N) or smaller — otherwise the count array wastes space",
+      "Stable sort is needed as a subroutine (e.g., in radix sort)",
+      "Comparison-based O(N log N) is not fast enough"
+    ],
+    "keyInsight": "Counting sort breaks the O(N log N) comparison-based lower bound by not comparing elements at all. It uses values as indices into a count array. The prefix-sum step converts counts into starting positions for each value in the output. By scanning the input left-to-right and placing each element at its computed position (incrementing the position), stability is preserved.",
+    "keyInsightZh": "计数排序通过完全不比较元素来突破 O(N log N) 比较排序下界。它将值用作计数数组的索引。前缀和步骤将计数转换为每个值在输出中的起始位置。通过从左到右扫描输入并将每个元素放到其计算位置（递增位置），保持了稳定性。",
+    "implementation": "def counting_sort(a: list, R: int) -> list:\n    \"\"\"Sort array of integers in [0, R). Returns new sorted list.\"\"\"\n    count = [0] * (R + 1)\n    # Step 1: count frequencies\n    for val in a:\n        count[val + 1] += 1\n    # Step 2: compute prefix sums (cumulates)\n    for r in range(R):\n        count[r + 1] += count[r]\n    # Step 3: distribute to output\n    output = [0] * len(a)\n    for val in a:\n        output[count[val]] = val\n        count[val] += 1\n    return output",
+    "deepDive": {
+      "explanation": "Counting sort works in three phases following Sedgewick's key-indexed counting pattern: (1) Frequency counts — count[v+1] stores how many elements have value v. The +1 offset is crucial for the next step. (2) Prefix sums — transform count[] so that count[v] gives the starting index for value v in the output. This is computed by accumulating: count[r+1] += count[r]. (3) Distribution — scan the input left-to-right. For each element with value v, place it at output[count[v]] and increment count[v]. The left-to-right scan combined with incrementing ensures stability: equal elements appear in their original order. This is exactly Sedgewick's key-indexed counting from Chapter 5.1.",
+      "walkthrough": "a = [3, 0, 2, 3, 1, 0, 2], R = 4\n\nStep 1 — count frequencies (offset by 1):\n  count = [0, 2, 1, 2, 2]   (count[1]=2 zeros, count[2]=1 one, etc.)\n\nStep 2 — prefix sums:\n  count = [0, 2, 3, 5, 7]   (zeros start at 0, ones at 2, twos at 3, threes at 5)\n\nStep 3 — distribute:\n  a[0]=3: output[5]=3, count[3]=6\n  a[1]=0: output[0]=0, count[0]=1\n  a[2]=2: output[3]=2, count[2]=4\n  a[3]=3: output[6]=3, count[3]=7\n  a[4]=1: output[2]=1, count[1]=3\n  a[5]=0: output[1]=0, count[0]=2\n  a[6]=2: output[4]=2, count[2]=5\n  output = [0, 0, 1, 2, 2, 3, 3] ✓",
+      "variations": [
+        "Key-indexed counting (Sedgewick) — generalized counting sort for records with integer keys",
+        "Bucket sort — distribute into buckets, sort each bucket, concatenate",
+        "Pigeonhole sort — similar to counting sort for small ranges",
+        "Counting sort for negative ranges — shift values by the minimum"
+      ],
+      "relatedProblems": [
+        "Sort Colors (LeetCode 75) — essentially counting sort with R=3",
+        "Maximum Gap (LeetCode 164) — bucket/radix approach",
+        "H-Index (LeetCode 274) — counting sort variant",
+        "Top K Frequent Elements (LeetCode 347) — frequency counting + bucket sort"
+      ],
+      "realWorldApps": [
+        "Radix sort subroutine — counting sort is the stable sort for each digit",
+        "Suffix array construction algorithms",
+        "Histogram computation and equalization in image processing",
+        "Sorting exam scores, ages, or other data with limited range"
+      ],
+      "vsAlternatives": "Comparison-based sorts (quicksort, mergesort) have an O(N log N) lower bound. Counting sort achieves O(N + R) by exploiting the integer structure of keys. When R >> N (e.g., sorting 100 elements in range [0, 10^9)), the count array is too large and comparison sort is better. When R = O(N) or smaller, counting sort is optimal."
+    },
+    "complexityRank": 99,
+    "defaultOrder": 8
+  },
+  {
+    "id": "lsd-radix-sort",
+    "name": "LSD Radix Sort",
+    "nameZh": "LSD 基数排序",
+    "difficulty": "hard",
+    "source": "algs4",
+    "sourceChapter": "5.1",
+    "oneLiner": "Sort fixed-length strings by processing characters from right to left using stable counting sort",
+    "oneLinerZh": "从右到左逐字符处理，使用稳定计数排序对定长字符串排序",
+    "complexity": {
+      "time": {
+        "best": "O(N * W)",
+        "average": "O(N * W)",
+        "worst": "O(N * W)"
+      },
+      "space": "O(N + R)"
+    },
+    "problemDefinition": "Sort an array of N fixed-length strings (each of length W) over an alphabet of size R. Process the strings from the least significant (rightmost) character to the most significant (leftmost), applying a stable counting sort at each character position.",
+    "problemDefinitionZh": "对 N 个定长字符串（每个长度为 W）在大小为 R 的字母表上排序。从最低有效位（最右字符）到最高有效位（最左字符）逐位处理，在每个字符位置应用稳定的计数排序。",
+    "whenToUse": [
+      "Sorting fixed-length strings or fixed-width integers",
+      "Keys are strings over a small alphabet (R is manageable)",
+      "N * W < N * log N — radix sort outperforms comparison sort",
+      "Stable sort is needed and keys have a natural digit decomposition"
+    ],
+    "keyInsight": "LSD radix sort works because of stability: when we sort by character position d, the relative order from the previous (d+1) sort is preserved for strings that have the same character at position d. After processing all W positions right-to-left, the strings are fully sorted. The total work is W passes of counting sort, each O(N + R), giving O(W(N + R)).",
+    "keyInsightZh": "LSD 基数排序之所以有效，是因为稳定性：当我们按字符位置 d 排序时，对于在位置 d 具有相同字符的字符串，前一次（d+1）排序的相对顺序被保留。从右到左处理完所有 W 个位置后，字符串完全有序。总工作量为 W 次计数排序，每次 O(N + R)，共 O(W(N + R))。",
+    "implementation": "def lsd_radix_sort(a: list[str], w: int) -> None:\n    \"\"\"Sort array of fixed-length strings (each length w) in-place.\"\"\"\n    n = len(a)\n    R = 256  # extended ASCII\n    aux = [''] * n\n    for d in range(w - 1, -1, -1):  # right to left\n        count = [0] * (R + 1)\n        for s in a:\n            count[ord(s[d]) + 1] += 1\n        for r in range(R):\n            count[r + 1] += count[r]\n        for s in a:\n            aux[count[ord(s[d])]] = s\n            count[ord(s[d])] += 1\n        a[:] = aux",
+    "deepDive": {
+      "explanation": "LSD (Least Significant Digit) radix sort processes characters from right to left. Each pass uses key-indexed counting (stable counting sort) on a single character position. The correctness relies on stability: if two strings differ at position d, sorting by position d puts them in correct order. If they are equal at position d, the stable sort preserves the order established by the previous pass (which sorted by position d+1). By induction, after all W passes, the strings are sorted lexicographically. This is exactly Sedgewick's Algorithm 5.1. For integers, treat each digit as a character: e.g., 32-bit integers have W=4 bytes with R=256.",
+      "walkthrough": "a = ['dab', 'add', 'cab', 'fad', 'fee', 'bad', 'dad', 'bee', 'fed', 'bed']\nW = 3, R = 256\n\nPass d=2 (rightmost char):\n  Sort by 3rd char: b→{dab,cab,bad}, d→{add,fad,dad,fed,bed}, e→{fee,bee}\n  → ['dab','cab','bad', 'add','fad','dad','fed','bed', 'fee','bee']\n\nPass d=1 (middle char):\n  Sort by 2nd char (stable): a→{dab,cab,bad,fad,dad}, e→{fee,bee,fed,bed}, d→{add}\n  → ['dab','cab','bad','fad','dad', 'add', 'fee','bee','fed','bed']\n\nPass d=0 (leftmost char):\n  Sort by 1st char (stable): b→{bad,bee,bed}, c→{cab}, d→{dab,dad}, f→{fad,fee,fed}\n  → ['add','bad','bed','bee','cab','dab','dad','fad','fed','fee'] ✓",
+      "variations": [
+        "LSD radix sort for integers — process bytes of 32/64-bit integers (W=4/8, R=256)",
+        "LSD with base 2^16 — fewer passes (W=2 for 32-bit ints) but larger count array",
+        "American flag sort — in-place MSD variant using counting sort distribution"
+      ],
+      "relatedProblems": [
+        "Maximum Gap (LeetCode 164) — can be solved with radix sort",
+        "Sort an Array (LeetCode 912) — radix sort approach",
+        "Largest Number (LeetCode 179) — string-based sorting",
+        "Suffix Array construction — radix sort is a key subroutine"
+      ],
+      "realWorldApps": [
+        "Sorting IP addresses — fixed-length 4-byte keys",
+        "Sorting fixed-length record identifiers (license plates, SSNs)",
+        "Suffix array construction for text indexing (Bioinformatics)",
+        "Sorting network packets by fixed-width header fields"
+      ],
+      "vsAlternatives": "Comparison sort lower bound is O(N log N). LSD radix sort achieves O(N * W) which is O(N) when W is constant. For variable-length strings, MSD radix sort is more appropriate as it can skip characters. LSD is simpler and requires no recursion. For large alphabets (R), the count array overhead grows — use MSD with smaller sub-alphabets."
+    },
+    "complexityRank": 99,
+    "defaultOrder": 9
+  },
+  {
+    "id": "msd-radix-sort",
+    "name": "MSD Radix Sort",
+    "nameZh": "MSD 基数排序",
+    "difficulty": "hard",
+    "source": "algs4",
+    "sourceChapter": "5.1",
+    "oneLiner": "Sort variable-length strings by recursively partitioning on characters from left to right",
+    "oneLinerZh": "从左到右递归地按字符分区，排序变长字符串",
+    "complexity": {
+      "time": {
+        "best": "O(N)",
+        "average": "O(N * W)",
+        "worst": "O(N * W)"
+      },
+      "space": "O(N + R * W)"
+    },
+    "problemDefinition": "Sort an array of N strings (possibly of varying lengths) over an alphabet of size R. Process from the most significant (leftmost) character: use key-indexed counting to partition strings by their first character into R groups, then recursively sort each group by the next character position.",
+    "problemDefinitionZh": "对 N 个字符串（可能长度不同）在大小为 R 的字母表上排序。从最高有效位（最左字符）处理：使用键索引计数按首字符将字符串分为 R 组，然后递归地按下一个字符位置对每组排序。",
+    "whenToUse": [
+      "Sorting variable-length strings",
+      "Strings share common prefixes (MSD naturally groups them)",
+      "Building radix tries or search indices",
+      "When you want sublinear time — MSD can stop early on already-sorted groups"
+    ],
+    "keyInsight": "MSD radix sort is like quicksort for strings: it partitions by the leading character, then recurses on each group for the next character. Unlike LSD, it handles variable-length strings by treating end-of-string as a character smaller than any other (index -1). It can be sublinear: if all strings have distinct first characters, one pass of counting sort suffices. For small subarrays (< 15 elements), switching to insertion sort avoids the overhead of initializing the R+2 count array.",
+    "keyInsightZh": "MSD 基数排序就像字符串的快速排序：按首字符分区，然后对每组递归处理下一个字符。与 LSD 不同，它通��将字符串结尾视为比任何字符都小的字符（索引 -1）来处理变长字符串。它可以是亚线性的：如果所有字符串的首字符不同，一次计数排序就够了。对于小子数组（< 15 个元素），切换到插入排序可避免初始化 R+2 计数数组的开销。",
+    "implementation": "def msd_radix_sort(a: list[str]) -> None:\n    \"\"\"Sort array of variable-length strings in-place.\"\"\"\n    aux = [''] * len(a)\n    _msd_sort(a, aux, 0, len(a) - 1, 0)\n\ndef _char_at(s: str, d: int) -> int:\n    \"\"\"Return char code at index d, or -1 if d >= len(s).\"\"\"\n    return ord(s[d]) if d < len(s) else -1\n\ndef _msd_sort(a, aux, lo, hi, d):\n    R = 256\n    if hi <= lo:\n        return\n    count = [0] * (R + 2)\n    for i in range(lo, hi + 1):\n        count[_char_at(a[i], d) + 2] += 1\n    for r in range(R + 1):\n        count[r + 1] += count[r]\n    for i in range(lo, hi + 1):\n        aux[count[_char_at(a[i], d) + 1]] = a[i]\n        count[_char_at(a[i], d) + 1] += 1\n    a[lo:hi+1] = aux[:hi-lo+1]\n    for r in range(R):\n        _msd_sort(a, aux, lo + count[r], lo + count[r+1] - 1, d + 1)",
+    "deepDive": {
+      "explanation": "MSD (Most Significant Digit) radix sort processes characters left-to-right, recursively sorting each sub-partition. The critical detail is handling end-of-string: _char_at returns -1 for positions beyond the string length. Since -1 < any character code, shorter strings sort before longer strings with the same prefix (e.g., 'she' before 'shells'). The count array has R+2 entries to accommodate this sentinel value. Each recursive call creates its own count array, so the stack space is O(R * W) in the worst case (W = max string length). Sedgewick's optimization: switch to insertion sort for small subarrays to avoid the O(R) initialization cost of counting sort when the subarray has fewer than ~15 elements.",
+      "walkthrough": "a = ['she', 'sells', 'sea', 'shells', 'by', 'the', 'shore']\n\nd=0: partition by 1st char\n  'b' → ['by']\n  's' → ['she','sells','sea','shells','shore']\n  't' → ['the']\n\nRecurse on 's' group at d=1:\n  'e' → ['sells','sea','shells']\n  'h' → ['she','shore']\n\nRecurse on 'se' group at d=2:\n  'a' → ['sea']\n  'l' → ['sells','shells']   (wait, 'shells' is 'sh...' not 'se...')\n\nActual d=1 for 's' group:\n  'e' → ['sells','sea']\n  'h' → ['she','shells','shore']\n\nContinue recursing... Final: ['by','sea','sells','she','shells','shore','the'] ✓",
+      "variations": [
+        "3-way string quicksort — partition into <, =, > by one character, recurse; avoids R overhead",
+        "MSD with insertion sort cutoff — switch to insertion sort for subarrays < 15 elements",
+        "American flag sort — in-place MSD variant using two passes per character",
+        "Burst sort — hybrid of tries and MSD radix sort for large string collections"
+      ],
+      "relatedProblems": [
+        "Sort an Array (LeetCode 912)",
+        "Longest Common Prefix (LeetCode 14) — MSD naturally groups by common prefix",
+        "Sort Characters By Frequency (LeetCode 451)",
+        "Maximum Number of Balloons (LeetCode 1189)"
+      ],
+      "realWorldApps": [
+        "Dictionary/lexicon sorting — variable-length word sorting",
+        "URL sorting in web crawlers — common-prefix grouping",
+        "Genomics — sorting DNA sequences (R=4 for {A,C,G,T})",
+        "File system directory listings — lexicographic order of variable-length names"
+      ],
+      "vsAlternatives": "LSD radix sort processes all W character positions even if the sort could be determined earlier; it requires fixed-length strings. MSD can stop early when subarrays are trivially sorted, making it sublinear in the best case. 3-way string quicksort avoids the R-element count array overhead and is preferred when R is large and strings have long common prefixes. For general sorting, comparison-based quicksort with string comparisons does O(N log N) comparisons but each comparison itself may take O(W) time."
+    },
+    "complexityRank": 99,
+    "defaultOrder": 10
+  }
+];
+
+const isComingSoon = false;
+
+const plannedAlgorithms = [];
+
+const comingSoonMessage = "";
+const comingSoonMessageZh = "";
+
+// ─── Python Syntax Highlighting (lightweight) ─────────────────────────────
+function highlightPython(code) {
+  // Escape HTML
+  let s = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Comments
+  s = s.replace(/(#.*?)$/gm, '<span class="code-comment">$1</span>');
+  // Triple-quoted strings
+  s = s.replace(/("""[\s\S]*?"""|'''[\s\S]*?''')/g, '<span class="code-string">$1</span>');
+  // Strings
+  s = s.replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, '<span class="code-string">$1</span>');
+  // Keywords
+  const kws = ['def','class','return','if','elif','else','for','while','in','not','and','or','is','None','True','False','import','from','as','with','try','except','finally','raise','yield','lambda','pass','break','continue','assert','global','nonlocal'];
+  const kwRe = new RegExp('\\b(' + kws.join('|') + ')\\b', 'g');
+  s = s.replace(kwRe, '<span class="code-keyword">$1</span>');
+  // Built-in functions
+  const builtins = ['len','range','print','int','float','str','list','dict','set','tuple','sorted','enumerate','zip','map','filter','isinstance','type','super','min','max','sum','abs','any','all','reversed','iter','next','hash','id','open','input'];
+  const biRe = new RegExp('\\b(' + builtins.join('|') + ')(?=\\()', 'g');
+  s = s.replace(biRe, '<span class="code-builtin">$1</span>');
+  // Function definitions
+  s = s.replace(/(?<=def\s+)(\w+)/g, '<span class="code-func">$1</span>');
+  // Numbers
+  s = s.replace(/\b(\d+\.?\d*)\b/g, '<span class="code-number">$1</span>');
+  return s;
+}
+
+// ─── Render ─────────────────────────────────────────────────────────────────
+const algoListEl = document.getElementById('algoList');
+const controlsEl = document.getElementById('controls');
+let allExpanded = false;
+
+if (isComingSoon) {
+  controlsEl.style.display = 'none';
+  algoListEl.innerHTML = `
+    <div class="coming-soon-container">
+      <div class="coming-soon-msg">${comingSoonMessage}</div>
+      <div class="coming-soon-msg-zh">${comingSoonMessageZh}</div>
+      <ul class="planned-list">
+        ${plannedAlgorithms.map(a => `<li><span class="planned-check"></span>${a}</li>`).join('')}
+      </ul>
+    </div>`;
+} else {
+  // Hero stats
+  const heroStatsEl = document.getElementById('heroStats');
+  const difficulties = [...new Set(algorithms.map(a => a.difficulty))];
+  heroStatsEl.innerHTML = `
+    <span class="badge badge--time">${algorithms.length} algorithms</span>
+    ${difficulties.map(d => `<span class="badge badge--${d}">${d}</span>`).join('')}`;
+
+  // Render algorithm cards
+  algorithms.forEach((algo, i) => {
+    const card = document.createElement('div');
+    card.className = 'algo-card fade-in';
+    card.dataset.id = algo.id;
+    card.dataset.difficulty = algo.difficulty;
+    card.dataset.complexityRank = algo.complexityRank;
+    card.dataset.defaultOrder = algo.defaultOrder;
+    card.id = algo.id;
+
+    const worstTime = algo.complexity?.time?.worst || '';
+    const codeHtml = highlightPython(algo.implementation || '');
+
+    const whenToUseHtml = (algo.whenToUse || []).map(w => `<li>${w}</li>`).join('');
+
+    // Complexity table
+    const tc = algo.complexity?.time || {};
+    const sc = algo.complexity?.space || '';
+    const complexityHtml = `
+      <table class="complexity-table">
+        <tr><th>Metric</th><th>Best</th><th>Average</th><th>Worst</th></tr>
+        <tr><td>Time</td><td>${tc.best || '—'}</td><td>${tc.average || '—'}</td><td>${tc.worst || '—'}</td></tr>
+        <tr><td colspan="3">Space</td><td>${sc}</td></tr>
+      </table>`;
+
+    // Deep dive
+    const dd = algo.deepDive || {};
+    const variationsHtml = (dd.variations || []).map(v => `<div class="variation-item">${v}</div>`).join('');
+    const relatedHtml = (dd.relatedProblems || []).map(r => `<div class="related-item">${r}</div>`).join('');
+    const appsHtml = (dd.realWorldApps || []).map(a => `<div class="app-item">${a}</div>`).join('');
+
+    card.innerHTML = `
+      <div class="algo-header" onclick="toggleL1(this)">
+        <div class="algo-title-group">
+          <div class="algo-name">${algo.name}</div>
+          <div class="algo-name-zh">${algo.nameZh}</div>
+        </div>
+        <div class="algo-oneliner">${algo.oneLiner || ''}</div>
+        <div class="algo-badges">
+          <span class="badge badge--time">${worstTime}</span>
+          <span class="badge badge--${algo.difficulty}">${algo.difficulty}</span>
+        </div>
+        <span class="algo-chevron">▾</span>
+      </div>
+      <div class="algo-detail">
+        <div class="algo-detail-inner">
+          <div class="detail-section">
+            <h3>Problem Definition</h3>
+            <p>${algo.problemDefinition || ''}</p>
+            ${algo.problemDefinitionZh ? `<p style="color:var(--text-dim);font-size:0.85rem;margin-top:0.3rem">${algo.problemDefinitionZh}</p>` : ''}
+          </div>
+          ${whenToUseHtml ? `<div class="detail-section"><h3>When to Use</h3><ul>${whenToUseHtml}</ul></div>` : ''}
+          <div class="detail-section">
+            <h3>Key Insight</h3>
+            <div class="insight-box">
+              ${algo.keyInsight || ''}
+              ${algo.keyInsightZh ? `<div class="insight-box-zh">${algo.keyInsightZh}</div>` : ''}
+            </div>
+          </div>
+          <div class="detail-section">
+            <h3>Implementation</h3>
+            <pre class="code-block">${codeHtml}</pre>
+          </div>
+          <div class="detail-section">
+            <h3>Complexity Analysis</h3>
+            ${complexityHtml}
+          </div>
+          ${dd.explanation ? `
+          <button class="deep-dive-btn" onclick="toggleL2(this)">Deep Dive ▾</button>
+          <div class="algo-deep-dive">
+            <div class="algo-deep-dive-inner">
+              <div class="detail-section">
+                <h3>Detailed Explanation</h3>
+                <p>${dd.explanation}</p>
+              </div>
+              ${dd.walkthrough ? `<div class="detail-section"><h3>Step-by-Step Walkthrough</h3><div class="walkthrough-block">${dd.walkthrough}</div></div>` : ''}
+              ${variationsHtml ? `<div class="detail-section"><h3>Variations & Optimizations</h3><div class="variation-list">${variationsHtml}</div></div>` : ''}
+              ${relatedHtml ? `<div class="detail-section"><h3>Related Problems</h3><div class="related-list">${relatedHtml}</div></div>` : ''}
+              ${appsHtml ? `<div class="detail-section"><h3>Real-World Applications</h3><div class="app-list">${appsHtml}</div></div>` : ''}
+              ${dd.vsAlternatives ? `<div class="detail-section"><h3>Comparison with Alternatives</h3><div class="vs-box">${dd.vsAlternatives}</div></div>` : ''}
+            </div>
+          </div>` : ''}
+        </div>
+      </div>`;
+
+    algoListEl.appendChild(card);
+  });
+}
+
+// ─── Expand / Collapse ────────────────────────────────────────────────────
+function toggleL1(headerEl) {
+  const card = headerEl.closest('.algo-card');
+  const detail = card.querySelector('.algo-detail');
+  const isOpen = card.classList.contains('expanded-l1');
+
+  if (isOpen) {
+    if (card.classList.contains('expanded-l2')) {
+      const btn = card.querySelector('.deep-dive-btn');
+      if (btn) toggleL2(btn);
+    }
+    detail.style.maxHeight = '0';
+    card.classList.remove('expanded-l1');
+  } else {
+    detail.style.maxHeight = detail.scrollHeight + 'px';
+    card.classList.add('expanded-l1');
+  }
+}
+
+function toggleL2(btnEl) {
+  const card = btnEl.closest('.algo-card');
+  const deepDive = card.querySelector('.algo-deep-dive');
+  const detail = card.querySelector('.algo-detail');
+  const isOpen = card.classList.contains('expanded-l2');
+
+  if (isOpen) {
+    deepDive.style.maxHeight = '0';
+    card.classList.remove('expanded-l2');
+    btnEl.textContent = 'Deep Dive ▾';
+  } else {
+    deepDive.style.maxHeight = deepDive.scrollHeight + 'px';
+    card.classList.add('expanded-l2');
+    btnEl.textContent = 'Deep Dive ▴';
+    // Recalculate parent
+    setTimeout(() => { detail.style.maxHeight = detail.scrollHeight + 'px'; }, 10);
+  }
+}
+
+function toggleExpandAll() {
+  const btn = document.getElementById('expandAllBtn');
+  const cards = document.querySelectorAll('.algo-card');
+  allExpanded = !allExpanded;
+
+  cards.forEach(card => {
+    if (card.style.display === 'none') return;
+    const detail = card.querySelector('.algo-detail');
+    if (allExpanded) {
+      detail.style.maxHeight = detail.scrollHeight + 'px';
+      card.classList.add('expanded-l1');
+    } else {
+      if (card.classList.contains('expanded-l2')) {
+        const ddBtn = card.querySelector('.deep-dive-btn');
+        if (ddBtn) toggleL2(ddBtn);
+      }
+      detail.style.maxHeight = '0';
+      card.classList.remove('expanded-l1');
+    }
+  });
+  btn.textContent = allExpanded ? 'Collapse All' : 'Expand All';
+}
+
+// ─── Sort / Filter ────────────────────────────────────────────────────────
+function sortBy(mode, btnEl) {
+  document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+
+  const list = document.getElementById('algoList');
+  const cards = Array.from(list.querySelectorAll('.algo-card'));
+  const diffOrder = { easy: 0, medium: 1, hard: 2 };
+
+  cards.sort((a, b) => {
+    if (mode === 'difficulty') return (diffOrder[a.dataset.difficulty] || 0) - (diffOrder[b.dataset.difficulty] || 0);
+    if (mode === 'complexity') return parseInt(a.dataset.complexityRank) - parseInt(b.dataset.complexityRank);
+    return parseInt(a.dataset.defaultOrder) - parseInt(b.dataset.defaultOrder);
+  });
+  cards.forEach(c => list.appendChild(c));
+}
+
+function filterBy(difficulty, btnEl) {
+  document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+
+  document.querySelectorAll('.algo-card').forEach(card => {
+    card.style.display = (difficulty === 'all' || card.dataset.difficulty === difficulty) ? '' : 'none';
+  });
+}
+
+// ─── Progress Bar ─────────────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+  document.getElementById('progressBar').style.width = Math.min(pct, 100) + '%';
+});
+
+// ─── Fade-in Observer ─────────────────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.05 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// ─── URL Hash Support ─────────────────────────────────────────────────────
+function handleHash() {
+  const hash = window.location.hash.slice(1);
+  if (!hash) return;
+  const card = document.getElementById(hash);
+  if (!card) return;
+  setTimeout(() => {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const header = card.querySelector('.algo-header');
+    if (header && !card.classList.contains('expanded-l1')) toggleL1(header);
+  }, 300);
+}
+window.addEventListener('hashchange', handleHash);
+handleHash();
+</script>
+</body>
+</html>

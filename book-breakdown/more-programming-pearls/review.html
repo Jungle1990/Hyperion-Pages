@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interleaved Review · 编程珠玑（续） | Book Breakdown</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+
+/* ── Compact Hero ── */
+.hero { padding: 3rem 2rem 2rem; text-align: center; position: relative; }
+.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(255,107,107,0.06) 0%, transparent 50%); pointer-events: none; }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px rgba(108,99,255,0.3)); }
+.hero h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 900; margin-bottom: 0.3rem; }
+.hero-en { font-size: 1rem; color: var(--text-dim); font-weight: 300; margin-bottom: 0.5rem; }
+.hero-badge { display: inline-block; padding: 0.4rem 1.2rem; border: 1px solid var(--accent4); border-radius: 2rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; }
+.back-link { position: absolute; top: 1.5rem; left: 1.5rem; text-decoration: none; color: var(--text-dim); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; transition: color 0.3s; }
+.back-link:hover { color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Mode Selector ── */
+.mode-bar { display: flex; justify-content: center; gap: 12px; margin: 2rem 0; flex-wrap: wrap; }
+.mode-btn { padding: 10px 24px; border: 1px solid var(--border); border-radius: 2rem; background: transparent; color: var(--text-dim); font-family: var(--font-sans); font-size: 0.9rem; cursor: pointer; transition: all 0.3s; }
+.mode-btn:hover { border-color: var(--accent); color: var(--text); }
+.mode-btn.active { border-color: var(--accent); background: rgba(108,99,255,0.15); color: var(--accent); }
+
+/* ── Score Tracker ── */
+.score-bar { display: flex; align-items: center; justify-content: center; gap: 2rem; margin-bottom: 2rem; padding: 1rem; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); }
+.score-label { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim); letter-spacing: 1px; }
+.score-num { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; }
+.score-correct { color: var(--accent3); }
+.score-total { color: var(--text-dim); }
+.score-pct { color: var(--accent4); font-size: 1.2rem; }
+.reset-btn { padding: 6px 16px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.3s; letter-spacing: 1px; }
+.reset-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+/* ── Quiz Cards ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-card.correct { border-color: var(--accent3); }
+.quiz-card.incorrect { border-color: var(--accent2); }
+.quiz-chapter-tag { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 8px; display: inline-block; padding: 2px 10px; border-radius: 4px; }
+.quiz-chapter-tag.hidden { background: rgba(108,99,255,0.15); color: var(--accent); }
+.quiz-chapter-tag.visible { background: rgba(78,205,196,0.15); color: var(--accent3); }
+.quiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1rem; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* Chapter-ID mode */
+.chapter-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.ch-pick-btn { padding: 4px 12px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+.ch-pick-btn:hover { border-color: var(--accent); color: var(--text); }
+.ch-pick-btn.correct { border-color: var(--accent3); color: var(--accent3); background: rgba(78,205,196,0.1); }
+.ch-pick-btn.wrong { border-color: var(--accent2); color: var(--accent2); background: rgba(255,107,107,0.1); }
+
+/* ── Spaced Review ── */
+.section-header { margin: 3rem 0 1.5rem; }
+.section-badge { display: inline-block; font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.4rem; font-weight: 700; }
+.schedule-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.schedule-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; transition: all 0.3s; }
+.schedule-card:hover { border-color: var(--accent4); }
+.schedule-interval { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 1px; margin-bottom: 6px; }
+.schedule-date { font-size: 0.85rem; color: var(--text-dim); }
+
+/* ── Footer ── */
+.footer { text-align: center; padding: 4rem 0; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+
+/* ── Empty State ── */
+.empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-dim); }
+.empty-state-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 768px) {
+    .score-bar { flex-wrap: wrap; gap: 1rem; }
+    .schedule-grid { grid-template-columns: repeat(3, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<section class="hero">
+    <a href="index.html" class="back-link">← 返回目录</a>
+    <div class="hero-icon">🔀</div>
+    <h1>Interleaved Review · 交叉复习</h1>
+    <div class="hero-en">More Programming Pearls</div>
+    <div class="hero-badge">SPACED PRACTICE</div>
+</section>
+
+<div class="container">
+    <div class="mode-bar" id="modeBar">
+        <button class="mode-btn active" data-mode="random">🎲 Random Quiz · 随机测验</button>
+        <button class="mode-btn" data-mode="chapter-id">🔍 Chapter ID · 章节识别</button>
+    </div>
+    <div class="score-bar" id="scoreBar" style="display:none">
+        <div><div class="score-label">CORRECT</div><div class="score-num score-correct" id="scoreCorrect">0</div></div>
+        <div><div class="score-label">TOTAL</div><div class="score-num score-total" id="scoreTotal">0</div></div>
+        <div><div class="score-label">ACCURACY</div><div class="score-num score-pct" id="scorePct">—</div></div>
+        <button class="reset-btn" id="resetBtn">RESET</button>
+    </div>
+    <div id="quizContainer"></div>
+
+    <div class="section-header fade-in">
+        <div class="section-badge">SPACED REVIEW SCHEDULE</div>
+        <div class="section-title">间隔复习计划</div>
+    </div>
+    <div class="schedule-grid" id="scheduleGrid"></div>
+</div>
+
+<div class="footer">
+    Book Breakdown · Interleaved Review · 编程珠玑（续）
+</div>
+
+<script>
+const meta = {
+  "title": "编程珠玑（续）",
+  "titleEn": "More Programming Pearls",
+  "author": "Jon Bentley",
+  "icon": "💎",
+  "slug": "more-programming-pearls",
+  "methodLabel": "FEYNMAN METHOD",
+  "stats": [
+    {
+      "num": "15",
+      "label": "Chapters"
+    },
+    {
+      "num": "4",
+      "label": "Parts"
+    },
+    {
+      "num": "∞",
+      "label": "Insights"
+    }
+  ]
+};
+const allQuizData = [
+  {
+    "chapterNum": 1,
+    "chapterTitle": "性能监视工具",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么 P2（只检查到 √n）比 P1（检查到 n-1）还要慢？",
+        "answer": "因为 P2 在循环的每次迭代都调用 sqrt() 函数。sqrt() 涉及浮点运算，非常昂贵。虽然循环次数从 78,022 减少到 5,288（减少了14倍），但每次循环都额外调用 sqrt()，其开销远超节省的整数除法。Profiler 显示 sqrt() 占了 82.7% 的 CPU 时间。"
+      },
+      {
+        "id": "q2",
+        "question": "Profiler 有两种模式（行计数 vs 过程时间），它们分别告诉你什么？",
+        "answer": "行计数 (Line Count)：每行代码执行了多少次。帮你理解程序的控制流和逻辑分支。\n过程时间 (Procedure Time)：每个函数/过程花了多少 CPU 时间。帮你定位性能瓶颈。\n两者互补：行计数解释\"程序如何运行\"，过程时间解释\"时间花在哪里\"。"
+      },
+      {
+        "id": "q3",
+        "question": "如果你用 Profiler 发现系统空闲循环是 CPU 时间的大头，优化它有意义吗？",
+        "answer": "没有意义！书中有个真实案例：性能组优化了操作系统的空闲循环，达到了一个数量级的提速——但系统吞吐量完全没变。因为空闲循环本来就是在等待有工作可做，让空闲等待变快没有任何实际意义。这说明理解测量的含义比盲目优化更重要。"
+      },
+      {
+        "id": "q4",
+        "question": "用你自己的话，向一个完全不懂编程的朋友解释\"Profiler\"是什么？（费曼检验的核心！）",
+        "answer": "参考答案：想象你经营一家快餐店，生意很忙但客人总抱怨等太久。你可以给每个工位装一个计时器：点餐台、厨房、出餐口……\n计时器会告诉你：\"切菜花了 2 分钟，但烤面包花了 15 分钟！\"\n你一看就知道：问题在烤面包，不在切菜。然后你买一个更好的烤箱，问题就解决了。\nProfiler 就是程序世界里的这套计时器系统——它不解决问题，但精确告诉你问题在哪里。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 2,
+    "chapterTitle": "关联数组",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "AWK 中 count[$0]++ 这一行代码到底做了什么？为什么不需要先初始化？",
+        "answer": "$0 代表当前输入的整行文本。count[$0]++ 以整行文本作为键，在关联数组 count 中查找对应的值并加 1。不需要初始化是因为 AWK 的关联数组对不存在的键自动返回 0（数值上下文）或空字符串（字符串上下文）。第一次访问 count[\"hello\"] 时，它的值自动为 0，加 1 后变成 1。这种\"默认零值\"的设计大大简化了代码。"
+      },
+      {
+        "id": "q2",
+        "question": "在 FSM 模拟器中，为什么要用 trans[\"LIZ\",0] 而不是 trans[\"LIZ0\"]？",
+        "answer": "AWK 的关联数组支持多维索引：trans[\"LIZ\",0] 实际上是将 \"LIZ\" 和 \"0\" 用内置分隔符 SUBSEP 拼接成一个键。用逗号分隔的好处是：(1) 语义清晰，明确表示\"状态\"和\"输入\"是两个独立的维度；(2) 避免歧义——如果用字符串拼接 \"LIZ0\"，可能和状态名为 \"LIZ0\" 的情况混淆；(3) AWK 自动处理分隔，程序员无需手动管理分隔符。"
+      },
+      {
+        "id": "q3",
+        "question": "拓扑排序中，为什么初始时要把所有 predct[node]==0 的节点加入队列？",
+        "answer": "predct[node]==0 表示该节点没有任何前驱依赖——它不需要等待其他节点先完成。这些节点可以安全地最先处理。类比现实：如果你要按依赖顺序编译项目，那些不依赖其他模块的基础模块可以最先编译。处理完一个节点后，把它的后继节点的前驱计数减 1。当某个后继节点的前驱计数降为 0 时，说明它的所有依赖都已满足，可以加入队列了。这就是 BFS 式的拓扑排序（Kahn 算法）。"
+      },
+      {
+        "id": "q4",
+        "question": "用你自己的话，向一个完全不懂编程的朋友解释\"关联数组\"是什么？（费曼检验的核心!）",
+        "answer": "参考答案：想象你有一本通讯录。普通的笔记本是按页码排的——第 1 页、第 2 页、第 3 页。如果你要找\"张三\"，你得一页一页翻。但通讯录不一样——它按名字分类。你直接翻到\"张\"那个标签页，就能找到张三的信息。关联数组就是程序世界里的通讯录：你给每个东西起个名字（比如 \"cat\"），然后用名字去查对应的信息，而不是用 1、2、3 这种编号。这让程序更像人类的思考方式——我们记东西靠名字，不是靠编号。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 3,
+    "chapterTitle": "程序正确性与测试",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple-choice",
+        "question": "Bentley 的第一个忏悔中，selection 算法的 bug 是什么？用脚手架能多快发现？",
+        "options": [
+          "A. 数组越界，需要几小时调试",
+          "B. < 应该是 ≤，脚手架 15 分钟就能发现",
+          "C. 死循环，需要重写整个算法",
+          "D. 返回值错误，需要审查所有调用方"
+        ],
+        "correctIndex": 1,
+        "answer": "Bentley 从教材抄了约 20 行的 selection 代码，其中一个 < 应该是 ≤。他在大系统中花了两天才找到这个 bug。如果一开始就写个脚手架单独测试这 20 行代码，15 分钟就能发现。"
+      },
+      {
+        "id": "q2",
+        "type": "multiple-choice",
+        "question": "Binary search 中 l = m 为什么会导致无限循环？",
+        "options": [
+          "A. 因为 m 可能为负数",
+          "B. 因为数组下标从 0 开始",
+          "C. 当 l 和 u 相邻时，m = int((l+u)/2) = l，所以 l = m 等于没变",
+          "D. 因为 while 条件写错了"
+        ],
+        "correctIndex": 2,
+        "answer": "当 l=4, u=5 时，m = int((4+5)/2) = 4 = l。执行 l = m 后 l 仍然是 4，搜索范围没有缩小，陷入无限循环。修复为 l = m + 1 后，l 至少+1，保证范围收敛。"
+      },
+      {
+        "id": "q3",
+        "type": "multiple-choice",
+        "question": "为什么 Awk 中排序在 n=10 时出错而 n ≤ 9 时正常？",
+        "options": [
+          "A. Awk 数组最大只能存 9 个元素",
+          "B. Awk 在某些情况下使用字典序比较，\"10\" 在字典序中小于 \"9\"",
+          "C. 数组溢出导致内存错误",
+          "D. 第 10 号元素被初始化为 0"
+        ],
+        "correctIndex": 1,
+        "answer": "Awk 在比较数组下标时可能使用字符串（字典序）比较而非数值比较。在字典序中 \"10\" < \"9\" 为 true（因为 '1' < '9'），导致排序异常。当 n ≤ 9 时所有下标都是单位数字，字典序和数值序一致，所以表现正常。"
+      },
+      {
+        "id": "q4",
+        "type": "open-ended",
+        "question": "用你自己的话向一个非技术朋友解释\"代码脚手架\"是什么。（费曼检验的核心！）",
+        "answer": "参考答案：想象你在组装一个大型乐高模型，里面有很多小的零件组合。脚手架就像是在把小零件装进大模型之前，先单独拿出来试一试看拼得对不对。比如先把一个小引擎组装好，转一转看它转不转得动，确认没问题了再嵌入到整个模型中。这样做比把所有零件一口气全装上、发现模型不动了再拆开找问题快得多。在编程中，\"脚手架\"就是这种\"先单独测一测小部件\"的临时工具。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 4,
+    "chapterTitle": "构建可靠软件",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "Name-Value Pairs 相比位置参数 (positional parameters) 的最大优势是什么？",
+        "options": [
+          "处理速度更快",
+          "支持缺省属性、任意顺序和可扩展性",
+          "占用更少的存储空间",
+          "更容易用正则表达式解析"
+        ],
+        "correctIndex": 1,
+        "explanation": "名值对的三大优势：支持缺省属性（字段可缺失）、任意顺序（不依赖位置）、无限可扩展（随时加新字段）。虽然会多占一点空间，但灵活性的收益远大于成本。"
+      },
+      {
+        "id": "q2",
+        "question": "在 Unix pipeline 中，!trail 注解的作用是什么？",
+        "options": [
+          "记录数据流经每个管道命令的处理历史",
+          "用于调试管道中的错误",
+          "加速管道的数据传输",
+          "压缩管道传输的数据"
+        ],
+        "correctIndex": 0,
+        "explanation": "每个管道命令处理数据时，自动在输出中追加 !trail 注解记录自己的名字和时间戳。这样最终的数据文件包含了完整的处理\"家谱\"，可以重建整个数据生成过程。"
+      },
+      {
+        "id": "q3",
+        "question": "Tom Duff 的 picture system 体现了什么设计思想？",
+        "options": [
+          "图片应该用矢量格式存储",
+          "图片越小加载越快",
+          "图片文件头记录完整命令历史，可从 provenance 重建任何图片",
+          "每张图片都需要一个独立的元数据文件"
+        ],
+        "correctIndex": 2,
+        "explanation": "Tom Duff 的系统在每张图片的文本头中记录生成该图片的完整命令历史。这意味着任何图片都可以从其 provenance 信息中完全重建 — 这是自描述数据的极致体现。"
+      },
+      {
+        "id": "q4",
+        "question": "紧凑存储格式 naNimitz|clCVN|nu68 的设计中，数据字典 (data dictionary) 起什么作用？",
+        "options": [
+          "加密数据以保护隐私",
+          "将两字母缩写映射为完整的字段名，平衡紧凑性和可读性",
+          "自动纠正数据中的拼写错误",
+          "将数据翻译成不同的语言"
+        ],
+        "correctIndex": 1,
+        "explanation": "数据字典是缩写格式的\"翻译表\"— 它将两字母代码（如 na、cl）映射为完整的字段名（如 name、class）。紧凑格式节省空间，字典保证可读性，两者结合实现了完美平衡。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 5,
+    "chapterTitle": "劈开戈尔迪之结",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "「戈尔迪之结」隐喻的核心启示是什么？",
+        "options": [
+          "所有问题都能用暴力算法解决",
+          "复杂问题需要复杂方案",
+          "重新定义问题往往比硬解更有效",
+          "算法优化是唯一出路"
+        ],
+        "correctIndex": 2,
+        "explanation": "亚历山大没有试图解开绳结——他直接用剑斩断。核心是重新定义问题，而非在既有框架内挣扎。"
+      },
+      {
+        "id": "q2",
+        "question": "Scientific American 的邮件分类方案巧妙在哪里？",
+        "options": [
+          "雇了更多员工来分拣",
+          "利用邮局已有系统完成分类",
+          "开发了智能分拣机器人",
+          "要求读者在信封上标注类别"
+        ],
+        "correctIndex": 1,
+        "explanation": "不同类别用不同 PO Box——邮局本来就按信箱号分拣，零额外成本实现自动分类。"
+      },
+      {
+        "id": "q3",
+        "question": "电梯投诉的案例说明了什么？",
+        "options": [
+          "用户抱怨的问题和真实需求可能不同",
+          "应该更换更快的电梯",
+          "投诉总是不合理的",
+          "镜子比电梯更重要"
+        ],
+        "correctIndex": 0,
+        "explanation": "人们真正的问题不是「等太久」而是「等待时太无聊」。装镜子让等待变得可忍受——理解真实需求是关键。"
+      },
+      {
+        "id": "q4",
+        "question": "按代码行数付费会导致什么问题？",
+        "options": [
+          "代码质量提升",
+          "开发速度加快",
+          "代码变得臃肿冗余",
+          "Bug 数量减少"
+        ],
+        "correctIndex": 2,
+        "explanation": "激励结构决定行为：按行数付费 → 开发者有动力写更多不必要的代码。指标即行为 (you get what you measure)。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 6,
+    "chapterTitle": "计算机科学箴言集",
+    "questions": [
+      {
+        "q": "补全箴言: \"优化第一法则：______\"",
+        "options": [
+          "先 profiling",
+          "不要优化",
+          "空间换时间",
+          "减少 I/O"
+        ],
+        "answer": 1,
+        "explanation": "Michael Jackson 的名言: \"First rule of optimization: Don't.\" 过早优化是万恶之源。"
+      },
+      {
+        "q": "补全箴言: \"测试只能证明 bug 的______\"",
+        "options": [
+          "数量",
+          "严重性",
+          "存在，而非不存在",
+          "位置"
+        ],
+        "answer": 2,
+        "explanation": "Dijkstra 的经典论断：测试可以发现 bug，但永远无法证明没有 bug。"
+      },
+      {
+        "q": "补全 90-90 法则: \"前 90% 花掉 90% 时间，后 10% 再花掉______\"",
+        "options": [
+          "10% 时间",
+          "50% 时间",
+          "90% 时间",
+          "100% 时间"
+        ],
+        "answer": 2,
+        "explanation": "Tom Cargill 的 90-90 法则。总共 180% 时间——这就是为什么软件总超期。"
+      },
+      {
+        "q": "\"如果代码和注释不一致，______\" 的下半句是什么？",
+        "options": [
+          "以代码为准",
+          "以注释为准",
+          "两者大概都错了",
+          "删掉注释"
+        ],
+        "answer": 2,
+        "explanation": "Norm Schryer 的箴言。不一致说明两边都没有被正确维护。"
+      },
+      {
+        "q": "π seconds ≈ 1 ______ 是 Tom Duff 的名言。",
+        "options": [
+          "microsecond",
+          "nanosecond",
+          "nanocentury",
+          "millennium"
+        ],
+        "answer": 2,
+        "explanation": "π ≈ 3.14159 秒，而 10⁻⁹ × 100 年 ≈ 3.155 秒，误差仅约 0.5%。"
+      },
+      {
+        "q": "补全箴言: \"不到 ____% 的代码占用超过 50% 的运行时间。\"",
+        "options": [
+          "10",
+          "4",
+          "20",
+          "1"
+        ],
+        "answer": 1,
+        "explanation": "Knuth 的经验法则：不到 4% 的代码贡献了超过一半的运行时间。Profile before optimize!"
+      }
+    ]
+  },
+  {
+    "chapterNum": 7,
+    "chapterTitle": "粗略估算的艺术",
+    "questions": [
+      {
+        "q": "Bentley 所说的 \"Numerical Numbness\" (数字麻木) 是指什么?",
+        "options": [
+          "程序员对数学公式的恐惧",
+          "无法区分不同数量级之间的差异（如 μs vs ms）",
+          "使用太多数字导致的视觉疲劳",
+          "计算机处理数字时的精度丢失"
+        ],
+        "answer": 1,
+        "explanation": "数字麻木是指对数量级缺乏敏感性。Bentley 举的例子是学生分不清微秒和毫秒，这是 1000 倍的差距！"
+      },
+      {
+        "q": "Little's Law: L = λ × W。在夜店例子中，如果容量 L=60 人，平均逗留 W=3 小时，那么入场速率 λ 是多少？",
+        "options": [
+          "180 人/小时",
+          "20 人/小时",
+          "60 人/小时",
+          "10 人/小时"
+        ],
+        "answer": 1,
+        "explanation": "由 L = λ × W，得 λ = L / W = 60 / 3 = 20 人/小时。"
+      },
+      {
+        "q": "在 VAX-11/750 的性能测量中，以下哪个操作最慢？",
+        "options": [
+          "Float Divide (浮点除法)",
+          "Function Call (函数调用)",
+          "sqrt (平方根)",
+          "malloc+free (内存分配)"
+        ],
+        "answer": 2,
+        "explanation": "sqrt() 需要 940μs，是最慢的操作。它比整数加法 (3.3μs) 慢约 285 倍！"
+      },
+      {
+        "q": "超市故事中，Bentley 是如何发现收银错误的？",
+        "options": [
+          "他逐一检查了每件商品的价格",
+          "收银员主动告诉他有错误",
+          "他的心算估价（$70）和实际收费（$92）差距太大",
+          "他使用了计算器来验证"
+        ],
+        "answer": 2,
+        "explanation": "Bentley 平时养成心算估价的习惯，他估计约 $70，但收银台显示 $92。这个差距让他检查收据，发现收银员把商品编码 429 当成了价格 $4.29。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 8,
+    "chapterTitle": "人事与官僚备忘录",
+    "questions": [
+      {
+        "q": "Furbelow 项目的管理费率(overhead ratio)从 ___% 增长到了 ___%？",
+        "options": [
+          "从 100% 增长到 200%",
+          "从 142% 增长到 257%",
+          "从 150% 增长到 300%",
+          "从 120% 增长到 229%"
+        ],
+        "answer": 1,
+        "explanation": "管理费率从 142% 跳升到 257%，几乎翻倍。这包含了研究生培训项目（27% 人力成本）、超出公司平均的薪资增长和行政管理开销。"
+      },
+      {
+        "q": "根据 Brooks 定律，为什么向延期的项目增加人手会让项目更晚？",
+        "options": [
+          "因为新员工不如老员工聪明",
+          "因为沟通开销随人数呈二次增长 (N*(N-1)/2)",
+          "因为办公室坐不下那么多人",
+          "因为工资太高导致预算不够"
+        ],
+        "answer": 1,
+        "explanation": "Brooks 定律的核心在于沟通开销的二次增长。N 个人需要 N*(N-1)/2 条沟通线路。10 人有 45 条，20 人有 190 条。新人还需要培训，而培训占用现有人员的生产力。"
+      },
+      {
+        "q": "在 Furbelow 229% 的预算增长中，有多少比例是用于\"新工作\"（新功能开发）的？",
+        "options": [
+          "大约 29%，因为预算多了 129%",
+          "大约 50%，一半用于维护一半用于新功能",
+          "0% -- 甚至无法完成现有工作",
+          "大约 10%，大部分用于管理开销"
+        ],
+        "answer": 2,
+        "explanation": "这是本章最令人震惊的结论：229% 的预算增长中，0% 用于新功能开发。所有增加的预算都消耗在维持现有工作量上，甚至还不够 -- 还需要额外 25 人和 5.7% 追加预算。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 9,
+    "chapterTitle": "小语言",
+    "questions": [
+      {
+        "q": "Scatter 预处理器是用多少行 Awk 代码写成的？",
+        "options": [
+          "12 行",
+          "24 行",
+          "50 行",
+          "100 行"
+        ],
+        "answer": 1,
+        "explanation": "Scatter 预处理器仅用 24 行 Awk 代码实现，却能将简单的输入命令（只有 5 种：size, range, label, ticks, file）编译成 Pic 代码来绘制散点图。这完美体现了\"简约性\"原则。"
+      },
+      {
+        "q": "哪个工具能从正则表达式模式生成词法分析器？",
+        "options": [
+          "Yacc",
+          "Make",
+          "Lex",
+          "Pic"
+        ],
+        "answer": 2,
+        "explanation": "Lex 使用模式-动作对（pattern-action pairs），其中模式是正则表达式，来自动生成词法分析器。Yacc 则是从上下文无关文法生成语法分析器——两者搭配使用，都是\"小语言实现小语言\"的典范。"
+      },
+      {
+        "q": "与子程序库相比，小语言的核心优势是什么？",
+        "options": [
+          "运行速度更快",
+          "编译输出更小",
+          "非程序员也能用自然的领域语言描述问题",
+          "支持更多编程语言"
+        ],
+        "answer": 2,
+        "explanation": "小语言最大的优势在于：它让领域专家（如化学家 Jelinski）可以用接近自然的方式描述问题，而不需要理解底层编程细节。Chem 语言让化学家用 \"ring\"、\"bond\" 等直观的词汇画分子结构，而不是调用 drawLine(x1,y1,x2,y2) 之类的函数。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 10,
+    "chapterTitle": "文档设计",
+    "questions": [
+      {
+        "q": "文档设计的三大原则是什么？",
+        "options": [
+          "美观、创新、技术性",
+          "迭代、一致性、简约",
+          "速度、准确、完整",
+          "色彩、排版、动画"
+        ],
+        "answer": 1,
+        "explanation": "三大原则是迭代（Iteration）、一致性（Consistency）、简约（Simplicity），源自 Strunk & White。"
+      },
+      {
+        "q": "最优的第四版表格设计最大程度地减少了什么？",
+        "options": [
+          "数据行数",
+          "列数和字段",
+          "网格线和视觉噪音",
+          "字体大小"
+        ],
+        "answer": 2,
+        "explanation": "第四版表格最大程度减少了网格线和视觉噪音，让数据自己说话。"
+      },
+      {
+        "q": "\"省去不需要的词\"这一原则出自谁的著作？",
+        "options": [
+          "Donald Knuth",
+          "Leslie Lamport",
+          "Strunk & White",
+          "Jon Bentley"
+        ],
+        "answer": 2,
+        "explanation": "\"省去不需要的词\"（Omit needless words）出自 Strunk & White 的《风格的要素》。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 11,
+    "chapterTitle": "图形化输出",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么点图 (dot plot) 通常优于饼图 (pie chart)?",
+        "options": [
+          "A. 点图使用了更多颜色, 更美观",
+          "B. 人类判断长度比判断角度更准确",
+          "C. 饼图无法显示数据标签",
+          "D. 点图的绘制速度更快"
+        ],
+        "answer": 1,
+        "explanation": "Cleveland 的研究表明, 人类视觉系统判断线段长度的精度远高于判断扇形角度。因此, 基于位置/长度编码的点图在数据比较时更精准。"
+      },
+      {
+        "id": "q2",
+        "question": "Tukey 的茎叶图 (stem-and-leaf display) 结合了哪两种优势?",
+        "options": [
+          "A. 颜色编码 + 动画效果",
+          "B. 三维透视 + 交互功能",
+          "C. 直方图的分布形状 + 原始数据值",
+          "D. 散点图 + 折线图"
+        ],
+        "answer": 2,
+        "explanation": "茎叶图的精妙之处在于: 它既像直方图一样展示数据的分布形状, 又保留了每一个原始数据值 --- 一举两得。"
+      },
+      {
+        "id": "q3",
+        "question": "Minard 的拿破仑行军图同时展示了多少个变量?",
+        "options": [
+          "A. 3 个",
+          "B. 4 个",
+          "C. 6 个",
+          "D. 8 个"
+        ],
+        "answer": 2,
+        "explanation": "Minard 的图表在一幅图中展示了: 军队人数、地理位置 (经纬度)、行军方向、温度、日期、地点名称, 共 6 个变量。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 12,
+    "chapterTitle": "调查的调查",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "伪列系统总共用了多少行 BASIC 代码实现？",
+        "options": [
+          "A. 53 行（全部在一个模块中）",
+          "B. 101 行（90 行描述读取器 + 11 行解释器）",
+          "C. 200 行（均分在三个程序中）",
+          "D. 500 行（包括注释）"
+        ],
+        "answer": 1,
+        "explanation": "90 行描述读取器 + 11 行解释器 = 101 行 BASIC，实现了完整的伪列系统。这是小语言设计的经典案例。"
+      },
+      {
+        "id": "q2",
+        "question": "使用 BPL 后，设置新调查的速度提升了多少倍？",
+        "options": [
+          "A. 2x（从 4 小时到 2 小时）",
+          "B. 4x（从 8 小时到 2 小时）",
+          "C. 8x（从 2 天到 2 小时）",
+          "D. 24x（从 2 天到 2 分钟）"
+        ],
+        "answer": 2,
+        "explanation": "从 2 天缩短到 2 小时，速度提升 8 倍。BPL 的人类可读性让非技术人员也能设置调查。"
+      },
+      {
+        "id": "q3",
+        "question": "BPL 描述同时服务于哪三个任务？",
+        "options": [
+          "A. 编译、链接、运行",
+          "B. 设计、编码、测试",
+          "C. 录入（Input）、验证（Validation）、制表（Tabulation）",
+          "D. 存储、检索、显示"
+        ],
+        "answer": 2,
+        "explanation": "一份 BPL 描述同时驱动 Input（录入）、Validation（验证）和 Tabulation（制表）三个程序。一份文件，三重用途。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 13,
+    "chapterTitle": "Floyd采样算法",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "Floyd 的 Algorithm F2 从 1..N 中选取 M 个不重复样本, 需要调用多少次 RandInt?",
+        "options": [
+          "A. O(N ln N) 次",
+          "B. 恰好 M 次",
+          "C. 恰好 N 次",
+          "D. M * log(N) 次"
+        ],
+        "answer": 1,
+        "explanation": "恰好 M 次。这是 Floyd 算法的核心优势。循环从 J = N-M+1 到 J = N，共 M 次迭代，每次恰好调用一次 RandInt(1, J)。无论 M 与 N 的比例如何，调用次数始终等于 M。对比 Algorithm S 在 M 接近 N 时可能需要 O(N ln N) 次调用。"
+      },
+      {
+        "id": "q2",
+        "question": "8 行 Awk 实现中, 用什么数据结构来表示已选集合 S?",
+        "options": [
+          "A. 链表",
+          "B. 关联数组 (Associative Array)",
+          "C. 位向量 (Bit Vector)",
+          "D. 排序数组"
+        ],
+        "answer": 1,
+        "explanation": "关联数组 (Associative Array)。Awk 原生支持关联数组，用 t in s 做成员测试, 用 s[t] = 1 做插入操作。这使得集合操作自然融入语法，无需额外数据结构库。"
+      },
+      {
+        "id": "q3",
+        "question": "Floyd 在设计取样算法时遵循的核心原则是什么?",
+        "options": [
+          "A. 先写代码，再验证正确性",
+          "B. 先寻找答案的数学特征，再设计算法",
+          "C. 先优化性能，再考虑正确性",
+          "D. 先实现递归，再考虑是否需要迭代"
+        ],
+        "answer": 1,
+        "explanation": "\"先寻找答案的数学特征，再设计算法。\" Floyd 发现 Algorithm S 的概率分析中分母是 N^k 形式，但均匀随机取样的正确概率需要阶乘作为分母。这个不匹配指引他设计了能自然产生阶乘分母的新算法。这体现了数学思维驱动算法设计的理念。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 14,
+    "chapterTitle": "牛顿迭代法",
+    "questions": [
+      {
+        "question": "Program 3 对 K≤16 的情况使用了几次牛顿迭代?",
+        "answer": "4 次。从初始猜测 2·Max 出发，固定执行 4 次「除后取平均」操作。无需循环控制、无需收敛检测。这依赖于两个前提: (1) 好的起始点让初始误差很小; (2) 平方收敛让 4 步就足以达到浮点精度。当 K≤16 时，√K ≤ 4，所以 2D 到真实距离的比值最大约为 2，4 次迭代绰绰有余。"
+      },
+      {
+        "question": "牛顿迭代法具有什么类型的收敛速度?",
+        "answer": "平方收敛 (Quadratic Convergence)。如果当前误差为 ε，下一步的误差大约是 ε²。这意味着每一步迭代让正确的有效位数翻倍。例如计算 √2: 从 x₀=2 这个很粗糙的猜测开始，第 1 步得到 1.5 (1 位正确)，第 2 步 1.4167 (2 位)，第 3 步 1.41422 (4 位)，第 4 步就已经有 8 位正确了。6 步就达到了 IEEE 双精度浮点数的全部 16 位精度!"
+      },
+      {
+        "question": "算法改进 + 硬件改进的综合效果是什么? (以 3D 椭圆 PDE 为例)",
+        "answer": "将「数个世纪」缩短到「不到 1 秒」！软件: 30 年间从 Gauss-Seidel O(N⁵) 进化到 Multigrid O(N³)，提速约 250,000 倍。硬件: 40 年间从 ENIAC 到 VLSI 芯片，提速约 500,000 倍。综合: 250,000 × 500,000 = 1.25 × 10¹¹ 倍。这个故事告诉我们: 算法和硬件同等重要。只靠买更好的机器解决不了根本问题。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 15,
+    "chapterTitle": "Hoare选择算法",
+    "questions": [
+      {
+        "question": "对于找中位数，选择算法平均需要多少次比较？",
+        "answer": "约 3.4N 次。Knuth 在 1971 年证明，找中位数平均需要约 3.4N 次比较。这远少于排序所需的 N log N 次。"
+      },
+      {
+        "question": "选择算法能高效工作的核心操作是什么？",
+        "answer": "分割（Partition）。分割将数组分为「小于枢纽」和「大于等于枢纽」两部分，使选择算法可以只在其中一半继续搜索。它来源于快速排序，将数组围绕枢纽元素重新排列。"
+      },
+      {
+        "question": "对于 N = 100,000，选择算法比排序大约快多少倍？",
+        "answer": "约 18 倍（log₂100000 ≈ 17）。排序是 O(N log N)，选择是 O(N)，速度比约为 log₂N。log₂(100,000) ≈ 17，所以选择大约快 17-18 倍。对应 10 秒 vs 3 分钟。"
+      }
+    ]
+  }
+];
+const chapterManifest = [
+  {
+    "num": 1,
+    "slug": "ch01",
+    "title": "性能监视工具",
+    "titleEn": "Performance Monitoring Tools",
+    "icon": "🩺"
+  },
+  {
+    "num": 2,
+    "slug": "ch02",
+    "title": "关联数组",
+    "titleEn": "Associative Arrays",
+    "icon": "📚"
+  },
+  {
+    "num": 3,
+    "slug": "ch03",
+    "title": "程序正确性与测试",
+    "titleEn": "Program Correctness & Testing",
+    "icon": "🧪"
+  },
+  {
+    "num": 4,
+    "slug": "ch04",
+    "title": "构建可靠软件",
+    "titleEn": "Building Reliable Software",
+    "icon": "🏗️"
+  },
+  {
+    "num": 5,
+    "slug": "ch05",
+    "title": "劈开戈尔迪之结",
+    "titleEn": "Cutting the Gordian Knot",
+    "icon": "⚔️"
+  },
+  {
+    "num": 6,
+    "slug": "ch06",
+    "title": "计算机科学箴言集",
+    "titleEn": "Bumper-Sticker Computer Science",
+    "icon": "💬"
+  },
+  {
+    "num": 7,
+    "slug": "ch07",
+    "title": "粗略估算的艺术",
+    "titleEn": "The Back of the Envelope",
+    "icon": "📐"
+  },
+  {
+    "num": 8,
+    "slug": "ch08",
+    "title": "人事与官僚备忘录",
+    "titleEn": "Personnel & Bureaucratic Memos",
+    "icon": "📋"
+  },
+  {
+    "num": 9,
+    "slug": "ch09",
+    "title": "小语言",
+    "titleEn": "Little Languages",
+    "icon": "🔤"
+  },
+  {
+    "num": 10,
+    "slug": "ch10",
+    "title": "文档设计",
+    "titleEn": "Document Design",
+    "icon": "📄"
+  },
+  {
+    "num": 11,
+    "slug": "ch11",
+    "title": "图形化输出",
+    "titleEn": "Graphical Output",
+    "icon": "📊"
+  },
+  {
+    "num": 12,
+    "slug": "ch12",
+    "title": "调查的调查",
+    "titleEn": "A Survey of Surveys",
+    "icon": "🔍"
+  },
+  {
+    "num": 13,
+    "slug": "ch13",
+    "title": "Floyd采样算法",
+    "titleEn": "Floyd's Sampling Algorithm",
+    "icon": "🎲"
+  },
+  {
+    "num": 14,
+    "slug": "ch14",
+    "title": "牛顿迭代法",
+    "titleEn": "Newton's Iteration",
+    "icon": "🔄"
+  },
+  {
+    "num": 15,
+    "slug": "ch15",
+    "title": "Hoare选择算法",
+    "titleEn": "Hoare's Selection Algorithm",
+    "icon": "⚡"
+  }
+];
+
+(function() {
+    const container = document.getElementById('quizContainer');
+    const scoreBar = document.getElementById('scoreBar');
+
+    if (typeof allQuizData === 'undefined' || !allQuizData || !allQuizData.length) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔀</div><div>No quiz data available yet.</div></div>';
+        return;
+    }
+
+    // Flatten and shuffle questions
+    let questions = [];
+    allQuizData.forEach(ch => {
+        (ch.questions || []).forEach(q => {
+            questions.push({ ...q, chapterNum: ch.chapterNum, chapterTitle: ch.chapterTitle });
+        });
+    });
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    let shuffled = shuffle([...questions]);
+    let mode = 'random';
+    let correct = 0, total = 0;
+
+    function updateScore() {
+        document.getElementById('scoreCorrect').textContent = correct;
+        document.getElementById('scoreTotal').textContent = total;
+        document.getElementById('scorePct').textContent = total > 0 ? Math.round(correct / total * 100) + '%' : '—';
+    }
+
+    function renderQuiz() {
+        scoreBar.style.display = mode === 'chapter-id' ? 'flex' : 'none';
+        container.innerHTML = '';
+        shuffled = shuffle([...questions]);
+        correct = 0; total = 0; updateScore();
+
+        shuffled.forEach((q, i) => {
+            const card = document.createElement('div');
+            card.className = 'quiz-card fade-in';
+
+            if (mode === 'random') {
+                const chTag = `<span class="quiz-chapter-tag hidden">CH.${String(q.chapterNum).padStart(2, '0')}</span>`;
+                card.innerHTML = `
+                    ${chTag}
+                    <div class="quiz-question">${q.question}</div>
+                    <div class="quiz-answer"><div>${q.answer}</div><div style="margin-top:8px;font-family:var(--font-mono);font-size:0.75rem;color:var(--accent3)">— Chapter ${q.chapterNum}: ${q.chapterTitle}</div></div>
+                    <div class="quiz-toggle">CLICK TO REVEAL</div>`;
+                card.addEventListener('click', function() {
+                    if (this.classList.contains('open')) return;
+                    this.classList.add('open');
+                    const ans = this.querySelector('.quiz-answer');
+                    ans.style.maxHeight = ans.scrollHeight + 'px';
+                    this.querySelector('.quiz-toggle').textContent = '';
+                    const tag = this.querySelector('.quiz-chapter-tag');
+                    tag.className = 'quiz-chapter-tag visible';
+                });
+            } else {
+                // Chapter-ID mode
+                card.innerHTML = `
+                    <span class="quiz-chapter-tag hidden">WHICH CHAPTER?</span>
+                    <div class="quiz-question">${q.question}</div>
+                    <div class="chapter-picker" id="picker-${i}"></div>
+                    <div class="quiz-answer"><div>${q.answer}</div></div>`;
+                card.style.cursor = 'default';
+
+                // Build chapter picker after insertion
+                setTimeout(() => {
+                    const picker = document.getElementById('picker-' + i);
+                    if (!picker) return;
+                    const chNums = [...new Set(questions.map(x => x.chapterNum))].sort((a, b) => a - b);
+                    chNums.forEach(num => {
+                        const btn = document.createElement('button');
+                        btn.className = 'ch-pick-btn';
+                        btn.textContent = 'Ch.' + num;
+                        btn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            if (picker.dataset.answered) return;
+                            picker.dataset.answered = 'true';
+                            total++;
+                            if (num === q.chapterNum) {
+                                correct++;
+                                btn.classList.add('correct');
+                                card.classList.add('correct');
+                            } else {
+                                btn.classList.add('wrong');
+                                card.classList.add('incorrect');
+                                // Highlight correct
+                                picker.querySelectorAll('.ch-pick-btn').forEach(b => {
+                                    if (b.textContent === 'Ch.' + q.chapterNum) b.classList.add('correct');
+                                });
+                            }
+                            updateScore();
+                            // Reveal answer
+                            card.classList.add('open');
+                            const ans = card.querySelector('.quiz-answer');
+                            ans.style.maxHeight = ans.scrollHeight + 'px';
+                            const tag = card.querySelector('.quiz-chapter-tag');
+                            tag.className = 'quiz-chapter-tag visible';
+                            tag.textContent = 'CH.' + String(q.chapterNum).padStart(2, '0');
+                        });
+                        picker.appendChild(btn);
+                    });
+                }, 0);
+            }
+            container.appendChild(card);
+        });
+
+        // Observe fade-ins
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        container.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+    }
+
+    // Mode buttons
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            mode = this.dataset.mode;
+            renderQuiz();
+        });
+    });
+
+    // Reset
+    document.getElementById('resetBtn').addEventListener('click', renderQuiz);
+
+    // Spaced review schedule
+    (function() {
+        const grid = document.getElementById('scheduleGrid');
+        const intervals = [
+            { label: 'TODAY', days: 0 },
+            { label: '+1 DAY', days: 1 },
+            { label: '+3 DAYS', days: 3 },
+            { label: '+7 DAYS', days: 7 },
+            { label: '+14 DAYS', days: 14 },
+            { label: '+30 DAYS', days: 30 },
+        ];
+        const now = new Date();
+        intervals.forEach(iv => {
+            const d = new Date(now);
+            d.setDate(d.getDate() + iv.days);
+            const dateStr = d.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+            const card = document.createElement('div');
+            card.className = 'schedule-card fade-in';
+            card.innerHTML = `<div class="schedule-interval">${iv.label}</div><div class="schedule-date">${dateStr}</div>`;
+            grid.appendChild(card);
+        });
+    })();
+
+    renderQuiz();
+
+    // Global fade-in observer for schedule cards
+    const obs2 = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs2.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.schedule-grid .fade-in').forEach(el => obs2.observe(el));
+})();
+</script>
+</body>
+</html>

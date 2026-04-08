@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graphs: Shortest Paths · 图：最短路径 | Algo Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(108, 99, 255, 0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+  --success: #34d399;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ─── Progress Bar ─── */
+#progressBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  width: 0%;
+  z-index: 100;
+  transition: width 0.1s linear;
+}
+
+/* ─── Hero (compact) ─── */
+.hero {
+  padding: 6rem 2rem 3rem;
+  text-align: center;
+  position: relative;
+}
+.hero-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px var(--glow));
+}
+.hero h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.2rem;
+}
+.hero-zh {
+  font-size: 1.2rem;
+  color: var(--text-dim);
+  font-weight: 300;
+  margin-bottom: 0.8rem;
+}
+.hero-desc {
+  font-size: 1rem;
+  color: var(--accent3);
+  font-family: var(--font-mono);
+  margin-bottom: 1.5rem;
+}
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.back-link {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  transition: color 0.3s ease;
+}
+.back-link:hover { color: var(--accent); }
+
+/* ─── Container ─── */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+}
+
+/* ─── Controls ─── */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.control-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.ctrl-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.ctrl-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.ctrl-btn.active {
+  background: rgba(108, 99, 255, 0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.expand-all-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.expand-all-btn:hover {
+  border-color: var(--accent3);
+  color: var(--accent3);
+}
+
+/* ─── Badge System ─── */
+.badge {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 1rem;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.badge--time {
+  background: rgba(108, 99, 255, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(108, 99, 255, 0.3);
+}
+.badge--space {
+  background: rgba(78, 205, 196, 0.1);
+  color: var(--accent3);
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+.badge--easy {
+  background: rgba(78, 205, 196, 0.15);
+  color: var(--accent3);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+}
+.badge--medium {
+  background: rgba(255, 230, 109, 0.15);
+  color: var(--accent4);
+  border: 1px solid rgba(255, 230, 109, 0.3);
+}
+.badge--hard {
+  background: rgba(255, 107, 107, 0.15);
+  color: var(--accent2);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+}
+.badge--source {
+  background: rgba(136, 136, 160, 0.1);
+  color: var(--text-dim);
+  border: 1px solid rgba(136, 136, 160, 0.2);
+}
+
+/* ─── Algorithm Card ─── */
+.algo-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 0.75rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+.algo-card:hover {
+  border-color: rgba(108, 99, 255, 0.3);
+}
+.algo-card.expanded-l1 {
+  border-color: var(--accent);
+  box-shadow: 0 4px 20px var(--glow);
+}
+
+/* ─── Algo Header (Level 0 — always visible) ─── */
+.algo-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease;
+}
+.algo-header:hover {
+  background: var(--card-hover);
+}
+.algo-title-group {
+  flex-shrink: 0;
+  min-width: 0;
+}
+.algo-name {
+  font-size: 1rem;
+  font-weight: 700;
+}
+.algo-name-zh {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+.algo-oneliner {
+  flex: 1;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.algo-badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+.algo-chevron {
+  font-size: 1rem;
+  color: var(--text-dim);
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+.algo-card.expanded-l1 .algo-chevron {
+  transform: rotate(180deg);
+}
+
+/* ─── Algo Detail (Level 1 — expand on click) ─── */
+.algo-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.algo-detail-inner {
+  padding: 0 1.25rem 1.25rem;
+}
+.detail-section {
+  margin-bottom: 1.25rem;
+}
+.detail-section:last-child { margin-bottom: 0; }
+.detail-section h3 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-mono);
+}
+.detail-section p {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--text);
+}
+.detail-section ul {
+  list-style: none;
+  padding: 0;
+}
+.detail-section ul li {
+  font-size: 0.85rem;
+  color: var(--text);
+  padding: 0.25rem 0;
+  padding-left: 1.2rem;
+  position: relative;
+}
+.detail-section ul li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+.insight-box {
+  background: rgba(108, 99, 255, 0.08);
+  border-left: 3px solid var(--accent);
+  padding: 0.8rem 1rem;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.insight-box-zh {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+}
+
+/* ─── Code Block ─── */
+.code-block {
+  background: #12141c;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #c0c0d8;
+  overflow-x: auto;
+  white-space: pre;
+  line-height: 1.7;
+  position: relative;
+}
+.code-block::before {
+  content: 'Python';
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.code-keyword { color: var(--accent); }
+.code-string { color: var(--accent3); }
+.code-comment { color: #5a5a7a; font-style: italic; }
+.code-number { color: var(--accent4); }
+.code-func { color: var(--accent2); }
+.code-builtin { color: #c792ea; }
+
+/* ─── Complexity Table ─── */
+.complexity-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+}
+.complexity-table th {
+  color: var(--text-dim);
+  font-weight: 400;
+  text-align: left;
+  padding: 0.4rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.7rem;
+}
+.complexity-table td {
+  padding: 0.4rem 0.8rem;
+  border-bottom: 1px solid rgba(42, 45, 58, 0.5);
+}
+.complexity-table tr:last-child td { border-bottom: none; }
+
+/* ─── Deep Dive Button ─── */
+.deep-dive-btn {
+  display: block;
+  width: 100%;
+  background: rgba(108, 99, 255, 0.06);
+  border: 1px dashed rgba(108, 99, 255, 0.3);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  padding: 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 1rem;
+}
+.deep-dive-btn:hover {
+  background: rgba(108, 99, 255, 0.12);
+  border-color: var(--accent);
+}
+
+/* ─── Deep Dive (Level 2) ─── */
+.algo-deep-dive {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.algo-deep-dive-inner {
+  padding-top: 1rem;
+}
+.variation-list, .related-list, .app-list {
+  display: grid;
+  gap: 0.4rem;
+}
+.variation-item, .related-item, .app-item {
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  background: rgba(108, 99, 255, 0.04);
+  border-radius: 6px;
+  border-left: 2px solid var(--accent);
+}
+.related-item { border-left-color: var(--accent3); }
+.app-item { border-left-color: var(--accent4); }
+.vs-box {
+  background: rgba(255, 107, 107, 0.06);
+  border-left: 3px solid var(--accent2);
+  padding: 0.8rem 1rem;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+.walkthrough-block {
+  background: #12141c;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: #c0c0d8;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+/* ─── Navigation ─── */
+.nav-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+.nav-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  text-decoration: none;
+  color: var(--text);
+  padding: 0.8rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: all 0.3s ease;
+  min-width: 0;
+}
+.nav-btn:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 15px var(--glow);
+}
+.nav-prev { align-items: flex-start; }
+.nav-next { align-items: flex-end; }
+.nav-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+.nav-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.nav-placeholder { flex: 1; }
+
+/* ─── Coming Soon (category page) ─── */
+.coming-soon-container {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+.coming-soon-msg {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+}
+.coming-soon-msg-zh {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  margin-bottom: 2rem;
+}
+.planned-list {
+  list-style: none;
+  padding: 0;
+  max-width: 400px;
+  margin: 0 auto;
+}
+.planned-list li {
+  padding: 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  border-bottom: 1px dashed var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.planned-check {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* ─── Footer ─── */
+.footer {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ─── Fade-in ─── */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .hero { padding: 4rem 1.5rem 2rem; }
+  .hero h1 { font-size: 1.8rem; }
+  .algo-header { flex-wrap: wrap; gap: 0.5rem; }
+  .algo-oneliner { display: none; }
+  .controls { flex-direction: column; align-items: flex-start; }
+  .nav-footer { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<section class="hero">
+  <div class="hero-icon">🛤️</div>
+  <h1>Graphs: Shortest Paths</h1>
+  <div class="hero-zh">图：最短路径</div>
+  <div class="hero-desc">Finding optimal paths in weighted graphs</div>
+  <div class="hero-stats" id="heroStats"></div>
+  <a href="index.html" class="back-link">← Back to Atlas</a>
+</section>
+
+<div class="container">
+  <div class="controls" id="controls">
+    <div class="control-group">
+      <span class="control-label">Sort</span>
+      <button class="ctrl-btn active" data-sort="default" onclick="sortBy('default', this)">Default</button>
+      <button class="ctrl-btn" data-sort="difficulty" onclick="sortBy('difficulty', this)">Difficulty</button>
+      <button class="ctrl-btn" data-sort="complexity" onclick="sortBy('complexity', this)">Complexity</button>
+    </div>
+    <div class="control-group">
+      <span class="control-label">Filter</span>
+      <button class="ctrl-btn active" data-filter="all" onclick="filterBy('all', this)">All</button>
+      <button class="ctrl-btn" data-filter="easy" onclick="filterBy('easy', this)">Easy</button>
+      <button class="ctrl-btn" data-filter="medium" onclick="filterBy('medium', this)">Medium</button>
+      <button class="ctrl-btn" data-filter="hard" onclick="filterBy('hard', this)">Hard</button>
+    </div>
+    <button class="expand-all-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand All</button>
+  </div>
+
+  <div class="algo-list" id="algoList"></div>
+
+  <nav class="nav-footer">
+    <a href="graphs-traversal.html" class="nav-btn nav-prev"><span class="nav-label">← prev</span><span class="nav-title">🕸️ Graphs: Traversal</span></a>
+    <a href="graphs-mst-flow.html" class="nav-btn nav-next"><span class="nav-label">next →</span><span class="nav-title">🌐 Graphs: MST & Flow</span></a>
+  </nav>
+</div>
+
+<div class="footer">
+  Algo Atlas · Graphs: Shortest Paths
+</div>
+
+<script>
+const categoryMeta = {
+  "id": "graphs-shortest-paths",
+  "name": "Graphs: Shortest Paths",
+  "nameZh": "图：最短路径",
+  "icon": "🛤️",
+  "description": "Finding optimal paths in weighted graphs",
+  "descriptionZh": "在加权图中寻找最优路径",
+  "dataFile": "graphs-shortest-paths.json",
+  "outputFile": "graphs-shortest-paths.html",
+  "status": "active",
+  "order": 7,
+  "algoCount": 4
+};
+
+const algorithms = [
+  {
+    "id": "dijkstra",
+    "name": "Dijkstra's Algorithm",
+    "nameZh": "Dijkstra 最短路径算法",
+    "difficulty": "medium",
+    "source": "algs4",
+    "sourceChapter": "4.4",
+    "oneLiner": "Find shortest paths from a source vertex in a graph with non-negative edge weights",
+    "oneLinerZh": "在非负权图中求从源点到所有顶点的最短路径",
+    "complexity": {
+      "time": {
+        "best": "O(E log V)",
+        "average": "O(E log V)",
+        "worst": "O(E log V)"
+      },
+      "space": "O(V)"
+    },
+    "problemDefinition": "Given a weighted directed graph G = (V, E) with non-negative edge weights and a source vertex s, find the shortest-path tree: for every vertex v reachable from s, determine the minimum total weight of any path from s to v, along with the path itself.",
+    "problemDefinitionZh": "给定一个边权非负的加权有向图 G = (V, E) 和源顶点 s，求最短路径树：对于从 s 可达的每个顶点 v，确定从 s 到 v 的最小总权重路径及其具体路线。",
+    "whenToUse": [
+      "Single-source shortest paths with non-negative edge weights",
+      "Road networks and navigation (GPS routing)",
+      "Network routing protocols (OSPF uses Dijkstra internally)",
+      "Any weighted graph where all costs are >= 0"
+    ],
+    "keyInsight": "Greedy relaxation: always process the closest unvisited vertex next. Once a vertex is dequeued from the priority queue, its shortest distance is finalized — no future path can improve it because all remaining edges have non-negative weight. This greedy property fails when negative edges exist.",
+    "keyInsightZh": "贪心松弛：始终优先处理距离最近的未访问顶点。一旦顶点从优先队列中出队，其最短距离即已确定——因为所有剩余边权非负，未来不可能有更短的路径。当存在负权边时，此贪心性质不成立。",
+    "implementation": "import heapq\nfrom math import inf\n\ndef dijkstra(graph: dict, source: int) -> tuple:\n    \"\"\"Dijkstra's algorithm using a binary min-heap.\n\n    graph: adjacency list {u: [(v, weight), ...]}\n    Returns (dist, parent) where dist[v] = shortest distance,\n    parent[v] = predecessor on shortest path.\n    \"\"\"\n    dist = {v: inf for v in graph}\n    parent = {v: None for v in graph}\n    dist[source] = 0\n    # Priority queue: (distance, vertex)\n    pq = [(0, source)]\n\n    while pq:\n        d, u = heapq.heappop(pq)\n        if d > dist[u]:\n            continue  # stale entry, skip\n        for v, weight in graph[u]:\n            # Edge relaxation: can we improve dist[v]?\n            new_dist = dist[u] + weight\n            if new_dist < dist[v]:\n                dist[v] = new_dist\n                parent[v] = u\n                heapq.heappush(pq, (new_dist, v))\n\n    return dist, parent\n\n\ndef shortest_path(parent: dict, target: int) -> list:\n    \"\"\"Reconstruct path from source to target using parent map.\"\"\"\n    path = []\n    v = target\n    while v is not None:\n        path.append(v)\n        v = parent[v]\n    return path[::-1]",
+    "deepDive": {
+      "explanation": "Dijkstra maintains two sets: settled vertices (shortest distance known) and unsettled vertices. It uses a priority queue keyed by tentative distance. Initially dist[s]=0 and dist[v]=inf for all others. At each step, it extracts the vertex u with minimum dist, then relaxes all outgoing edges (u, v, w): if dist[u] + w < dist[v], update dist[v] and push the new distance into the priority queue. The lazy deletion approach (checking d > dist[u] after popping) avoids the need for a decrease-key operation, making a standard binary heap sufficient.",
+      "walkthrough": "Graph: 0→1(4), 0→2(1), 1→3(1), 2→1(2), 2→3(5)\nSource: 0\n\nInit: dist = {0:0, 1:inf, 2:inf, 3:inf}, pq = [(0,0)]\n\nPop (0,0): relax 0→1: dist[1]=4, relax 0→2: dist[2]=1\n  pq = [(1,2), (4,1)]\n\nPop (1,2): relax 2→1: 1+2=3 < 4, dist[1]=3, relax 2→3: dist[3]=6\n  pq = [(3,1), (4,1), (6,3)]\n\nPop (3,1): relax 1→3: 3+1=4 < 6, dist[3]=4\n  pq = [(4,1), (4,3), (6,3)]\n\nPop (4,1): 4 > dist[1]=3, skip (stale)\nPop (4,3): finalize dist[3]=4\nPop (6,3): 6 > dist[3]=4, skip\n\nResult: dist = {0:0, 1:3, 2:1, 3:4}\nPath 0→3: parent = {3:1, 1:2, 2:0} → 0→2→1→3 (cost 4)",
+      "variations": [
+        "Indexed priority queue — true decrease-key for O(E log V) with no stale entries",
+        "Bidirectional Dijkstra — search from both source and target, meet in the middle",
+        "A* search — Dijkstra + admissible heuristic for goal-directed search",
+        "Dial's algorithm — O(V + E + C) using bucket queues when edge weights are small integers"
+      ],
+      "relatedProblems": [
+        "Network Delay Time (LeetCode 743)",
+        "Cheapest Flights Within K Stops (LeetCode 787)",
+        "Path With Minimum Effort (LeetCode 1631)",
+        "Shortest Path in Binary Matrix (LeetCode 1091)"
+      ],
+      "realWorldApps": [
+        "GPS navigation — finding shortest/fastest route between two locations",
+        "OSPF routing protocol — routers compute shortest paths in network topology",
+        "Social network analysis — finding closest connections between users",
+        "Game AI pathfinding — A* (Dijkstra variant) for NPC movement on weighted maps"
+      ],
+      "vsAlternatives": "BFS works only for unweighted graphs (O(V+E)). Bellman-Ford handles negative weights but costs O(V*E). For dense graphs, Dijkstra with a Fibonacci heap achieves O(V log V + E), but in practice the binary heap version O(E log V) is faster due to lower constant factors. For non-negative weights, Dijkstra is the standard choice."
+    },
+    "complexityRank": 14,
+    "defaultOrder": 0
+  },
+  {
+    "id": "dag-shortest-paths",
+    "name": "DAG Shortest Paths",
+    "nameZh": "DAG 最短路径",
+    "difficulty": "medium",
+    "source": "algs4",
+    "sourceChapter": "4.4",
+    "oneLiner": "Find shortest paths in a DAG by relaxing edges in topological order",
+    "oneLinerZh": "按拓扑顺序松弛边，求有向无环图中的最短路径",
+    "complexity": {
+      "time": {
+        "best": "O(V + E)",
+        "average": "O(V + E)",
+        "worst": "O(V + E)"
+      },
+      "space": "O(V)"
+    },
+    "problemDefinition": "Given a weighted directed acyclic graph (DAG) and a source vertex s, find the shortest path from s to every other vertex. Because the graph has no cycles, we can process vertices in topological order — each vertex is processed only after all vertices that could precede it on any path have already been settled.",
+    "problemDefinitionZh": "给定加权有向无环图（DAG）和源顶点 s，求从 s 到每个其他顶点的最短路径。因为图无环，我们可以按拓扑顺序处理顶点——每个顶点仅在所有可能在路径上先于它的顶点都已确定后才被处理。",
+    "whenToUse": [
+      "Shortest paths in a DAG (even with negative edge weights)",
+      "Critical path method (CPM) for project scheduling (longest path in DAG)",
+      "Dependency resolution with weighted costs",
+      "Any problem reducible to shortest/longest path in a DAG"
+    ],
+    "keyInsight": "In a DAG, topological order guarantees that when we process vertex u, all paths leading to u have already been fully explored. Therefore a single pass through the topological order, relaxing each edge exactly once, suffices. No priority queue is needed — the structure of the DAG itself provides the correct processing order.",
+    "keyInsightZh": "在 DAG 中，拓扑排序保证当处理顶点 u 时，所有通向 u 的路径都已被完全探索。因此只需按拓扑序遍历一遍，每条边恰好松弛一次即可。无需优先队列——DAG 本身的结构提供了正确的处理顺序。",
+    "implementation": "from math import inf\nfrom collections import deque\n\ndef topological_sort(graph: dict) -> list:\n    \"\"\"Kahn's algorithm: BFS-based topological sort.\"\"\"\n    in_degree = {v: 0 for v in graph}\n    for u in graph:\n        for v, _ in graph[u]:\n            in_degree[v] = in_degree.get(v, 0) + 1\n    queue = deque(v for v in graph if in_degree[v] == 0)\n    order = []\n    while queue:\n        u = queue.popleft()\n        order.append(u)\n        for v, _ in graph[u]:\n            in_degree[v] -= 1\n            if in_degree[v] == 0:\n                queue.append(v)\n    return order\n\n\ndef dag_shortest_paths(graph: dict, source: int) -> tuple:\n    \"\"\"Shortest paths in a DAG using topological order relaxation.\n\n    graph: adjacency list {u: [(v, weight), ...]}\n    Handles negative edge weights (no cycles to cause issues).\n    Returns (dist, parent).\n    \"\"\"\n    topo_order = topological_sort(graph)\n    dist = {v: inf for v in graph}\n    parent = {v: None for v in graph}\n    dist[source] = 0\n\n    for u in topo_order:\n        if dist[u] == inf:\n            continue  # unreachable from source\n        for v, weight in graph[u]:\n            # Edge relaxation\n            if dist[u] + weight < dist[v]:\n                dist[v] = dist[u] + weight\n                parent[v] = u\n\n    return dist, parent",
+    "deepDive": {
+      "explanation": "The algorithm has two phases: (1) compute a topological ordering of all vertices using either DFS-based reverse postorder or Kahn's BFS algorithm, (2) process vertices in that order, relaxing all outgoing edges. The topological order ensures that when we relax edges from vertex u, dist[u] is already final. This works even with negative edge weights because there are no cycles — a vertex is never revisited. For longest paths in a DAG (critical path), simply negate all weights and find shortest paths, or change the relaxation condition to >.",
+      "walkthrough": "DAG: 0→1(5), 0→2(3), 1→3(6), 1→2(2), 2→3(7), 2→4(4), 3→4(-1), 3→5(1), 4→5(-2)\nSource: 0\nTopological order: [0, 1, 2, 3, 4, 5]\n\nProcess 0: relax 0→1: dist[1]=5, relax 0→2: dist[2]=3\nProcess 1: relax 1→3: dist[3]=11, relax 1→2: 5+2=7 > 3, no update\nProcess 2: relax 2→3: 3+7=10 < 11, dist[3]=10, relax 2→4: dist[4]=7\nProcess 3: relax 3→4: 10+(-1)=9 > 7, no update, relax 3→5: dist[5]=11\nProcess 4: relax 4→5: 7+(-2)=5 < 11, dist[5]=5\n\nResult: dist = {0:0, 1:5, 2:3, 3:10, 4:7, 5:5}",
+      "variations": [
+        "Longest path in DAG — negate weights or reverse relaxation condition (critical path)",
+        "Count number of shortest paths in a DAG",
+        "DAG shortest paths with DFS-based topological sort (reverse postorder)",
+        "Shortest paths in DAG with multiple sources"
+      ],
+      "relatedProblems": [
+        "Longest Increasing Subsequence (reducible to longest path in DAG)",
+        "Course Schedule II — topological sort (LeetCode 210)",
+        "Parallel Courses — critical path (LeetCode 1136)",
+        "Minimum Cost to Reach City With Discounts (LeetCode 2093)"
+      ],
+      "realWorldApps": [
+        "Project scheduling (CPM/PERT) — critical path determines minimum project duration",
+        "Build systems (Make, Bazel) — determine build order and critical compilation path",
+        "Spreadsheet evaluation — cells form a DAG, evaluate in dependency order",
+        "Pipeline optimization — find bottleneck stage in data processing DAGs"
+      ],
+      "vsAlternatives": "Dijkstra requires O(E log V) and cannot handle negative weights. Bellman-Ford costs O(V*E). DAG shortest paths runs in O(V+E) and handles negative weights, but only works when the graph is acyclic. When you know the graph is a DAG, this is always the best choice — it is both faster and more general (handles negatives) than Dijkstra."
+    },
+    "complexityRank": 99,
+    "defaultOrder": 1
+  },
+  {
+    "id": "bellman-ford",
+    "name": "Bellman-Ford Algorithm",
+    "nameZh": "Bellman-Ford 算法",
+    "difficulty": "hard",
+    "source": "algs4",
+    "sourceChapter": "4.4",
+    "oneLiner": "Find shortest paths from a source, handling negative weights and detecting negative cycles",
+    "oneLinerZh": "求单源最短路径，支持负权边并能检测负环",
+    "complexity": {
+      "time": {
+        "best": "O(E)",
+        "average": "O(V * E)",
+        "worst": "O(V * E)"
+      },
+      "space": "O(V)"
+    },
+    "problemDefinition": "Given a weighted directed graph G = (V, E) with possibly negative edge weights and a source vertex s, find the shortest path from s to every reachable vertex. If a negative-weight cycle is reachable from s, detect and report it (no finite shortest path exists for vertices reachable from such a cycle).",
+    "problemDefinitionZh": "给定一个可能含负权边的加权有向图 G = (V, E) 和源顶点 s，求从 s 到每个可达顶点的最短路径。若从 s 可达负权环，则检测并报告（该负环可达的顶点不存在有限最短路径）。",
+    "whenToUse": [
+      "Graph has negative edge weights (Dijkstra cannot be used)",
+      "Need to detect negative-weight cycles",
+      "Currency arbitrage detection (negative cycles in exchange rate graph)",
+      "General graphs where edge weights can be positive, zero, or negative"
+    ],
+    "keyInsight": "Any shortest path in a graph with V vertices has at most V-1 edges (otherwise it contains a cycle, which cannot be part of a shortest path unless the cycle has negative weight). Therefore, V-1 rounds of relaxing ALL edges are sufficient: round i guarantees correctness for all shortest paths using at most i edges. If a V-th round still improves some distance, a negative cycle exists.",
+    "keyInsightZh": "在 V 个顶点的图中，任何最短路径最多包含 V-1 条边（否则包含环，除非是负环，不可能属于最短路径）。因此 V-1 轮松弛所有边即可：第 i 轮保证所有使用至多 i 条边的最短路径正确。若第 V 轮仍能改进某个距离，则存在负环。",
+    "implementation": "from math import inf\n\ndef bellman_ford(vertices: list, edges: list, source: int) -> tuple:\n    \"\"\"Bellman-Ford algorithm for single-source shortest paths.\n\n    vertices: list of vertex ids\n    edges: list of (u, v, weight) tuples\n    source: source vertex\n    Returns (dist, parent, has_negative_cycle).\n    \"\"\"\n    dist = {v: inf for v in vertices}\n    parent = {v: None for v in vertices}\n    dist[source] = 0\n\n    # V-1 rounds of edge relaxation\n    for i in range(len(vertices) - 1):\n        updated = False\n        for u, v, w in edges:\n            if dist[u] != inf and dist[u] + w < dist[v]:\n                dist[v] = dist[u] + w\n                parent[v] = u\n                updated = True\n        if not updated:\n            break  # early termination: no changes in this round\n\n    # V-th round: check for negative cycles\n    has_negative_cycle = False\n    for u, v, w in edges:\n        if dist[u] != inf and dist[u] + w < dist[v]:\n            has_negative_cycle = True\n            break\n\n    return dist, parent, has_negative_cycle\n\n\ndef find_negative_cycle(vertices: list, edges: list, source: int) -> list:\n    \"\"\"Return vertices forming a negative cycle, or empty list.\"\"\"\n    dist = {v: inf for v in vertices}\n    parent = {v: None for v in vertices}\n    dist[source] = 0\n\n    changed_vertex = None\n    for i in range(len(vertices)):\n        changed_vertex = None\n        for u, v, w in edges:\n            if dist[u] != inf and dist[u] + w < dist[v]:\n                dist[v] = dist[u] + w\n                parent[v] = u\n                changed_vertex = v\n\n    if changed_vertex is None:\n        return []  # no negative cycle\n\n    # Trace back V steps to ensure we are inside the cycle\n    v = changed_vertex\n    for _ in range(len(vertices)):\n        v = parent[v]\n\n    # Collect cycle vertices\n    cycle = []\n    u = v\n    while True:\n        cycle.append(u)\n        u = parent[u]\n        if u == v:\n            cycle.append(v)\n            break\n    cycle.reverse()\n    return cycle",
+    "deepDive": {
+      "explanation": "Bellman-Ford works by iterative relaxation. In round 1, it finds shortest paths using at most 1 edge. In round 2, paths using at most 2 edges. After V-1 rounds, all shortest paths (which have at most V-1 edges) are found. The algorithm relaxes every edge in each round, unlike Dijkstra which picks the minimum-distance vertex. This brute-force approach is slower but handles negative weights correctly. The negative cycle detection is elegant: if any edge can still be relaxed after V-1 rounds, it means a path with V edges is shorter than one with V-1 edges, which is only possible if a negative cycle exists.",
+      "walkthrough": "Vertices: [0, 1, 2, 3], Edges: [(0,1,4), (0,2,5), (1,2,-3), (2,3,4), (3,1,-2)]\nSource: 0\n\nInit: dist = {0:0, 1:inf, 2:inf, 3:inf}\n\nRound 1:\n  0→1: dist[1] = 0+4 = 4\n  0→2: dist[2] = 0+5 = 5\n  1→2: dist[2] = min(5, 4+(-3)) = 1\n  2→3: dist[3] = 1+4 = 5\n  3→1: dist[1] = min(4, 5+(-2)) = 3\n\nRound 2:\n  1→2: dist[2] = min(1, 3+(-3)) = 0\n  2→3: dist[3] = min(5, 0+4) = 4\n  3→1: dist[1] = min(3, 4+(-2)) = 2\n\nRound 3:\n  1→2: dist[2] = min(0, 2+(-3)) = -1\n  2→3: dist[3] = min(4, -1+4) = 3\n  3→1: dist[1] = min(2, 3+(-2)) = 1\n\nRound 4 (V-th round check): distances still decrease → negative cycle detected!\nCycle: 1 → 2 → 3 → 1 (total weight: -3 + 4 + (-2) = -1 < 0)",
+      "variations": [
+        "SPFA (Shortest Path Faster Algorithm) — queue-based optimization, faster in practice",
+        "Bellman-Ford with early termination — stop if no relaxation occurs in a round",
+        "Johnson's algorithm — uses Bellman-Ford to reweight edges, then runs Dijkstra from each vertex",
+        "Constraint difference system — model inequalities as edges, solve with Bellman-Ford"
+      ],
+      "relatedProblems": [
+        "Cheapest Flights Within K Stops (LeetCode 787)",
+        "Negative Weight Cycle detection",
+        "Network Delay Time with negative weights",
+        "Currency exchange arbitrage detection"
+      ],
+      "realWorldApps": [
+        "RIP (Routing Information Protocol) — distance-vector routing uses Bellman-Ford",
+        "Currency arbitrage detection — negative cycle in log-exchange-rate graph means profit",
+        "Constraint satisfaction — systems of difference constraints (x_j - x_i <= w)",
+        "Network flow algorithms — finding augmenting paths in residual graphs with negative edges"
+      ],
+      "vsAlternatives": "Dijkstra is O(E log V) but fails with negative weights. DAG shortest paths is O(V+E) but requires acyclic graphs. Bellman-Ford at O(V*E) is slower but is the most general single-source algorithm: it handles negative weights and detects negative cycles. SPFA (queue-based Bellman-Ford) is faster in practice but has the same worst case."
+    },
+    "complexityRank": 99,
+    "defaultOrder": 2
+  },
+  {
+    "id": "floyd-warshall",
+    "name": "Floyd-Warshall Algorithm",
+    "nameZh": "Floyd-Warshall 算法",
+    "difficulty": "hard",
+    "source": "supplement",
+    "sourceChapter": "",
+    "oneLiner": "Compute shortest paths between all pairs of vertices using dynamic programming",
+    "oneLinerZh": "使用动态规划计算所有顶点对之间的最短路径",
+    "complexity": {
+      "time": {
+        "best": "O(V^3)",
+        "average": "O(V^3)",
+        "worst": "O(V^3)"
+      },
+      "space": "O(V^2)"
+    },
+    "problemDefinition": "Given a weighted directed graph G = (V, E) with possibly negative edge weights (but no negative cycles), compute the shortest path distance between every pair of vertices (u, v). This is the all-pairs shortest paths (APSP) problem.",
+    "problemDefinitionZh": "给定一个可能含负权边（但无负环）的加权有向图 G = (V, E)，计算每对顶点 (u, v) 之间的最短路径距离。这是全源最短路径（APSP）问题。",
+    "whenToUse": [
+      "All-pairs shortest paths on a dense graph",
+      "Graph with small number of vertices (V <= ~500)",
+      "Transitive closure of a graph (reachability matrix)",
+      "Need shortest distances between every pair, not just from one source"
+    ],
+    "keyInsight": "Dynamic programming on intermediate vertices: let dist[i][j][k] be the shortest path from i to j using only vertices {0, 1, ..., k} as intermediates. The recurrence is dist[i][j][k] = min(dist[i][j][k-1], dist[i][k][k-1] + dist[k][j][k-1]). Either vertex k is on the shortest path (split into i→k and k→j) or it is not. The third dimension can be optimized away by updating in-place.",
+    "keyInsightZh": "对中间顶点的动态规划：令 dist[i][j][k] 为仅使用顶点 {0, 1, ..., k} 作为中间节点时从 i 到 j 的最短路径。递推关系为 dist[i][j][k] = min(dist[i][j][k-1], dist[i][k][k-1] + dist[k][j][k-1])。顶点 k 要么在最短路径上（拆分为 i→k 和 k→j），要么不在。第三维可通过原地更新优化掉。",
+    "implementation": "from math import inf\n\ndef floyd_warshall(n: int, edges: list) -> tuple:\n    \"\"\"Floyd-Warshall all-pairs shortest paths.\n\n    n: number of vertices (labeled 0 to n-1)\n    edges: list of (u, v, weight) tuples\n    Returns (dist, nxt) where dist[i][j] = shortest distance,\n    nxt[i][j] = next vertex on shortest path from i to j.\n    \"\"\"\n    # Initialize distance matrix\n    dist = [[inf] * n for _ in range(n)]\n    nxt = [[None] * n for _ in range(n)]\n\n    for i in range(n):\n        dist[i][i] = 0\n        nxt[i][i] = i\n\n    for u, v, w in edges:\n        dist[u][v] = w\n        nxt[u][v] = v\n\n    # DP: try each vertex k as an intermediate\n    for k in range(n):\n        for i in range(n):\n            if dist[i][k] == inf:\n                continue\n            for j in range(n):\n                if dist[k][j] == inf:\n                    continue\n                new_dist = dist[i][k] + dist[k][j]\n                if new_dist < dist[i][j]:\n                    dist[i][j] = new_dist\n                    nxt[i][j] = nxt[i][k]\n\n    return dist, nxt\n\n\ndef reconstruct_path(nxt: list, u: int, v: int) -> list:\n    \"\"\"Reconstruct shortest path from u to v using next-hop matrix.\"\"\"\n    if nxt[u][v] is None:\n        return []  # no path\n    path = [u]\n    while u != v:\n        u = nxt[u][v]\n        path.append(u)\n    return path\n\n\ndef has_negative_cycle(dist: list, n: int) -> bool:\n    \"\"\"A negative cycle exists if any diagonal entry is negative.\"\"\"\n    for i in range(n):\n        if dist[i][i] < 0:\n            return True\n    return False",
+    "deepDive": {
+      "explanation": "Floyd-Warshall builds up shortest paths by progressively allowing more intermediate vertices. Phase k considers whether routing through vertex k improves any pair (i, j). The beauty is that the in-place update is correct: when computing dist[i][j] in phase k, the values dist[i][k] and dist[k][j] are already correct for phase k (adding k as an intermediate for a path to/from k does not help since dist[k][k] = 0). Negative cycle detection: after the algorithm completes, check the diagonal — if dist[i][i] < 0 for any i, a negative cycle passes through vertex i.",
+      "walkthrough": "Graph: 4 vertices, edges: (0,1,3), (0,3,7), (1,0,8), (1,2,2), (2,0,5), (2,3,1), (3,0,2)\n\nInit dist matrix:\n     0    1    2    3\n0 [  0,   3, inf,   7]\n1 [  8,   0,   2, inf]\n2 [  5, inf,   0,   1]\n3 [  2, inf, inf,   0]\n\nk=0 (route through vertex 0):\n  dist[1][3] = min(inf, 8+7) = 15\n  dist[2][1] = min(inf, 5+3) = 8\n  dist[2][3] = min(1, 5+7) = 1 (no change)\n  dist[3][1] = min(inf, 2+3) = 5\n  dist[3][2] = min(inf, 2+inf) = inf (no change)\n\nk=1 (route through vertex 1):\n  dist[0][2] = min(inf, 3+2) = 5\n  dist[3][2] = min(inf, 5+2) = 7\n  dist[0][3] = min(7, 3+15) = 7 (no change)\n  dist[3][0] = min(2, 5+8) = 2 (no change)\n\nk=2 (route through vertex 2):\n  dist[0][3] = min(7, 5+1) = 6\n  dist[1][0] = min(8, 2+5) = 7\n  dist[1][3] = min(15, 2+1) = 3\n  dist[3][0] = min(2, 7+5) = 2 (no change)\n\nk=3 (route through vertex 3):\n  dist[0][0] = min(0, 6+2) = 0 (no change)\n  dist[1][0] = min(7, 3+2) = 5\n  dist[2][0] = min(5, 1+2) = 3\n\nFinal dist:\n     0  1  2  3\n0 [  0, 3, 5, 6]\n1 [  5, 0, 2, 3]\n2 [  3, 6, 0, 1]\n3 [  2, 5, 7, 0]",
+      "variations": [
+        "Transitive closure (Warshall's algorithm) — replace min/+ with OR/AND for reachability",
+        "Minimax path — replace min/+ with min/max for bottleneck shortest paths",
+        "Path counting — replace min/+ with +/* to count number of paths",
+        "Johnson's algorithm — Bellman-Ford reweighting + V runs of Dijkstra, better for sparse graphs"
+      ],
+      "relatedProblems": [
+        "Find the City With the Smallest Number of Neighbors (LeetCode 1334)",
+        "Shortest Path Visiting All Nodes (LeetCode 847)",
+        "Evaluate Division (LeetCode 399, can model as APSP)",
+        "Course Schedule IV — transitive closure (LeetCode 1462)"
+      ],
+      "realWorldApps": [
+        "Network routing — precompute all-pairs latencies for small networks",
+        "Geographic information systems — shortest distances between all city pairs",
+        "Social network analysis — closeness centrality requires all-pairs distances",
+        "Compiler optimization — transitive closure for dependency analysis"
+      ],
+      "vsAlternatives": "Running Dijkstra from every vertex costs O(V * E log V), which is better for sparse graphs (E much less than V^2). Floyd-Warshall at O(V^3) is simpler to implement and competitive for dense graphs where E is close to V^2. Johnson's algorithm (Bellman-Ford + V Dijkstra runs) achieves O(V*E log V) and handles negative weights, making it the best choice for sparse graphs with negative edges."
+    },
+    "complexityRank": 99,
+    "defaultOrder": 3
+  }
+];
+
+const isComingSoon = false;
+
+const plannedAlgorithms = [];
+
+const comingSoonMessage = "";
+const comingSoonMessageZh = "";
+
+// ─── Python Syntax Highlighting (lightweight) ─────────────────────────────
+function highlightPython(code) {
+  // Escape HTML
+  let s = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Comments
+  s = s.replace(/(#.*?)$/gm, '<span class="code-comment">$1</span>');
+  // Triple-quoted strings
+  s = s.replace(/("""[\s\S]*?"""|'''[\s\S]*?''')/g, '<span class="code-string">$1</span>');
+  // Strings
+  s = s.replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, '<span class="code-string">$1</span>');
+  // Keywords
+  const kws = ['def','class','return','if','elif','else','for','while','in','not','and','or','is','None','True','False','import','from','as','with','try','except','finally','raise','yield','lambda','pass','break','continue','assert','global','nonlocal'];
+  const kwRe = new RegExp('\\b(' + kws.join('|') + ')\\b', 'g');
+  s = s.replace(kwRe, '<span class="code-keyword">$1</span>');
+  // Built-in functions
+  const builtins = ['len','range','print','int','float','str','list','dict','set','tuple','sorted','enumerate','zip','map','filter','isinstance','type','super','min','max','sum','abs','any','all','reversed','iter','next','hash','id','open','input'];
+  const biRe = new RegExp('\\b(' + builtins.join('|') + ')(?=\\()', 'g');
+  s = s.replace(biRe, '<span class="code-builtin">$1</span>');
+  // Function definitions
+  s = s.replace(/(?<=def\s+)(\w+)/g, '<span class="code-func">$1</span>');
+  // Numbers
+  s = s.replace(/\b(\d+\.?\d*)\b/g, '<span class="code-number">$1</span>');
+  return s;
+}
+
+// ─── Render ─────────────────────────────────────────────────────────────────
+const algoListEl = document.getElementById('algoList');
+const controlsEl = document.getElementById('controls');
+let allExpanded = false;
+
+if (isComingSoon) {
+  controlsEl.style.display = 'none';
+  algoListEl.innerHTML = `
+    <div class="coming-soon-container">
+      <div class="coming-soon-msg">${comingSoonMessage}</div>
+      <div class="coming-soon-msg-zh">${comingSoonMessageZh}</div>
+      <ul class="planned-list">
+        ${plannedAlgorithms.map(a => `<li><span class="planned-check"></span>${a}</li>`).join('')}
+      </ul>
+    </div>`;
+} else {
+  // Hero stats
+  const heroStatsEl = document.getElementById('heroStats');
+  const difficulties = [...new Set(algorithms.map(a => a.difficulty))];
+  heroStatsEl.innerHTML = `
+    <span class="badge badge--time">${algorithms.length} algorithms</span>
+    ${difficulties.map(d => `<span class="badge badge--${d}">${d}</span>`).join('')}`;
+
+  // Render algorithm cards
+  algorithms.forEach((algo, i) => {
+    const card = document.createElement('div');
+    card.className = 'algo-card fade-in';
+    card.dataset.id = algo.id;
+    card.dataset.difficulty = algo.difficulty;
+    card.dataset.complexityRank = algo.complexityRank;
+    card.dataset.defaultOrder = algo.defaultOrder;
+    card.id = algo.id;
+
+    const worstTime = algo.complexity?.time?.worst || '';
+    const codeHtml = highlightPython(algo.implementation || '');
+
+    const whenToUseHtml = (algo.whenToUse || []).map(w => `<li>${w}</li>`).join('');
+
+    // Complexity table
+    const tc = algo.complexity?.time || {};
+    const sc = algo.complexity?.space || '';
+    const complexityHtml = `
+      <table class="complexity-table">
+        <tr><th>Metric</th><th>Best</th><th>Average</th><th>Worst</th></tr>
+        <tr><td>Time</td><td>${tc.best || '—'}</td><td>${tc.average || '—'}</td><td>${tc.worst || '—'}</td></tr>
+        <tr><td colspan="3">Space</td><td>${sc}</td></tr>
+      </table>`;
+
+    // Deep dive
+    const dd = algo.deepDive || {};
+    const variationsHtml = (dd.variations || []).map(v => `<div class="variation-item">${v}</div>`).join('');
+    const relatedHtml = (dd.relatedProblems || []).map(r => `<div class="related-item">${r}</div>`).join('');
+    const appsHtml = (dd.realWorldApps || []).map(a => `<div class="app-item">${a}</div>`).join('');
+
+    card.innerHTML = `
+      <div class="algo-header" onclick="toggleL1(this)">
+        <div class="algo-title-group">
+          <div class="algo-name">${algo.name}</div>
+          <div class="algo-name-zh">${algo.nameZh}</div>
+        </div>
+        <div class="algo-oneliner">${algo.oneLiner || ''}</div>
+        <div class="algo-badges">
+          <span class="badge badge--time">${worstTime}</span>
+          <span class="badge badge--${algo.difficulty}">${algo.difficulty}</span>
+        </div>
+        <span class="algo-chevron">▾</span>
+      </div>
+      <div class="algo-detail">
+        <div class="algo-detail-inner">
+          <div class="detail-section">
+            <h3>Problem Definition</h3>
+            <p>${algo.problemDefinition || ''}</p>
+            ${algo.problemDefinitionZh ? `<p style="color:var(--text-dim);font-size:0.85rem;margin-top:0.3rem">${algo.problemDefinitionZh}</p>` : ''}
+          </div>
+          ${whenToUseHtml ? `<div class="detail-section"><h3>When to Use</h3><ul>${whenToUseHtml}</ul></div>` : ''}
+          <div class="detail-section">
+            <h3>Key Insight</h3>
+            <div class="insight-box">
+              ${algo.keyInsight || ''}
+              ${algo.keyInsightZh ? `<div class="insight-box-zh">${algo.keyInsightZh}</div>` : ''}
+            </div>
+          </div>
+          <div class="detail-section">
+            <h3>Implementation</h3>
+            <pre class="code-block">${codeHtml}</pre>
+          </div>
+          <div class="detail-section">
+            <h3>Complexity Analysis</h3>
+            ${complexityHtml}
+          </div>
+          ${dd.explanation ? `
+          <button class="deep-dive-btn" onclick="toggleL2(this)">Deep Dive ▾</button>
+          <div class="algo-deep-dive">
+            <div class="algo-deep-dive-inner">
+              <div class="detail-section">
+                <h3>Detailed Explanation</h3>
+                <p>${dd.explanation}</p>
+              </div>
+              ${dd.walkthrough ? `<div class="detail-section"><h3>Step-by-Step Walkthrough</h3><div class="walkthrough-block">${dd.walkthrough}</div></div>` : ''}
+              ${variationsHtml ? `<div class="detail-section"><h3>Variations & Optimizations</h3><div class="variation-list">${variationsHtml}</div></div>` : ''}
+              ${relatedHtml ? `<div class="detail-section"><h3>Related Problems</h3><div class="related-list">${relatedHtml}</div></div>` : ''}
+              ${appsHtml ? `<div class="detail-section"><h3>Real-World Applications</h3><div class="app-list">${appsHtml}</div></div>` : ''}
+              ${dd.vsAlternatives ? `<div class="detail-section"><h3>Comparison with Alternatives</h3><div class="vs-box">${dd.vsAlternatives}</div></div>` : ''}
+            </div>
+          </div>` : ''}
+        </div>
+      </div>`;
+
+    algoListEl.appendChild(card);
+  });
+}
+
+// ─── Expand / Collapse ────────────────────────────────────────────────────
+function toggleL1(headerEl) {
+  const card = headerEl.closest('.algo-card');
+  const detail = card.querySelector('.algo-detail');
+  const isOpen = card.classList.contains('expanded-l1');
+
+  if (isOpen) {
+    if (card.classList.contains('expanded-l2')) {
+      const btn = card.querySelector('.deep-dive-btn');
+      if (btn) toggleL2(btn);
+    }
+    detail.style.maxHeight = '0';
+    card.classList.remove('expanded-l1');
+  } else {
+    detail.style.maxHeight = detail.scrollHeight + 'px';
+    card.classList.add('expanded-l1');
+  }
+}
+
+function toggleL2(btnEl) {
+  const card = btnEl.closest('.algo-card');
+  const deepDive = card.querySelector('.algo-deep-dive');
+  const detail = card.querySelector('.algo-detail');
+  const isOpen = card.classList.contains('expanded-l2');
+
+  if (isOpen) {
+    deepDive.style.maxHeight = '0';
+    card.classList.remove('expanded-l2');
+    btnEl.textContent = 'Deep Dive ▾';
+  } else {
+    deepDive.style.maxHeight = deepDive.scrollHeight + 'px';
+    card.classList.add('expanded-l2');
+    btnEl.textContent = 'Deep Dive ▴';
+    // Recalculate parent
+    setTimeout(() => { detail.style.maxHeight = detail.scrollHeight + 'px'; }, 10);
+  }
+}
+
+function toggleExpandAll() {
+  const btn = document.getElementById('expandAllBtn');
+  const cards = document.querySelectorAll('.algo-card');
+  allExpanded = !allExpanded;
+
+  cards.forEach(card => {
+    if (card.style.display === 'none') return;
+    const detail = card.querySelector('.algo-detail');
+    if (allExpanded) {
+      detail.style.maxHeight = detail.scrollHeight + 'px';
+      card.classList.add('expanded-l1');
+    } else {
+      if (card.classList.contains('expanded-l2')) {
+        const ddBtn = card.querySelector('.deep-dive-btn');
+        if (ddBtn) toggleL2(ddBtn);
+      }
+      detail.style.maxHeight = '0';
+      card.classList.remove('expanded-l1');
+    }
+  });
+  btn.textContent = allExpanded ? 'Collapse All' : 'Expand All';
+}
+
+// ─── Sort / Filter ────────────────────────────────────────────────────────
+function sortBy(mode, btnEl) {
+  document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+
+  const list = document.getElementById('algoList');
+  const cards = Array.from(list.querySelectorAll('.algo-card'));
+  const diffOrder = { easy: 0, medium: 1, hard: 2 };
+
+  cards.sort((a, b) => {
+    if (mode === 'difficulty') return (diffOrder[a.dataset.difficulty] || 0) - (diffOrder[b.dataset.difficulty] || 0);
+    if (mode === 'complexity') return parseInt(a.dataset.complexityRank) - parseInt(b.dataset.complexityRank);
+    return parseInt(a.dataset.defaultOrder) - parseInt(b.dataset.defaultOrder);
+  });
+  cards.forEach(c => list.appendChild(c));
+}
+
+function filterBy(difficulty, btnEl) {
+  document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+
+  document.querySelectorAll('.algo-card').forEach(card => {
+    card.style.display = (difficulty === 'all' || card.dataset.difficulty === difficulty) ? '' : 'none';
+  });
+}
+
+// ─── Progress Bar ─────────────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+  document.getElementById('progressBar').style.width = Math.min(pct, 100) + '%';
+});
+
+// ─── Fade-in Observer ─────────────────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.05 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// ─── URL Hash Support ─────────────────────────────────────────────────────
+function handleHash() {
+  const hash = window.location.hash.slice(1);
+  if (!hash) return;
+  const card = document.getElementById(hash);
+  if (!card) return;
+  setTimeout(() => {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const header = card.querySelector('.algo-header');
+    if (header && !card.classList.contains('expanded-l1')) toggleL1(header);
+  }, 300);
+}
+window.addEventListener('hashchange', handleHash);
+handleHash();
+</script>
+</body>
+</html>

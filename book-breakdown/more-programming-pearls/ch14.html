@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>编写数值计算程序 · Writing Numerical Programs | Chapter 14</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 14 / 15 · Part IV · Algorithms 算法精粹</div>
+        <div class="hero-icon">√</div>
+        <h1 class="hero-title">编写数值计算程序</h1>
+        <p class="hero-sub">当一个 5 行的距离函数吃掉了程序 80% 的时间，你需要的不是更快的硬件，而是更聪明的数学</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: custom — Escape hatch for raw HTML content -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag">Step 1</div>
+    <div class="section-title">瓶颈在哪里?</div>
+    <div class="bottleneck-diagram"><h3>旅行商距离函数 -- 1140 微秒的时间分解</h3><div class="time-breakdown"><div class="time-segment" style="width: 82.5%; background: linear-gradient(135deg, #ff4444, #cc0000);">sqrt() = 940us</div><div class="time-segment" style="width: 17.5%; background: linear-gradient(135deg, #4ecdc4, #45b5a5);">200us</div></div><p>一个 5 行的距离计算函数竟消耗了整个旅行商程序 <strong>80%</strong> 的运行时间</p><pre>// Program 1: 朴素实现
+float dist(A[], B[], K) {
+    Sum = 0;
+    for (i = 0; i &lt; K; i++)
+        Sum += (A[i]-B[i]) * (A[i]-B[i]);
+    return sqrt(Sum);  // &lt;-- 瓶颈在这!
+}</pre></div>
+</section>
+
+<!-- Block: custom — Escape hatch for raw HTML content -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag">Step 2</div>
+    <div class="section-title">把牛顿迭代法教给小白</div>
+    
+</section>
+
+<!-- Block: custom — Escape hatch for raw HTML content -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag">Step 2</div>
+    <div class="section-title">「除后取平均」 -- 核心公式</div>
+    
+</section>
+
+<!-- Block: custom — Escape hatch for raw HTML content -->
+<section id="sec-block4" class="fade-in">
+    <div class="section-tag">Step 3</div>
+    <div class="section-title">亲手感受牛顿迭代</div>
+    <div class="newton-visualizer"><h3>Newton 迭代可视化器 -- 输入一个数，看它如何收敛</h3><p>交互式牛顿迭代演示：输入一个正数，观察每一步迭代如何让正确位数翻倍（平方收敛）。</p><p>曲线上的切线不断逼近 x 轴的零点 -- 这就是牛顿法的几何直觉</p></div>
+</section>
+
+<!-- Block: custom — Escape hatch for raw HTML content -->
+<section id="sec-block5" class="fade-in">
+    <div class="section-tag">Step 4</div>
+    <div class="section-title">程序的四次进化</div>
+    
+</section>
+
+<!-- Block: custom — Escape hatch for raw HTML content -->
+<section id="sec-block6" class="fade-in">
+    <div class="section-tag">性能对比</div>
+    <div class="section-title">程序加速比对比 (K=2 维度)</div>
+    
+</section>
+
+<!-- Block: custom — Escape hatch for raw HTML content -->
+<section id="sec-block7" class="fade-in">
+    <div class="section-tag">数学分析</div>
+    <div class="section-title">「好起点」的秘密 -- 为什么选 2D?</div>
+    <div><p>真实距离在 <strong>D</strong> 和 <strong>√K·D</strong> 之间 (D = max|A[i]-B[i]|)。选 <strong>2D</strong> 作为起点，因为它接近几何均值 √(D·√K·D)。</p><p>以 K=4 为例: D = max 差值</p><p>D --- 2D(起点) --- 真实距离 --- √K·D</p><p>起点越接近真实值，需要的迭代次数就越少。2D 通常只需 4 次迭代即可收敛。</p></div>
+</section>
+
+<!-- Block: custom — Escape hatch for raw HTML content -->
+<section id="sec-block8" class="fade-in">
+    <div class="section-tag">优化思路</div>
+    <div class="section-title">三个关键优化思路</div>
+    
+</section>
+
+<!-- Block: custom — Escape hatch for raw HTML content -->
+<section id="sec-block9" class="fade-in">
+    <div class="section-tag">历史</div>
+    <div class="section-title">算法 vs 硬件: 世纪竞赛</div>
+    <div class="race-timeline"><h3>3D 椭圆偏微分方程 (N×N×N 网格) -- 30 年的进步</h3><table><thead><tr><th colspan="2">算法改进 (250,000x)</th></tr></thead><tbody><tr><td>1945</td><td>Gauss-Seidel 迭代 O(N⁵) -- 基准</td></tr><tr><td>1954</td><td>SOR 超松弛 O(N⁴) -- 快 N 倍</td></tr><tr><td>1971</td><td>FFT 快速傅里叶 O(N³ log N) -- 又快 N/logN 倍</td></tr><tr><td>1978</td><td>Multigrid 多重网格 O(N³) -- 最优! 与网格同阶</td></tr></tbody></table><table><thead><tr><th colspan="2">硬件改进 (500,000x)</th></tr></thead><tbody><tr><td>1945</td><td>ENIAC 真空管 5,000 次/秒</td></tr><tr><td>1955</td><td>晶体管计算机 ~100x 提升</td></tr><tr><td>1970</td><td>集成电路时代 ~10,000x 提升</td></tr><tr><td>1985</td><td>VLSI / 超大规模集成 500,000x 总提升</td></tr></tbody></table><p><strong>250,000 x 500,000 = 1.25 x 10¹¹</strong></p><p>算法 + 硬件的双重进步: 曾经需要数个世纪的计算，现在不到 1 秒。</p><p>软件 30 年提升 250,000x ≈ 硬件 40 年提升 500,000x。算法的力量不可小觑!</p></div>
+</section>
+
+<!-- Block: custom — Escape hatch for raw HTML content -->
+<section id="sec-block10" class="fade-in">
+    <div class="section-tag">启示</div>
+    <div class="section-title">启示</div>
+    
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "label": "选择概念",
+    "desc": "欧氏距离计算中 sqrt() 是性能瓶颈 -- 1140 微秒中有 940 微秒花在开方上"
+  },
+  {
+    "step": 2,
+    "label": "教给小白",
+    "desc": "牛顿迭代法就像「猜数字」游戏: 猜大了就往小调，猜小了就往大调，取平均值 -- 「除后取平均」"
+  },
+  {
+    "step": 3,
+    "label": "找到差距",
+    "desc": "平方收敛太强大了 -- 每一步迭代让正确位数翻倍！6 步就能达到 16 位精度"
+  },
+  {
+    "step": 4,
+    "label": "简化类比",
+    "desc": "从 P1 到 P4 的演进: 好的数学 + 好的起点 + 固定迭代 = 3.5 倍加速"
+  }
+];
+const takeaways = [
+  {
+    "icon": "√",
+    "title": "牛顿迭代: 除后取平均",
+    "desc": "x_new = (x + a/x)/2 -- 如此简单的公式，却有平方级收敛速度。6 步从粗略猜测到 16 位精度。"
+  },
+  {
+    "icon": "🎯",
+    "title": "好的起始点事半功倍",
+    "desc": "利用问题结构选择初始值。max|A[i]-B[i]| 给出距离的下界，2D 接近几何均值。"
+  },
+  {
+    "icon": "⚡",
+    "title": "定制胜于通用",
+    "desc": "库函数 sqrt() 要处理所有边界情况。你的场景可能只需要 4 次「除后取平均」。"
+  },
+  {
+    "icon": "📊",
+    "title": "平方收敛真的很快",
+    "desc": "普通收敛: 每步多一位正确数字。平方收敛: 每步正确位数翻倍。指数级的差别!"
+  },
+  {
+    "icon": "🏁",
+    "title": "算法 ≈ 硬件",
+    "desc": "30 年算法改进 250,000x vs 40 年硬件改进 500,000x。好算法的价值堪比摩尔定律。"
+  },
+  {
+    "icon": "🔧",
+    "title": "优化策略: 层层递进",
+    "desc": "P1(库函数) -> P2(定制迭代) -> P3(固定次数) -> P4(极致细节)。先改算法，再改常数。"
+  }
+];
+const quiz = [
+  {
+    "question": "Program 3 对 K≤16 的情况使用了几次牛顿迭代?",
+    "answer": "4 次。从初始猜测 2·Max 出发，固定执行 4 次「除后取平均」操作。无需循环控制、无需收敛检测。这依赖于两个前提: (1) 好的起始点让初始误差很小; (2) 平方收敛让 4 步就足以达到浮点精度。当 K≤16 时，√K ≤ 4，所以 2D 到真实距离的比值最大约为 2，4 次迭代绰绰有余。"
+  },
+  {
+    "question": "牛顿迭代法具有什么类型的收敛速度?",
+    "answer": "平方收敛 (Quadratic Convergence)。如果当前误差为 ε，下一步的误差大约是 ε²。这意味着每一步迭代让正确的有效位数翻倍。例如计算 √2: 从 x₀=2 这个很粗糙的猜测开始，第 1 步得到 1.5 (1 位正确)，第 2 步 1.4167 (2 位)，第 3 步 1.41422 (4 位)，第 4 步就已经有 8 位正确了。6 步就达到了 IEEE 双精度浮点数的全部 16 位精度!"
+  },
+  {
+    "question": "算法改进 + 硬件改进的综合效果是什么? (以 3D 椭圆 PDE 为例)",
+    "answer": "将「数个世纪」缩短到「不到 1 秒」！软件: 30 年间从 Gauss-Seidel O(N⁵) 进化到 Multigrid O(N³)，提速约 250,000 倍。硬件: 40 年间从 ENIAC 到 VLSI 芯片，提速约 500,000 倍。综合: 250,000 × 500,000 = 1.25 × 10¹¹ 倍。这个故事告诉我们: 算法和硬件同等重要。只靠买更好的机器解决不了根本问题。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "你知道调用一次库函数 sqrt() 比整数加法慢多少倍吗？",
+    "hint": "想想量级差距——是 2 倍还是 200 倍"
+  },
+  {
+    "question": "牛顿迭代法求平方根的核心公式是什么？你能用一句话解释它为什么有效吗？",
+    "hint": "想想「猜大了就往小调，猜小了就往大调，取平均值」"
+  },
+  {
+    "question": "你认为算法改进和硬件升级，哪个对程序性能的提升更大？",
+    "hint": "想想 30 年的算法进步 vs 40 年的摩尔定律"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "用定制的牛顿迭代替代通用库函数 sqrt() 可以获得 3.5 倍加速",
+    "evidence": "P1 中 sqrt() 占 1140μs 中的 940μs（82.5%）。P4 通过定制牛顿迭代 + 好起点 + 固定 4 次迭代 + 指针优化，将总时间降到约 326μs",
+    "counterpoint": "现代编译器和 CPU 可能已经高度优化了 sqrt() 的实现（如 SSE 指令集有硬件 sqrt）。在现代硬件上定制实现的收益可能远小于 3.5 倍。优化前应先 Profile"
+  },
+  {
+    "claim": "算法的改进幅度与硬件进步同量级（30 年算法 250,000x vs 40 年硬件 500,000x）",
+    "evidence": "3D 椭圆 PDE 的求解：从 Gauss-Seidel O(N⁵) 到 Multigrid O(N³)，当 N=100 时算法改进提供了 10,000 倍加速"
+  }
+];
+const application = [
+  {
+    "scenario": "当 Profiler 显示某个数学函数（如 sqrt、exp、log）是性能瓶颈时",
+    "action": "考虑针对你的具体场景定制实现。你的输入范围、精度需求和调用模式可能比通用库函数的假设窄得多。好的起始值 + 固定迭代次数可以消除循环控制开销"
+  },
+  {
+    "scenario": "当你面对一个计算密集型问题，第一反应是「买更好的服务器」时",
+    "action": "先检查算法复杂度。O(N⁵) 到 O(N³) 的改进在 N=100 时等于 10,000 倍加速——花钱买硬件远不如花时间选对算法"
+  },
+  {
+    "scenario": "当你实现数值计算需要控制迭代收敛条件时",
+    "action": "利用平方收敛的特性——如果能确定好的起始点让初始误差有界，就可以预计算出固定迭代次数并展开循环，既简单又高效"
+  }
+];
+const chapterNav = {"prev": {"num": 13, "title": "Floyd采样算法", "href": "ch13.html"}, "next": {"num": 15, "title": "Hoare选择算法", "href": "ch15.html"}};
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

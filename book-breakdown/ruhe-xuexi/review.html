@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interleaved Review · 如何学习 | Book Breakdown</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+
+/* ── Compact Hero ── */
+.hero { padding: 3rem 2rem 2rem; text-align: center; position: relative; }
+.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(255,107,107,0.06) 0%, transparent 50%); pointer-events: none; }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px rgba(108,99,255,0.3)); }
+.hero h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 900; margin-bottom: 0.3rem; }
+.hero-en { font-size: 1rem; color: var(--text-dim); font-weight: 300; margin-bottom: 0.5rem; }
+.hero-badge { display: inline-block; padding: 0.4rem 1.2rem; border: 1px solid var(--accent4); border-radius: 2rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; }
+.back-link { position: absolute; top: 1.5rem; left: 1.5rem; text-decoration: none; color: var(--text-dim); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; transition: color 0.3s; }
+.back-link:hover { color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Mode Selector ── */
+.mode-bar { display: flex; justify-content: center; gap: 12px; margin: 2rem 0; flex-wrap: wrap; }
+.mode-btn { padding: 10px 24px; border: 1px solid var(--border); border-radius: 2rem; background: transparent; color: var(--text-dim); font-family: var(--font-sans); font-size: 0.9rem; cursor: pointer; transition: all 0.3s; }
+.mode-btn:hover { border-color: var(--accent); color: var(--text); }
+.mode-btn.active { border-color: var(--accent); background: rgba(108,99,255,0.15); color: var(--accent); }
+
+/* ── Score Tracker ── */
+.score-bar { display: flex; align-items: center; justify-content: center; gap: 2rem; margin-bottom: 2rem; padding: 1rem; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); }
+.score-label { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim); letter-spacing: 1px; }
+.score-num { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; }
+.score-correct { color: var(--accent3); }
+.score-total { color: var(--text-dim); }
+.score-pct { color: var(--accent4); font-size: 1.2rem; }
+.reset-btn { padding: 6px 16px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.3s; letter-spacing: 1px; }
+.reset-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+/* ── Quiz Cards ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-card.correct { border-color: var(--accent3); }
+.quiz-card.incorrect { border-color: var(--accent2); }
+.quiz-chapter-tag { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 8px; display: inline-block; padding: 2px 10px; border-radius: 4px; }
+.quiz-chapter-tag.hidden { background: rgba(108,99,255,0.15); color: var(--accent); }
+.quiz-chapter-tag.visible { background: rgba(78,205,196,0.15); color: var(--accent3); }
+.quiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1rem; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* Chapter-ID mode */
+.chapter-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.ch-pick-btn { padding: 4px 12px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+.ch-pick-btn:hover { border-color: var(--accent); color: var(--text); }
+.ch-pick-btn.correct { border-color: var(--accent3); color: var(--accent3); background: rgba(78,205,196,0.1); }
+.ch-pick-btn.wrong { border-color: var(--accent2); color: var(--accent2); background: rgba(255,107,107,0.1); }
+
+/* ── Spaced Review ── */
+.section-header { margin: 3rem 0 1.5rem; }
+.section-badge { display: inline-block; font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.4rem; font-weight: 700; }
+.schedule-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.schedule-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; transition: all 0.3s; }
+.schedule-card:hover { border-color: var(--accent4); }
+.schedule-interval { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 1px; margin-bottom: 6px; }
+.schedule-date { font-size: 0.85rem; color: var(--text-dim); }
+
+/* ── Footer ── */
+.footer { text-align: center; padding: 4rem 0; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+
+/* ── Empty State ── */
+.empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-dim); }
+.empty-state-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 768px) {
+    .score-bar { flex-wrap: wrap; gap: 1rem; }
+    .schedule-grid { grid-template-columns: repeat(3, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<section class="hero">
+    <a href="index.html" class="back-link">← 返回目录</a>
+    <div class="hero-icon">🔀</div>
+    <h1>Interleaved Review · 交叉复习</h1>
+    <div class="hero-en">How We Learn</div>
+    <div class="hero-badge">SPACED PRACTICE</div>
+</section>
+
+<div class="container">
+    <div class="mode-bar" id="modeBar">
+        <button class="mode-btn active" data-mode="random">🎲 Random Quiz · 随机测验</button>
+        <button class="mode-btn" data-mode="chapter-id">🔍 Chapter ID · 章节识别</button>
+    </div>
+    <div class="score-bar" id="scoreBar" style="display:none">
+        <div><div class="score-label">CORRECT</div><div class="score-num score-correct" id="scoreCorrect">0</div></div>
+        <div><div class="score-label">TOTAL</div><div class="score-num score-total" id="scoreTotal">0</div></div>
+        <div><div class="score-label">ACCURACY</div><div class="score-num score-pct" id="scorePct">—</div></div>
+        <button class="reset-btn" id="resetBtn">RESET</button>
+    </div>
+    <div id="quizContainer"></div>
+
+    <div class="section-header fade-in">
+        <div class="section-badge">SPACED REVIEW SCHEDULE</div>
+        <div class="section-title">间隔复习计划</div>
+    </div>
+    <div class="schedule-grid" id="scheduleGrid"></div>
+</div>
+
+<div class="footer">
+    Book Breakdown · Interleaved Review · 如何学习
+</div>
+
+<script>
+const meta = {
+  "title": "如何学习",
+  "titleEn": "How We Learn",
+  "author": "本尼迪克特·凯里 (Benedict Carey)",
+  "icon": "🧠",
+  "slug": "ruhe-xuexi",
+  "methodLabel": "FEYNMAN METHOD",
+  "stats": [
+    {
+      "num": "10",
+      "label": "Chapters"
+    },
+    {
+      "num": "4",
+      "label": "Parts"
+    },
+    {
+      "num": "∞",
+      "label": "Insights"
+    }
+  ]
+};
+const allQuizData = [
+  {
+    "chapterNum": 1,
+    "chapterTitle": "编故事的能手：大脑学习的机制",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么说大脑像一个「电影摄制组」而不是一台录像机？",
+        "answer": "录像机只是被动录制和原样播放，但大脑是主动的：不同区域（视觉、听觉、感官）像摄影师、录音师各司其职，海马像剪辑室把素材拼接成片段，左脑解释器像导演编出合理的故事。而且每次「播放」记忆都会略有不同——大脑会添加判断、修改细节，用记忆来改变记忆。"
+      },
+      {
+        "id": "q2",
+        "question": "莫莱森（H.M.）的案例为什么是记忆研究史上的里程碑？",
+        "answer": "莫莱森因切除海马后失去了构建新显意识记忆的能力——每次见到米尔纳博士都像第一次。但他仍然能学会对着镜子画五角星等动作技能。这证明了两件关键事实：1）海马是构建新记忆不可或缺的部位；2）大脑至少有两套独立的记忆系统——显意识记忆和动作技能记忆。"
+      },
+      {
+        "id": "q3",
+        "question": "加扎尼加的裂脑实验中，患者为什么说「铁锹是用来清理鸡屎的」？",
+        "answer": "患者的左脑只看到了鸡脚（合理地选了鸡），右脑看到了雪景（合理地选了铁锹）。但当被要求解释为何选铁锹时，左脑没有看到雪景的信息，只看到面前的铁锹和鸡，于是左脑的「解释器」模块即兴编造了一个看似合理的故事——铁锹是用来清理鸡屎的。这揭示了大脑左半球有一个持续运作的叙事系统，它会根据已有信息编出合理的解释。"
+      },
+      {
+        "id": "q4",
+        "question": "用你自己的话解释：为什么说「每次回忆都在修改记忆」？（费曼检验）",
+        "answer": "参考答案：想象你有一个最爱讲的笑话。第一次讲的时候，你按原版讲；第二次讲的时候，你可能加了个小细节让它更好笑；第三次，你又改了结尾的节奏。到了第十次，这个笑话和最初版本已经很不一样了，但你觉得自己一直在讲「同一个笑话」。大脑的记忆也是这样——每次提取出来，都会和当下的情绪、知识、场景交织在一起，然后以这个新版本存回去。长年累月，35年前的高中第一天记忆，可能已经被修改了无数次，但核心场景依然保留。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 2,
+    "chapterTitle": "遗忘的威力：过滤干扰，激活宝藏",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么说拼字比赛中出错的孩子并不是「记得太少」，而可能是「记得太多」？",
+        "answer": "大脑里装着成千上万的生词，这些相似的词汇在提取时会互相干扰。比如 apathetic 和 apothecary、penumbra 和 penultimate 很容易混淆。大脑的遗忘功能本应屏蔽干扰词汇，但当储存的词汇量太大时，过滤难度也更大。出错往往不是因为不认识那个词，而是因为相似的词太多，大脑来不及精确过滤。"
+      },
+      {
+        "id": "q2",
+        "question": "储存能力和提取能力有什么区别？请用「盛大聚会」的比喻来解释。",
+        "answer": "想象一个你认识的所有人都参加的聚会。储存能力 = 你和某人有多熟（相处的深度和时间）；提取能力 = 你能多快想起他的名字。爸妈两者都强；小学老师储存强（你们曾经很熟）但提取弱（名字一时想不起来）；新邻居提取强（刚认识，名字还记得）但储存弱（明天就忘了）。关键是：储存能力只增不减，但提取能力会迅速衰退——你「忘了」的其实只是暂时提取不出来。"
+      },
+      {
+        "id": "q3",
+        "question": "巴拉德的实验为什么能推翻艾宾浩斯的遗忘曲线？",
+        "answer": "艾宾浩斯用的是毫无意义的音节（RUR、HAL、MEK），大脑找不到地方「挂」这些东西，自然会快速遗忘——他的遗忘曲线只适用于这种无意义材料。巴拉德用的是朗费罗的诗歌——有韵律、有画面、有故事。孩子们在学习后2-3天没有复习，成绩反而提高了10%。这说明记忆不是单向衰减的，有意义的内容会在大脑中继续「发酵」，被遗忘的部分可以自动冒出来。"
+      },
+      {
+        "id": "q4",
+        "question": "用自己的话向朋友解释「必要难度」原理。（费曼检验）",
+        "answer": "参考答案：你有个朋友的电话号码存在手机里，你从来没记住过，因为每次都直接点他的名字就拨出去了。现在假设你手机丢了，你拼命回忆他的号码，好不容易想起来了。从此以后，你反而牢牢记住了这个号码。这就是「必要难度」——正因为回忆的过程很费劲，成功回忆后记忆反而变得特别牢固。轻松得到的东西不珍惜，费力得到的东西才深刻。所以考试比复习更有效，因为考试迫使你费力地「挖」出记忆。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 3,
+    "chapterTitle": "打破学习的好习惯：环境的影响",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么在安静环境中学习并考试的学生，成绩反而最差？",
+        "answer": "史密斯的实验显示，安静环境的学生成绩只有音乐环境学生的一半（11个 vs 21个）。原因是「安静」缺乏任何可供编码的感知提示——没有旋律、没有节奏、没有声音特征。大脑没法把「不存在的声音」编入记忆，就像没法把没发生的事情当作提示。相比之下，爵士乐或古典乐提供了丰富的听觉背景，这些背景信息在考试时「还原」出来，帮助激活更多的记忆。"
+      },
+      {
+        "id": "q2",
+        "question": "大麻实验为什么说「内在心境提示」的效果其实并不强悍？",
+        "answer": "艾希的实验中，「自由回想」考试里，学+考状态一致的人成绩高40%——看起来内在提示很管用。但「依提示回想」考试里（考卷直接标出类别名称），所有组的成绩整齐划一，状态差异完全消失了。这说明大脑在不同状态下储存的单词数量差不多，只是「提取钥匙」不同。一旦给出明确的外部提示（类别名称），那把内在的「钥匙」就显得多余了。直接提醒的力量远大于内在心境的微弱提示。"
+      },
+      {
+        "id": "q3",
+        "question": "用自己的话解释，为什么换学习地点比固定地点更有效？（费曼检验）",
+        "answer": "参考答案：想象你要记住一个新朋友的名字。如果你只在一个派对上见过他，你只能通过回忆那个派对的场景来想起他。但如果你在派对上见过他一次，又在超市碰见他一次——现在你有两条路径可以找到他的名字：想起派对或者想起超市。换学习地点也是同样的道理：在图书馆学了一次法语，这些单词和荧光灯、书架的气味绑在了一起；在咖啡厅又学了一次，同样的单词又和咖啡香、爵士乐绑在了一起。考试时，大脑有两套线索可以搜索，自然比只有一套更容易找到答案。"
+      },
+      {
+        "id": "q4",
+        "question": "约翰·洛克那个「老木箱」的故事说明了什么学习原理？",
+        "answer": "那个舞者在有老木箱的房间里练习了无数次，以至于老木箱成了他舞蹈记忆的一部分——没有木箱他就跳不好。这说明在固定环境中反复练习，会让技能「依赖」于特定的环境线索。但现实中我们无法控制表现场合的环境。解决方法就是：主动变换练习环境，让技能不再绑定于任何特定的声音、物品或场所。这样做反而能让学到的东西更加「自由」，在任何环境下都能发挥出来。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 4,
+    "chapterTitle": "拉开时间间隔：化整为零记得久",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "艾宾浩斯发现了什么关于间隔效应的关键事实？",
+        "answer": "艾宾浩斯发现一组12个无意义音节：如果第一天练习68次+第二天练习7次（共75次，集中），能准确复述；但如果在3天内分散练习，总共只需38次就能达到同样的效果。次数几乎减半！他总结道：「同样的重复次数，若恰当地分成几组、拉开时间距离来完成，要比集中起来一次完成的效果明显好很多。」"
+      },
+      {
+        "id": "q2",
+        "question": "为什么巴利克家实验中，两个月的间隔反而比两个星期效果好50%？",
+        "answer": "三个原因叠加：1）更长的间隔意味着更多的遗忘，而「先损后增」效应告诉我们，遗忘后重新学习的记忆巩固效果更强；2）两个月的间隔提供了更多不同的环境背景线索，丰富了记忆编码；3）更大的间隔更容易暴露出哪些词是真正的弱项，让学习者能找到更有效的记忆策略来替换无效的方法。尽管每次复习时忘掉的词更多，但每次重新学习的增强效果也更大。"
+      },
+      {
+        "id": "q3",
+        "question": "如果三个月后有一场德语考试，请设计一个9小时的最佳复习计划。",
+        "answer": "根据怀斯哈特/帕什勒的研究，三个月后考试的最佳复习间隔约为2-3周。假设留15天复习时间：\n第1天：学习3小时（第一次接触/系统学习）\n第8天：复习3小时（间隔约1周，加深记忆）\n第14天：复习3小时（考前一天最终巩固）\n总时间9小时不变，但比通宵狂学9小时的效果好得多。学过的内容不仅能应付这次考试，还能记住好几个月，下学期开学考试也能考得更好。"
+      },
+      {
+        "id": "q4",
+        "question": "用自己的话向同学解释：为什么「临时抱佛脚」短期有效但长期无效？（费曼检验）",
+        "answer": "参考答案：临时抱佛脚就像把东西一股脑塞进一个纸袋——确实能装满，拿着走一段路也没问题，但纸袋很快就会撕裂，东西撒了一地。因为你的大脑只做了一次编码，只有一组环境提示、一层记忆连接。而且因为你学完就考，没有经历「遗忘-重新提取」的过程，也就没有触发「先损后增」的肌肉锻炼效应。分散式学习就像把同样的东西分几次放进一个结实的行李箱，每次放的时候都整理一下——放得少但每样都放得稳，最后反而装得更多、带得更久。而且每次重新打开行李箱整理的过程，本身就在加固你的记忆。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 5,
+    "chapterTitle": "先考试后学习：无知的潜在价值",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "什么是「熟练度错觉」？它为什么是考试失利的真正元凶？",
+        "answer": "「熟练度错觉」是指我们因为刚学过某些内容、觉得很「眼熟」，就误以为自己已经掌握了。划荧光线、做大纲、看章节概要都会加强这种错觉。它让我们对「哪些内容还需复习」做出误判，以为已经「拿下」了，不再去复习。等到考试时，才发现认得≠记住。这才是大多数考试失败的真正原因——不是焦虑症，不是智商不够，而是被「熟练度」骗了。"
+      },
+      {
+        "id": "q2",
+        "question": "盖茨实验发现的「学习与背诵最佳时间配比」是多少？为什么这个比例有效？",
+        "answer": "盖茨让100多名学生用不同比例的时间来「阅读学习」和「凭记忆背诵」，最终发现最佳比例是：30%~40%的时间用于阅读，60%~70%的时间用于凭记忆背诵。这个比例有效是因为：从大脑中「提取」记忆比被动重读付出的努力更多，而这份额外的努力同时加强了信息的储存能力和提取能力，符合比约克夫妇的「必要难度」原则。"
+      },
+      {
+        "id": "q3",
+        "question": "预考（先考后学）为什么能提高学习效果？哪怕你全都答错了？",
+        "answer": "预考有效的可能原因有三个：\n1. 必要难度——先猜测后学习让大脑运作得更费力，记忆更深刻\n2. 消除熟练度错觉——你不会因为一眼看到正确答案就误以为自己会了\n3. 暴露干扰项——预考让你提前见到可能的错误选项，考试时不会被迷惑\n比约克夫人的100B班实验证明：预考过的内容比未预考的高出10%。猜错本身就让大脑预先标记了「哪些概念需要注意」。"
+      },
+      {
+        "id": "q4",
+        "question": "用费曼方法向朋友解释：为什么「把学过的东西讲给别人听」是最好的学习方式之一？",
+        "answer": "参考答案：想象你去旅游回来，朋友问你「那个城市怎么样？」如果你只是翻出照片给他看，你自己脑子里的记忆并没有加深。但如果你关掉手机，凭记忆讲述你的经历——走过哪些街道、吃了什么美食、遇见了什么趣事——你会发现：能讲清楚的部分记得特别牢，讲不清楚的部分暴露了你其实没太注意。\n这就是「考试效应」的本质：主动提取比被动复习效果好20%~30%。而且讲述过程中你会自动重新组织信息、建立新的联结，相当于用不同路径重新存储了一遍记忆。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 6,
+    "chapterTitle": "孵化：沉淀思维离不开分心",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "沃拉斯提出的创造性思维四阶段分别是什么？「孵化期」为什么是其中最关键的一步？",
+        "answer": "四个阶段是：准备期（深入研究问题直到穷尽思路）→ 孵化期（搁置问题去做别的事）→ 顿悟期（「啊哈！」灵光一现）→ 验证期（确认答案是否正确）。\n孵化期是最关键的一步，因为沃拉斯发现这不是简单的「休息恢复体力」，而是大脑在潜意识中继续工作——把新旧信息重新排列组合，一会儿把这些念头推到一边，一会儿把那些想法揉合到一起，就像心不在焉地摆弄七巧板。"
+      },
+      {
+        "id": "q2",
+        "question": "邓克尔的蜡烛实验揭示了什么思维陷阱？这对日常解决问题有什么启发？",
+        "answer": "邓克尔实验揭示了「功用限制」——当盒子里装着东西时，我们自动把盒子看作「容器」而非可利用的工具，就好像我们的眼里根本没有这些盒子。一旦把盒子腾空，人们就能想到把盒子固定到门上当蜡烛的平台。\n日常启发：我们花5分钟翻箱倒柜找剪刀开邮包，却没想到兜里的钥匙也能用。大多数时候，解决方案就在眼前，只是被我们的预设假设（「钥匙是开门用的，不是拆包裹用的」）挡住了视线。"
+      },
+      {
+        "id": "q3",
+        "question": "根据荟萃分析的结论，面对不同类型的难题，应该选择什么样的休息方式？",
+        "answer": "2009年兰卡斯特大学的荟萃分析（37项研究）发现：\n- 数学/空间类难题（如铅笔谜题）：三种休息方式（放松、轻度用脑、高度用脑）都有效，选哪种都行\n- 语言类难题（如字谜、远程联想）：轻度用脑（如电子游戏、看电视）效果最好\n- 20分钟休息比5分钟效果更好\n但有一个重要前提：必须真正被卡住（黔驴技穷）后再休息才有效，早早跑去玩只会得不偿失。"
+      },
+      {
+        "id": "q4",
+        "question": "用你自己的话解释「选择性遗忘」如何帮助我们突破思维僵局。",
+        "answer": "参考答案：想象你在找一家药店，别人说「就在街尽头」，你走过去左右看了几圈也没找到。你越纠结「药店肯定就在附近」，思路越被锁死。但当你泄气了坐在凳子上对着小鸟发呆一会儿后，新的可能性开始浮现：也许他说的是对面那头？也许药店搬家了？\n这就是「选择性遗忘」的作用——休息让你之前顽固的错误假设渐渐松动、解冻，大脑不再被那个错误方向锁住，其他可能的思路终于有机会浮出水面。史密斯实验中，有误导词的学生休息5分钟后解题数翻倍，就是因为那些误导词的「冻结」效果被时间融化了。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 7,
+    "chapterTitle": "渗滤：适度中断，先退一退",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "「蔡加尼克效应」是什么？它对学习策略有什么实际指导意义？",
+        "answer": "蔡加尼克效应是指：被打断而未完成的任务，比已经完成的任务在记忆中保留的时间更长、优先级更高。蔡加尼克的实验中，参与者能记住的未完成任务比已完成任务多近90%。\n实际指导意义：写论文或做复杂项目时，不必非要一口气做完。在关键时刻主动停下来（就像电视剧的悬念结尾），大脑会自动把这个未完成的任务推到首位，让你在日常生活中持续关注与之相关的信息。这就是渗滤的第一步。"
+      },
+      {
+        "id": "q2",
+        "question": "渗滤的三个要素是什么？用比萨尔糖实验解释第二个要素。",
+        "answer": "渗滤的三个要素是：1. 中断（蔡加尼克效应，让任务占据大脑首位）；2. 感知采集（目标激活感知雷达，持续捕获相关信息）；3. 有意识的反思（写笔记记录思考）。\n比萨尔糖实验解释第二要素：阿尔兹让一组学生吃下令人口渴的糖，另一组不吃。然后两组人在同一间办公室待4分钟。口渴组记住的跟水相关的物品是对照组的两倍——他们无意中注意到了水瓶、水杯、饮料罐盖子。这说明一旦大脑有了首要目标（口渴→想喝水），感知系统就会被调动起来，自动搜索环境中与目标相关的一切。"
+      },
+      {
+        "id": "q3",
+        "question": "孵化（上一章）和渗滤（本章）有什么本质区别？各自适用于什么场景？",
+        "answer": "孵化是「速效药」——短暂的5~20分钟休息，适用于需要灵光一现、一锤定音的谜题（如几何证明、字谜、铅笔谜题）。关键时刻是那个「啊哈！」的瞬间。\n渗滤是「长效药」——数天到数周的持续浸泡，适用于旷日持久的复杂创作项目（如论文、建筑设计、音乐创作、软件开发）。灵感不是一次性爆发，而是像咖啡渗滤一样零碎地、一点一点地冒出来。\n两者互补：做复杂项目时，宏观上靠渗滤（长期浸泡），碰到具体技术难点时靠孵化（短暂休息后灵光一现）。"
+      },
+      {
+        "id": "q4",
+        "question": "如果你正在写一篇毕业论文，根据本章学到的知识，设计一个利用渗滤的学习计划。",
+        "answer": "参考方案：\n1. 尽早破土动工——不必等「准备好」再开始。哪怕只写一个提纲或者搜集几篇参考文献，项目就开始「收缩」了\n2. 设置策略性中断——在写到困难段落或关键论点时主动停下来（蔡加尼克效应会让大脑持续惦记它），去做别的事\n3. 拆分「练习作业」——像戴夫利那样，设定多个小阶段任务（采访专家、分析核心概念、回应反方观点），让论文主题反复回到大脑首位\n4. 写反思笔记——每次做完调研后，记录自己的感受和想法（「我觉得这篇论文的论据有漏洞」），而不只是摘抄\n5. 保持感知雷达开启——带着论文主题去生活，地铁上听到的对话、新闻中的案例、朋友的闲聊都可能成为素材\n核心理念：不是「先准备好再写」，而是「写着写着就准备好了」。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 8,
+    "chapterTitle": "交替：混杂在一起印象更深",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "在沙包实验中，为什么从未练习过1米靶心的孩子反而比专门练习1米靶心的孩子成绩更好？",
+        "answer": "交替投掷0.5米和1.2米两个靶心，迫使孩子的身体内化了投掷动作的基本法则（力度、角度与距离的关系），而非死记硬背某个特定距离的肌肉记忆。这种对基本规律的掌握使他们对任何距离的目标都更有准头，包括从未练过的1米距离。"
+      },
+      {
+        "id": "q2",
+        "question": "为什么单元考试成绩好的学生，在综合大考中往往会栽跟头？",
+        "answer": "单元考试时，学生已经知道要用什么解法（因为这一单元学的就是这个），所以不需要辨别题型，直接套用公式即可。但综合大考中，不同题型混杂在一起，学生必须首先辨别「这是一道什么类型的题」，再选择合适的解法。集中式学习从未训练过这种辨别能力，所以临场就会崩溃。正如罗勒所说：「如果作业纸上端标明是二次方程式，你做作业时想都不想就会通篇使用该公式的解法。」"
+      },
+      {
+        "id": "q3",
+        "question": "用你自己的话向一个朋友解释，为什么「感觉学得更慢」的方法反而学得更好？（费曼检验）",
+        "answer": "参考答案：想象你在学认路。方法A是每天走同一条路100遍，方法B是每天随机走不同的路。方法A让你很快就能闭着眼走那条路，感觉进步飞快。但换一条新路你就迷了。方法B每次都要动脑筋判断方向，感觉很费劲、进步很慢，但你慢慢建立起了整个城市的「内部地图」。到最后，方法B的人能去任何地方，而方法A的人只会走那一条路。交替学习就是方法B——它逼你每次都动脑判断，虽然慢，但学到的是真本事。"
+      },
+      {
+        "id": "q4",
+        "question": "交替学习和第4章讲的「间隔学习」有什么异同？",
+        "answer": "相同点：两者都属于比约克所说的「必要难度」，都会导致短期内遗忘一些内容，但长期效果更好。不同点：间隔学习是把同一内容的学习时间打散到不同日子（时间维度的分散）；交替学习是把不同内容混合到同一次练习中（内容维度的混合）。两者可以叠加使用：你既可以打散学习时间，又可以在每次学习中把不同题型混在一起，双重增强效果。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 9,
+    "chapterTitle": "不加思考地习得：感知的力量",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么象棋大师考虑的下一步对策反而比新手更少？",
+        "answer": "大师通过多年训练培养出了知觉学习能力——一眼就能把棋盘上的棋子汇编成几个有意义的「组块」，每个组块包含他们熟悉的棋局排布。这让他们能瞬间排除掉无效的选项，只关注最有价值的几种走法。新手没有这种「好眼力」，什么都觉得可能有用，反而考虑得更多但效率更低。正如蔡斯和西蒙所说：大师看到的不是「更多」，而是「更准」。"
+      },
+      {
+        "id": "q2",
+        "question": "知觉学习模块（PLM）的设计有哪些关键要素？为什么每一个都很重要？",
+        "answer": "四个关键要素：\n1. 快速判断：每题只给几秒，迫使感知系统而非分析系统工作——知觉学习的核心是「感觉到」而非「想明白」\n2. 即时反馈：对了铃声、错了立刻显示正确答案——帮助感知系统自主修正\n3. 大量重复：上百次判断——给感知系统足够的训练样本\n4. 混合呈现：不同类别交替出现——强迫你练习辨别而非记忆特定答案"
+      },
+      {
+        "id": "q3",
+        "question": "吉布森的圈圈串实验推翻了当时心理学界的什么主流观点？",
+        "answer": "推翻了「刺激-反应」（S-R）理论。当时的行为主义心理学认为学习本质上是一种条件反射——必须有奖励（奶酪）或惩罚（电击）才能让大脑建立关联。但吉布森的实验表明，参与者在完全没有反馈（不告诉对错）的情况下，纯粹通过观看就学会了辨别细微差异。这证明大脑天生具备主动提取感知信息的能力，不需要外部力量的介入。"
+      },
+      {
+        "id": "q4",
+        "question": "如果你想自制一套知觉学习模块来学辨别不同类型的化学键，你会怎么设计？（费曼检验）",
+        "answer": "参考答案：\n1. 搜集素材：找到5-8种化学键类型（离子键、共价键、金属键、氢键等），每种准备10-15张图片或示意图\n2. 打乱顺序：把所有图片混在一起，不要按类型分组\n3. 做成快速判断卡：每张图出现后，从选项中快速选择键的类型\n4. 设置反馈：选对了显示对勾，选错了立刻显示正确答案\n5. 控制节奏：每张图只给2-3秒判断时间，不要停下来分析\n6. 反复刷：每个小节10分钟，做4-6个小节\n7. 用新图测试：最后用从未见过的化学键图片测试自己\n关键是速度要快，让感知系统而非分析系统做判断。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 10,
+    "chapterTitle": "打个盹儿就能赢：睡眠巩固学习",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么门捷列夫、凯库勒这样的科学家能在梦中获得重大灵感？这和睡眠的哪个阶段有关？",
+        "answer": "这和REM（快速眼动）睡眠阶段有关。在REM阶段，大脑的神经元高度活跃，忙于进行模式识别——帮我们感知白天清醒思维中显现不出来的各种关系和联结。门捷列夫花了好几个通宵试图排列元素，大量信息已经存入大脑，但清醒时的思维框架限制了他发现正确的排列。REM阶段打破了这种思维限制，让大脑自由地把信息重新组合，最终在梦中「看见」了元素周期表。"
+      },
+      {
+        "id": "q2",
+        "question": "如果一个运动员明天有重要比赛，教练让他凌晨5点起床训练。根据本章的睡眠理论，这个做法对不对？为什么？",
+        "answer": "这个做法是错误的。根据「夜班理论」，运动技能（运动记忆）的巩固主要发生在第2阶段睡眠，而第2阶段集中在后半夜，尤其是醒来前最后几小时。凌晨5点起床会砍掉这段关键的运动记忆巩固时间，削弱前一天训练的成果。正如卡莱尔·史密斯所说：「不妨晚点睡，但不要起太早。有些教练偏要让运动员早晨5点起床，这简直是瞎胡闹。」"
+      },
+      {
+        "id": "q3",
+        "question": "用你自己的话解释「夜班理论」——大脑的夜班工人分别负责什么？（费曼检验）",
+        "answer": "参考答案：想象大脑有一个三班制的夜班团队。\n\n第一班（深度睡眠，前半夜上班）：「档案管理员」。负责把白天学到的新事实——名字、公式、日期——整理归档到长期记忆的柜子里。\n\n第二班（第2阶段，后半夜上班）：「动作教练」。负责回放和打磨你白天练习的动作——钢琴指法、投篮姿势、开车技巧——让肌肉记忆更精确。\n\n第三班（REM阶段，后半夜上班）：「创意总监」。负责把白天收集的各种信息碎片重新排列组合，寻找隐藏的规律和联系，还顺便帮你做心理治疗——把焦虑情绪「剥」掉，只保留有用的记忆内容。\n\n三个班组轮流工作4-5个循环。砍掉任何一个班次，对应的学习就会打折扣。"
+      },
+      {
+        "id": "q4",
+        "question": "午睡1小时的学习效果怎么能和整晚8小时差不多？这不是违反直觉吗？",
+        "answer": "这确实违反直觉，但梅德尼克的研究发现，1-1.5小时的午睡中，大脑常常也会进入深度睡眠期和REM阶段——虽然时间短，但两个关键巩固阶段都经历了。这就像一次「精简版」的整夜睡眠。当然有两个限制：第一，午睡不能完全替代夜间睡眠，因为夜间有4-5个完整循环提供更充分的巩固；第二，午睡的效果特别适用于早上学过的内容，帮助在当天傍晚的测试中表现更好。总之，午睡是一个高性价比的学习辅助工具。"
+      }
+    ]
+  }
+];
+const chapterManifest = [
+  {
+    "num": 1,
+    "slug": "ch01",
+    "title": "编故事的能手：大脑学习的机制",
+    "titleEn": "The Storyteller: How the Brain Learns",
+    "icon": "🎬"
+  },
+  {
+    "num": 2,
+    "slug": "ch02",
+    "title": "遗忘的威力：过滤干扰，激活宝藏",
+    "titleEn": "The Power of Forgetting",
+    "icon": "🧹"
+  },
+  {
+    "num": 3,
+    "slug": "ch03",
+    "title": "打破学习的好习惯：环境的影响",
+    "titleEn": "Breaking Good Habits: Context Effects",
+    "icon": "🔄"
+  },
+  {
+    "num": 4,
+    "slug": "ch04",
+    "title": "拉开时间间隔：化整为零记得久",
+    "titleEn": "Spacing Effect: Distribute to Remember",
+    "icon": "⏱️"
+  },
+  {
+    "num": 5,
+    "slug": "ch05",
+    "title": "先考试后学习：无知的潜在价值",
+    "titleEn": "Test First, Study Later",
+    "icon": "📝"
+  },
+  {
+    "num": 6,
+    "slug": "ch06",
+    "title": "孵化：沉淀思维离不开分心",
+    "titleEn": "Incubation: The Role of Distraction",
+    "icon": "🥚"
+  },
+  {
+    "num": 7,
+    "slug": "ch07",
+    "title": "渗滤：适度中断，先退一退",
+    "titleEn": "Percolation: The Value of Interruption",
+    "icon": "☕"
+  },
+  {
+    "num": 8,
+    "slug": "ch08",
+    "title": "交替：混杂在一起印象更深",
+    "titleEn": "Interleaving: Mix It Up",
+    "icon": "🔀"
+  },
+  {
+    "num": 9,
+    "slug": "ch09",
+    "title": "不加思考地习得：感知的力量",
+    "titleEn": "Perceptual Learning: Effortless Mastery",
+    "icon": "👁️"
+  },
+  {
+    "num": 10,
+    "slug": "ch10",
+    "title": "打个盹儿就能赢：睡眠巩固学习",
+    "titleEn": "Sleep on It: Memory Consolidation",
+    "icon": "😴"
+  }
+];
+
+(function() {
+    const container = document.getElementById('quizContainer');
+    const scoreBar = document.getElementById('scoreBar');
+
+    if (typeof allQuizData === 'undefined' || !allQuizData || !allQuizData.length) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔀</div><div>No quiz data available yet.</div></div>';
+        return;
+    }
+
+    // Flatten and shuffle questions
+    let questions = [];
+    allQuizData.forEach(ch => {
+        (ch.questions || []).forEach(q => {
+            questions.push({ ...q, chapterNum: ch.chapterNum, chapterTitle: ch.chapterTitle });
+        });
+    });
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    let shuffled = shuffle([...questions]);
+    let mode = 'random';
+    let correct = 0, total = 0;
+
+    function updateScore() {
+        document.getElementById('scoreCorrect').textContent = correct;
+        document.getElementById('scoreTotal').textContent = total;
+        document.getElementById('scorePct').textContent = total > 0 ? Math.round(correct / total * 100) + '%' : '—';
+    }
+
+    function renderQuiz() {
+        scoreBar.style.display = mode === 'chapter-id' ? 'flex' : 'none';
+        container.innerHTML = '';
+        shuffled = shuffle([...questions]);
+        correct = 0; total = 0; updateScore();
+
+        shuffled.forEach((q, i) => {
+            const card = document.createElement('div');
+            card.className = 'quiz-card fade-in';
+
+            if (mode === 'random') {
+                const chTag = `<span class="quiz-chapter-tag hidden">CH.${String(q.chapterNum).padStart(2, '0')}</span>`;
+                card.innerHTML = `
+                    ${chTag}
+                    <div class="quiz-question">${q.question}</div>
+                    <div class="quiz-answer"><div>${q.answer}</div><div style="margin-top:8px;font-family:var(--font-mono);font-size:0.75rem;color:var(--accent3)">— Chapter ${q.chapterNum}: ${q.chapterTitle}</div></div>
+                    <div class="quiz-toggle">CLICK TO REVEAL</div>`;
+                card.addEventListener('click', function() {
+                    if (this.classList.contains('open')) return;
+                    this.classList.add('open');
+                    const ans = this.querySelector('.quiz-answer');
+                    ans.style.maxHeight = ans.scrollHeight + 'px';
+                    this.querySelector('.quiz-toggle').textContent = '';
+                    const tag = this.querySelector('.quiz-chapter-tag');
+                    tag.className = 'quiz-chapter-tag visible';
+                });
+            } else {
+                // Chapter-ID mode
+                card.innerHTML = `
+                    <span class="quiz-chapter-tag hidden">WHICH CHAPTER?</span>
+                    <div class="quiz-question">${q.question}</div>
+                    <div class="chapter-picker" id="picker-${i}"></div>
+                    <div class="quiz-answer"><div>${q.answer}</div></div>`;
+                card.style.cursor = 'default';
+
+                // Build chapter picker after insertion
+                setTimeout(() => {
+                    const picker = document.getElementById('picker-' + i);
+                    if (!picker) return;
+                    const chNums = [...new Set(questions.map(x => x.chapterNum))].sort((a, b) => a - b);
+                    chNums.forEach(num => {
+                        const btn = document.createElement('button');
+                        btn.className = 'ch-pick-btn';
+                        btn.textContent = 'Ch.' + num;
+                        btn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            if (picker.dataset.answered) return;
+                            picker.dataset.answered = 'true';
+                            total++;
+                            if (num === q.chapterNum) {
+                                correct++;
+                                btn.classList.add('correct');
+                                card.classList.add('correct');
+                            } else {
+                                btn.classList.add('wrong');
+                                card.classList.add('incorrect');
+                                // Highlight correct
+                                picker.querySelectorAll('.ch-pick-btn').forEach(b => {
+                                    if (b.textContent === 'Ch.' + q.chapterNum) b.classList.add('correct');
+                                });
+                            }
+                            updateScore();
+                            // Reveal answer
+                            card.classList.add('open');
+                            const ans = card.querySelector('.quiz-answer');
+                            ans.style.maxHeight = ans.scrollHeight + 'px';
+                            const tag = card.querySelector('.quiz-chapter-tag');
+                            tag.className = 'quiz-chapter-tag visible';
+                            tag.textContent = 'CH.' + String(q.chapterNum).padStart(2, '0');
+                        });
+                        picker.appendChild(btn);
+                    });
+                }, 0);
+            }
+            container.appendChild(card);
+        });
+
+        // Observe fade-ins
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        container.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+    }
+
+    // Mode buttons
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            mode = this.dataset.mode;
+            renderQuiz();
+        });
+    });
+
+    // Reset
+    document.getElementById('resetBtn').addEventListener('click', renderQuiz);
+
+    // Spaced review schedule
+    (function() {
+        const grid = document.getElementById('scheduleGrid');
+        const intervals = [
+            { label: 'TODAY', days: 0 },
+            { label: '+1 DAY', days: 1 },
+            { label: '+3 DAYS', days: 3 },
+            { label: '+7 DAYS', days: 7 },
+            { label: '+14 DAYS', days: 14 },
+            { label: '+30 DAYS', days: 30 },
+        ];
+        const now = new Date();
+        intervals.forEach(iv => {
+            const d = new Date(now);
+            d.setDate(d.getDate() + iv.days);
+            const dateStr = d.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+            const card = document.createElement('div');
+            card.className = 'schedule-card fade-in';
+            card.innerHTML = `<div class="schedule-interval">${iv.label}</div><div class="schedule-date">${dateStr}</div>`;
+            grid.appendChild(card);
+        });
+    })();
+
+    renderQuiz();
+
+    // Global fade-in observer for schedule cards
+    const obs2 = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs2.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.schedule-grid .fade-in').forEach(el => obs2.observe(el));
+})();
+</script>
+</body>
+</html>

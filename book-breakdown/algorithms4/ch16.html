@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>无向图 · Undirected Graphs | Chapter 16</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: code-evolution */
+.evolution-timeline { position: relative; padding-left: 50px; }
+.evolution-timeline::before { content: ''; position: absolute; left: 30px; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--accent), var(--accent3), var(--accent2)); border-radius: 2px; }
+.evo-step { position: relative; padding-left: 30px; margin-bottom: 2rem; }
+.evo-dot { position: absolute; left: -30px; top: 5px; width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--accent); background: var(--bg); z-index: 1; }
+.evo-step.active .evo-dot { background: var(--accent); box-shadow: 0 0 12px rgba(108,99,255,0.5); }
+.evo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all 0.3s; }
+.evo-card:hover { border-color: var(--accent); }
+.evo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+.evo-title { font-weight: 700; }
+.evo-speed { font-family: var(--font-mono); font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 1rem; }
+.evo-speed.success { background: rgba(52,211,153,0.15); color: var(--success); }
+.evo-speed.danger { background: rgba(248,113,113,0.15); color: var(--danger); }
+.evo-speed.neutral { background: rgba(136,136,160,0.15); color: var(--text-dim); }
+.evo-desc { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 10px; }
+.evo-code { background: #12141c; border: 1px solid #1e2030; border-radius: 0.5rem; padding: 1rem; font-family: var(--font-mono); font-size: 0.8rem; color: #a0a0c0; overflow-x: auto; white-space: pre; }
+
+
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
+/* Block: pipeline */
+.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
+.pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(108,99,255,0.3); }
+.pipe-node.highlight { background: linear-gradient(135deg, var(--accent2), #ef4444); }
+.pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
+.pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
+@media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
+
+
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 16 / 25 · Part IV · Graphs 图</div>
+        <div class="hero-icon">🕸️</div>
+        <h1 class="hero-title">无向图</h1>
+        <p class="hero-sub">如同城市之间的公路网络一样，无向图用最朴素的「连接」关系建模万物之间的关联——掌握 DFS 和 BFS 就等于拿到了探索这张网络的指南针和地图</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">核心类比：图就是一张关系网</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">🏰</div>
+            <div class="analogy-label">探索迷宫</div>
+            <div class="analogy-desc">迷宫由通道和交叉口组成
+用线团标记走过的路，避免重复
+走到死胡同就沿线团回退
+Tremaux 探索法保证走遍所有通道</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">🕸️</div>
+            <div class="analogy-label">搜索无向图</div>
+            <div class="analogy-desc">图由边(edge)和顶点(vertex)组成
+用 marked[] 数组标记访问过的顶点
+递归返回相当于沿线团回退
+DFS 保证访问所有连通的顶点和边</div>
+        </div>
+    </div>
+    
+</section>
+
+<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">图的三种表示法：该选哪个？</div>
+    <div class="comparison-grid">
+        <div class="comparison-side hard">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">邻接矩阵</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">// V x V 布尔矩阵
+boolean[][] adj = new boolean[V][V];
+
+// 添加边 v-w
+adj[v][w] = true;
+adj[w][v] = true;
+
+// 空间: V^2 (百万顶点 = 万亿空间!)
+// 检查邻接: O(1)
+// 遍历邻居: O(V)</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side smart">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">邻接表 (本章选择)</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">// V 个链表/Bag
+Bag<Integer>[] adj = new Bag[V];
+
+// 添加边 v-w
+adj[v].add(w);
+adj[w].add(v);  // 每条边存两次
+
+// 空间: V + E (稀疏图友好!)
+// 添加边: O(1)
+// 遍历邻居: O(degree(v))</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">真实世界的图几乎都是稀疏图(边数 E 远小于 V^2)。邻接表在空间和遍历效率上都是最优选择。
+邻接矩阵唯一的优势是 O(1) 判断两点是否相邻，但这个操作在大多数算法中并不需要。</div></div>
+</section>
+
+<!-- Block: code-evolution — Step-by-step code transformation timeline -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">从 DFS 到 BFS：搜索策略的演进</div>
+    <p class="section-intro" style="color:var(--text-dim);margin-bottom:2rem;">DFS 和 BFS 的代码框架几乎相同，唯一的区别在于数据结构：栈 vs 队列。这个微小的变化带来完全不同的搜索行为。</p>
+    <div class="evolution-timeline" id="evoTimeline-block3"></div>
+</section>
+
+<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
+<section id="sec-block4" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">DFS vs BFS：同一个图，两种视角</div>
+    <div class="comparison-grid">
+        <div class="comparison-side hard">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">DFS (深度优先)</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">数据结构: 栈 (LIFO / 递归调用栈)
+搜索策略: 一条路走到黑, 碰壁再回头
+路径特点: 长且曲折
+适用场景: 连通性检测, 环检测, 二分图判定
+
+类比: 一个人独自探索迷宫
+      手持线团, 走到死胡同就回退</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side smart">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">BFS (广度优先)</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">数据结构: 队列 (FIFO)
+搜索策略: 层层推进, 由近及远
+路径特点: 最短路径
+适用场景: 最短路径, 分离度问题
+
+类比: 一群人同时扇形展开搜索
+      每到岔路口就分头行动</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">两者的通用框架完全相同——把源点放入数据结构，然后循环取出顶点、标记、把未标记的邻居放入数据结构。
+唯一区别：取出规则是 LIFO(DFS) 还是 FIFO(BFS)。这个微小的差异导致了完全不同的搜索行为。</div></div>
+</section>
+
+<!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block5" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">🧩 </div>
+        <div class="insight-content">连通分量(CC)将图划分为若干「互不相连的子图」。DFS 的实现极其优雅：
+对每个未标记的顶点启动一次 DFS，每次 DFS 能到达的所有顶点就构成一个连通分量。
+预处理后，判断任意两点是否连通只需 O(1) 时间——只要比较它们的分量编号 id[v] == id[w]。
+
+与 Union-Find 相比：DFS 预处理后查询是常数时间(更快)，但需要先构建完整的图；
+Union-Find 是在线算法，可以边加边边查询，不需要提前知道所有边。各有优势。</div>
+    </div>
+</section>
+
+<!-- Block: pipeline — Flow diagram with connected nodes -->
+<section id="sec-block6" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">符号图：从整数索引到真实世界</div>
+    <div class="pipeline-flow" id="pipeline-block6"></div>
+    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;">SymbolGraph 构建流程 (两遍扫描)</div>
+</section>
+
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block7" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">实战要点速查</div>
+    <div class="tips-grid" id="tipsGrid-block7"></div>
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "无向图 = 一组顶点 + 一组无方向的边。核心操作是「给我顶点 v 的所有邻居」(adj(v))，所有算法都建立在这个简单接口之上"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "想象一群人站在广场上，有些人之间牵着绳子。你从一个人出发，沿着绳子去找所有直接或间接连在一起的人——DFS 就是「一条路走到黑再回头」，BFS 就是「先找一步之遥的人，再找两步之遥的人」"
+  },
+  {
+    "step": 3,
+    "title": "发现盲点",
+    "desc": "邻接矩阵看起来简单直观，但百万顶点就需要万亿级布尔值的内存！真实世界的图几乎都是稀疏图，邻接表才是正确选择。另外，DFS 找到的路径往往又长又弯，要找最短路径必须用 BFS"
+  },
+  {
+    "step": 4,
+    "title": "简化与类比",
+    "desc": "DFS 像一个人独自探索迷宫，手里拿着线团标记走过的路；BFS 像一群人同时向四面八方扇形展开搜索。DFS 用栈（递归调用栈），BFS 用队列——数据结构的选择决定了搜索的策略"
+  }
+];
+const takeaways = [
+  {
+    "icon": "🕸️",
+    "title": "邻接表是王道",
+    "text": "真实世界的图几乎都是稀疏图。邻接表空间 O(V+E)、添加边 O(1)、遍历邻居 O(degree)——三项全能。邻接矩阵在稀疏图上浪费 V^2 空间，几乎不实用。"
+  },
+  {
+    "icon": "🔍",
+    "title": "DFS = 一个人 + 线团",
+    "text": "DFS 像独自探索迷宫：一条路走到黑，碰壁回头。递归天然实现了栈结构。它能解决连通性、环检测、二分图判定等问题，但找到的路径不一定最短。"
+  },
+  {
+    "icon": "📏",
+    "title": "BFS = 最短路径之钥",
+    "text": "BFS 用队列替代栈，保证按距离递增的顺序访问顶点。这意味着 BFS 找到的路径一定是最短的(边数最少)。Kevin Bacon 游戏就是 BFS 的经典应用。"
+  },
+  {
+    "icon": "🧩",
+    "title": "连通分量一次搞定",
+    "text": "对每个未访问的顶点启动一次 DFS，就能把图分成若干连通分量。预处理后，判断任意两点连通性只需 O(1) 时间。"
+  },
+  {
+    "icon": "🏗️",
+    "title": "设计模式：构造器预处理",
+    "text": "图处理的通用模式：构造器中做预处理(DFS/BFS 建树)，然后用查询方法 O(1) 回答客户端问题。这是「一次投入，多次回报」的典范。"
+  }
+];
+const quiz = [
+  {
+    "id": "q1",
+    "question": "为什么本章选择邻接表而不是邻接矩阵来表示图？在什么场景下邻接矩阵可能更合适？",
+    "answer": "邻接表选择的理由：(1) 空间 O(V+E)，对稀疏图友好——真实世界的图几乎都是稀疏图；(2) 添加边 O(1)；(3) 遍历邻居 O(degree(v))。\n邻接矩阵需要 V^2 空间，百万顶点就意味着万亿级存储，完全不可行。\n邻接矩阵的适用场景：图非常稠密(边数接近 V^2)，且需要频繁判断两个特定顶点是否相邻(O(1) 查询)。例如小规模稠密图的特定算法中。"
+  },
+  {
+    "id": "q2",
+    "question": "DFS 和 BFS 的代码框架几乎相同，唯一的关键区别是什么？这个区别如何导致完全不同的搜索行为？",
+    "answer": "唯一的关键区别是用于暂存待访问顶点的数据结构：DFS 用栈(LIFO)，BFS 用队列(FIFO)。\nDFS 的栈意味着总是优先处理最近发现的顶点——所以它像一个人沿着一条路一直走到底。\nBFS 的队列意味着总是优先处理最早发现的顶点——所以它按距离从近到远逐层扩展。\n结果：DFS 的路径往往又长又弯曲，BFS 的路径保证是最短的(边数最少)。"
+  },
+  {
+    "id": "q3",
+    "question": "用 DFS 实现连通分量(CC)后，判断两个顶点是否连通的时间复杂度是多少？与 Union-Find 相比有什么优劣？",
+    "answer": "CC 预处理后，判断连通性只需 O(1)——直接比较 id[v] == id[w]。\n与 Union-Find 对比：\n- CC 优势：查询严格 O(1)，Union-Find 是接近 O(1) 但非严格常数(含反 Ackermann 因子)。\n- CC 劣势：需要先构建完整的图再预处理，不能在加边过程中实时查询。\n- UF 优势：它是在线算法，可以边加边边查询连通性。\n结论：如果需要在线查询用 UF，如果图已经构建好且查询量大用 CC。"
+  },
+  {
+    "id": "q4",
+    "question": "用你自己的话，向一个不懂编程的朋友解释 BFS 如何找到最短路径。(费曼检验！)",
+    "answer": "参考答案：想象你站在一个巨大的社交聚会上，你想找到你和某个陌生人之间最短的「朋友链」。\n你先问你所有直接认识的朋友：「你认识那个人吗？」——这是距离 1。\n如果没找到，你让每个朋友再去问他们自己的朋友——这是距离 2。\n每一轮，你都让当前这一圈人同时向外扩展一步。\n因为你是按「距离」从近到远一圈一圈扩展的，所以第一次找到目标的那条路，一定是最短的。\nBFS 的队列就是用来保证这个「先近后远」顺序的工具。"
+  },
+  {
+    "id": "q5",
+    "question": "Kevin Bacon 游戏的本质是什么图算法问题？为什么必须用 BFS 而不是 DFS？",
+    "answer": "Kevin Bacon 游戏的本质是：在一个二部图(电影-演员)上求从 Kevin Bacon 到目标演员的最短路径。Bacon number = BFS 树中的距离 / 2 (除以 2 是因为经过电影节点)。\n必须用 BFS 的原因：DFS 可以找到一条路径，但不保证是最短的——它可能绕很大一圈。只有 BFS 按距离递增顺序探索，才能保证第一次到达目标时走的是最短路径(命题 B)。\n例如 Tom Hanks 和 Kevin Bacon 实际只隔一部 Apollo 13(Bacon number = 1)，但 DFS 可能找到一条经过 5 部电影的迂回路径。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "你能想到几种方式来存储一个「谁和谁是朋友」的关系数据？各有什么优缺点？",
+    "hint": "想想表格(矩阵)vs 列表 vs 边的集合，重点考虑空间占用和查询效率"
+  },
+  {
+    "question": "如果让你在一张地图上找从 A 到 B 的最短路线(不考虑距离，只考虑经过的站点数)，你会用什么策略？",
+    "hint": "你会选择一条路走到底再回头，还是从 A 出发一圈圈向外扩展？"
+  },
+  {
+    "question": "社交网络中的「六度分隔」理论是什么意思？你觉得它和图算法有什么关系？",
+    "hint": "想想 Kevin Bacon 游戏和 BFS"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "邻接表在所有场景下都优于邻接矩阵",
+    "evidence": "邻接表空间 O(V+E)，添加边 O(1)，遍历邻居 O(degree)。对于稀疏图(E 远小于 V^2)这确实是最优的，而真实应用中的图几乎都是稀疏的",
+    "counterpoint": "邻接矩阵判断两顶点是否相邻只需 O(1)，邻接表需要 O(degree)。对于稠密图(E 接近 V^2)，邻接矩阵的空间劣势不明显，且常数因子更小。某些算法(如 Floyd-Warshall 全源最短路径)天然适配矩阵表示"
+  },
+  {
+    "claim": "DFS 预处理连通分量比 Union-Find 更好",
+    "evidence": "DFS 预处理后查询严格 O(1)，Union-Find 的 find 操作有反 Ackermann 因子(虽然接近 O(1) 但非严格常数)",
+    "counterpoint": "Union-Find 是在线算法，可以在加边过程中随时查询连通性，而 DFS 必须先构建完整的图。在动态图(边不断加入)的场景中，Union-Find 是唯一选择"
+  },
+  {
+    "claim": "BFS 找到的路径一定是最短路径",
+    "evidence": "命题 B 的证明：BFS 队列中的顶点始终满足「先距离 k，后距离 k+1」的不变量，因此第一次到达某顶点时一定是通过最短路径",
+    "counterpoint": "这里的「最短」仅指边数最少。在带权图中(边有不同权重)，BFS 找到的路径未必是总权重最小的最短路径——需要使用 Dijkstra 算法(第 4.4 节)"
+  }
+];
+const application = [
+  {
+    "scenario": "社交网络中计算两个用户之间的分离度(如 LinkedIn 的「你和 TA 之间隔了几个人」)",
+    "action": "将用户建模为顶点，好友关系建模为无向边，使用 BFS 从一个用户出发求到另一个用户的最短路径。路径长度即为分离度。SymbolGraph 可以将用户名映射为整数索引。"
+  },
+  {
+    "scenario": "网络故障分析：判断某台路由器宕机后是否会导致网络分裂",
+    "action": "将路由器建模为顶点，链路建模为边，使用 CC(连通分量)算法。删除目标顶点及其关联边后，重新运行 CC——如果连通分量数增加，说明该路由器是关键节点(割点)。"
+  },
+  {
+    "scenario": "推荐系统中的二部图匹配：用户-商品关系的挖掘",
+    "action": "用户和商品分别作为两组顶点，购买/浏览行为作为边，构成二部图。通过 BFS 可以发现「买了 A 的人也买了 B」的关系(两步路径)，也可以用连通分量把用户和商品分成互不关联的群组独立处理。"
+  }
+];
+const chapterNav = {"prev": {"num": 15, "title": "查找应用", "href": "ch15.html"}, "next": {"num": 17, "title": "有向图", "href": "ch17.html"}};
+window.evoData_block3 = [
+  {
+    "title": "Graph API — 一切的基础",
+    "badge": "基础接口",
+    "desc": "整个章节的所有算法都只依赖一个核心方法：adj(v) 返回顶点 v 的所有邻居。这个极简 API 的威力令人惊叹。",
+    "code": "public class Graph {\n    private final int V;\n    private Bag<Integer>[] adj;\n\n    public void addEdge(int v, int w) {\n        adj[v].add(w);  // 添加 w 到 v 的邻接表\n        adj[w].add(v);  // 添加 v 到 w 的邻接表\n    }\n    public Iterable<Integer> adj(int v) {\n        return adj[v];  // 核心: 返回 v 的所有邻居\n    }\n}"
+  },
+  {
+    "title": "DFS — 一条路走到黑",
+    "badge": "栈 (递归)",
+    "desc": "标记当前顶点，递归访问所有未标记的邻居。系统调用栈天然实现了 LIFO 策略——总是深入到最远再回头。\n时间复杂度：与顶点的度数之和成正比。",
+    "code": "private boolean[] marked;\n\nprivate void dfs(Graph G, int v) {\n    marked[v] = true;  // 标记已访问\n    count++;\n    for (int w : G.adj(v))\n        if (!marked[w])  // 只访问未标记的邻居\n            dfs(G, w);   // 递归 = 隐式使用栈\n}"
+  },
+  {
+    "title": "DFS 找路径 — edgeTo[] 记住来路",
+    "badge": "parent-link 树",
+    "desc": "在 DFS 基础上增加 edgeTo[] 数组：edgeTo[w] = v 表示「从 v 到达了 w」。这构成一棵以源点为根的树，沿着 edgeTo 就能回溯出完整路径。",
+    "code": "private int[] edgeTo;  // edgeTo[w] = 到达 w 的上一个顶点\n\nprivate void dfs(Graph G, int v) {\n    marked[v] = true;\n    for (int w : G.adj(v))\n        if (!marked[w]) {\n            edgeTo[w] = v;  // 记住: 从 v 到达了 w\n            dfs(G, w);\n        }\n}\n// 回溯路径: v -> edgeTo[v] -> edgeTo[edgeTo[v]] -> ... -> s"
+  },
+  {
+    "title": "BFS — 层层推进找最短路径",
+    "badge": "队列 (FIFO)",
+    "desc": "用队列替代栈，效果截然不同：先处理距离为 1 的邻居，再处理距离为 2 的，以此类推。这保证了找到的路径一定是最短的！",
+    "code": "private void bfs(Graph G, int s) {\n    Queue<Integer> queue = new Queue<>();\n    marked[s] = true;\n    queue.enqueue(s);\n    while (!queue.isEmpty()) {\n        int v = queue.dequeue();  // 取出最早入队的\n        for (int w : G.adj(v))\n            if (!marked[w]) {\n                edgeTo[w] = v;\n                marked[w] = true;\n                queue.enqueue(w);  // 新发现的排队等候\n            }\n    }\n}"
+  }
+];
+window.pipeData_block6 = [
+  {
+    "cmd": "第一遍读取",
+    "annotation": "读取所有行，把每个字符串名映射到唯一整数索引 (ST<String, Integer>)"
+  },
+  {
+    "cmd": "构建反向索引",
+    "annotation": "创建 keys[] 数组，通过整数索引反查字符串名"
+  },
+  {
+    "cmd": "创建 Graph(V)",
+    "annotation": "用字符串总数 V 初始化底层 Graph 对象"
+  },
+  {
+    "cmd": "第二遍读取",
+    "annotation": "再次读取所有行，用整数索引调用 addEdge() 构建图"
+  },
+  {
+    "cmd": "BFS/DFS 处理",
+    "annotation": "所有图算法直接在整数索引上运行，结果通过 name() 转回字符串"
+  }
+];
+window.tipsData_block7 = [
+  {
+    "icon": "📐",
+    "title": "V(V-1)/2",
+    "text": "无平行边的 V 个顶点无向图最多有 V(V-1)/2 条边"
+  },
+  {
+    "icon": "🌲",
+    "title": "树 = V-1 条边",
+    "text": "V 个顶点的树恰好有 V-1 条边，且无环，且连通——三个条件知二推一"
+  },
+  {
+    "icon": "🔄",
+    "title": "每条边遍历两次",
+    "text": "邻接表中每条边存两份(v→w 和 w→v)，DFS/BFS 都会遇到每条边两次"
+  },
+  {
+    "icon": "⏱️",
+    "title": "DFS/BFS 都是 O(V+E)",
+    "text": "每个顶点访问一次，每条边检查两次。这对稀疏图是线性的"
+  },
+  {
+    "icon": "🎭",
+    "title": "二部图 = 二着色",
+    "text": "图的顶点能分成两组，所有边都跨组连接 ⟺ 图可以用两种颜色着色使相邻顶点颜色不同"
+  },
+  {
+    "icon": "🔗",
+    "title": "CC vs UF",
+    "text": "CC 预处理 O(V+E) 后查询 O(1)；UF 在线处理，单次操作接近 O(1)，但非严格常数"
+  }
+];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: pipeline
+(function() {
+    document.querySelectorAll('[id^="pipeline-"]').forEach(container => {
+        const blockId = container.id.replace('pipeline-', '');
+        const dataVar = window['pipeData_' + blockId];
+        if (!dataVar) return;
+        const pipeData = dataVar;
+        pipeData.forEach((node, i) => {
+            if (i > 0) {
+                const arrow = document.createElement('div');
+                arrow.className = 'pipe-arrow';
+                arrow.textContent = '→';
+                container.appendChild(arrow);
+            }
+            const wrapper = document.createElement('div');
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'pipe-node' + (node.bottleneck ? ' highlight' : '');
+            nodeDiv.textContent = node.cmd || node.name || '';
+            wrapper.appendChild(nodeDiv);
+            if (node.annotation || node.data) {
+                const dataDiv = document.createElement('div');
+                dataDiv.className = 'pipe-data';
+                dataDiv.textContent = node.annotation || node.data;
+                wrapper.appendChild(dataDiv);
+            }
+            container.appendChild(wrapper);
+        });
+    });
+})();
+
+
+// Block: tips-grid
+(function() {
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'tip-card fade-in';
+            div.innerHTML = `
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: code-evolution
+(function() {
+    document.querySelectorAll('[id^="evoTimeline-"]').forEach(container => {
+        const blockId = container.id.replace('evoTimeline-', '');
+        const dataVar = window['evoData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach((step, i) => {
+            const div = document.createElement('div');
+            div.className = 'evo-step' + (i === 0 ? ' active' : '') + ' fade-in';
+            const badge = step.badge || '';
+            const speedClass = badge.match(/O\(1\)|\u03B1|lg/) ? 'success' : badge.match(/O\(N\)/) ? 'danger' : 'neutral';
+            div.innerHTML = `
+                <div class="evo-dot"></div>
+                <div class="evo-card">
+                    <div class="evo-header">
+                        <span class="evo-title">${step.title}</span>
+                        <span class="evo-speed ${speedClass}">${badge}</span>
+                    </div>
+                    <div class="evo-desc">${step.desc || ''}</div>
+                    ${step.code ? '<pre class="evo-code">' + step.code + '</pre>' : ''}
+                </div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
