@@ -3456,7 +3456,7 @@ function filterData() {
             count = inRange.length > 0 ? Math.round(p.count * inRange.length / p.chapters.length) : 0;
         }
         if (count >= threshold) {
-            filteredPairs.push({ a: p.a, b: p.b, count: count, chapters: p.chapters || [] });
+            filteredPairs.push({ a: p.a || p.char1, b: p.b || p.char2, count: count, chapters: p.chapters || [] });
         }
     });
 
