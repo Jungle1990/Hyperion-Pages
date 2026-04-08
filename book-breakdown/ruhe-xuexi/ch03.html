@@ -137,12 +137,6 @@ section { padding: 80px 0; }
 
 /* ── Block CSS (injected per block) ── */
 
-/* Block: insight-box */
-.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
-.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
-.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
-
-
 /* Block: tips-grid */
 .tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
 .tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
@@ -153,19 +147,6 @@ section { padding: 80px 0; }
 .tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
 .tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
 .tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
-
-
-/* Block: bar-chart */
-.bar-chart { display: flex; flex-direction: column; gap: 12px; }
-.bar-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 1rem; }
-.bar-label { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; color: var(--text-dim); }
-.bar-track { height: 32px; background: rgba(255,255,255,0.03); border-radius: 0.5rem; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 0.5rem; display: flex; align-items: center; padding-left: 0.75rem; font-size: 0.75rem; font-family: var(--font-mono); color: #fff; transition: width 1.5s ease-out; }
-.bar-fill.success { background: linear-gradient(90deg, var(--accent3), #2dd4bf); }
-.bar-fill.danger { background: linear-gradient(90deg, var(--accent2), #ef4444); }
-.bar-fill.neutral { background: linear-gradient(90deg, var(--accent), #8b5cf6); }
-.bar-fill.warning { background: linear-gradient(90deg, var(--accent4), var(--warning)); }
-.bar-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; }
 
 
 /* Block: comparison */
@@ -182,6 +163,25 @@ section { padding: 80px 0; }
 .comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
 .comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
 @media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* Block: bar-chart */
+.bar-chart { display: flex; flex-direction: column; gap: 12px; }
+.bar-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 1rem; }
+.bar-label { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; color: var(--text-dim); }
+.bar-track { height: 32px; background: rgba(255,255,255,0.03); border-radius: 0.5rem; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 0.5rem; display: flex; align-items: center; padding-left: 0.75rem; font-size: 0.75rem; font-family: var(--font-mono); color: #fff; transition: width 1.5s ease-out; }
+.bar-fill.success { background: linear-gradient(90deg, var(--accent3), #2dd4bf); }
+.bar-fill.danger { background: linear-gradient(90deg, var(--accent2), #ef4444); }
+.bar-fill.neutral { background: linear-gradient(90deg, var(--accent), #8b5cf6); }
+.bar-fill.warning { background: linear-gradient(90deg, var(--accent4), var(--warning)); }
+.bar-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; }
+
+
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
 
 
 /* ── Responsive ── */
@@ -641,26 +641,6 @@ function toggleQuiz(card) {
 
 /* ── Block JS (injected per block) ── */
 
-// Block: bar-chart
-(function() {
-    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
-        const blockId = container.id.replace('barChart-', '');
-        const dataVar = window['barData_' + blockId];
-        if (!dataVar) return;
-        dataVar.forEach(bar => {
-            const div = document.createElement('div');
-            div.className = 'bar-row fade-in';
-            const colorClass = bar.warning ? 'danger' : 'success';
-            div.innerHTML = `
-                <div class="bar-label">${bar.label}</div>
-                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
-                <div class="bar-value">${bar.value || ''}</div>`;
-            container.appendChild(div);
-        });
-    });
-})();
-
-
 // Block: tips-grid
 (function() {
     document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
@@ -675,6 +655,26 @@ function toggleQuiz(card) {
                 <div class="tip-title">${tip.title}</div>
                 <div class="tip-desc">${tip.text || tip.desc || ''}</div>
                 ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: bar-chart
+(function() {
+    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
+        const blockId = container.id.replace('barChart-', '');
+        const dataVar = window['barData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(bar => {
+            const div = document.createElement('div');
+            div.className = 'bar-row fade-in';
+            const colorClass = bar.warning ? 'danger' : 'success';
+            div.innerHTML = `
+                <div class="bar-label">${bar.label}</div>
+                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
+                <div class="bar-value">${bar.value || ''}</div>`;
             container.appendChild(div);
         });
     });

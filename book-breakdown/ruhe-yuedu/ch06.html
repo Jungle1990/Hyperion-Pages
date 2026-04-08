@@ -137,10 +137,16 @@ section { padding: 80px 0; }
 
 /* ── Block CSS (injected per block) ── */
 
-/* Block: insight-box */
-.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
-.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
-.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
 
 
 /* Block: analogy */
@@ -154,27 +160,6 @@ section { padding: 80px 0; }
 .analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
 .analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
 @media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
-
-
-/* Block: tips-grid */
-.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
-.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
-.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
-.tip-card:hover::before { transform: scaleX(1); }
-.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
-.tip-icon { font-size: 2rem; margin-bottom: 12px; }
-.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
-.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
-.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
-
-
-/* Block: pipeline */
-.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
-.pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(108,99,255,0.3); }
-.pipe-node.highlight { background: linear-gradient(135deg, var(--accent2), #ef4444); }
-.pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
-.pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
-@media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
 
 
 /* Block: comparison */
@@ -191,6 +176,21 @@ section { padding: 80px 0; }
 .comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
 .comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
 @media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* Block: pipeline */
+.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
+.pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(108,99,255,0.3); }
+.pipe-node.highlight { background: linear-gradient(135deg, var(--accent2), #ef4444); }
+.pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
+.pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
+@media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
 
 
 /* ── Responsive ── */
@@ -661,26 +661,6 @@ function toggleQuiz(card) {
 
 /* ── Block JS (injected per block) ── */
 
-// Block: tips-grid
-(function() {
-    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
-        const blockId = container.id.replace('tipsGrid-', '');
-        const dataVar = window['tipsData_' + blockId];
-        if (!dataVar) return;
-        dataVar.forEach(tip => {
-            const div = document.createElement('div');
-            div.className = 'tip-card fade-in';
-            div.innerHTML = `
-                <div class="tip-icon">${tip.icon || '💡'}</div>
-                <div class="tip-title">${tip.title}</div>
-                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
-                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
-            container.appendChild(div);
-        });
-    });
-})();
-
-
 // Block: pipeline
 (function() {
     document.querySelectorAll('[id^="pipeline-"]').forEach(container => {
@@ -707,6 +687,26 @@ function toggleQuiz(card) {
                 wrapper.appendChild(dataDiv);
             }
             container.appendChild(wrapper);
+        });
+    });
+})();
+
+
+// Block: tips-grid
+(function() {
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'tip-card fade-in';
+            div.innerHTML = `
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
         });
     });
 })();
