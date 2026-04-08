@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>粗略估算 · Back-of-the-Envelope Estimation | Chapter 7</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* Block: bar-chart */
+.bar-chart { display: flex; flex-direction: column; gap: 12px; }
+.bar-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 1rem; }
+.bar-label { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; color: var(--text-dim); }
+.bar-track { height: 32px; background: rgba(255,255,255,0.03); border-radius: 0.5rem; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 0.5rem; display: flex; align-items: center; padding-left: 0.75rem; font-size: 0.75rem; font-family: var(--font-mono); color: #fff; transition: width 1.5s ease-out; }
+.bar-fill.success { background: linear-gradient(90deg, var(--accent3), #2dd4bf); }
+.bar-fill.danger { background: linear-gradient(90deg, var(--accent2), #ef4444); }
+.bar-fill.neutral { background: linear-gradient(90deg, var(--accent), #8b5cf6); }
+.bar-fill.warning { background: linear-gradient(90deg, var(--accent4), var(--warning)); }
+.bar-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 7 / 15 · Part II · Tricks of the Trade 代码之道</div>
+        <div class="hero-icon">🧮</div>
+        <h1 class="hero-title">粗略估算</h1>
+        <p class="hero-sub">Back-of-the-Envelope Estimation</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">核心类比：心理标尺 Mental Ruler</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon"></div>
+            <div class="analogy-label"></div>
+            <div class="analogy-desc"></div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon"></div>
+            <div class="analogy-label"></div>
+            <div class="analogy-desc"></div>
+        </div>
+    </div>
+    
+</section>
+
+<!-- Block: custom — Escape hatch for raw HTML content -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">数字麻木症</div>
+    
+</section>
+
+<!-- Block: bar-chart — Horizontal bar chart -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">速度量级表</div>
+    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
+    <div class="bar-chart" id="barChart-block3"></div>
+</section>
+
+<!-- Block: bar-chart — Horizontal bar chart -->
+<section id="sec-block4" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">性能经验法则</div>
+    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
+    <div class="bar-chart" id="barChart-block4"></div>
+</section>
+
+<!-- Block: custom — Escape hatch for raw HTML content -->
+<section id="sec-block5" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">Little 定律</div>
+    
+</section>
+
+<!-- Block: custom — Escape hatch for raw HTML content -->
+<section id="sec-block6" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">费米估算练习</div>
+    
+</section>
+
+<!-- Block: custom — Escape hatch for raw HTML content -->
+<section id="sec-block7" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">日常估算故事</div>
+    
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "Back-of-the-Envelope Estimation — 粗略估算：用简单计算快速得到合理答案"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "就像装修师傅能\"目测\"一个房间的面积，程序员也需要能\"目测\"程序的性能量级"
+  },
+  {
+    "step": 3,
+    "title": "找到盲点",
+    "desc": "你能分清微秒和毫秒的差别吗？ 1000倍的差距足以让系统从\"飞快\"变成\"龟速\""
+  },
+  {
+    "step": 4,
+    "title": "简化精炼",
+    "desc": "掌握 Little's Law 和量级感觉，你就拥有了\"心理标尺\" (Mental Ruler)"
+  }
+];
+const takeaways = [
+  {
+    "icon": "🧠",
+    "title": "克服数字麻木",
+    "text": "培养对数字量级的敏感性。μs、ms、s 之间的 1000x 差距不是小事 — 它决定了系统的生死。"
+  },
+  {
+    "icon": "📏",
+    "title": "建立心理标尺",
+    "text": "记住关键操作的性能量级：内存访问 ~100ns、SSD ~100μs、网络 ~10ms、磁盘 ~10ms。"
+  },
+  {
+    "icon": "⚖️",
+    "title": "Little's Law",
+    "text": "L = λW — 这个简单公式适用于任何稳态排队系统，从夜店到 Web 服务器。"
+  },
+  {
+    "icon": "🔢",
+    "title": "日常练习估算",
+    "text": "像 Bentley 在超市心算那样，在日常生活中练习估算。直觉需要刻意练习才能建立。"
+  },
+  {
+    "icon": "🎯",
+    "title": "费米估算法",
+    "text": "把大问题拆成小假设，用乘法串联。答案的量级比精确值更重要。"
+  },
+  {
+    "icon": "⚡",
+    "title": "性能直觉",
+    "text": "通过简单的 timing loop 测量来校准你的直觉，定期更新你的 \"经验法则\" 数据库。"
+  }
+];
+const quiz = [
+  {
+    "q": "Bentley 所说的 \"Numerical Numbness\" (数字麻木) 是指什么?",
+    "options": [
+      "程序员对数学公式的恐惧",
+      "无法区分不同数量级之间的差异（如 μs vs ms）",
+      "使用太多数字导致的视觉疲劳",
+      "计算机处理数字时的精度丢失"
+    ],
+    "answer": 1,
+    "explanation": "数字麻木是指对数量级缺乏敏感性。Bentley 举的例子是学生分不清微秒和毫秒，这是 1000 倍的差距！"
+  },
+  {
+    "q": "Little's Law: L = λ × W。在夜店例子中，如果容量 L=60 人，平均逗留 W=3 小时，那么入场速率 λ 是多少？",
+    "options": [
+      "180 人/小时",
+      "20 人/小时",
+      "60 人/小时",
+      "10 人/小时"
+    ],
+    "answer": 1,
+    "explanation": "由 L = λ × W，得 λ = L / W = 60 / 3 = 20 人/小时。"
+  },
+  {
+    "q": "在 VAX-11/750 的性能测量中，以下哪个操作最慢？",
+    "options": [
+      "Float Divide (浮点除法)",
+      "Function Call (函数调用)",
+      "sqrt (平方根)",
+      "malloc+free (内存分配)"
+    ],
+    "answer": 2,
+    "explanation": "sqrt() 需要 940μs，是最慢的操作。它比整数加法 (3.3μs) 慢约 285 倍！"
+  },
+  {
+    "q": "超市故事中，Bentley 是如何发现收银错误的？",
+    "options": [
+      "他逐一检查了每件商品的价格",
+      "收银员主动告诉他有错误",
+      "他的心算估价（$70）和实际收费（$92）差距太大",
+      "他使用了计算器来验证"
+    ],
+    "answer": 2,
+    "explanation": "Bentley 平时养成心算估价的习惯，他估计约 $70，但收银台显示 $92。这个差距让他检查收据，发现收银员把商品编码 429 当成了价格 $4.29。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "你能分清微秒（μs）和毫秒（ms）的差别吗？它们差多少倍？",
+    "hint": "想想 1000 倍的差距在高频调用场景意味着什么"
+  },
+  {
+    "question": "如果你的 Web 服务目前有 100 个并发用户，每个请求平均耗时 200ms，那吞吐量大约是多少？",
+    "hint": "试试用 Little's Law: L = λ × W"
+  },
+  {
+    "question": "你能在 2 分钟内估算你所在城市有多少家咖啡店吗？",
+    "hint": "试试把大问题拆成小假设，用简单乘法串联"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "Little's Law（L = λW）适用于任何稳态排队系统",
+    "evidence": "书中用夜店排队（60人容量、3小时逗留→20人/小时入场率）、酒窖藏酒（150瓶存量、25瓶/年→平均存放6年）等不同领域的例子验证了公式的普适性",
+    "counterpoint": "Little's Law 要求系统处于稳态——在系统启动、负载骤变或故障恢复期间，公式的前提条件不成立，直接套用会得出错误结论"
+  },
+  {
+    "claim": "培养对数字量级的敏感性（克服 Numerical Numbness）是程序员的必备素质",
+    "evidence": "一个学生把 μs 和 ms 搞混，1000 倍的差距足以让系统从飞快变成龟速。Bentley 在超市靠心算发现了收银错误"
+  }
+];
+const application = [
+  {
+    "scenario": "当你需要评估新系统是否能承载预期流量时",
+    "action": "用 Little's Law 快速估算：已知并发用户数 N 和平均响应时间 R，吞吐量 X = N / (Z + R)。在白板上 30 秒就能算出系统是否够用"
+  },
+  {
+    "scenario": "当同事声称某个操作「很快」或「很慢」而不给出具体数字时",
+    "action": "追问具体量级：是纳秒级、微秒级还是毫秒级？用简单的 timing loop 实测一下。克服数字麻木，用数据而非感觉说话"
+  },
+  {
+    "scenario": "当你面对一个看似无法估算的问题（如「系统需要多少内存」）时",
+    "action": "用费米估算法：把大问题拆成若干可估量的小因子，逐个给出合理假设，用乘法串联。答案的量级比精确值更重要"
+  }
+];
+const chapterNav = {"prev": {"num": 6, "title": "计算机科学箴言集", "href": "ch06.html"}, "next": {"num": 8, "title": "人事与官僚备忘录", "href": "ch08.html"}};
+window.barData_block3 = [];
+window.barData_block4 = [];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: bar-chart
+(function() {
+    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
+        const blockId = container.id.replace('barChart-', '');
+        const dataVar = window['barData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(bar => {
+            const div = document.createElement('div');
+            div.className = 'bar-row fade-in';
+            const colorClass = bar.warning ? 'danger' : 'success';
+            div.innerHTML = `
+                <div class="bar-label">${bar.label}</div>
+                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
+                <div class="bar-value">${bar.value || ''}</div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

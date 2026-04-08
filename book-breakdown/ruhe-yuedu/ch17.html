@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>如何阅读科学与数学 · How to Read Science and Mathematics | Chapter 17</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
+/* Block: pipeline */
+.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
+.pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(108,99,255,0.3); }
+.pipe-node.highlight { background: linear-gradient(135deg, var(--accent2), #ef4444); }
+.pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
+.pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
+@media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
+
+
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 17 / 21 · Part III · 阅读不同读物的方法 — Approaches to Different Kinds of Reading Matter</div>
+        <div class="hero-icon">🔬</div>
+        <h1 class="hero-title">如何阅读科学与数学</h1>
+        <p class="hero-sub">科学经典就像一座座历史灯塔——你不需要成为航海专家，只需要看懂灯塔照亮了哪片海域</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">阅读科学的两大障碍</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">🧪</div>
+            <div class="analogy-label">归纳法的证据门槛</div>
+            <div class="analogy-desc">科学是归纳法的产物——从具体实验推导出一般规律
+你没有亲手做过实验，就像听人描述一道菜的味道
+解决方案：自己动手重复经典实验，亲眼见证发现的过程</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">📐</div>
+            <div class="analogy-label">数学语言的门槛</div>
+            <div class="analogy-desc">数学本质上是一种书写语言，有自己的字汇和文法
+恐惧来自没人告诉你：学数学和学外语是同一回事
+解决方案：从欧几里得《几何原理》开始，几个晚上就能克服恐惧</div>
+        </div>
+    </div>
+    
+</section>
+
+<!-- Block: pipeline — Flow diagram with connected nodes -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">阅读科学经典的策略流程</div>
+    <div class="pipeline-flow" id="pipeline-block2"></div>
+    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;">以牛顿《自然哲学的数学原理》为例</div>
+</section>
+
+<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">数学 = 一种语言</div>
+    <div class="comparison-grid">
+        <div class="comparison-side hard">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">学母语</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">学两次：
+1. 学说话（口语）
+2. 学阅读（书面语）
+
+遇到生字 → 查字典
+遇到复杂句法 → 回到基础层次
+沟通时会有情绪上的言外之意</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side smart">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">学数学</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">只学一次：
+完全是书写语言
+
+遇到生符号 → 查定义
+遇到复杂推导 → 回到基础公理
+没有情绪上的言外之意——精确、清晰、无歧义</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">数学让两个不同的人能够精确地沟通同一个抽象概念，不会有「言外之意」的干扰。这正是科学大量使用数学的原因——它精确、清晰、范围限定。</div></div>
+</section>
+
+<!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block4" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">💎 </div>
+        <div class="insight-content">《几何原理》命题五：等腰三角形的两底角相等。
+
+为了证明这个定理，需要先完成命题一、二、三的作图。每一步都环环相扣，逻辑清晰。
+
+命题说的是「若……则」的关系——如果有一个等腰三角形，那么两个底角一定相等。你永远不必怀疑这件事。
+
+在一般谈话中，就算最好的哲学家也没法将问题说得如此一清二楚。这种「真正有范围限制的问题，配上真正逻辑的解释」——就是数学之美。</div>
+    </div>
+</section>
+
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block5" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">阅读科普书的要点</div>
+    <div class="tips-grid" id="tipsGrid-block5"></div>
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "阅读科学经典 = 了解科学的「历史与哲学」，而非成为该领域的专家"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "想象你参观一座科学博物馆：你不需要自己造出蒸汽机，只需要理解瓦特当时面对什么问题、为什么他的解决方案是革命性的"
+  },
+  {
+    "step": 3,
+    "title": "发现盲点",
+    "desc": "数学不是一道不可逾越的墙——它本质上只是另一种语言，像法语或德语一样可以学习。而且在许多科学经典中，你可以跳过数学证明，先抓住整体结构"
+  },
+  {
+    "step": 4,
+    "title": "简化与类比",
+    "desc": "科学经典就像老照片：虽然技术已过时，但照片里的人物表情、时代背景、思考方式——这些永不过时的东西才是你真正要看的"
+  }
+];
+const takeaways = [
+  {
+    "icon": "🏛️",
+    "title": "门外汉的责任",
+    "text": "阅读科学经典不是为了当专家，而是为了了解科学的历史与哲学——这是每个受过教育的人的责任。"
+  },
+  {
+    "icon": "📐",
+    "title": "数学是语言不是魔法",
+    "text": "数学本质上是一种精确的书写语言。学数学和学外语是同一回事——困难但绝非不可能。"
+  },
+  {
+    "icon": "🔬",
+    "title": "亲手做实验",
+    "text": "想真正理解科学经典，光读书不够——要亲手重复经典实验，那是获得内心洞察力的来源。"
+  },
+  {
+    "icon": "⏩",
+    "title": "允许跳读",
+    "text": "像读牛顿的书，第一遍可以跳过图表和数学证明，先抓住整体架构，再回头深入。"
+  },
+  {
+    "icon": "🎯",
+    "title": "找准问题",
+    "text": "阅读科学作品最有帮助的建议：运用论说性作品的规则，弄清楚作者想要解决的问题是什么。"
+  }
+];
+const quiz = [
+  {
+    "id": "q1",
+    "question": "为什么作者说19世纪以前的科学经典是为「门外汉」写的，而现代科学论文却不是？这对阅读者的策略有什么影响？",
+    "answer": "19世纪以前，科学专业制度还没建立起来，伽利略、牛顿、达尔文等人写书时面向所有聪明的读者，没有设置专业壁垒。但现代科学论文是「专家写给专家看」的，需要对等的专业知识才能阅读。这意味着：对于现代科学内容，普通读者只能退一步阅读流行的科普书；但对于经典科学著作，任何有阅读能力的人都有资格且应该去读。"
+  },
+  {
+    "id": "q2",
+    "question": "作者说「数学是一种语言」。用费曼方法来解释：这个类比具体帮助我们消除了对数学的哪些恐惧？",
+    "answer": "这个类比帮助消除三个恐惧：\n1. 「数学太难学」——如果你能学会母语的读写，你就有能力学数学，因为数学只需要学一次（纯书写），而母语需要学两次（口语+书面语）。\n2. 「数学符号看不懂」——这跟遇到一个不认识的外语单词一样，查查定义就好，只是基础阅读层面的问题。\n3. 「数学太抽象」——恰恰因为抽象，才没有情绪上的言外之意，两个人能精确地沟通同一件事，比日常语言还要清晰。"
+  },
+  {
+    "id": "q3",
+    "question": "为什么伽利略的《两种新科学》虽然没有用数学，反而比有数学的科学著作更难读？这说明了什么？",
+    "answer": "因为伽利略用了「对话形式」来写科学作品。对话形式适合哲学讨论（如柏拉图），但用在科学讨论上并不合适——读者很难弄清楚作者到底在谈什么。这说明：一本科学书的难度不取决于有没有数学，而取决于表达方式是否适合其内容。有时候数学反而让论述更清晰精确，没有数学的叙述方式可能造成更大的理解困难。"
+  },
+  {
+    "id": "q4",
+    "question": "向一个完全不看科学书的朋友解释：为什么现代人应该阅读科学经典？",
+    "answer": "参考答案：想象你住在一栋大楼里。你不需要当建筑师，但你应该知道这栋楼是谁设计的、为什么这样设计、用了什么原理让它不会倒——因为你每天都住在里面。现代世界就是科学建造的「大楼」：手机、医药、环保、核能……你每天都生活在科学的成果之中。\n\n阅读科学经典，就是去参观这栋大楼的「设计手稿」——看看牛顿、达尔文这些建筑师当初面对什么问题、怎么思考、怎么解决。这不是为了当专家，而是为了理解你所生活的世界是怎么来的。更重要的是，这种「透过怀疑的训练释放自由开放心灵」的脑力活动，本身就是教育的核心目标。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "你认为普通人有能力阅读牛顿、达尔文这样的科学经典吗？还是这些书只有专家才能读？",
+    "hint": "想想19世纪以前的科学家写书时的目标读者是谁"
+  },
+  {
+    "question": "你觉得数学是一种天赋，还是一种可以学习的语言？",
+    "hint": "想想你学外语的经历——也是一开始困难，慢慢熟悉的过程"
+  },
+  {
+    "question": "阅读科学书时，你认为必须理解每一个数学公式和证明才算读懂吗？",
+    "hint": "想想你读一本旅行指南时，是否需要亲自走过每一条路才能获得帮助"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "数学本质上只是一种语言——学数学和学外语是同一回事",
+    "evidence": "数学有自己的字汇和文法，遇到不认识的符号就查定义（如同查字典），而且数学只需要学一次（纯书写），母语需要学两次（口语+书面语）",
+    "counterpoint": "数学的抽象程度远超日常语言，且数学推理要求严格的逻辑训练。将数学简单等同于「另一种语言」可能低估了数学思维的独特挑战"
+  },
+  {
+    "claim": "阅读科学经典是每个受过教育的人的责任，不是专家的特权",
+    "evidence": "19世纪以前的伟大科学著作如伽利略、牛顿、达尔文的作品，面向所有聪明的读者而非专家，现代人了解科学的历史与哲学是参与人类理性活动的一部分",
+    "counterpoint": "现代科学已经高度专业化，即使是科普书也可能被过度简化而产生误导。但作者强调的是理解科学的「历史与哲学」，而非成为专家"
+  }
+];
+const application = [
+  {
+    "scenario": "当你拿起一本有数学公式的科学书感到恐惧时",
+    "action": "先跳过数学证明，只读定理的说明和结论，掌握整体架构。像读牛顿的书一样——先看旁注和总结，再回头深入感兴趣的部分。记住：数学不是魔法，只是一种精确的书写语言"
+  },
+  {
+    "scenario": "当你想了解某个科学概念（如DNA、相对论）但觉得原著太难时",
+    "action": "先阅读好的科普书来了解概要，但要运用分析阅读的规则——确认主题、发现整体与部分的关系、与作者达成共识。科普文章比小说需要更多的专注力"
+  },
+  {
+    "scenario": "当你想真正理解一个经典科学实验的意义时",
+    "action": "尽可能亲手重复这个实验（如牛顿的棱镜分光实验）。亲眼见证发现的过程，是获得内心洞察力的来源，远比只看文字描述有效得多"
+  }
+];
+const chapterNav = {"prev": {"num": 16, "title": "如何阅读历史书", "href": "ch16.html"}, "next": {"num": 18, "title": "如何阅读哲学书", "href": "ch18.html"}};
+window.pipeData_block2 = [
+  {
+    "cmd": "读定理说明",
+    "annotation": "了解在证明什么"
+  },
+  {
+    "cmd": "看结论",
+    "annotation": "掌握证明结果"
+  },
+  {
+    "cmd": "浏览证明过程",
+    "annotation": "掌握如何证明的"
+  },
+  {
+    "cmd": "读引理与系理",
+    "annotation": "理解推导关系"
+  },
+  {
+    "cmd": "读旁注(scholiums)",
+    "annotation": "了解与整体的关系",
+    "bottleneck": true
+  },
+  {
+    "cmd": "看全书结构",
+    "annotation": "理解先后顺序与呼应"
+  }
+];
+window.tipsData_block5 = [
+  {
+    "icon": "📖",
+    "title": "避开了两大难题",
+    "desc": "科普书通常只报告实验结果，只包含少量数学，帮读者绕过了原著的两大障碍"
+  },
+  {
+    "icon": "🧠",
+    "title": "比故事书更需要专注",
+    "desc": "阅读一篇三页的DNA文章，如果不全神贯注就无法理解——科普比小说需要更多主动性"
+  },
+  {
+    "icon": "🔍",
+    "title": "运用分析阅读规则",
+    "desc": "确认主题、发现整体与部分的关系、与作者达成共识、找出主旨与论述——这些规则在这里更有作用"
+  },
+  {
+    "icon": "⚠️",
+    "title": "警惕记者过滤",
+    "desc": "好的科学记者能帮你理解；不好的记者可能让你一无所获——始终保持批判性思维"
+  },
+  {
+    "icon": "🌍",
+    "title": "理论与实际的关系",
+    "desc": "像康孟纳的《封闭的循环》虽是理论书，但环保危机的主题直接关乎我们的生活，超越了纯理论"
+  }
+];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: tips-grid
+(function() {
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'tip-card fade-in';
+            div.innerHTML = `
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: pipeline
+(function() {
+    document.querySelectorAll('[id^="pipeline-"]').forEach(container => {
+        const blockId = container.id.replace('pipeline-', '');
+        const dataVar = window['pipeData_' + blockId];
+        if (!dataVar) return;
+        const pipeData = dataVar;
+        pipeData.forEach((node, i) => {
+            if (i > 0) {
+                const arrow = document.createElement('div');
+                arrow.className = 'pipe-arrow';
+                arrow.textContent = '→';
+                container.appendChild(arrow);
+            }
+            const wrapper = document.createElement('div');
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'pipe-node' + (node.bottleneck ? ' highlight' : '');
+            nodeDiv.textContent = node.cmd || node.name || '';
+            wrapper.appendChild(nodeDiv);
+            if (node.annotation || node.data) {
+                const dataDiv = document.createElement('div');
+                dataDiv.className = 'pipe-data';
+                dataDiv.textContent = node.annotation || node.data;
+                wrapper.appendChild(dataDiv);
+            }
+            container.appendChild(wrapper);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

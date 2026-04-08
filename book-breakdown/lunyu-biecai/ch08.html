@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>泰伯第八 · On Noble Character | Chapter 8</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* Block: pipeline */
+.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
+.pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(108,99,255,0.3); }
+.pipe-node.highlight { background: linear-gradient(135deg, var(--accent2), #ef4444); }
+.pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
+.pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
+@media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
+
+
+/* Block: bar-chart */
+.bar-chart { display: flex; flex-direction: column; gap: 12px; }
+.bar-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 1rem; }
+.bar-label { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; color: var(--text-dim); }
+.bar-track { height: 32px; background: rgba(255,255,255,0.03); border-radius: 0.5rem; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 0.5rem; display: flex; align-items: center; padding-left: 0.75rem; font-size: 0.75rem; font-family: var(--font-mono); color: #fff; transition: width 1.5s ease-out; }
+.bar-fill.success { background: linear-gradient(90deg, var(--accent3), #2dd4bf); }
+.bar-fill.danger { background: linear-gradient(90deg, var(--accent2), #ef4444); }
+.bar-fill.neutral { background: linear-gradient(90deg, var(--accent), #8b5cf6); }
+.bar-fill.warning { background: linear-gradient(90deg, var(--accent4), var(--warning)); }
+.bar-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 8 / 20 · Part I · 上册 — 学问修养与礼乐之道</div>
+        <div class="hero-icon">👑</div>
+        <h1 class="hero-title">泰伯第八</h1>
+        <p class="hero-sub">弃天下如敝屣，薄帝王而不为——人格修养的最高境界</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block1" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">👑 </div>
+        <div class="insight-content">泰伯是周文王的大伯父。他的父亲大王想让三子季历继位（因为看好季历之子姬昌，即后来的周文王），但古代必须传位长子。
+
+泰伯左右为难：听父亲的话，于孝道不违；但作为臣子，他认为殷商虽衰，周不应去推翻。
+
+最终他选择逃到南方蛮荒之地，连帝王都不做，让弟弟顺理继位。
+
+孔子说：「三以天下让，民无得而称焉。」——三次推让天下，老百姓连他的名字都不知道。
+
+这才是真正的伟大：不是不想当皇帝的人在吹牛，而是真有帝王可做而从容放弃。
+「弃天下如敝屣」——丢掉皇帝位子像丢掉破鞋一样，然后才能真正「坦荡荡」。</div>
+    </div>
+</section>
+
+<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">恭、慎、勇、直——四种美德的两面性</div>
+    <div class="comparison-grid">
+        <div class="comparison-side hard">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">有礼的美德</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">恭 + 礼 → 谦和安详
+  真诚的恭敬，不卑不亢
+
+慎 + 礼 → 稳重周密
+  谨慎有度，该出手时出手
+
+勇 + 礼 → 果敢有方
+  有冲劲有方向，不莽撞
+
+直 + 礼 → 坦诚得体
+  实话实说但不伤人</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side smart">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">无礼的偏激</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">恭而无礼 → 劳
+  过于恭敬，辛苦不安详
+  如「礼多必诈」的王莽
+
+慎而无礼 → 葸
+  过于小心，变成窝囊无能
+  树叶掉下来怕打破头
+
+勇而无礼 → 乱
+  过于冲动，容易闯祸
+  项羽暴虎冯河之败
+
+直而无礼 → 绞
+  过于直率，把关系搞断
+  让人下不了台</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">每个人的个性不同，这四种美德或多或少都有。关键是用文化教育来「中和」，懂得了这四点，就是反省自己个性的标准。</div></div>
+</section>
+
+<!-- Block: pipeline — Flow diagram with connected nodes -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">曾子临终三教诲：做人处世的终极修养</div>
+    <div class="pipeline-flow" id="pipeline-block3"></div>
+    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;">「君子所贵乎道者三」</div>
+</section>
+
+<!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block4" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">士不可以不弘毅——知识分子的担当</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">🌊</div>
+            <div class="analogy-label">弘</div>
+            <div class="analogy-desc">弘大的胸襟、气度、眼光
+看得远、想得宽、容得下
+不以一隅之见论天下
+不以一时得失定成败
+好比大海，百川入而不溢</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">⚔️</div>
+            <div class="analogy-label">毅</div>
+            <div class="analogy-desc">刚毅的决断、果敢、坚持
+看得准、拿得稳、做得到
+该下决心时绝不犹豫
+该坚持时绝不动摇
+好比磐石，风浪来而不移</div>
+        </div>
+    </div>
+    
+</section>
+
+<!-- Block: bar-chart — Horizontal bar chart -->
+<section id="sec-block5" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">孔子教育的三大支柱：诗、礼、乐</div>
+    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
+    <div class="bar-chart" id="barChart-block5"></div>
+</section>
+
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block6" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">本篇核心智慧</div>
+    <div class="tips-grid" id="tipsGrid-block6"></div>
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "什么是真正的高贵品格？一个人的道德修养能达到什么样的最高境界？知识分子应该承担怎样的责任？"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "把人格修养比作登山：泰伯让天下是登到了山顶还不留恋，直接下山——这才是真正到过山顶的人。大多数人没有机会上山就吹牛说不想上，那不算。曾子「战战兢兢如临深渊」是说登山途中每一步都要小心，一失足就万劫不复。「士不可以不弘毅」是说你得有宽阔的视野和坚韧的意志，才能走完这条漫长的路。"
+  },
+  {
+    "step": 3,
+    "title": "发现盲点",
+    "desc": "我们以为道德修养就是做好事、不犯错。其实孔子说的远不止此：泰伯是帝王都不要做的境界，曾子是到死前最后一口气才敢说「我没犯错」。更关键的盲点是——恭、慎、勇、直这些美德，如果没有「礼」来中和，反而会变成大毛病。"
+  },
+  {
+    "step": 4,
+    "title": "简化与类比",
+    "desc": "人格修养像调味：恭敬是盐，太多了齁得慌（劳）；谨慎是醋，太多了酸掉了（葸）；勇敢是辣椒，太多了上火（乱）；坦率是姜，太多了刺激（绞）。「礼」就是厨师的手艺，把四味调和在一起，做出一道好菜。缺了厨艺，再好的调料也白搭。"
+  }
+];
+const takeaways = [
+  {
+    "icon": "👑",
+    "title": "至德无名",
+    "text": "泰伯三让天下而民无得称。真正的伟大不是让人知道你伟大，而是做到了别人连你的名字都不知道。"
+  },
+  {
+    "icon": "⚖️",
+    "title": "美德需中和",
+    "text": "恭慎勇直四种美德，没有礼来中和反而成为毛病。越好的品质，越需要修养来驾驭。"
+  },
+  {
+    "icon": "🪞",
+    "title": "如临深渊",
+    "text": "曾子做人一辈子战战兢兢，到死前才说不会再犯错。仰不愧于天、俯不怍于人，做到何其难。"
+  },
+  {
+    "icon": "🌊",
+    "title": "士不可不弘毅",
+    "text": "知识分子以仁为己任，死而后已。弘是胸襟眼光，毅是决断意志，两者缺一不可。"
+  },
+  {
+    "icon": "🏛️",
+    "title": "才难",
+    "text": "舜只靠五个人治天下，武王只靠十个人平天下。人才是真正稀缺的资源，得一知己足以成大事。"
+  },
+  {
+    "icon": "🌾",
+    "title": "无间然",
+    "text": "大禹自己住茅草棚，却为国家奠定农业基础。自奉甚俭而致力公益，这是孔子无法挑剔的完美。"
+  }
+];
+const quiz = [
+  {
+    "id": "q1",
+    "question": "孔子为什么特别推崇泰伯？「三以天下让，民无得而称焉」说明了什么样的人格境界？",
+    "answer": "泰伯是周文王的大伯父，他本应继承大王的位子。但他认为周作为殷商的诸侯，不应推翻殷商。为了不违背父亲的意愿，又不违背自己的信念，他选择逃到南方蛮荒之地，连帝王都不做。\n\n三次推让天下，最后连老百姓都不知道他的名字——这就是「无得而称」：既不留名，也不求名。\n\n孔子推崇他，是因为真正的道德修养要到「弃天下如敝屣」的程度。说「皇帝都不想当」的人多了，但真有帝王可做而从容放弃的人，古今罕见。这种境界叫「至德」——道德的最高点。\n\n它说明人格修养的终极目标：不是拥有多少，而是能放下多少。"
+  },
+  {
+    "id": "q2",
+    "question": "曾子临终说「战战兢兢，如临深渊，如履薄冰，而今而后，吾知免夫」，这段话为什么被视为孔门学问的精华？",
+    "answer": "曾子病重到手脚都失去知觉了，叫学生来把手脚摆放端正，然后说了这番话。\n\n「战战兢兢」是发抖的样子，一辈子做人都提心吊胆。\n「如临深渊」好像站在万丈悬崖边上，一不小心就粉身碎骨。\n「如履薄冰」好像走在刚结冰或将化冻的河面上，随时可能掉下去。\n\n最震撼的是「而今而后，吾知免夫」——到了快死的这一刻，我才敢大胆地说，我不会再犯错了。\n\n这段话揭示了孔门学问的核心：学问不在文章写得好，不在知识渊博，而在做人处世的修养。一辈子的对错成败，不是某一刻的表现，而是整个人生的总结。盖棺才能论定，甚至盖棺都不一定能论定。"
+  },
+  {
+    "id": "q3",
+    "question": "「士不可以不弘毅，任重而道远」中的「弘」和「毅」分别是什么意思？为什么知识分子特别需要这两个品质？",
+    "answer": "「弘」是弘大的胸襟、气度、眼光。看问题要看得远，想事情要想得宽，容人要容得下。不因一时失败而沮丧，不因一隅之见而偏执。\n\n「毅」是刚毅的决断力。拿得稳、看得准，该决定时绝不犹豫。有些人有眼光但做不了决定，有些人做得了决定但看不远——二者缺一不可。\n\n知识分子为什么特别需要？因为「仁以为己任，不亦重乎！死而后已，不亦远乎！」——以爱人爱世界为自己的责任，这副担子太重了；要一直挑到死为止，这条路太长了。没有弘的胸襟撑不开格局，没有毅的意志走不完全程。\n\n南怀瑾指出，中国古代教育的目的就是养成人的弘毅，挑起国家社会的责任。而现代教育变成了「知识就是钞票」，这是教育的偏失。"
+  },
+  {
+    "id": "q4",
+    "question": "南怀瑾对冯道这个历史人物有什么不同于传统的看法？这和曾子「盖棺论定」的观点有什么关系？",
+    "answer": "传统看法：冯道事四姓、相六帝，被欧阳修痛骂为丧尽读书人气节的软骨头，「有奶便是娘」。\n\n南怀瑾的重新审视：\n1. 五代乱世五十多年，冯道能始终屹立不倒，说明他在财、色两方面都干净——否则政治对手早攻击他了。\n2. 他自称「长乐老人」，能包容仇人、感化仇人，说明修养极深。\n3. 他的诗「但教方寸无诸恶，狼虎丛中也立身」，说明他把那些外族皇帝视如虎狼，并非真正臣服。\n4. 几十年后文化得以保存，冯道有相当功劳。他是为了顾全大局，背上千秋骂名。\n\n这和曾子的观点直接相关：南怀瑾说「盖棺论定」这句话有时也不可靠。有些人带着冤枉进棺材，有些人一辈子行善却身后名声不好。冯道就是一个典型例子——他的真实功过，很可能和历史评价截然不同。所以看人要慎重，不能只看表面。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "你觉得一个人道德修养的最高境界是什么？做好事？不做坏事？还是更高的东西？",
+    "hint": "想想有没有比「做好事」更高的境界——比如帝王都不做"
+  },
+  {
+    "question": "「恭敬」是优点，但太恭敬了会怎样？勇敢是优点，但太勇敢了会怎样？",
+    "hint": "想想优点过了头是不是就变成缺点了"
+  },
+  {
+    "question": "你觉得知识分子对社会的责任是什么？只管好自己就够了吗？",
+    "hint": "想想「天下兴亡，匹夫有责」这句话"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "南怀瑾认为泰伯「三以天下让」是真正的最高人格——弃天下如敝屣，薄帝王而不为",
+    "evidence": "他指出说「不想当皇帝」的人多了，但真有帝王可做而从容放弃的人古今罕见",
+    "counterpoint": "有历史学家认为泰伯让位可能有政治博弈的因素，未必纯粹出于道德选择"
+  },
+  {
+    "claim": "南怀瑾为冯道翻案，认为他不是传统所说的没有气节的软骨头",
+    "evidence": "他指出冯道在五代乱世几十年财色两净，自称「长乐老人」能感化仇人，保存了文化火种",
+    "counterpoint": "欧阳修《新五代史》痛斥冯道事四姓相六帝，丧尽读书人气节，是千古骂名"
+  }
+];
+const application = [
+  {
+    "scenario": "当你在工作中恭敬有余但畏首畏尾时",
+    "action": "孔子说恭而无礼则劳——恭敬过了头就变成疲劳。慎而无礼则葸——谨慎过了头就变成胆怯。美德需要「礼」来中和"
+  },
+  {
+    "scenario": "当你作为知识分子觉得自己能力有限、改变不了什么时",
+    "action": "曾子说「士不可以不弘毅，任重而道远」——以仁为己任，死而后已。弘是胸襟眼光，毅是决断意志"
+  },
+  {
+    "scenario": "当你想要评价一个历史人物或身边的人时",
+    "action": "曾子到死前最后一刻才敢说「吾知免夫」。盖棺也不一定能论定——像冯道，可能带着千秋冤枉进了棺材"
+  }
+];
+const chapterNav = {"prev": {"num": 7, "title": "述而第七", "href": "ch07.html"}, "next": {"num": 9, "title": "子罕第九", "href": "ch09.html"}};
+window.pipeData_block3 = [
+  {
+    "cmd": "动容貌",
+    "annotation": "仪态风度：经学问修养改变气质，远离粗暴傲慢"
+  },
+  {
+    "cmd": "正颜色",
+    "annotation": "待人神情：发自内心的诚恳和善，而非讨债面孔"
+  },
+  {
+    "cmd": "出辞气",
+    "annotation": "言谈吐属：「夫人不言，言必有中」，远离鄙俗"
+  }
+];
+window.barData_block5 = [
+  {
+    "label": "兴于诗",
+    "value": "情感",
+    "pct": 100,
+    "note": "诗是情感的出口：艺术、文学调剂严肃人生"
+  },
+  {
+    "label": "立于礼",
+    "value": "理性",
+    "pct": 95,
+    "note": "礼是思想的根基：哲学精神与科学态度"
+  },
+  {
+    "label": "成于乐",
+    "value": "境界",
+    "pct": 90,
+    "note": "乐是最终的完成：康乐祥和的人生境界"
+  }
+];
+window.tipsData_block6 = [];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: tips-grid
+(function() {
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'tip-card fade-in';
+            div.innerHTML = `
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: pipeline
+(function() {
+    document.querySelectorAll('[id^="pipeline-"]').forEach(container => {
+        const blockId = container.id.replace('pipeline-', '');
+        const dataVar = window['pipeData_' + blockId];
+        if (!dataVar) return;
+        const pipeData = dataVar;
+        pipeData.forEach((node, i) => {
+            if (i > 0) {
+                const arrow = document.createElement('div');
+                arrow.className = 'pipe-arrow';
+                arrow.textContent = '→';
+                container.appendChild(arrow);
+            }
+            const wrapper = document.createElement('div');
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'pipe-node' + (node.bottleneck ? ' highlight' : '');
+            nodeDiv.textContent = node.cmd || node.name || '';
+            wrapper.appendChild(nodeDiv);
+            if (node.annotation || node.data) {
+                const dataDiv = document.createElement('div');
+                dataDiv.className = 'pipe-data';
+                dataDiv.textContent = node.annotation || node.data;
+                wrapper.appendChild(dataDiv);
+            }
+            container.appendChild(wrapper);
+        });
+    });
+})();
+
+
+// Block: bar-chart
+(function() {
+    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
+        const blockId = container.id.replace('barChart-', '');
+        const dataVar = window['barData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(bar => {
+            const div = document.createElement('div');
+            div.className = 'bar-row fade-in';
+            const colorClass = bar.warning ? 'danger' : 'success';
+            div.innerHTML = `
+                <div class="bar-label">${bar.label}</div>
+                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
+                <div class="bar-value">${bar.value || ''}</div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

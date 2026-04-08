@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>先考试后学习：利用无知的潜在价值 · Test First, Study Later: The Hidden Value of Ignorance | Chapter 5</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: pipeline */
+.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
+.pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(108,99,255,0.3); }
+.pipe-node.highlight { background: linear-gradient(135deg, var(--accent2), #ef4444); }
+.pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
+.pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
+@media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
+
+
+/* Block: bar-chart */
+.bar-chart { display: flex; flex-direction: column; gap: 12px; }
+.bar-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 1rem; }
+.bar-label { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; color: var(--text-dim); }
+.bar-track { height: 32px; background: rgba(255,255,255,0.03); border-radius: 0.5rem; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 0.5rem; display: flex; align-items: center; padding-left: 0.75rem; font-size: 0.75rem; font-family: var(--font-mono); color: #fff; transition: width 1.5s ease-out; }
+.bar-fill.success { background: linear-gradient(90deg, var(--accent3), #2dd4bf); }
+.bar-fill.danger { background: linear-gradient(90deg, var(--accent2), #ef4444); }
+.bar-fill.neutral { background: linear-gradient(90deg, var(--accent), #8b5cf6); }
+.bar-fill.warning { background: linear-gradient(90deg, var(--accent4), var(--warning)); }
+.bar-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; }
+
+
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 5 / 10 · Part II · 增强记忆 — 我们怎样才能记住新东西</div>
+        <div class="hero-icon">📝</div>
+        <h1 class="hero-title">先考试后学习：利用无知的潜在价值</h1>
+        <p class="hero-sub">考试不仅是测量工具，更是一种比重读课本高效20%~30%的学习方式</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">核心陷阱：熟练度错觉</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">😌</div>
+            <div class="analogy-label">熟练度错觉</div>
+            <div class="analogy-desc">划了荧光线，觉得「会了」
+看到题目很眼熟，以为能答对
+刚学完立刻复习，感觉很流利
+结果：考试时大脑一片空白</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">💪</div>
+            <div class="analogy-label">真正的掌握</div>
+            <div class="analogy-desc">合上书本，凭记忆复述
+自己给自己出题测试
+隔一段时间再提取记忆
+结果：考试时从容应对</div>
+        </div>
+    </div>
+    
+</section>
+
+<!-- Block: bar-chart — Horizontal bar chart -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">盖茨实验：学习与背诵的最佳时间配比</div>
+    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
+    <div class="bar-chart" id="barChart-block2"></div>
+</section>
+
+<!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block3" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">⏰ </div>
+        <div class="insight-content">3605名学生、91所学校的大规模实验揭示：学过之后立即在第一周内考试1~2次的小组，两个月后最终成绩达到50%；而推迟到两周后才首次考试的小组，最终成绩低于30%。
+关键结论：早考比晚考效果更好，考试频率越高记忆越牢。</div>
+    </div>
+</section>
+
+<!-- Block: pipeline — Flow diagram with connected nodes -->
+<section id="sec-block4" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">考试效应的3层递进</div>
+    <div class="pipeline-flow" id="pipeline-block4"></div>
+    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;">从「背诵」到「预考」：考试效应的进化</div>
+</section>
+
+<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
+<section id="sec-block5" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">预考 vs 直接学习：卡尔皮克和勒迪格实验</div>
+    <div class="comparison-grid">
+        <div class="comparison-side hard">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">学习两次（7分钟x2）</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">第1天：读太阳文章 7分钟
+第1天：再读太阳文章 7分钟
+------
+5分钟后考试：成绩略高
+2天后考试：成绩持平
+1周后考试：成绩明显落后</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side smart">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">学习一次 + 默写自测</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">第1天：读海獭文章 7分钟
+第1天：默写回忆 7分钟
+------
+5分钟后考试：成绩略低
+2天后考试：成绩持平
+1周后考试：成绩远超对照组</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">时间越长，默写自测的优势越大。
+一周后默写组成绩远超学习两次组——因为「提取」不仅巩固了记忆，还以新的路径重新存储了信息。</div></div>
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "考试效应 = 通过「提取」记忆来强化记忆，而非被动重读"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "想象你在健身房——俯卧撑比赛不只是测试你有多强壮，做俯卧撑本身就在锻炼肌肉。考试对大脑的作用完全一样：每考一次，记忆就「练」强一次"
+  },
+  {
+    "step": 3,
+    "title": "发现盲点",
+    "desc": "「熟练度错觉」是最大的陷阱——你划了荧光笔、做了笔记，觉得自己会了，但只是「认得」而非「记住」。盖茨实验证明最佳学习时间分配是：30%阅读 + 70%凭记忆背诵"
+  },
+  {
+    "step": 4,
+    "title": "简化与类比",
+    "desc": "预考就像GPS预加载地图——你还没到目的地，但大脑已经标记了哪些路口需要注意，等真正上路（学习）时效率倍增"
+  }
+];
+const takeaways = [
+  {
+    "icon": "🔄",
+    "title": "考试 = 学习",
+    "text": "考试不仅是测评工具，更是一种高效的学习方式。每次从大脑中「提取」信息，都会强化记忆的储存能力和提取能力。"
+  },
+  {
+    "icon": "⚠️",
+    "title": "警惕熟练度错觉",
+    "text": "划荧光线、做大纲、反复阅读都会制造「我已经会了」的假象。只有合上书本尝试回忆，才能看清真实掌握程度。"
+  },
+  {
+    "icon": "📊",
+    "title": "30/70法则",
+    "text": "盖茨实验的最优比例：30%时间用于阅读学习，70%时间用于凭记忆背诵。高年级学生甚至只需1/3的阅读时间。"
+  },
+  {
+    "icon": "❌",
+    "title": "猜错也有价值",
+    "text": "预考时哪怕全部猜错，只要随后得到正确答案，学习效果仍比直接学习高出10%~20%。失败的提取尝试反而强化了后续学习。"
+  },
+  {
+    "icon": "🎓",
+    "title": "当「行家」考自己",
+    "text": "最有效的自测方式：假装你是行家，把学过的内容讲给别人听。讲不清楚的地方，就是你的盲点所在——这「无知」最有价值。"
+  }
+];
+const quiz = [
+  {
+    "id": "q1",
+    "question": "什么是「熟练度错觉」？它为什么是考试失利的真正元凶？",
+    "answer": "「熟练度错觉」是指我们因为刚学过某些内容、觉得很「眼熟」，就误以为自己已经掌握了。划荧光线、做大纲、看章节概要都会加强这种错觉。它让我们对「哪些内容还需复习」做出误判，以为已经「拿下」了，不再去复习。等到考试时，才发现认得≠记住。这才是大多数考试失败的真正原因——不是焦虑症，不是智商不够，而是被「熟练度」骗了。"
+  },
+  {
+    "id": "q2",
+    "question": "盖茨实验发现的「学习与背诵最佳时间配比」是多少？为什么这个比例有效？",
+    "answer": "盖茨让100多名学生用不同比例的时间来「阅读学习」和「凭记忆背诵」，最终发现最佳比例是：30%~40%的时间用于阅读，60%~70%的时间用于凭记忆背诵。这个比例有效是因为：从大脑中「提取」记忆比被动重读付出的努力更多，而这份额外的努力同时加强了信息的储存能力和提取能力，符合比约克夫妇的「必要难度」原则。"
+  },
+  {
+    "id": "q3",
+    "question": "预考（先考后学）为什么能提高学习效果？哪怕你全都答错了？",
+    "answer": "预考有效的可能原因有三个：\n1. 必要难度——先猜测后学习让大脑运作得更费力，记忆更深刻\n2. 消除熟练度错觉——你不会因为一眼看到正确答案就误以为自己会了\n3. 暴露干扰项——预考让你提前见到可能的错误选项，考试时不会被迷惑\n比约克夫人的100B班实验证明：预考过的内容比未预考的高出10%。猜错本身就让大脑预先标记了「哪些概念需要注意」。"
+  },
+  {
+    "id": "q4",
+    "question": "用费曼方法向朋友解释：为什么「把学过的东西讲给别人听」是最好的学习方式之一？",
+    "answer": "参考答案：想象你去旅游回来，朋友问你「那个城市怎么样？」如果你只是翻出照片给他看，你自己脑子里的记忆并没有加深。但如果你关掉手机，凭记忆讲述你的经历——走过哪些街道、吃了什么美食、遇见了什么趣事——你会发现：能讲清楚的部分记得特别牢，讲不清楚的部分暴露了你其实没太注意。\n这就是「考试效应」的本质：主动提取比被动复习效果好20%~30%。而且讲述过程中你会自动重新组织信息、建立新的联结，相当于用不同路径重新存储了一遍记忆。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "你认为考试的唯一作用是「检测你学会了多少」吗？考试本身能帮你学到东西吗？",
+    "hint": "想想你在考试之后对某些知识点反而记得更清楚的经历"
+  },
+  {
+    "question": "如果你花30分钟学一段课文，你会把多少时间用来「看书」，多少时间用来「合上书背诵」？",
+    "hint": "大多数人会把大部分时间花在看书上——这是最优策略吗？"
+  },
+  {
+    "question": "考试之前先做一套「预考」（你还没学过的内容），你觉得这对学习有帮助还是浪费时间？",
+    "hint": "想想答不上来的尴尬感是否会影响你对后续学习的注意力"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "学习的最佳时间分配是30%阅读 + 70%凭记忆背诵",
+    "evidence": "盖茨1917年对100多名三至八年级学生的实验证明，花更多时间在「主动提取」上的学生记忆效果显著优于花大量时间反复阅读的学生",
+    "counterpoint": "盖茨实验使用的是事实性信息（人名、日期、地址），对于需要理解推理的学科（如数学、物理），30/70比例可能不适用——理解本身需要更多的阅读和思考时间"
+  },
+  {
+    "claim": "预考（先考后学）即使全部猜错，也能提升后续学习效果10%-20%",
+    "evidence": "比约克夫人在UCLA心理学100B班的实验：预考过的章节内容在期末考试中比未预考的高出约10%",
+    "counterpoint": "预考有效的前提是学习者随后会看到正确答案来纠正错误猜测——如果猜错后没有及时反馈，错误记忆反而可能被强化"
+  }
+];
+const application = [
+  {
+    "scenario": "当你学完一章教材准备复习时",
+    "action": "不要立刻重读——先合上书，用7-10分钟凭记忆写下你能想起的所有内容，然后再翻开书对照遗漏。这比重读两遍的效果好20%-30%"
+  },
+  {
+    "scenario": "当你打算学习一个全新的技术文档或课程章节时",
+    "action": "先花5分钟浏览章节标题和练习题，试着猜测答案（即使完全不会），然后再开始正式学习——预考会让你的大脑预标记哪些概念需要注意"
+  },
+  {
+    "scenario": "当你划了满书的荧光线，觉得自己「应该都会了」时",
+    "action": "警惕熟练度错觉！立刻做一个简单测试：关掉所有资料，向自己口头解释刚学的3个核心概念。能讲清楚的才是真会，讲不出的就是你需要重点复习的盲点"
+  }
+];
+const chapterNav = {"prev": {"num": 4, "title": "拉开时间间隔：化整为零记得久", "href": "ch04.html"}, "next": {"num": 6, "title": "孵化：沉淀思维离不开分心", "href": "ch06.html"}};
+window.barData_block2 = [
+  {
+    "label": "只阅读不背诵",
+    "value": "最差",
+    "pct": 30,
+    "note": "被动重读"
+  },
+  {
+    "label": "80%阅读+20%背诵",
+    "value": "较差",
+    "pct": 50
+  },
+  {
+    "label": "60%阅读+40%背诵",
+    "value": "良好",
+    "pct": 75
+  },
+  {
+    "label": "30%阅读+70%背诵",
+    "value": "最佳",
+    "pct": 100,
+    "note": "盖茨最优比例"
+  }
+];
+window.pipeData_block4 = [
+  {
+    "cmd": "背诵/自测",
+    "annotation": "盖茨1917年\n30%读+70%背"
+  },
+  {
+    "cmd": "早期频繁考试",
+    "annotation": "斯皮策1938年\n早考优于晚考"
+  },
+  {
+    "cmd": "预考(先考后学)",
+    "annotation": "比约克夫妇2010s\n猜错也能提升10%"
+  }
+];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: pipeline
+(function() {
+    document.querySelectorAll('[id^="pipeline-"]').forEach(container => {
+        const blockId = container.id.replace('pipeline-', '');
+        const dataVar = window['pipeData_' + blockId];
+        if (!dataVar) return;
+        const pipeData = dataVar;
+        pipeData.forEach((node, i) => {
+            if (i > 0) {
+                const arrow = document.createElement('div');
+                arrow.className = 'pipe-arrow';
+                arrow.textContent = '→';
+                container.appendChild(arrow);
+            }
+            const wrapper = document.createElement('div');
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'pipe-node' + (node.bottleneck ? ' highlight' : '');
+            nodeDiv.textContent = node.cmd || node.name || '';
+            wrapper.appendChild(nodeDiv);
+            if (node.annotation || node.data) {
+                const dataDiv = document.createElement('div');
+                dataDiv.className = 'pipe-data';
+                dataDiv.textContent = node.annotation || node.data;
+                wrapper.appendChild(dataDiv);
+            }
+            container.appendChild(wrapper);
+        });
+    });
+})();
+
+
+// Block: bar-chart
+(function() {
+    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
+        const blockId = container.id.replace('barChart-', '');
+        const dataVar = window['barData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(bar => {
+            const div = document.createElement('div');
+            div.className = 'bar-row fade-in';
+            const colorClass = bar.warning ? 'danger' : 'success';
+            div.innerHTML = `
+                <div class="bar-label">${bar.label}</div>
+                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
+                <div class="bar-value">${bar.value || ''}</div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

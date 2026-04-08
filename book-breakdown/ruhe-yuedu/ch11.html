@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>赞同或反对作者 · Agreeing or Disagreeing with an Author | Chapter 11</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
+/* Block: code-evolution */
+.evolution-timeline { position: relative; padding-left: 50px; }
+.evolution-timeline::before { content: ''; position: absolute; left: 30px; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--accent), var(--accent3), var(--accent2)); border-radius: 2px; }
+.evo-step { position: relative; padding-left: 30px; margin-bottom: 2rem; }
+.evo-dot { position: absolute; left: -30px; top: 5px; width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--accent); background: var(--bg); z-index: 1; }
+.evo-step.active .evo-dot { background: var(--accent); box-shadow: 0 0 12px rgba(108,99,255,0.5); }
+.evo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all 0.3s; }
+.evo-card:hover { border-color: var(--accent); }
+.evo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+.evo-title { font-weight: 700; }
+.evo-speed { font-family: var(--font-mono); font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 1rem; }
+.evo-speed.success { background: rgba(52,211,153,0.15); color: var(--success); }
+.evo-speed.danger { background: rgba(248,113,113,0.15); color: var(--danger); }
+.evo-speed.neutral { background: rgba(136,136,160,0.15); color: var(--text-dim); }
+.evo-desc { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 10px; }
+.evo-code { background: #12141c; border: 1px solid #1e2030; border-radius: 0.5rem; padding: 1rem; font-family: var(--font-mono); font-size: 0.8rem; color: #a0a0c0; overflow-x: auto; white-space: pre; }
+
+
+/* Block: pipeline */
+.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
+.pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(108,99,255,0.3); }
+.pipe-node.highlight { background: linear-gradient(135deg, var(--accent2), #ef4444); }
+.pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
+.pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
+@media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
+
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* Block: bar-chart */
+.bar-chart { display: flex; flex-direction: column; gap: 12px; }
+.bar-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 1rem; }
+.bar-label { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; color: var(--text-dim); }
+.bar-track { height: 32px; background: rgba(255,255,255,0.03); border-radius: 0.5rem; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 0.5rem; display: flex; align-items: center; padding-left: 0.75rem; font-size: 0.75rem; font-family: var(--font-mono); color: #fff; transition: width 1.5s ease-out; }
+.bar-fill.success { background: linear-gradient(90deg, var(--accent3), #2dd4bf); }
+.bar-fill.danger { background: linear-gradient(90deg, var(--accent2), #ef4444); }
+.bar-fill.neutral { background: linear-gradient(90deg, var(--accent), #8b5cf6); }
+.bar-fill.warning { background: linear-gradient(90deg, var(--accent4), var(--warning)); }
+.bar-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 11 / 21 · Part II · 分析阅读 — The Third Level of Reading</div>
+        <div class="hero-icon">🗣️</div>
+        <h1 class="hero-title">赞同或反对作者</h1>
+        <p class="hero-sub">阅读就像一场辩论赛——你不能只当观众鼓掌，还得上场亮出自己的论据，才算真正参与了这场思想的交锋</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">核心类比：阅读是一场思想辩论赛</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">⚖️</div>
+            <div class="analogy-label">法庭辩论</div>
+            <div class="analogy-desc">必须先听完对方陈述
+反对时要提出证据
+不能人身攻击
+要区分事实与意见</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">📖</div>
+            <div class="analogy-label">批评式阅读</div>
+            <div class="analogy-desc">必须先读懂全书
+反对时要有理有据
+不能情绪化攻击
+要区分知识与偏见</div>
+        </div>
+    </div>
+    
+</section>
+
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">辩论的三条智慧礼节</div>
+    <div class="tips-grid" id="tipsGrid-block2"></div>
+</section>
+
+<!-- Block: pipeline — Flow diagram with connected nodes -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">批评的四把利剑：反对作者的正确姿势</div>
+    <div class="pipeline-flow" id="pipeline-block3"></div>
+    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;">四种批评方式（由轻到重）</div>
+</section>
+
+<!-- Block: code-evolution — Step-by-step code transformation timeline -->
+<section id="sec-block4" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">实战：四种批评的经典案例</div>
+    <p class="section-intro" style="color:var(--text-dim);margin-bottom:2rem;">看看历史上的思想家是如何被后人用这四把利剑批评的</p>
+    <div class="evolution-timeline" id="evoTimeline-block4"></div>
+</section>
+
+<!-- Block: bar-chart — Horizontal bar chart -->
+<section id="sec-block5" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">分析阅读的十五条规则全景图</div>
+    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
+    <div class="bar-chart" id="barChart-block5"></div>
+</section>
+
+<!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block6" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">⚡ </div>
+        <div class="insight-content">如果你读懂了一本书，却找不出作者知识不足、知识错误或不合逻辑的证据，你就有义务同意他。你不能说「你的前提没错，推论也没问题，但我就是不同意你的结论」——那不是在反对，只是在表达情绪和偏见。真正的批评需要证据，就像法庭上不能凭直觉定罪一样。</div>
+    </div>
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "批评式阅读 = 与作者进行一场有规则的「思想辩论」，而不是随意吐槽"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "想象你和朋友争论「哪家餐厅更好吃」——你不能光说「我就是不喜欢」，得说出具体理由：菜太咸了？服务太慢了？性价比不高？批评一本书也是同样的道理"
+  },
+  {
+    "step": 3,
+    "title": "发现盲点",
+    "desc": "「理解」和「同意」是两回事！你可以完全读懂一本书，却不同意作者的观点。很多人误以为理解了就必须同意，这是错的"
+  },
+  {
+    "step": 4,
+    "title": "简化与类比",
+    "desc": "批评一本书就像法庭辩论——你必须提出证据（四种批评武器），而不能只凭情绪喊「反对！」"
+  }
+];
+const takeaways = [
+  {
+    "icon": "⚖️",
+    "title": "理解≠同意",
+    "text": "你可以完全读懂一位作者的观点，却仍然不同意他。了解和认同是两件不同的事情。"
+  },
+  {
+    "icon": "🗡️",
+    "title": "四把批评利剑",
+    "text": "反对作者只有四条路：知识不足、知识错误、不合逻辑、分析不完整。找不出证据就不能反对。"
+  },
+  {
+    "icon": "🎭",
+    "title": "先理解再评论",
+    "text": "在说「我不同意」之前，必须先能说「我读懂了」。否则你的批评毫无分量。"
+  },
+  {
+    "icon": "🪞",
+    "title": "审视自己的偏见",
+    "text": "把自己的前提假设亮出来，用同理心去理解对方的立场，才能进行有意义的对话。"
+  },
+  {
+    "icon": "📏",
+    "title": "完整性是最高标准",
+    "text": "比较同领域的书，最终标准是谁的分析更完整——覆盖了更多有效且突出的论点。"
+  }
+];
+const quiz = [
+  {
+    "id": "q1",
+    "question": "为什么说「理解一本书不等于同意一本书」？请举一个生活中的例子。",
+    "answer": "「同意」有两种含义：一种是理解层面的认同（我明白你在说什么），另一种是判断层面的认同（我赞成你的观点）。就像你完全理解朋友「每天应该跑步10公里」的建议，理解他的理由和逻辑，但你可能基于自己的身体状况不同意这个建议。理解和赞同是两个独立的思维动作，前者是后者的前提，但不能自动导出后者。"
+  },
+  {
+    "id": "q2",
+    "question": "马基雅维里在《君主论》中犯了什么逻辑错误？用费曼的方式解释给小朋友听。",
+    "answer": "马基雅维里说：「没有好的军队，就没有好的法律。所以有了好的军队，就有好的法律。」这就像小朋友说：「没有水就没法种花。所以只要有水，花就一定能长好。」但我们知道，种花除了水，还需要阳光、土壤和肥料。有水是必要条件，不是充分条件。从「A是B的必要条件」不能推出「有A就有B」。"
+  },
+  {
+    "id": "q3",
+    "question": "如果你读完一本书，觉得作者说得都对，推理也没问题，但你就是「感觉不对劲」，你该怎么办？",
+    "answer": "作者给出了明确的答案：如果你找不出知识不足、知识错误或不合逻辑的证据，你就有义务同意作者。你的「感觉不对劲」可能只是情绪或偏见在作祟。不过还有第四种可能——你觉得作者的分析不完整，他没有解决所有提出的问题。在这种情况下，你可以「暂缓评论」，而不是反对。如果连这第四点也说不上来，那你可能需要承认：也许你并没有真正读懂这本书。"
+  },
+  {
+    "id": "q4",
+    "question": "为什么说阅读就像一场「有规则的辩论赛」？这些规则存在的意义是什么？",
+    "answer": "辩论赛有规则（时间限制、论据要求、不能人身攻击），是为了让对话产生有价值的结论，而不是变成吵架。同样，批评式阅读的规则（先读懂再评论、提出证据、区分知识与偏见）是为了确保读者与作者之间的思想交流是有建设性的。没有规则的批评就像没有裁判的街头斗殴——热闹但毫无意义。这些规则让「不同意」变成推动知识进步的力量，而不仅仅是情绪的宣泄。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "如果你读完一本书，觉得作者说得有道理，推理也没问题，但就是「感觉不对」，你会怎么办？",
+    "hint": "想想你的「感觉不对」到底是基于什么——是证据，还是情绪？"
+  },
+  {
+    "question": "你认为反对一本书时，需要提出具体证据吗？还是说「我就是不同意」也是一种合理的立场？",
+    "hint": "想想在法庭上，律师能不能只凭直觉说被告有罪"
+  },
+  {
+    "question": "你会因为一本书写于几百年前就觉得它的观点一定是过时的吗？",
+    "hint": "想想有些古老的思想是否至今仍然适用"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "反对作者只有四条合法的路径：知识不足、知识错误、不合逻辑、分析不完整。如果前三条都找不出问题，你就有义务同意作者",
+    "evidence": "达尔文缺少遗传学知识（知识不足），斯宾诺莎认为民主比专制更原始（知识错误），马基雅维里从「没有武装就没有好法律」跳到「有武装就有好法律」（不合逻辑）——每种批评都需要具体证据",
+    "counterpoint": "但「有义务同意」这个说法可能过于绝对。即使读者暂时找不到反驳的证据，也可能是因为自身知识限制而非作者真的正确。「暂缓评论」或许比「有义务同意」更合理"
+  },
+  {
+    "claim": "第四种批评（分析不完整）严格来说不能作为不同意的根据，只能让你暂缓评论",
+    "evidence": "亚里士多德没有预见普选权和代议制，但这不代表他的政治分析是「错」的。任何人的作品都是有限的，不完整本身并不等于错误",
+    "counterpoint": "但在实际评价中，不完整有时和错误一样严重。如果一位作者遗漏了关键因素，他的结论可能因此在本质上是有误导性的，即使每一步推理都没有逻辑问题"
+  }
+];
+const application = [
+  {
+    "scenario": "当你读一本自我管理的书，觉得作者的方法论很完美，但就是不想照做时",
+    "action": "用四把批评利剑检验自己的抵触：作者是否知识不足（忽略了你的特殊情况）？知识错误（基于错误的心理学假设）？不合逻辑？还是分析不完整？如果四条都找不出问题，你的抵触可能只是情绪和偏见"
+  },
+  {
+    "scenario": "当你看到一篇批评你最喜欢的作家的文章，第一反应是愤怒和反驳时",
+    "action": "控制情绪，按照三条智慧礼节来处理：(1)先熄灭怒火再评价批评者的观点；(2)审视自己作为「粉丝」的偏见；(3)尝试站在批评者的角度思考——他是否提出了你从未注意到的合理论点"
+  },
+  {
+    "scenario": "当你在写一篇书评，想要批评一本书的某个论点时",
+    "action": "确保你的批评属于四种合法类型之一，并提供具体证据。不要只说「我不同意」——要指出作者具体在哪个论点上知识不足、有误或不合逻辑，并解释为什么"
+  }
+];
+const chapterNav = {"prev": {"num": 10, "title": "公正地评断一本书", "href": "ch10.html"}, "next": {"num": 12, "title": "辅助阅读", "href": "ch12.html"}};
+window.tipsData_block2 = [
+  {
+    "icon": "😤",
+    "title": "控制情绪",
+    "desc": "争辩时注意自己的情绪。当你怒火中烧时，你可能觉得自己很有道理，但其实只是被激情冲昏了头脑"
+  },
+  {
+    "icon": "🪞",
+    "title": "亮出前提",
+    "desc": "把你的假设和偏见摊到桌面上来。如果你不承认自己的偏见，就无法给作者一个公平表达的机会"
+  },
+  {
+    "icon": "🤝",
+    "title": "换位思考",
+    "desc": "尽量从对方的立场来着想。不用同理心阅读，你的反对就更像吵架，而不是文明的意见交流"
+  }
+];
+window.pipeData_block3 = [
+  {
+    "cmd": "知识不足",
+    "annotation": "作者缺少解决问题的相关知识"
+  },
+  {
+    "cmd": "知识错误",
+    "annotation": "作者的理念与事实相反"
+  },
+  {
+    "cmd": "不合逻辑",
+    "annotation": "推论荒谬，结论与前提不连贯"
+  },
+  {
+    "cmd": "分析不完整",
+    "annotation": "没有解决他提出的所有问题"
+  }
+];
+window.evoData_block4 = [
+  {
+    "title": "知识不足：达尔文缺少遗传学知识",
+    "badge": "缺乏相关知识",
+    "desc": "达尔文写《物种起源》时，不知道孟德尔发现的基因遗传学。这个知识空白导致他无法解释遗传机能，成为全书最大的缺陷。",
+    "code": "达尔文的盲区：\n  已知 → 自然选择、物种变异\n  未知 → 遗传机制（孟德尔的基因理论）\n  后果 → 无法解释性状如何传递给后代"
+  },
+  {
+    "title": "知识错误：斯宾诺莎的政治误判",
+    "badge": "与事实相反",
+    "desc": "斯宾诺莎认为民主比专制更原始，但政治史证明恰恰相反。这个错误影响了他后续所有的政治论述。",
+    "code": "斯宾诺莎的错误推导：\n  前提（错）→ 民主是更原始的政治形态\n  推论     → 专制是民主的进化\n  事实     → 政治史表明专制先于民主出现"
+  },
+  {
+    "title": "不合逻辑：马基雅维里的谬论",
+    "badge": "推论不成立",
+    "desc": "马基雅维里说「没有武装就没有好法律」，然后跳跃到「有了武装就有好法律」。这就像说「没健康就没快乐」→「健康的人都快乐」，逻辑不通！",
+    "code": "马基雅维里的逻辑谬误：\n  前提 → 没有好的武装力量，就没有好的法律\n  他的结论 → 有好的武装力量，就有好的法律 ✗\n  正确逻辑 → 好的法律需要武装，但武装不保证好法律"
+  },
+  {
+    "title": "分析不完整：亚里士多德的政治学",
+    "badge": "遗漏重要内容",
+    "desc": "亚里士多德没能想到普选权、代议制和联邦体制。受时代限制，他的政治分析不够完整，但这不能算他「错」。",
+    "code": "亚里士多德的遗漏：\n  已分析 → 君主制、寡头制、民主制\n  未设想 → 普选权、代议民主、联邦制\n  原因   → 受古希腊时代局限，接受了奴隶制度"
+  }
+];
+window.barData_block5 = [
+  {
+    "label": "第一阶段：找结构",
+    "value": "规则1-4",
+    "pct": 27,
+    "note": "这本书在谈什么？"
+  },
+  {
+    "label": "第二阶段：找内容",
+    "value": "规则5-8",
+    "pct": 27,
+    "note": "详细内容是什么？"
+  },
+  {
+    "label": "第三阶段A：礼节",
+    "value": "规则9-11",
+    "pct": 20,
+    "note": "智慧礼节"
+  },
+  {
+    "label": "第三阶段B：批评",
+    "value": "规则12-15",
+    "pct": 26,
+    "note": "四种批评标准"
+  }
+];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: bar-chart
+(function() {
+    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
+        const blockId = container.id.replace('barChart-', '');
+        const dataVar = window['barData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(bar => {
+            const div = document.createElement('div');
+            div.className = 'bar-row fade-in';
+            const colorClass = bar.warning ? 'danger' : 'success';
+            div.innerHTML = `
+                <div class="bar-label">${bar.label}</div>
+                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
+                <div class="bar-value">${bar.value || ''}</div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: code-evolution
+(function() {
+    document.querySelectorAll('[id^="evoTimeline-"]').forEach(container => {
+        const blockId = container.id.replace('evoTimeline-', '');
+        const dataVar = window['evoData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach((step, i) => {
+            const div = document.createElement('div');
+            div.className = 'evo-step' + (i === 0 ? ' active' : '') + ' fade-in';
+            const badge = step.badge || '';
+            const speedClass = badge.match(/O\(1\)|\u03B1|lg/) ? 'success' : badge.match(/O\(N\)/) ? 'danger' : 'neutral';
+            div.innerHTML = `
+                <div class="evo-dot"></div>
+                <div class="evo-card">
+                    <div class="evo-header">
+                        <span class="evo-title">${step.title}</span>
+                        <span class="evo-speed ${speedClass}">${badge}</span>
+                    </div>
+                    <div class="evo-desc">${step.desc || ''}</div>
+                    ${step.code ? '<pre class="evo-code">' + step.code + '</pre>' : ''}
+                </div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: tips-grid
+(function() {
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'tip-card fade-in';
+            div.innerHTML = `
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: pipeline
+(function() {
+    document.querySelectorAll('[id^="pipeline-"]').forEach(container => {
+        const blockId = container.id.replace('pipeline-', '');
+        const dataVar = window['pipeData_' + blockId];
+        if (!dataVar) return;
+        const pipeData = dataVar;
+        pipeData.forEach((node, i) => {
+            if (i > 0) {
+                const arrow = document.createElement('div');
+                arrow.className = 'pipe-arrow';
+                arrow.textContent = '→';
+                container.appendChild(arrow);
+            }
+            const wrapper = document.createElement('div');
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'pipe-node' + (node.bottleneck ? ' highlight' : '');
+            nodeDiv.textContent = node.cmd || node.name || '';
+            wrapper.appendChild(nodeDiv);
+            if (node.annotation || node.data) {
+                const dataDiv = document.createElement('div');
+                dataDiv.className = 'pipe-data';
+                dataDiv.textContent = node.annotation || node.data;
+                wrapper.appendChild(dataDiv);
+            }
+            container.appendChild(wrapper);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>白夜行 意象追踪 / Symbolic Motifs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --bg: #0f1117; --card: #1a1d27; --card-hover: #222636;
+    --accent: #6c63ff; --accent2: #ff6b6b; --accent3: #4ecdc4; --accent4: #ffe66d;
+    --text: #e8e8f0; --text-dim: #8888a0; --border: #2a2d3a; --glow: rgba(108,99,255,0.15);
+}
+
+html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'Noto Sans SC', sans-serif; }
+.app { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
+
+/* ── Hero ── */
+.hero {
+    height: 18vh; min-height: 130px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+    background: linear-gradient(180deg, #13151f 0%, var(--bg) 100%);
+}
+.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.hero-content { position: relative; z-index: 1; text-align: center; }
+.hero h1 {
+    font-size: clamp(1.4rem, 3vw, 2.2rem); font-weight: 700;
+    background: linear-gradient(135deg, var(--accent3) 0%, var(--accent) 50%, var(--accent4) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero .subtitle { margin-top: 6px; font-size: clamp(0.8rem, 1.4vw, 1rem); color: var(--text-dim); font-weight: 300; }
+.back-link { position: absolute; top: 16px; left: 20px; color: var(--text-dim); text-decoration: none; font-size: 0.85rem; z-index: 2; transition: color 0.2s; }
+.back-link:hover { color: var(--accent3); }
+
+/* ── Controls ── */
+.controls {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 14px; padding: 8px 20px;
+    background: rgba(15,17,23,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border); flex-wrap: wrap;
+}
+.controls-label { font-size: 0.75rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+.sort-btn {
+    padding: 4px 10px; border-radius: 8px; border: 1px solid var(--border);
+    background: transparent; color: var(--text-dim); font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.75rem; cursor: pointer; transition: all 0.2s;
+}
+.sort-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Heatmap area ── */
+.heatmap-area { flex: 1; overflow: auto; position: relative; }
+.heatmap-area canvas { display: block; }
+
+/* ── Tooltip ── */
+.tooltip {
+    position: fixed; z-index: 30; background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px; max-width: 300px; pointer-events: none;
+    opacity: 0; transition: opacity 0.15s; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.tooltip.visible { opacity: 1; }
+.tooltip-symbol { font-size: 0.85rem; font-weight: 700; margin-bottom: 2px; }
+.tooltip-chapter { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 6px; }
+.tooltip-context { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+
+/* ── Sparkline panel ── */
+.sparkline-panel {
+    position: fixed; right: 0; top: 0; bottom: 0; width: 320px; z-index: 40;
+    background: var(--card); border-left: 1px solid var(--border);
+    transform: translateX(100%); transition: transform 0.3s ease;
+    overflow-y: auto; padding: 20px;
+}
+.sparkline-panel.visible { transform: translateX(0); }
+.sparkline-close { position: absolute; top: 12px; right: 16px; background: none; border: none; color: var(--text-dim); font-size: 1.4rem; cursor: pointer; }
+.sparkline-close:hover { color: var(--accent2); }
+.sparkline-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.sparkline-icon { font-size: 1.5rem; }
+.sparkline-name { font-size: 1.1rem; font-weight: 700; }
+.sparkline-name-en { font-size: 0.78rem; color: var(--text-dim); }
+.sparkline-canvas { width: 100%; height: 80px; margin-bottom: 12px; }
+.sparkline-occurrences { display: flex; flex-direction: column; gap: 6px; }
+.occ-row { display: flex; align-items: baseline; gap: 8px; font-size: 0.8rem; }
+.occ-ch { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--accent); min-width: 40px; }
+.occ-ctx { color: var(--text-dim); }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="app">
+    <section class="hero">
+        <canvas id="heroCanvas"></canvas>
+        <a href="index.html" class="back-link">&larr; 返回目录 / Back</a>
+        <div class="hero-content">
+            <h1>意象追踪 / Symbolic Motifs</h1>
+            <p class="subtitle">白夜行 — 贯穿全书的隐喻与象征</p>
+        </div>
+    </section>
+
+    <div class="controls">
+        <span class="controls-label">排序</span>
+        <button class="sort-btn active" data-sort="frequency" onclick="setSort('frequency',this)">按频率</button>
+        <button class="sort-btn" data-sort="first" onclick="setSort('first',this)">按首次出现</button>
+        <button class="sort-btn" data-sort="name" onclick="setSort('name',this)">按名称</button>
+    </div>
+
+    <div class="heatmap-area" id="heatmapArea">
+        <canvas id="heatmapCanvas"></canvas>
+    </div>
+</div>
+
+<div class="tooltip" id="tooltip">
+    <div class="tooltip-symbol" id="ttSymbol"></div>
+    <div class="tooltip-chapter" id="ttChapter"></div>
+    <div class="tooltip-context" id="ttContext"></div>
+</div>
+
+<div class="sparkline-panel" id="sparklinePanel">
+    <button class="sparkline-close" onclick="closeSparkline()">&times;</button>
+    <div class="sparkline-header">
+        <span class="sparkline-icon" id="spIcon"></span>
+        <div>
+            <div class="sparkline-name" id="spName"></div>
+            <div class="sparkline-name-en" id="spNameEn"></div>
+        </div>
+    </div>
+    <canvas class="sparkline-canvas" id="sparklineCanvas"></canvas>
+    <div class="sparkline-occurrences" id="spOccurrences"></div>
+</div>
+
+<script>
+const motifs = {
+  "symbols": [
+    {
+      "id": "white_night",
+      "name": "白夜",
+      "nameEn": "White Night",
+      "icon": "🌙",
+      "color": "#ffe66d"
+    },
+    {
+      "id": "scissors",
+      "name": "剪刀",
+      "nameEn": "Scissors",
+      "icon": "✂️",
+      "color": "#ff6b6b"
+    },
+    {
+      "id": "sun",
+      "name": "太阳",
+      "nameEn": "Sun",
+      "icon": "☀️",
+      "color": "#ffa94d"
+    },
+    {
+      "id": "light_shadow",
+      "name": "光与影",
+      "nameEn": "Light & Shadow",
+      "icon": "🌓",
+      "color": "#6c63ff"
+    },
+    {
+      "id": "mask",
+      "name": "面具",
+      "nameEn": "Masks / False Identity",
+      "icon": "🎭",
+      "color": "#4ecdc4"
+    },
+    {
+      "id": "shrimp",
+      "name": "虾虎鱼与枪虾",
+      "nameEn": "Goby & Pistol Shrimp",
+      "icon": "🦐",
+      "color": "#e599f7"
+    },
+    {
+      "id": "patchwork",
+      "name": "拼布",
+      "nameEn": "Patchwork",
+      "icon": "🧵",
+      "color": "#74c0fc"
+    },
+    {
+      "id": "ventilation",
+      "name": "通风管",
+      "nameEn": "Ventilation Shaft",
+      "icon": "🕳️",
+      "color": "#868e96"
+    }
+  ],
+  "occurrences": [
+    {
+      "symbol": "light_shadow",
+      "chapter": 1,
+      "intensity": 3,
+      "context": "废弃大楼幽暗中发现尸体，亮司眼中蕴含阴沉黑暗"
+    },
+    {
+      "symbol": "ventilation",
+      "chapter": 1,
+      "intensity": 3,
+      "context": "男孩们在通风管中玩耍，经此发现尸体"
+    },
+    {
+      "symbol": "scissors",
+      "chapter": 1,
+      "intensity": 2,
+      "context": "亮司房间挂着精美的剪纸帆船作品"
+    },
+    {
+      "symbol": "patchwork",
+      "chapter": 1,
+      "intensity": 1,
+      "context": "雪穗家中贫困环境的暗示与对比"
+    },
+    {
+      "symbol": "light_shadow",
+      "chapter": 2,
+      "intensity": 2,
+      "context": "雪穗散发光芒，桐原冰冷阴沉的目光"
+    },
+    {
+      "symbol": "patchwork",
+      "chapter": 2,
+      "intensity": 3,
+      "context": "雪穗热衷拼布，绣有RK缩写的杂物袋"
+    },
+    {
+      "symbol": "mask",
+      "chapter": 2,
+      "intensity": 2,
+      "context": "菊池如能剧面具般毫无表情的脸"
+    },
+    {
+      "symbol": "mask",
+      "chapter": 3,
+      "intensity": 3,
+      "context": "有人假扮花冈夕子退房，冒充身份"
+    },
+    {
+      "symbol": "light_shadow",
+      "chapter": 3,
+      "intensity": 2,
+      "context": "桐原在昏暗中静坐抽烟，奈美江失去光泽"
+    },
+    {
+      "symbol": "sun",
+      "chapter": 3,
+      "intensity": 1,
+      "context": "夕子戴太阳镜遮掩身份，光线与遮蔽"
+    },
+    {
+      "symbol": "sun",
+      "chapter": 4,
+      "intensity": 2,
+      "context": "正晴调查雪穗母亲死因，真相被遮蔽如日蚀"
+    },
+    {
+      "symbol": "light_shadow",
+      "chapter": 4,
+      "intensity": 2,
+      "context": "雪穗可能目睹母亲濒死却未施救的黑暗猜想"
+    },
+    {
+      "symbol": "mask",
+      "chapter": 4,
+      "intensity": 2,
+      "context": "雪穗瞒着养母深夜外出，完美伪装日常"
+    },
+    {
+      "symbol": "light_shadow",
+      "chapter": 5,
+      "intensity": 2,
+      "context": "江利子决定躲在别人影子下生活"
+    },
+    {
+      "symbol": "mask",
+      "chapter": 5,
+      "intensity": 2,
+      "context": "江利子外貌大变身，筱冢一成塑造她的新形象"
+    },
+    {
+      "symbol": "sun",
+      "chapter": 5,
+      "intensity": 1,
+      "context": "讨论紫外线对肌肤的伤害与记忆"
+    },
+    {
+      "symbol": "mask",
+      "chapter": 6,
+      "intensity": 3,
+      "context": "友彦戴假发伪装取款，桐原伪造银行卡"
+    },
+    {
+      "symbol": "light_shadow",
+      "chapter": 6,
+      "intensity": 2,
+      "context": "友彦在黑暗中无法入眠，暗中运作的犯罪"
+    },
+    {
+      "symbol": "sun",
+      "chapter": 6,
+      "intensity": 1,
+      "context": "奈美江用假发和太阳镜伪装提款"
+    },
+    {
+      "symbol": "mask",
+      "chapter": 7,
+      "intensity": 2,
+      "context": "诚假装偶遇，雪穗精心策划的社交表演"
+    },
+    {
+      "symbol": "light_shadow",
+      "chapter": 7,
+      "intensity": 1,
+      "context": "酒店中的秘密会面与暗中布局"
+    },
+    {
+      "symbol": "scissors",
+      "chapter": 8,
+      "intensity": 3,
+      "context": "桐原展示德国剪刀，剪出男孩与女孩的剪纸"
+    },
+    {
+      "symbol": "white_night",
+      "chapter": 8,
+      "intensity": 3,
+      "context": "桐原说出「我的人生就像在白夜里走路」"
+    },
+    {
+      "symbol": "light_shadow",
+      "chapter": 8,
+      "intensity": 2,
+      "context": "桐原脸如水泥面具般僵硬，阴影笼罩"
+    },
+    {
+      "symbol": "mask",
+      "chapter": 8,
+      "intensity": 2,
+      "context": "桐原过去伪造银行卡，制作盗版游戏"
+    },
+    {
+      "symbol": "mask",
+      "chapter": 9,
+      "intensity": 3,
+      "context": "雪穗如能剧面具般面无表情，隐藏真实自我"
+    },
+    {
+      "symbol": "light_shadow",
+      "chapter": 9,
+      "intensity": 2,
+      "context": "家中一片黑暗，诚发现雪穗的另一面"
+    },
+    {
+      "symbol": "mask",
+      "chapter": 10,
+      "intensity": 3,
+      "context": "秋吉被监视伪装的货车跟踪，身份调查层层深入"
+    },
+    {
+      "symbol": "light_shadow",
+      "chapter": 10,
+      "intensity": 2,
+      "context": "江利子心跌落黑暗深渊，雪穗光芒四射"
+    },
+    {
+      "symbol": "patchwork",
+      "chapter": 10,
+      "intensity": 1,
+      "context": "R&Y精品店初次登场，雪穗的时尚事业"
+    },
+    {
+      "symbol": "shrimp",
+      "chapter": 11,
+      "intensity": 3,
+      "context": "笹垣首次提出枪虾与虾虎鱼的共生比喻"
+    },
+    {
+      "symbol": "mask",
+      "chapter": 11,
+      "intensity": 2,
+      "context": "千都留假扮有钱人家小姐，写假地址"
+    },
+    {
+      "symbol": "light_shadow",
+      "chapter": 11,
+      "intensity": 2,
+      "context": "今枝视野被黑暗包围，暗中调查真相"
+    },
+    {
+      "symbol": "shrimp",
+      "chapter": 12,
+      "intensity": 3,
+      "context": "笹垣明确指出虾虎鱼在枪虾身边——亮司在雪穗身边"
+    },
+    {
+      "symbol": "light_shadow",
+      "chapter": 12,
+      "intensity": 3,
+      "context": "雪穗如一朵黑玫瑰，光芒夺目却内含黑暗"
+    },
+    {
+      "symbol": "mask",
+      "chapter": 12,
+      "intensity": 2,
+      "context": "笹垣追问雪穗与亮司的真正身份"
+    },
+    {
+      "symbol": "sun",
+      "chapter": 12,
+      "intensity": 1,
+      "context": "仙人掌盆栽中松浦太阳镜碎片的线索"
+    },
+    {
+      "symbol": "white_night",
+      "chapter": 13,
+      "intensity": 3,
+      "context": "雪穗说没有太阳却把黑夜当白天——白夜独白"
+    },
+    {
+      "symbol": "sun",
+      "chapter": 13,
+      "intensity": 3,
+      "context": "「我的天空里没有太阳」——渴望阳光的终极表白"
+    },
+    {
+      "symbol": "scissors",
+      "chapter": 13,
+      "intensity": 3,
+      "context": "亮司被自己珍视的剪刀刺入胸口而死"
+    },
+    {
+      "symbol": "light_shadow",
+      "chapter": 13,
+      "intensity": 3,
+      "context": "雪穗白色身影如光，亮司在黑暗通风管中徘徊"
+    },
+    {
+      "symbol": "ventilation",
+      "chapter": 13,
+      "intensity": 3,
+      "context": "笹垣还原亮司经通风管弑父的全过程"
+    },
+    {
+      "symbol": "shrimp",
+      "chapter": 13,
+      "intensity": 2,
+      "context": "笹垣坚信枪虾就在虾虎鱼身边，展开监视"
+    },
+    {
+      "symbol": "mask",
+      "chapter": 13,
+      "intensity": 2,
+      "context": "雪穗从不以真面目示人，完美表演到最后"
+    },
+    {
+      "symbol": "patchwork",
+      "chapter": 13,
+      "intensity": 2,
+      "context": "R&Y大阪店盛大开业，雪穗时尚帝国的顶点"
+    }
+  ]
+};
+
+
+// ══════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════
+const symbols = motifs.symbols;
+const occurrences = motifs.occurrences;
+const allChapters = [...new Set(occurrences.map(o => o.chapter))].sort((a, b) => a - b);
+const maxChapter = Math.max(...allChapters, 1);
+
+const CELL_W = 18;
+const CELL_H = 32;
+const LABEL_W = 160;
+const HEADER_H = 40;
+
+let sortMode = 'frequency';
+let hoveredCell = null;
+let selectedSymbol = null;
+
+// ══════════════════════════════════════════════════
+// DOM REFS
+// ══════════════════════════════════════════════════
+const $hero = document.getElementById('heroCanvas');
+const $heatmap = document.getElementById('heatmapCanvas');
+const $heatmapArea = document.getElementById('heatmapArea');
+const $tooltip = document.getElementById('tooltip');
+const $ttSymbol = document.getElementById('ttSymbol');
+const $ttChapter = document.getElementById('ttChapter');
+const $ttContext = document.getElementById('ttContext');
+const $sparkline = document.getElementById('sparklinePanel');
+const $spIcon = document.getElementById('spIcon');
+const $spName = document.getElementById('spName');
+const $spNameEn = document.getElementById('spNameEn');
+const $spCanvas = document.getElementById('sparklineCanvas');
+const $spOccs = document.getElementById('spOccurrences');
+
+// ══════════════════════════════════════════════════
+// UTILITY
+// ══════════════════════════════════════════════════
+function dpr() { return window.devicePixelRatio || 1; }
+function sizeCanvas(canvas, w, h) {
+    const r = dpr();
+    canvas.width = w * r; canvas.height = h * r;
+    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(r, 0, 0, r, 0, 0);
+    return ctx;
+}
+
+// Build occurrence lookup: symbolId → chapter → {intensity, context}
+const occMap = {};
+let maxIntensity = 1;
+occurrences.forEach(o => {
+    if (!occMap[o.symbol]) occMap[o.symbol] = {};
+    occMap[o.symbol][o.chapter] = o;
+    if (o.intensity > maxIntensity) maxIntensity = o.intensity;
+});
+
+function getSymbolFreq(sym) {
+    return occurrences.filter(o => o.symbol === sym.id).length;
+}
+
+function getSymbolFirst(sym) {
+    const occs = occurrences.filter(o => o.symbol === sym.id);
+    return occs.length > 0 ? Math.min(...occs.map(o => o.chapter)) : 999;
+}
+
+function getSortedSymbols() {
+    const sorted = [...symbols];
+    if (sortMode === 'frequency') {
+        sorted.sort((a, b) => getSymbolFreq(b) - getSymbolFreq(a));
+    } else if (sortMode === 'first') {
+        sorted.sort((a, b) => getSymbolFirst(a) - getSymbolFirst(b));
+    } else {
+        sorted.sort((a, b) => a.name.localeCompare(b.name, 'zh'));
+    }
+    return sorted;
+}
+
+// ══════════════════════════════════════════════════
+// HERO PARTICLES
+// ══════════════════════════════════════════════════
+function initHero() {
+    const heroSection = document.querySelector('.hero');
+    const w = heroSection.clientWidth; const h = heroSection.clientHeight;
+    const ctx = sizeCanvas($hero, w, h);
+    const particles = [];
+    const colors = symbols.map(s => s.color || '#6c63ff').slice(0, 6);
+    for (let i = 0; i < 40; i++) {
+        particles.push({
+            x: Math.random() * w, y: Math.random() * h,
+            r: Math.random() * 1.5 + 0.5, vx: (Math.random() - 0.5) * 0.2, vy: (Math.random() - 0.5) * 0.15,
+            alpha: Math.random() * 0.3 + 0.1,
+            color: colors[Math.floor(Math.random() * colors.length)],
+        });
+    }
+    function draw() {
+        ctx.clearRect(0, 0, w, h);
+        particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+            if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha; ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(draw);
+    }
+    draw();
+}
+
+// ══════════════════════════════════════════════════
+// HEATMAP DRAWING
+// ══════════════════════════════════════════════════
+function drawHeatmap() {
+    const sorted = getSortedSymbols();
+    const numCols = maxChapter;
+    const canvasW = LABEL_W + numCols * CELL_W + 40;
+    const canvasH = HEADER_H + sorted.length * CELL_H + 20;
+    const ctx = sizeCanvas($heatmap, canvasW, canvasH);
+    ctx.clearRect(0, 0, canvasW, canvasH);
+
+    // ── Column headers (chapters) ──
+    ctx.font = '9px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    for (let ch = 1; ch <= numCols; ch++) {
+        const x = LABEL_W + (ch - 1) * CELL_W + CELL_W / 2;
+        if (ch % 5 === 0 || ch === 1 || ch === numCols) {
+            ctx.fillStyle = 'rgba(136,136,160,0.5)';
+            ctx.fillText(ch, x, HEADER_H - 4);
+        }
+        // Grid column line
+        ctx.beginPath(); ctx.moveTo(x, HEADER_H); ctx.lineTo(x, canvasH - 20);
+        ctx.strokeStyle = 'rgba(42,45,58,0.2)'; ctx.lineWidth = 0.5; ctx.stroke();
+    }
+
+    // ── Row labels + cells ──
+    sorted.forEach((sym, row) => {
+        const y = HEADER_H + row * CELL_H;
+        const cy = y + CELL_H / 2;
+        const isSelected = selectedSymbol === sym.id;
+
+        // Row background on hover/select
+        if (isSelected) {
+            ctx.fillStyle = 'rgba(108,99,255,0.06)';
+            ctx.fillRect(0, y, canvasW, CELL_H);
+        }
+
+        // Row separator
+        ctx.beginPath(); ctx.moveTo(LABEL_W, y); ctx.lineTo(canvasW - 20, y);
+        ctx.strokeStyle = 'rgba(42,45,58,0.3)'; ctx.lineWidth = 0.5; ctx.stroke();
+
+        // Label: icon + name
+        ctx.font = '11px "Noto Sans SC", sans-serif';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = isSelected ? sym.color || '#e8e8f0' : 'rgba(232,232,240,0.7)';
+        const label = (sym.icon || '') + ' ' + sym.name;
+        ctx.fillText(label, LABEL_W - 10, cy);
+
+        // Frequency badge
+        const freq = getSymbolFreq(sym);
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.fillStyle = 'rgba(136,136,160,0.3)';
+        ctx.textAlign = 'left';
+        ctx.fillText('×' + freq, LABEL_W - 8, cy + 10);
+
+        // Heatmap cells
+        for (let ch = 1; ch <= numCols; ch++) {
+            const occ = (occMap[sym.id] || {})[ch];
+            if (!occ) continue;
+            const x = LABEL_W + (ch - 1) * CELL_W + CELL_W / 2;
+            const normI = occ.intensity / maxIntensity;
+            const r = 2 + normI * (CELL_W / 2 - 3);
+            const color = sym.color || '#6c63ff';
+
+            // Glow
+            const grd = ctx.createRadialGradient(x, cy, 0, x, cy, r * 2);
+            grd.addColorStop(0, color + '44');
+            grd.addColorStop(1, color + '00');
+            ctx.beginPath(); ctx.arc(x, cy, r * 2, 0, Math.PI * 2);
+            ctx.fillStyle = grd; ctx.fill();
+
+            // Dot
+            ctx.beginPath(); ctx.arc(x, cy, r, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.globalAlpha = 0.3 + normI * 0.6;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            // Store hit data
+            occ._x = x; occ._y = cy; occ._r = Math.max(r, 6);
+            occ._sym = sym;
+        }
+    });
+
+    // Store row hit data for click-to-expand
+    sorted.forEach((sym, row) => {
+        sym._rowY = HEADER_H + row * CELL_H;
+        sym._rowH = CELL_H;
+    });
+}
+
+// ══════════════════════════════════════════════════
+// INTERACTIONS
+// ══════════════════════════════════════════════════
+function setSort(mode, btn) {
+    sortMode = mode;
+    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    drawHeatmap();
+}
+
+$heatmapArea.addEventListener('mousemove', (e) => {
+    const rect = $heatmap.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * dpr() / dpr();
+    const my = (e.clientY - rect.top) * dpr() / dpr();
+
+    let hit = null;
+    occurrences.forEach(o => {
+        if (o._x === undefined) return;
+        const dx = mx - o._x; const dy = my - o._y;
+        if (Math.sqrt(dx * dx + dy * dy) < o._r + 4) hit = o;
+    });
+
+    if (hit) {
+        hoveredCell = hit;
+        $ttSymbol.textContent = (hit._sym.icon || '') + ' ' + hit._sym.name;
+        $ttChapter.textContent = '第 ' + hit.chapter + ' 章 · 强度 ' + hit.intensity;
+        $ttContext.textContent = hit.context || '';
+        $tooltip.classList.add('visible');
+        $tooltip.style.left = (e.clientX + 16) + 'px';
+        $tooltip.style.top = (e.clientY - 10) + 'px';
+        $heatmapArea.style.cursor = 'pointer';
+    } else {
+        hoveredCell = null;
+        $tooltip.classList.remove('visible');
+        // Check if hovering over a row label area
+        const sorted = getSortedSymbols();
+        let overRow = false;
+        sorted.forEach(sym => {
+            if (mx < LABEL_W && my >= sym._rowY && my < sym._rowY + sym._rowH) {
+                overRow = true;
+                $heatmapArea.style.cursor = 'pointer';
+            }
+        });
+        if (!overRow) $heatmapArea.style.cursor = 'default';
+    }
+});
+
+$heatmapArea.addEventListener('mouseleave', () => {
+    hoveredCell = null;
+    $tooltip.classList.remove('visible');
+});
+
+$heatmapArea.addEventListener('click', (e) => {
+    const rect = $heatmap.getBoundingClientRect();
+    const mx = (e.clientX - rect.left);
+    const my = (e.clientY - rect.top);
+
+    // Click on row label → open sparkline panel
+    if (mx < LABEL_W) {
+        const sorted = getSortedSymbols();
+        sorted.forEach(sym => {
+            if (my >= sym._rowY && my < sym._rowY + sym._rowH) {
+                showSparkline(sym);
+            }
+        });
+        return;
+    }
+    // Click on cell → open sparkline for that symbol
+    if (hoveredCell && hoveredCell._sym) {
+        showSparkline(hoveredCell._sym);
+    }
+});
+
+// ══════════════════════════════════════════════════
+// SPARKLINE PANEL
+// ══════════════════════════════════════════════════
+function showSparkline(sym) {
+    selectedSymbol = sym.id;
+    $spIcon.textContent = sym.icon || '●';
+    $spName.textContent = sym.name;
+    $spNameEn.textContent = sym.nameEn || '';
+
+    // Draw sparkline
+    const w = 280; const h = 60;
+    const ctx = sizeCanvas($spCanvas, w, h);
+    ctx.clearRect(0, 0, w, h);
+    const color = sym.color || '#6c63ff';
+
+    // Build intensity array per chapter
+    const data = [];
+    for (let ch = 1; ch <= maxChapter; ch++) {
+        const occ = (occMap[sym.id] || {})[ch];
+        data.push(occ ? occ.intensity : 0);
+    }
+    const maxVal = Math.max(...data, 1);
+    const xStep = w / (data.length - 1 || 1);
+
+    // Area fill
+    ctx.beginPath();
+    ctx.moveTo(0, h);
+    data.forEach((v, i) => {
+        const x = i * xStep;
+        const y = h - (v / maxVal) * (h - 4);
+        if (i === 0) ctx.lineTo(x, y);
+        else {
+            const px = (i - 1) * xStep;
+            const py = h - (data[i - 1] / maxVal) * (h - 4);
+            const cpx = (px + x) / 2;
+            ctx.bezierCurveTo(cpx, py, cpx, y, x, y);
+        }
+    });
+    ctx.lineTo(w, h); ctx.closePath();
+    ctx.fillStyle = color + '22'; ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    data.forEach((v, i) => {
+        const x = i * xStep;
+        const y = h - (v / maxVal) * (h - 4);
+        if (i === 0) ctx.moveTo(x, y);
+        else {
+            const px = (i - 1) * xStep;
+            const py = h - (data[i - 1] / maxVal) * (h - 4);
+            const cpx = (px + x) / 2;
+            ctx.bezierCurveTo(cpx, py, cpx, y, x, y);
+        }
+    });
+    ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // Dots for non-zero
+    data.forEach((v, i) => {
+        if (v === 0) return;
+        const x = i * xStep;
+        const y = h - (v / maxVal) * (h - 4);
+        ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = color; ctx.fill();
+    });
+
+    // List occurrences
+    $spOccs.innerHTML = '';
+    const symOccs = occurrences.filter(o => o.symbol === sym.id).sort((a, b) => a.chapter - b.chapter);
+    symOccs.forEach(o => {
+        const row = document.createElement('div');
+        row.className = 'occ-row';
+        row.innerHTML = '<span class="occ-ch">Ch.' + o.chapter + '</span><span class="occ-ctx">' + (o.context || '') + '</span>';
+        $spOccs.appendChild(row);
+    });
+
+    $sparkline.classList.add('visible');
+    drawHeatmap();
+}
+
+function closeSparkline() {
+    $sparkline.classList.remove('visible');
+    selectedSymbol = null;
+    drawHeatmap();
+}
+
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSparkline(); });
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+let resizeTimer;
+window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { initHero(); drawHeatmap(); }, 100); });
+
+document.fonts.ready.then(() => {
+    initHero();
+    drawHeatmap();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>白夜行 章回概览 / Chapter Summary</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* ========== CSS Variables ========== */
+        :root {
+            --bg: #0f1117;
+            --card: #1a1d27;
+            --card-hover: #222636;
+            --accent: #6c63ff;
+            --accent2: #ff6b6b;
+            --accent3: #4ecdc4;
+            --accent4: #ffe66d;
+            --text: #e8e8f0;
+            --text-dim: #8888a0;
+            --border: #2a2d3a;
+            --glow: rgba(108,99,255,0.15);
+        }
+
+        /* ========== Reset & Base ========== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* ========== Scroll Progress Bar ========== */
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--accent3));
+            z-index: 9999;
+            transition: width 0.1s linear;
+        }
+
+        /* ========== Hero Section ========== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            padding: 2rem;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .hero-bg canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            animation: floatIcon 4s ease-in-out infinite;
+        }
+
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-15px) rotate(3deg); }
+            50% { transform: translateY(-5px) rotate(-2deg); }
+            75% { transform: translateY(-20px) rotate(1deg); }
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--text), var(--accent4));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: 1.3rem;
+            color: var(--text-dim);
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero .author {
+            font-size: 1rem;
+            color: var(--accent3);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 2rem;
+            letter-spacing: 0.05em;
+        }
+
+        .hero .tagline {
+            font-size: 1.05rem;
+            color: var(--text-dim);
+            font-weight: 300;
+            max-width: 500px;
+            margin: 0 auto 3rem;
+            line-height: 1.9;
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            animation: pulseHint 2.5s ease-in-out infinite;
+        }
+
+        .scroll-hint .arrow {
+            width: 20px;
+            height: 20px;
+            border-right: 2px solid var(--accent);
+            border-bottom: 2px solid var(--accent);
+            transform: rotate(45deg);
+        }
+
+        @keyframes pulseHint {
+            0%, 100% { opacity: 0.4; transform: translateX(-50%) translateY(0); }
+            50% { opacity: 1; transform: translateX(-50%) translateY(8px); }
+        }
+
+        /* ========== Container ========== */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* ========== Section Titles ========== */
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            margin-bottom: 3rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ========== Overview Stats ========== */
+        .overview-section {
+            padding: 5rem 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .stat-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 8px 30px var(--glow);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 2.2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent4);
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.95rem;
+            color: var(--text-dim);
+        }
+
+        .stat-card .stat-sub {
+            font-size: 0.8rem;
+            color: var(--accent3);
+            font-family: 'JetBrains Mono', monospace;
+            margin-top: 0.3rem;
+        }
+
+        /* ========== Chapter Cards ========== */
+        .chapters-section {
+            padding: 5rem 0;
+        }
+
+        .arc-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2.5rem 0 1.5rem;
+        }
+
+        .arc-header:first-child {
+            margin-top: 0;
+        }
+
+        .arc-badge {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--bg);
+            flex-shrink: 0;
+        }
+
+        .arc-badge.g1 { background: linear-gradient(135deg, var(--accent), #8b83ff); }
+        .arc-badge.g2 { background: linear-gradient(135deg, var(--accent2), #ff9a9a); }
+        .arc-badge.g3 { background: linear-gradient(135deg, var(--accent3), #7de8d9); }
+        .arc-badge.g4 { background: linear-gradient(135deg, var(--accent4), #fff099); }
+
+        .arc-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .arc-title-en {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            font-family: 'JetBrains Mono', monospace;
+            margin-left: 0.3rem;
+        }
+
+        .chapter-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 1.2rem;
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .chapter-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .chapter-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 4px 20px var(--glow);
+        }
+
+        .chapter-header {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            padding: 1.5rem 2rem;
+            user-select: none;
+        }
+
+        .chapter-badge {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--bg);
+            flex-shrink: 0;
+        }
+
+        .chapter-badge.g1 { background: linear-gradient(135deg, var(--accent), #8b83ff); }
+        .chapter-badge.g2 { background: linear-gradient(135deg, var(--accent2), #ff9a9a); }
+        .chapter-badge.g3 { background: linear-gradient(135deg, var(--accent3), #7de8d9); }
+        .chapter-badge.g4 { background: linear-gradient(135deg, var(--accent4), #fff099); }
+
+        .chapter-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chapter-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent3);
+            margin-bottom: 0.2rem;
+        }
+
+        .chapter-title {
+            font-size: 1.05rem;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .chapter-expand-icon {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            transition: transform 0.3s;
+            flex-shrink: 0;
+        }
+
+        .chapter-card.expanded .chapter-expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .chapter-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.3s;
+            padding: 0 2rem;
+        }
+
+        .chapter-card.expanded .chapter-details {
+            max-height: 800px;
+            padding: 0 2rem 1.8rem;
+            transition: max-height 0.5s ease-in, padding 0.3s;
+        }
+
+        .chapter-details .divider {
+            height: 1px;
+            background: var(--border);
+            margin-bottom: 1.2rem;
+        }
+
+        .chapter-details h4 {
+            font-size: 0.85rem;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .chapter-events {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .chapter-events li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.6rem;
+            font-size: 0.95rem;
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        .chapter-events li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.65em;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .character-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .char-pill {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .char-pill.core {
+            background: rgba(255,230,109,0.15);
+            color: var(--accent4);
+            border: 1px solid rgba(255,230,109,0.3);
+        }
+
+        .char-pill.police {
+            background: rgba(108,99,255,0.15);
+            color: var(--accent);
+            border: 1px solid rgba(108,99,255,0.3);
+        }
+
+        .char-pill.victim {
+            background: rgba(255,107,107,0.15);
+            color: var(--accent2);
+            border: 1px solid rgba(255,107,107,0.3);
+        }
+
+        .char-pill.other {
+            background: rgba(78,205,196,0.12);
+            color: var(--accent3);
+            border: 1px solid rgba(78,205,196,0.25);
+        }
+
+        /* ========== Timeline Section ========== */
+        .timeline-section {
+            padding: 5rem 0;
+        }
+
+        .timeline-wrapper {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(
+                to bottom,
+                transparent,
+                var(--accent) 10%,
+                var(--accent3) 50%,
+                var(--accent2) 90%,
+                transparent
+            );
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            width: 44%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            transition: border-color 0.3s;
+        }
+
+        .timeline-content:hover {
+            border-color: var(--accent);
+        }
+
+        .timeline-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 3px solid var(--bg);
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+            box-shadow: 0 0 12px var(--glow);
+        }
+
+        .timeline-year {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent4);
+            margin-bottom: 0.2rem;
+        }
+
+        .timeline-label {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .timeline-spacer {
+            width: 44%;
+        }
+
+        @media (max-width: 768px) {
+            .timeline-line {
+                left: 20px;
+            }
+
+            .timeline-item,
+            .timeline-item:nth-child(odd),
+            .timeline-item:nth-child(even) {
+                flex-direction: row;
+                padding-left: 45px;
+            }
+
+            .timeline-dot {
+                left: 20px;
+            }
+
+            .timeline-content {
+                width: 100%;
+            }
+
+            .timeline-spacer {
+                display: none;
+            }
+        }
+
+        /* ========== Themes Section ========== */
+        .themes-section {
+            padding: 5rem 0;
+        }
+
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .theme-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .theme-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .theme-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent3);
+            box-shadow: 0 8px 30px rgba(78,205,196,0.1);
+        }
+
+        .theme-card .theme-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .theme-card .theme-title-zh {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .theme-card .theme-title-en {
+            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent3);
+            margin-bottom: 0.8rem;
+        }
+
+        .theme-card .theme-desc {
+            font-size: 0.92rem;
+            color: var(--text-dim);
+            line-height: 1.8;
+        }
+
+        /* ========== Character Legend ========== */
+        .legend-section {
+            padding: 3rem 0 5rem;
+        }
+
+        .legend-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 2.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: flex-start;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .legend-box.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .legend-group {
+            flex: 1 1 200px;
+        }
+
+        .legend-group-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.6rem;
+        }
+
+        .legend-group-title.core-label { color: var(--accent4); }
+        .legend-group-title.police-label { color: var(--accent); }
+        .legend-group-title.victim-label { color: var(--accent2); }
+        .legend-group-title.other-label { color: var(--accent3); }
+
+        .legend-group .legend-names {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            line-height: 1.8;
+        }
+
+        /* ========== Ending Quote ========== */
+        .ending-quote {
+            padding: 4rem 0 2rem;
+            text-align: center;
+        }
+
+        .ending-quote blockquote {
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+            font-weight: 300;
+            color: var(--text-dim);
+            line-height: 2;
+            padding: 2rem;
+            border-left: 3px solid var(--accent);
+            text-align: left;
+            background: var(--card);
+            border-radius: 0 12px 12px 0;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .ending-quote blockquote.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .ending-quote .quote-source {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent3);
+            margin-top: 1rem;
+            display: block;
+        }
+
+        /* ========== Back Navigation ========== */
+        .back-nav {
+            padding: 3rem 0 5rem;
+            text-align: center;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            padding: 0.8rem 2rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: border-color 0.3s, background 0.3s;
+        }
+
+        .back-link:hover {
+            border-color: var(--accent);
+            background: var(--glow);
+        }
+
+        /* ========== Responsive ========== */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+            .hero .subtitle {
+                font-size: 1.05rem;
+            }
+            .chapter-header {
+                padding: 1.2rem 1.2rem;
+                gap: 0.8rem;
+            }
+            .chapter-details {
+                padding: 0 1.2rem;
+            }
+            .chapter-card.expanded .chapter-details {
+                padding: 0 1.2rem 1.5rem;
+            }
+            .chapter-badge {
+                width: 44px;
+                height: 44px;
+                font-size: 0.95rem;
+                border-radius: 12px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .themes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2.4rem;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Scroll Progress Bar -->
+<div id="progress-bar"></div>
+
+<!-- ==================== HERO SECTION ==================== -->
+<section class="hero">
+    <div class="hero-bg">
+        <canvas id="hero-canvas"></canvas>
+    </div>
+    <div class="hero-content">
+        <div class="hero-icon">🌙</div>
+        <h1>白夜行</h1>
+        <p class="subtitle">Journey Under the Midnight Sun</p>
+        <p class="author">东野圭吾</p>
+        <p class="tagline">Journey Under the Midnight Sun</p>
+    </div>
+    <div class="scroll-hint">
+        <span>向下滚动</span>
+        <div class="arrow"></div>
+    </div>
+</section>
+
+<!-- ==================== OVERVIEW SECTION ==================== -->
+<section class="overview-section">
+    <div class="container">
+        <h2 class="section-title">作品概览</h2>
+        <p class="section-subtitle">Overview</p>
+
+        <div class="stats-grid">
+            <div class="stat-card" data-animate>
+                <div class="stat-icon"></div>
+                <div class="stat-value">13</div>
+                <div class="stat-label">章</div>
+                <div class="stat-sub"></div>
+            </div>
+            <div class="stat-card" data-animate>
+                <div class="stat-icon"></div>
+                <div class="stat-value">1973–1999</div>
+                <div class="stat-label">时间跨度</div>
+                <div class="stat-sub"></div>
+            </div>
+            <div class="stat-card" data-animate>
+                <div class="stat-icon"></div>
+                <div class="stat-value">30+</div>
+                <div class="stat-label">人物</div>
+                <div class="stat-sub"></div>
+            </div>
+            <div class="stat-card" data-animate>
+                <div class="stat-icon"></div>
+                <div class="stat-value"></div>
+                <div class="stat-label"></div>
+                <div class="stat-sub"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== TIMELINE SECTION ==================== -->
+<section class="timeline-section">
+    <div class="container">
+        <h2 class="section-title">时间线</h2>
+        <p class="section-subtitle"></p>
+
+        <div class="timeline-wrapper" id="timeline-container">
+            <div class="timeline-line"></div>
+            <!-- Timeline items rendered dynamically from JS data -->
+        </div>
+    </div>
+</section>
+
+<!-- ==================== CHAPTERS SECTION ==================== -->
+<section class="chapters-section">
+    <div class="container">
+        <h2 class="section-title">章节详解</h2>
+        <p class="section-subtitle">Chapter Breakdown</p>
+
+        <div id="chapters-container"></div>
+    </div>
+</section>
+
+<!-- ==================== THEMES SECTION ==================== -->
+<section class="themes-section">
+    <div class="container">
+        <h2 class="section-title">核心主题</h2>
+        <p class="section-subtitle">Themes</p>
+
+        <div id="themes-container" class="themes-grid"></div>
+    </div>
+</section>
+
+<!-- ==================== CHARACTER LEGEND ==================== -->
+<section class="legend-section">
+    <div class="container">
+        <h2 class="section-title">人物图例</h2>
+        <p class="section-subtitle">Character color legend</p>
+
+        <div id="legend-container" class="legend-box" data-animate></div>
+    </div>
+</section>
+
+<!-- ==================== ENDING QUOTE ==================== -->
+<section class="ending-quote">
+    <div class="container">
+        <blockquote data-animate>
+            
+            <span class="quote-source"></span>
+        </blockquote>
+    </div>
+</section>
+
+<!-- ==================== BACK NAVIGATION ==================== -->
+<div class="back-nav">
+    <a href="index.html" class="back-link">
+        <span>&larr;</span>
+        <span>返回目录 / Back to Index</span>
+    </a>
+</div>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+const arcs = [
+  {
+    "id": "childhood",
+    "title": "童年 · 一切的起点",
+    "titleEn": "Childhood — The Origin",
+    "chapters": [
+      1
+    ],
+    "yearRange": "1973"
+  },
+  {
+    "id": "adolescence",
+    "title": "少年时代 · 暗流涌动",
+    "titleEn": "Adolescence — Undercurrents",
+    "chapters": [
+      2,
+      3,
+      4
+    ],
+    "yearRange": "1977–1980"
+  },
+  {
+    "id": "university",
+    "title": "大学时代 · 犯罪升级",
+    "titleEn": "University — Escalation",
+    "chapters": [
+      5,
+      6
+    ],
+    "yearRange": "1982–1984"
+  },
+  {
+    "id": "marriage",
+    "title": "婚姻与事业 · 步步为营",
+    "titleEn": "Marriage & Business — Strategic Moves",
+    "chapters": [
+      7,
+      8,
+      9
+    ],
+    "yearRange": "1985–1989"
+  },
+  {
+    "id": "investigation",
+    "title": "调查 · 接近真相",
+    "titleEn": "Investigation — Closing In",
+    "chapters": [
+      10,
+      11
+    ],
+    "yearRange": "1991–1992"
+  },
+  {
+    "id": "finale",
+    "title": "终章 · 白夜落幕",
+    "titleEn": "Finale — End of the White Night",
+    "chapters": [
+      12,
+      13
+    ],
+    "yearRange": "1998–1999"
+  }
+];
+
+const chapters = [
+  {
+    "number": 1,
+    "timePeriod": "1973年 · 大阪",
+    "title": "废弃建筑中的谋杀案——一切的起点",
+    "events": [
+      "桐原洋介在废弃建筑中被发现遇害（剪刀刺死）",
+      "刑警笹垣润三开始调查此案",
+      "调查发现死者当天提取了100万日元现金，现金失踪",
+      "死者的儿子桐原亮司（11岁）表现冷漠异常",
+      "西本文代（雪穗母亲）被发现与死者有关系",
+      "田川在典当行被杀案中发现关键线索",
+      "西本文代煤气中毒死亡（疑为自杀）"
+    ],
+    "characters": [
+      {
+        "name": "笹垣润三",
+        "group": "police"
+      },
+      {
+        "name": "桐原亮司",
+        "group": "core"
+      },
+      {
+        "name": "桐原洋介",
+        "group": "victim"
+      },
+      {
+        "name": "西本文代",
+        "group": "victim"
+      },
+      {
+        "name": "唐泽雪穗",
+        "group": "core"
+      }
+    ]
+  },
+  {
+    "number": 2,
+    "timePeriod": "1977年 · 大阪",
+    "title": "初中时代——少女的心机初露端倪",
+    "events": [
+      "川岛江利子与唐泽雪穗成为好友",
+      "秋吉雄一（后改名桐原亮司的朋友）偷拍女生",
+      "清华女子学园发生女生遇袭事件（藤村都子被侵害）",
+      "菊池文彦最初被怀疑，后洗清嫌疑",
+      "雪穗展现出超越年龄的成熟与心机"
+    ],
+    "characters": [
+      {
+        "name": "川岛江利子",
+        "group": "other"
+      },
+      {
+        "name": "唐泽雪穗",
+        "group": "core"
+      },
+      {
+        "name": "秋吉雄一",
+        "group": "other"
+      },
+      {
+        "name": "藤村都子",
+        "group": "victim"
+      },
+      {
+        "name": "菊池文彦",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 3,
+    "timePeriod": "1978年 · 大阪",
+    "title": "友彦被引入亮司的地下世界",
+    "events": [
+      "园村友彦与桐原亮司在高中时期结识",
+      "友彦被桐原引入地下世界",
+      "西口奈美江出场——一个被利用的女性",
+      "花冈夕子（有夫之妇）与友彦发生关系后死亡",
+      "桐原帮助友彦处理了这个危机，友彦开始被桐原控制"
+    ],
+    "characters": [
+      {
+        "name": "园村友彦",
+        "group": "other"
+      },
+      {
+        "name": "桐原亮司",
+        "group": "core"
+      },
+      {
+        "name": "西口奈美江",
+        "group": "victim"
+      },
+      {
+        "name": "花冈夕子",
+        "group": "victim"
+      }
+    ]
+  },
+  {
+    "number": 4,
+    "timePeriod": "1980年 · 大阪",
+    "title": "收养后的雪穗——优雅外表下的秘密",
+    "events": [
+      "中道正晴追求唐泽雪穗，做她的家教",
+      "雪穗被唐泽礼子收养，过着优雅的生活",
+      "正晴调查发现雪穗的真实身世（母亲之死）",
+      "正晴与雪穗的关系发展"
+    ],
+    "characters": [
+      {
+        "name": "中道正晴",
+        "group": "other"
+      },
+      {
+        "name": "唐泽雪穗",
+        "group": "core"
+      },
+      {
+        "name": "唐泽礼子",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 5,
+    "timePeriod": "1982年 · 大阪/东京",
+    "title": "大学时代——江利子遭遇噩梦",
+    "events": [
+      "江利子与雪穗进入不同大学",
+      "筱冢一成出场——筱冢药业继承人",
+      "江利子加入社交舞社，与一成交往",
+      "雪穗开始接近筱冢家族",
+      "江利子遭到性侵，精神崩溃；一成怀疑雪穗与此事有关"
+    ],
+    "characters": [
+      {
+        "name": "川岛江利子",
+        "group": "victim"
+      },
+      {
+        "name": "唐泽雪穗",
+        "group": "core"
+      },
+      {
+        "name": "筱冢一成",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 6,
+    "timePeriod": "1984年 · 大阪",
+    "title": "银行诈骗——友彦越陷越深",
+    "events": [
+      "友彦参与桐原策划的银行诈骗",
+      "桐原展示高超的犯罪技术",
+      "奈美江被桐原安排藏匿",
+      "友彦越陷越深，完全被桐原控制"
+    ],
+    "characters": [
+      {
+        "name": "园村友彦",
+        "group": "other"
+      },
+      {
+        "name": "桐原亮司",
+        "group": "core"
+      },
+      {
+        "name": "西口奈美江",
+        "group": "victim"
+      }
+    ]
+  },
+  {
+    "number": 7,
+    "timePeriod": "1985–1986年 · 东京",
+    "title": "雪穗的精心婚姻布局",
+    "events": [
+      "高宫诚在专利事务所工作",
+      "三泽千都留出场（诚的心上人）",
+      "诚与唐泽雪穗相亲并结婚",
+      "雪穗精心安排结婚对象",
+      "婚礼当天千都留在酒店遭遇意外（暗示被设计）"
+    ],
+    "characters": [
+      {
+        "name": "高宫诚",
+        "group": "other"
+      },
+      {
+        "name": "唐泽雪穗",
+        "group": "core"
+      },
+      {
+        "name": "三泽千都留",
+        "group": "victim"
+      },
+      {
+        "name": "唐泽礼子",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 8,
+    "timePeriod": "1988年 · 东京",
+    "title": "电脑犯罪时代——MUGEN开业",
+    "events": [
+      "友彦开设电脑店MUGEN",
+      "桐原涉足盗版软件和电脑犯罪",
+      "友彦与中岛弘惠交往",
+      "松浦出现——与桐原有旧交",
+      "盗版软件被警方查获"
+    ],
+    "characters": [
+      {
+        "name": "园村友彦",
+        "group": "other"
+      },
+      {
+        "name": "桐原亮司",
+        "group": "core"
+      },
+      {
+        "name": "中岛弘惠",
+        "group": "other"
+      },
+      {
+        "name": "松浦",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 9,
+    "timePeriod": "1989年 · 东京",
+    "title": "R&Y精品店——婚姻的终结",
+    "events": [
+      "诚发现婚姻中的疏离感",
+      "雪穗开设精品店「R&Y」",
+      "诚与千都留重逢",
+      "雪穗发现诚的外遇，主导离婚"
+    ],
+    "characters": [
+      {
+        "name": "高宫诚",
+        "group": "other"
+      },
+      {
+        "name": "唐泽雪穗",
+        "group": "core"
+      },
+      {
+        "name": "三泽千都留",
+        "group": "victim"
+      }
+    ]
+  },
+  {
+    "number": 10,
+    "timePeriod": "1991–1992年 · 东京",
+    "title": "私家侦探今枝——接近真相",
+    "events": [
+      "私家侦探今枝直巳受雇调查雪穗",
+      "今枝发现雪穗与筱冢康晴（一成的堂兄）的关系",
+      "江利子（现姓手冢）被今枝找到做证人",
+      "今枝逐步发现雪穗身边的可疑模式"
+    ],
+    "characters": [
+      {
+        "name": "今枝直巳",
+        "group": "victim"
+      },
+      {
+        "name": "唐泽雪穗",
+        "group": "core"
+      },
+      {
+        "name": "筱冢一成",
+        "group": "other"
+      },
+      {
+        "name": "筱冢康晴",
+        "group": "other"
+      },
+      {
+        "name": "川岛江利子",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 11,
+    "timePeriod": "1992年 · 东京/大阪",
+    "title": "调查被终止——今枝遭遇不测",
+    "events": [
+      "今枝的调查深入，接近真相",
+      "菅原绘里（今枝的女友/线人）被利用接近雪穗",
+      "今枝发现雪穗的精品店R&Y的秘密",
+      "唐泽礼子去世",
+      "今枝调查被突然终止（暗示遭遇不测）"
+    ],
+    "characters": [
+      {
+        "name": "今枝直巳",
+        "group": "victim"
+      },
+      {
+        "name": "唐泽雪穗",
+        "group": "core"
+      },
+      {
+        "name": "菅原绘里",
+        "group": "other"
+      },
+      {
+        "name": "筱冢一成",
+        "group": "other"
+      },
+      {
+        "name": "唐泽礼子",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 12,
+    "timePeriod": "1998年 · 东京/大阪",
+    "title": "十九年后——笹垣重启旧案",
+    "events": [
+      "栗原典子出场——秋吉雄一（实为桐原亮司）的女友",
+      "典子发现秋吉的种种秘密",
+      "筱冢美佳（康晴的女儿）遭到性侵",
+      "一成怀疑亮司是幕后黑手",
+      "笹垣重新开始追查十九年前的旧案",
+      "笹垣拜访桐原弥生子（亮司母亲）"
+    ],
+    "characters": [
+      {
+        "name": "栗原典子",
+        "group": "other"
+      },
+      {
+        "name": "桐原亮司",
+        "group": "core"
+      },
+      {
+        "name": "筱冢美佳",
+        "group": "victim"
+      },
+      {
+        "name": "筱冢一成",
+        "group": "other"
+      },
+      {
+        "name": "笹垣润三",
+        "group": "police"
+      }
+    ]
+  },
+  {
+    "number": 13,
+    "timePeriod": "1999年 · 东京/大阪",
+    "title": "终章——白色影子的背影",
+    "events": [
+      "笹垣与一成联手，真相逐步浮现",
+      "典子发现秋吉的真实身份（桐原亮司）",
+      "美佳再次成为目标",
+      "R&Y大阪店开业",
+      "亮司在商场被发现死亡（从高处坠落/剪刀自刺）",
+      "雪穗离开现场，没有回头",
+      "「只见雪穗正沿扶梯上楼，她的背影犹如白色的影子」"
+    ],
+    "characters": [
+      {
+        "name": "笹垣润三",
+        "group": "police"
+      },
+      {
+        "name": "筱冢一成",
+        "group": "other"
+      },
+      {
+        "name": "桐原亮司",
+        "group": "core"
+      },
+      {
+        "name": "唐泽雪穗",
+        "group": "core"
+      },
+      {
+        "name": "栗原典子",
+        "group": "other"
+      }
+    ]
+  }
+];
+
+const themes = [
+  {
+    "icon": "🌗",
+    "titleZh": "光与影",
+    "titleEn": "Light & Shadow",
+    "desc": "雪穗是「光」，亮司是「影」，两人共生但不能共存于阳光下。她在明处步步高升，他在暗处默默清除一切障碍。"
+  },
+  {
+    "icon": "🎭",
+    "titleZh": "真相与谎言",
+    "titleEn": "Truth & Lies",
+    "desc": "每个人物都有表面身份与隐藏真相。全书从未直接描写两位主角的内心，读者只能从旁观者的视角拼凑真相。"
+  },
+  {
+    "icon": "💔",
+    "titleZh": "爱与牺牲",
+    "titleEn": "Love & Sacrifice",
+    "desc": "亮司为雪穗牺牲一切，包括他的灵魂。他放弃了正常的生活、身份，甚至生命，只为让她能够行走在白天。"
+  },
+  {
+    "icon": "🪞",
+    "titleZh": "身份与伪装",
+    "titleEn": "Identity & Disguise",
+    "desc": "雪穗的多次身份重塑——从西本雪穗到唐泽雪穗，再到高宫雪穗。亮司则隐姓埋名，化身秋吉雄一生活在暗处。"
+  }
+];
+
+const groupConfig = {
+  "core": {
+    "color": "#ffe66d",
+    "label": "核心"
+  },
+  "police": {
+    "color": "#6c63ff",
+    "label": "警方"
+  },
+  "yukiho": {
+    "color": "#4ecdc4",
+    "label": "雪穗圈"
+  },
+  "ryoji": {
+    "color": "#ff6b6b",
+    "label": "亮司圈"
+  },
+  "victim": {
+    "color": "#cc7777",
+    "label": "受害者"
+  }
+};
+
+
+// ========== Dynamic Rendering ==========
+(function() {
+    'use strict';
+
+    const gradientClasses = ['g1', 'g2', 'g3', 'g4'];
+
+    // ---- Render Timeline ----
+    function renderTimeline() {
+        if (typeof timeline === 'undefined' || !timeline.length) return;
+        const container = document.getElementById('timeline-container');
+        timeline.forEach(function(item) {
+            const el = document.createElement('div');
+            el.className = 'timeline-item';
+            el.setAttribute('data-animate', '');
+            el.innerHTML =
+                '<div class="timeline-content">' +
+                    '<div class="timeline-year">' + item.year + '</div>' +
+                    '<div class="timeline-label">' + item.label + '</div>' +
+                '</div>' +
+                '<div class="timeline-dot"></div>' +
+                '<div class="timeline-spacer"></div>';
+            container.appendChild(el);
+        });
+    }
+
+    // ---- Render Chapters (grouped by arc) ----
+    function renderChapters() {
+        if (typeof chapters === 'undefined' || !chapters.length) return;
+        var container = document.getElementById('chapters-container');
+        var arcMap = {};
+
+        // Build arc lookup
+        if (typeof arcs !== 'undefined') {
+            arcs.forEach(function(arc) { arcMap[arc.id] = arc; });
+        }
+
+        // Group chapters by arcId
+        var grouped = {};
+        var arcOrder = [];
+        chapters.forEach(function(ch) {
+            var aid = ch.arcId || '_default';
+            if (!grouped[aid]) {
+                grouped[aid] = [];
+                arcOrder.push(aid);
+            }
+            grouped[aid].push(ch);
+        });
+
+        arcOrder.forEach(function(arcId, arcIndex) {
+            var arc = arcMap[arcId];
+
+            // Arc header
+            if (arc) {
+                var arcHeader = document.createElement('div');
+                arcHeader.className = 'arc-header';
+                var badgeClass = gradientClasses[arcIndex % gradientClasses.length];
+                arcHeader.innerHTML =
+                    '<span class="arc-badge ' + badgeClass + '">' + arc.id.toUpperCase() + '</span>' +
+                    '<span class="arc-title">' + arc.title +
+                        (arc.titleEn ? ' <span class="arc-title-en">' + arc.titleEn + '</span>' : '') +
+                    '</span>';
+                container.appendChild(arcHeader);
+            }
+
+            // Chapter cards within this arc
+            grouped[arcId].forEach(function(ch) {
+                var num = String(ch.number).padStart(2, '0');
+                var gClass = gradientClasses[(ch.number - 1) % gradientClasses.length];
+
+                // Build events list
+                var eventsHtml = '';
+                if (ch.events && ch.events.length) {
+                    eventsHtml = '<h4>// key events</h4><ul class="chapter-events">';
+                    ch.events.forEach(function(ev) {
+                        eventsHtml += '<li>' + ev + '</li>';
+                    });
+                    eventsHtml += '</ul>';
+                }
+
+                // Build character pills
+                var charsHtml = '';
+                if (ch.characters && ch.characters.length) {
+                    charsHtml = '<h4>// characters</h4><div class="character-tags">';
+                    ch.characters.forEach(function(c) {
+                        var group = 'other';
+                        if (typeof groupConfig !== 'undefined') {
+                            for (var g in groupConfig) {
+                                if (groupConfig[g] && groupConfig[g].indexOf(c) !== -1) {
+                                    group = g;
+                                    break;
+                                }
+                            }
+                        }
+                        charsHtml += '<span class="char-pill ' + group + '">' + c + '</span>';
+                    });
+                    charsHtml += '</div>';
+                }
+
+                var card = document.createElement('div');
+                card.className = 'chapter-card';
+                card.setAttribute('data-animate', '');
+                card.setAttribute('onclick', "this.classList.toggle('expanded')");
+                card.innerHTML =
+                    '<div class="chapter-header">' +
+                        '<div class="chapter-badge ' + gClass + '">' + num + '</div>' +
+                        '<div class="chapter-info">' +
+                            (ch.timePeriod ? '<div class="chapter-time">' + ch.timePeriod + '</div>' : '') +
+                            '<div class="chapter-title">' + ch.title + '</div>' +
+                        '</div>' +
+                        '<div class="chapter-expand-icon">▼</div>' +
+                    '</div>' +
+                    '<div class="chapter-details">' +
+                        '<div class="divider"></div>' +
+                        eventsHtml +
+                        charsHtml +
+                    '</div>';
+
+                container.appendChild(card);
+            });
+        });
+    }
+
+    // ---- Render Themes ----
+    function renderThemes() {
+        if (typeof themes === 'undefined' || !themes.length) return;
+        var container = document.getElementById('themes-container');
+        themes.forEach(function(t) {
+            var card = document.createElement('div');
+            card.className = 'theme-card';
+            card.setAttribute('data-animate', '');
+            card.innerHTML =
+                '<div class="theme-icon">' + (t.icon || '') + '</div>' +
+                '<div class="theme-title-zh">' + t.titleZh + '</div>' +
+                '<div class="theme-title-en">' + t.titleEn + '</div>' +
+                '<p class="theme-desc">' + t.desc + '</p>';
+            container.appendChild(card);
+        });
+    }
+
+    // ---- Render Character Legend ----
+    function renderLegend() {
+        if (typeof groupConfig === 'undefined') return;
+        var container = document.getElementById('legend-container');
+        var labelMap = {
+            core: { css: 'core-label', label: '核心双主角 / Core' },
+            police: { css: 'police-label', label: '警方 / Police' },
+            victim: { css: 'victim-label', label: '受害者 / Victims' },
+            other: { css: 'other-label', label: '其他关键人物 / Others' }
+        };
+
+        for (var group in groupConfig) {
+            if (!groupConfig[group] || !groupConfig[group].length) continue;
+            var info = labelMap[group] || { css: 'other-label', label: group };
+            var div = document.createElement('div');
+            div.className = 'legend-group';
+            div.innerHTML =
+                '<div class="legend-group-title ' + info.css + '">● ' + info.label + '</div>' +
+                '<div class="legend-names">' + groupConfig[group].join('、') + '</div>';
+            container.appendChild(div);
+        }
+    }
+
+    // ---- Execute Rendering ----
+    renderTimeline();
+    renderChapters();
+    renderThemes();
+    renderLegend();
+
+    // ========== Scroll Progress Bar ==========
+    var progressBar = document.getElementById('progress-bar');
+
+    function updateProgress() {
+        var scrollTop = window.scrollY;
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        progressBar.style.width = progress + '%';
+    }
+
+    window.addEventListener('scroll', updateProgress, { passive: true });
+
+    // ========== IntersectionObserver: Fade-in on Scroll ==========
+    var animatedElements = document.querySelectorAll('[data-animate]');
+
+    var observerOptions = {
+        root: null,
+        rootMargin: '0px 0px -60px 0px',
+        threshold: 0.1
+    };
+
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry, index) {
+            if (entry.isIntersecting) {
+                // Stagger the animation for sibling elements
+                var siblings = entry.target.parentElement.querySelectorAll('[data-animate]');
+                var delay = 0;
+                siblings.forEach(function(sib, i) {
+                    if (sib === entry.target) {
+                        delay = i * 100;
+                    }
+                });
+
+                setTimeout(function() {
+                    entry.target.classList.add('visible');
+                }, delay);
+
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    animatedElements.forEach(function(el) {
+        observer.observe(el);
+    });
+
+    // ========== Hero Canvas: Floating Particles ==========
+    var canvas = document.getElementById('hero-canvas');
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var animFrame;
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    function createParticles() {
+        particles = [];
+        var count = Math.floor((canvas.width * canvas.height) / 18000);
+        for (var i = 0; i < count; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 1.8 + 0.3,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3,
+                alpha: Math.random() * 0.4 + 0.1,
+                color: pickColor()
+            });
+        }
+    }
+
+    function pickColor() {
+        var colors = [
+            'rgba(108,99,255,',   // accent
+            'rgba(255,107,107,',  // accent2
+            'rgba(78,205,196,',   // accent3
+            'rgba(255,230,109,',  // accent4
+            'rgba(232,232,240,'   // text
+        ];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function drawParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (var i = 0; i < particles.length; i++) {
+            var p = particles[i];
+
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // Wrap around edges
+            if (p.x < -5) p.x = canvas.width + 5;
+            if (p.x > canvas.width + 5) p.x = -5;
+            if (p.y < -5) p.y = canvas.height + 5;
+            if (p.y > canvas.height + 5) p.y = -5;
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fillStyle = p.color + p.alpha + ')';
+            ctx.fill();
+        }
+
+        // Draw connections
+        for (var i = 0; i < particles.length; i++) {
+            for (var j = i + 1; j < particles.length; j++) {
+                var dx = particles[i].x - particles[j].x;
+                var dy = particles[i].y - particles[j].y;
+                var dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 100) {
+                    var alpha = (1 - dist / 100) * 0.08;
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = 'rgba(108,99,255,' + alpha + ')';
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        animFrame = requestAnimationFrame(drawParticles);
+    }
+
+    resizeCanvas();
+    createParticles();
+    drawParticles();
+
+    window.addEventListener('resize', function() {
+        resizeCanvas();
+        createParticles();
+    });
+
+    // Pause animation when hero is not visible
+    var heroSection = document.querySelector('.hero');
+    var heroObserver = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) {
+            if (!animFrame) drawParticles();
+        } else {
+            if (animFrame) {
+                cancelAnimationFrame(animFrame);
+                animFrame = null;
+            }
+        }
+    }, { threshold: 0.05 });
+
+    heroObserver.observe(heroSection);
+
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>子字符串查找 · Substring Search | Chapter 22</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
+/* Block: code-evolution */
+.evolution-timeline { position: relative; padding-left: 50px; }
+.evolution-timeline::before { content: ''; position: absolute; left: 30px; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--accent), var(--accent3), var(--accent2)); border-radius: 2px; }
+.evo-step { position: relative; padding-left: 30px; margin-bottom: 2rem; }
+.evo-dot { position: absolute; left: -30px; top: 5px; width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--accent); background: var(--bg); z-index: 1; }
+.evo-step.active .evo-dot { background: var(--accent); box-shadow: 0 0 12px rgba(108,99,255,0.5); }
+.evo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all 0.3s; }
+.evo-card:hover { border-color: var(--accent); }
+.evo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+.evo-title { font-weight: 700; }
+.evo-speed { font-family: var(--font-mono); font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 1rem; }
+.evo-speed.success { background: rgba(52,211,153,0.15); color: var(--success); }
+.evo-speed.danger { background: rgba(248,113,113,0.15); color: var(--danger); }
+.evo-speed.neutral { background: rgba(136,136,160,0.15); color: var(--text-dim); }
+.evo-desc { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 10px; }
+.evo-code { background: #12141c; border: 1px solid #1e2030; border-radius: 0.5rem; padding: 1rem; font-family: var(--font-mono); font-size: 0.8rem; color: #a0a0c0; overflow-x: auto; white-space: pre; }
+
+
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* Block: bar-chart */
+.bar-chart { display: flex; flex-direction: column; gap: 12px; }
+.bar-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 1rem; }
+.bar-label { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; color: var(--text-dim); }
+.bar-track { height: 32px; background: rgba(255,255,255,0.03); border-radius: 0.5rem; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 0.5rem; display: flex; align-items: center; padding-left: 0.75rem; font-size: 0.75rem; font-family: var(--font-mono); color: #fff; transition: width 1.5s ease-out; }
+.bar-fill.success { background: linear-gradient(90deg, var(--accent3), #2dd4bf); }
+.bar-fill.danger { background: linear-gradient(90deg, var(--accent2), #ef4444); }
+.bar-fill.neutral { background: linear-gradient(90deg, var(--accent), #8b5cf6); }
+.bar-fill.warning { background: linear-gradient(90deg, var(--accent4), var(--warning)); }
+.bar-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; }
+
+
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 22 / 25 · Part V · Strings 字符串</div>
+        <div class="hero-icon">🔎</div>
+        <h1 class="hero-title">子字符串查找</h1>
+        <p class="hero-sub">如同在一望无际的稻草堆里找一根针，子字符串查找的四种算法展示了从暴力到精妙的完整进化光谱</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">核心类比：在稻草堆里找针的四种策略</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">🔍</div>
+            <div class="analogy-label">现实：在书中找一个词</div>
+            <div class="analogy-desc">笨办法：逐页逐行对照，每次失配从下一个字符重新开始
+聪明办法：利用已读过的内容跳过不可能的位置
+更聪明的办法：从词的最后一个字母开始匹配，一次跳过多个位置</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">💻</div>
+            <div class="analogy-label">算法：四种子字符串查找</div>
+            <div class="analogy-desc">暴力法：O(MN)，对每个位置逐字比较
+KMP：构建 DFA，永不回退文本指针，保证 O(M+N)
+Boyer-Moore：从右向左扫描，典型情况下只检查 N/M 个字符
+Rabin-Karp：用哈希指纹做快速筛选，O(M+N) 期望时间</div>
+        </div>
+    </div>
+    
+</section>
+
+<!-- Block: code-evolution — Step-by-step code transformation timeline -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">从暴力到精妙：子字符串查找的进化之路</div>
+    <p class="section-intro" style="color:var(--text-dim);margin-bottom:2rem;">四种算法代表了四种截然不同的设计思路，每一步进化都是对「如何利用已知信息」的更深思考。</p>
+    <div class="evolution-timeline" id="evoTimeline-block2"></div>
+</section>
+
+<!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block3" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">💡 </div>
+        <div class="insight-content">构建 DFA 最精妙的部分是：我们用「部分构建好的 DFA」来计算「还没构建的部分」。维护一个重启状态 X，它代表「如果我们回退并重新扫描已匹配字符，DFA 会到达的状态」。因为 X < j，所以 DFA 在位置 X 的行为已经确定，可以直接复制 dfa[][X] 到 dfa[][j] 作为失配转移，然后覆盖匹配转移为 j+1。这种「自举」构造让整个预处理只需 O(MR) 时间。</div>
+    </div>
+</section>
+
+<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
+<section id="sec-block4" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">暴力法的两种实现：显式回退 vs 隐式回退</div>
+    <div class="comparison-grid">
+        <div class="comparison-side hard">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">版本1：i 指向匹配起点</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">for (int i = 0; i <= N - M; i++) {
+    int j;
+    for (j = 0; j < M; j++)
+        if (txt.charAt(i+j) != pat.charAt(j))
+            break;
+    if (j == M) return i;
+}</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side smart">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">版本2：i 指向匹配终点（显式回退）</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">for (i = 0, j = 0; i < N && j < M; i++) {
+    if (txt.charAt(i) == pat.charAt(j)) j++;
+    else { i -= j; j = 0; }  // 回退!
+}
+if (j == M) return i - M;</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">版本2 让回退行为变得显式：失配时 i 需要回退 j 个位置。KMP 的核心贡献就是消除了这个回退——通过 DFA 直接跳到正确的模式位置，i 永远只往前走。这对流式输入（如网络数据）至关重要，因为你无法回退已经读过的数据。</div></div>
+</section>
+
+<!-- Block: bar-chart — Horizontal bar chart -->
+<section id="sec-block5" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">四种算法性能特征对比</div>
+    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
+    <div class="bar-chart" id="barChart-block5"></div>
+</section>
+
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block6" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">如何选择子字符串查找算法</div>
+    <div class="tips-grid" id="tipsGrid-block6"></div>
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "子字符串查找 = 在长文本中定位短模式的出现位置，核心挑战是如何避免重复比较已经看过的字符"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "想象你在一本厚书里找一个词：暴力法是逐行逐字对照；聪明的做法是记住已经对过的内容，跳过不可能匹配的位置"
+  },
+  {
+    "step": 3,
+    "title": "发现盲点",
+    "desc": "KMP 永不回退文本指针但需要预处理 DFA；Boyer-Moore 从右往左比较能跳过大量字符但需要回退；Rabin-Karp 用哈希避免逐字比较但依赖概率正确性——每种方法都有隐藏的代价"
+  },
+  {
+    "step": 4,
+    "title": "简化与类比",
+    "desc": "四种算法就像四种找人策略：暴力法是挨家挨户敲门；KMP 是带着通讯录按线索推进；Boyer-Moore 是从特征最明显的地方开始排查；Rabin-Karp 是先看指纹再验身份"
+  }
+];
+const takeaways = [
+  {
+    "icon": "🧠",
+    "title": "利用已知信息",
+    "text": "KMP 的核心洞察：失配时你已经知道文本中前 j-1 个字符是什么（它们就是模式的前缀），这些信息足以决定下一步该做什么，无需回退重来。"
+  },
+  {
+    "icon": "🔄",
+    "title": "逆向思维的威力",
+    "text": "Boyer-Moore 从右向左比较模式，一个看似微小的改变带来了数量级的性能提升——典型情况下只需检查 N/M 个字符，相当于每 M 个字符只看一个。"
+  },
+  {
+    "icon": "🎲",
+    "title": "用概率换确定性",
+    "text": "Rabin-Karp 的 Monte Carlo 版本放弃了 100% 的正确性保证（错误概率 < 10^-20），换来了严格的线性时间保证和极简的实现，这种权衡在实践中非常值得。"
+  },
+  {
+    "icon": "🏗️",
+    "title": "自举构造的优雅",
+    "text": "KMP 用「部分构建好的 DFA」来构建「DFA 的剩余部分」，这种自举（bootstrap）思想在计算机科学中反复出现，如编译器自编译、递归定义等。"
+  },
+  {
+    "icon": "⚖️",
+    "title": "没有完美的算法",
+    "text": "暴力法简单但最坏 O(MN)；KMP 保证线性但需 O(MR) 额外空间；Boyer-Moore 典型最快但最坏 O(MN)；Rabin-Karp 灵活但内循环操作多——选择取决于具体场景。"
+  },
+  {
+    "icon": "📡",
+    "title": "回退能力决定算法选择",
+    "text": "能否回退文本指针是关键分水岭：能回退时 Boyer-Moore 通常最快；不能回退时（流式数据）KMP 和 Rabin-Karp 是唯一选择。"
+  }
+];
+const quiz = [
+  {
+    "id": "q1",
+    "question": "KMP 算法在构建 DFA 时，为什么可以用「部分构建好的 DFA」来计算后续列？重启状态 X 的含义是什么？",
+    "answer": "重启状态 X 代表：当在位置 j 发生失配时，如果我们假装回退文本指针并从右移一位的位置重新扫描，DFA 最终会到达的状态。因为需要重新扫描的字符是 pat[1..j-1]（模式自身的子串），而这些位置的 DFA 转移已经在之前的步骤中计算好了（X < j），所以我们可以直接复制 dfa[][X] 作为 dfa[][j] 的失配转移，再将匹配转移设为 j+1。X 本身也通过已构建的 DFA 更新：X = dfa[pat.charAt(j)][X]。"
+  },
+  {
+    "id": "q2",
+    "question": "Boyer-Moore 的失配字符启发式为什么在二进制字符串上效果不好？",
+    "answer": "因为二进制字符串只有 0 和 1 两种字符，两者都极有可能出现在模式中。失配字符启发式的威力在于：当失配字符不在模式中时可以跳过 M 个位置。但在二进制串中，几乎每个失配字符都在模式中出现，导致跳跃距离很小，退化为接近暴力法的性能。对此的解决方案是将多个比特打包成一个「字符」来增大字母表。"
+  },
+  {
+    "id": "q3",
+    "question": "Rabin-Karp 算法的 Monte Carlo 版本和 Las Vegas 版本有什么区别？各自的时间复杂度保证是什么？",
+    "answer": "Monte Carlo 版本：哈希匹配后不验证实际字符，直接返回结果。保证 O(7N) 运行时间，但有极小概率（< 10^-20）返回错误结果（哈希碰撞导致误报）。\nLas Vegas 版本：哈希匹配后逐字符验证，保证结果 100% 正确，但在极端情况下（大量哈希碰撞）可能退化为 O(MN)，不过这种情况的概率极低。\n核心权衡：Monte Carlo 用正确性的微小不确定性换取时间的确定性；Las Vegas 用时间的微小不确定性换取正确性的确定性。"
+  },
+  {
+    "id": "q4",
+    "question": "用你自己的话解释：为什么 KMP 对流式输入特别重要？",
+    "answer": "流式输入（如网络数据、标准输入）的特点是：数据像水流一样经过，读过的字符就消失了，无法回头再看。暴力法和 Boyer-Moore 在失配时都需要「回退」文本指针去重新检查已经看过的字符，这对流式输入是不可能的（除非你用缓冲区把数据存起来，但那既占内存又增加了复杂性）。KMP 的 DFA 保证文本指针只向前移动——每个字符恰好被读取一次，读完就可以丢弃。这意味着你可以一边接收数据一边搜索模式，不需要任何额外的缓冲。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "当你在文本编辑器中按 Ctrl+F 搜索一个词时，你认为程序是逐个字符对比的，还是有更聪明的方法？",
+    "hint": "想想如果搜索词的最后一个字母在文本中根本不出现，我们能跳过多少字符"
+  },
+  {
+    "question": "如果在一个不能回退的数据流（比如网络传输）中搜索模式，你觉得和在普通文件中搜索有什么不同？",
+    "hint": "想想当你发现失配时，能不能回头重新看之前的字符"
+  },
+  {
+    "question": "你觉得用哈希值来代替逐字符比较靠谱吗？会不会出错？",
+    "hint": "想想两个不同的字符串是否可能有相同的哈希值"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "Boyer-Moore 在典型情况下只需 ~N/M 次字符比较",
+    "evidence": "当模式中大部分字母表字符不出现时，几乎每次失配都可以跳过 M 个位置。书中 NEEDLE 在 FINDINAHAYSTACKNEEDLE 中的例子仅用 4 次比较（加 6 次验证）就找到匹配",
+    "counterpoint": "这个结论依赖于大字母表（如 ASCII 256 字符）。在二进制字符串或 DNA 序列（仅 4 个字符）中，跳跃距离大幅缩小，Boyer-Moore 失去优势甚至退化为 O(MN)"
+  },
+  {
+    "claim": "Rabin-Karp 的 Monte Carlo 版本错误概率可以忽略不计（< 10^-20）",
+    "evidence": "使用大于 10^20 的随机素数 Q 作为模数，随机字符串的碰撞概率为 1/Q，在实际中几乎不可能发生碰撞",
+    "counterpoint": "这个分析假设了均匀独立的哈希函数。在对抗性场景（如恶意构造的输入）中，攻击者可能针对特定的 Q 值构造碰撞。此外，重复运行多次搜索会累积错误概率，在大规模系统中需要注意"
+  },
+  {
+    "claim": "KMP 在实践中的加速效果有限",
+    "evidence": "书中指出「few applications involve searching for highly self-repetitive patterns in highly self-repetitive text」，KMP 的优势主要体现在最坏情况保证上",
+    "counterpoint": "KMP 的真正价值不仅是速度，更是「不回退」特性。在流式处理、实时系统和嵌入式设备中，无法负担缓冲区的开销，KMP 的不回退保证是不可替代的"
+  }
+];
+const application = [
+  {
+    "scenario": "实现文本编辑器的查找/替换功能",
+    "action": "使用 Boyer-Moore 算法：用户搜索的关键词通常较短（M 很小），而文档可能很长（N 很大），右向左扫描能大幅减少比较次数。对于英文文本效果尤其好——大部分 ASCII 字符不在搜索词中出现，每次失配可跳过整个模式长度。"
+  },
+  {
+    "scenario": "在网络入侵检测系统（IDS）中实时扫描数据包",
+    "action": "使用 KMP 或 Rabin-Karp：网络数据是流式的，无法回退已经检查过的数据包。KMP 保证每个字节只检查一次；Rabin-Karp 可以同时搜索多个攻击特征（将所有特征的哈希存入集合，一次遍历即可检测所有已知攻击模式）。"
+  },
+  {
+    "scenario": "在基因组数据库中搜索特定 DNA 序列",
+    "action": "使用 Rabin-Karp 的滚动哈希：DNA 只有 4 个碱基（A/T/C/G），Boyer-Moore 失配跳跃效果差。Rabin-Karp 的哈希方法不依赖字母表大小，且可以扩展到二维模式匹配（如蛋白质结构搜索）。同时搜索多个短序列时，哈希集合方法比逐个搜索高效得多。"
+  }
+];
+const chapterNav = {"prev": {"num": 21, "title": "单词查找树", "href": "ch21.html"}, "next": {"num": 23, "title": "正则表达式", "href": "ch23.html"}};
+window.evoData_block2 = [
+  {
+    "title": "暴力法：最直观的逐位比较",
+    "badge": "O(MN) 最坏",
+    "desc": "对文本中每个可能的起始位置，逐字符与模式比较。失配时回退文本指针，从下一个位置重新开始。实际中大多数字符在第一次比较就失配，所以平均接近 O(N)。",
+    "code": "public static int search(String pat, String txt) {\n    int M = pat.length(), N = txt.length();\n    for (int i = 0; i <= N - M; i++) {\n        int j;\n        for (j = 0; j < M; j++)\n            if (txt.charAt(i+j) != pat.charAt(j)) break;\n        if (j == M) return i;  // found\n    }\n    return N;  // not found\n}"
+  },
+  {
+    "title": "KMP：永不回退的有限状态机",
+    "badge": "O(M+N) 保证",
+    "desc": "关键洞察：失配时我们已经知道文本中前 j-1 个字符（它们就是模式的前 j-1 个字符）。利用这些已知信息，预计算一个 DFA 来决定失配时跳转到模式的哪个位置，从而永不回退文本指针 i。",
+    "code": "// DFA 构造\ndfa[pat.charAt(0)][0] = 1;\nfor (int X = 0, j = 1; j < M; j++) {\n    for (int c = 0; c < R; c++)\n        dfa[c][j] = dfa[c][X];      // 复制失配转移\n    dfa[pat.charAt(j)][j] = j + 1;  // 设置匹配转移\n    X = dfa[pat.charAt(j)][X];      // 更新重启状态\n}\n// 搜索：只需一行核心逻辑\nfor (i = 0, j = 0; i < N && j < M; i++)\n    j = dfa[txt.charAt(i)][j];"
+  },
+  {
+    "title": "Boyer-Moore：从右向左的跳跃式扫描",
+    "badge": "~N/M 典型",
+    "desc": "逆向思维：从模式的最后一个字符开始比较。如果失配字符不在模式中，可以一次跳过 M 个位置！用 right[] 数组记录每个字符在模式中最右出现的位置，失配时据此计算跳跃距离。",
+    "code": "// 预计算 right[] 跳跃表\nfor (int c = 0; c < R; c++) right[c] = -1;\nfor (int j = 0; j < M; j++) right[pat.charAt(j)] = j;\n\n// 搜索：从右向左匹配\nfor (int i = 0; i <= N - M; i += skip) {\n    skip = 0;\n    for (int j = M - 1; j >= 0; j--)\n        if (pat.charAt(j) != txt.charAt(i + j)) {\n            skip = Math.max(1, j - right[txt.charAt(i+j)]);\n            break;\n        }\n    if (skip == 0) return i;  // found\n}"
+  },
+  {
+    "title": "Rabin-Karp：哈希指纹的概率匹配",
+    "badge": "O(M+N) 期望",
+    "desc": "完全不同的思路：将 M 个字符视为一个 R 进制数，用模运算计算哈希指纹。利用滚动哈希在 O(1) 时间内从位置 i 的哈希值推导出位置 i+1 的哈希值。匹配概率极高（错误概率 < 10^-20）。",
+    "code": "// 滚动哈希的核心：常数时间更新\n// x_i = t_i * R^(M-1) + t_(i+1) * R^(M-2) + ... + t_(i+M-1)\n// x_(i+1) = (x_i - t_i * R^(M-1)) * R + t_(i+M)\nfor (int i = M; i < N; i++) {\n    txtHash = (txtHash + Q - RM * txt.charAt(i-M) % Q) % Q;\n    txtHash = (txtHash * R + txt.charAt(i)) % Q;\n    if (patHash == txtHash && check(i - M + 1))\n        return i - M + 1;  // match\n}"
+  }
+];
+window.barData_block5 = [
+  {
+    "label": "暴力法",
+    "value": "MN",
+    "pct": 100,
+    "note": "最坏 O(MN)"
+  },
+  {
+    "label": "KMP",
+    "value": "M+N",
+    "pct": 20,
+    "note": "保证线性"
+  },
+  {
+    "label": "Boyer-Moore",
+    "value": "N/M ~ MN",
+    "pct": 10,
+    "note": "典型亚线性"
+  },
+  {
+    "label": "Rabin-Karp",
+    "value": "M+N",
+    "pct": 20,
+    "note": "期望线性"
+  }
+];
+window.tipsData_block6 = [
+  {
+    "icon": "🌊",
+    "title": "流式输入？用 KMP",
+    "text": "KMP 永不回退文本指针，适合处理网络流、标准输入等无法回退的数据源"
+  },
+  {
+    "icon": "📝",
+    "title": "文本编辑器？用 Boyer-Moore",
+    "text": "英文文本中大量字符不在短模式中出现，Boyer-Moore 的跳跃优势最大，通常只检查 N/M 个字符"
+  },
+  {
+    "icon": "🖼️",
+    "title": "二维模式匹配？用 Rabin-Karp",
+    "text": "Rabin-Karp 可以自然扩展到二维文本中的二维模式搜索，这是其他方法难以做到的"
+  },
+  {
+    "icon": "🛡️",
+    "title": "需要简单可靠？用暴力法",
+    "text": "Java 的 String.indexOf() 就用暴力法——实现简单，在实际文本上性能接近线性，且没有预处理开销"
+  },
+  {
+    "icon": "🎲",
+    "title": "能接受概率正确？用 Monte Carlo Rabin-Karp",
+    "text": "错误概率低于 10^-20，省去验证步骤，获得严格线性时间保证"
+  },
+  {
+    "icon": "🔎",
+    "title": "多模式同时搜索？用 Rabin-Karp",
+    "text": "将多个模式的哈希值存入集合，一次遍历文本即可同时搜索所有模式"
+  }
+];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: bar-chart
+(function() {
+    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
+        const blockId = container.id.replace('barChart-', '');
+        const dataVar = window['barData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(bar => {
+            const div = document.createElement('div');
+            div.className = 'bar-row fade-in';
+            const colorClass = bar.warning ? 'danger' : 'success';
+            div.innerHTML = `
+                <div class="bar-label">${bar.label}</div>
+                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
+                <div class="bar-value">${bar.value || ''}</div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: tips-grid
+(function() {
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'tip-card fade-in';
+            div.innerHTML = `
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: code-evolution
+(function() {
+    document.querySelectorAll('[id^="evoTimeline-"]').forEach(container => {
+        const blockId = container.id.replace('evoTimeline-', '');
+        const dataVar = window['evoData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach((step, i) => {
+            const div = document.createElement('div');
+            div.className = 'evo-step' + (i === 0 ? ' active' : '') + ' fade-in';
+            const badge = step.badge || '';
+            const speedClass = badge.match(/O\(1\)|\u03B1|lg/) ? 'success' : badge.match(/O\(N\)/) ? 'danger' : 'neutral';
+            div.innerHTML = `
+                <div class="evo-dot"></div>
+                <div class="evo-card">
+                    <div class="evo-header">
+                        <span class="evo-title">${step.title}</span>
+                        <span class="evo-speed ${speedClass}">${badge}</span>
+                    </div>
+                    <div class="evo-desc">${step.desc || ''}</div>
+                    ${step.code ? '<pre class="evo-code">' + step.code + '</pre>' : ''}
+                </div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

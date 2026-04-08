@@ -1,0 +1,3412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>红楼梦 事件时间线 / Event Timeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108,99,255,0.15);
+}
+
+html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans SC', sans-serif;
+}
+
+/* ── Hero ── */
+.hero {
+    height: 25vh;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, #13151f 0%, var(--bg) 100%);
+}
+
+.hero canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    background: linear-gradient(135deg, var(--accent3) 0%, var(--accent) 50%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero .subtitle {
+    margin-top: 8px;
+    font-size: clamp(0.85rem, 1.6vw, 1.1rem);
+    color: var(--text-dim);
+    font-weight: 300;
+    letter-spacing: 0.06em;
+}
+
+.back-link {
+    position: absolute;
+    top: 16px;
+    left: 20px;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.85rem;
+    z-index: 2;
+    transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent3); }
+
+/* ── Controls bar ── */
+.controls {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 20px;
+    background: rgba(15,17,23,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.controls-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.controls-label {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    margin-right: 4px;
+    white-space: nowrap;
+}
+
+.thread-btn {
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 1.5px solid;
+    background: transparent;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+}
+.thread-btn.active { color: var(--bg) !important; }
+.thread-btn:not(.active) { opacity: 0.45; }
+
+.chapter-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.chapter-btn:hover, .chapter-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+.zoom-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.zoom-wrap input[type="range"] {
+    width: 90px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+.zoom-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    min-width: 40px;
+}
+
+/* ── Minimap ── */
+.minimap-wrap {
+    height: 30px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    cursor: pointer;
+}
+.minimap-wrap canvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* ── Timeline viewport ── */
+.timeline-viewport {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    cursor: grab;
+}
+.timeline-viewport.dragging { cursor: grabbing; }
+
+.timeline-viewport canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Lane labels */
+.lane-labels {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 90px;
+    height: 100%;
+    z-index: 5;
+    background: linear-gradient(90deg, rgba(15,17,23,0.95) 0%, rgba(15,17,23,0.7) 80%, transparent 100%);
+    pointer-events: none;
+}
+.lane-label {
+    position: absolute;
+    left: 10px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    writing-mode: horizontal-tb;
+    white-space: nowrap;
+}
+
+/* Year indicator */
+.year-indicator {
+    position: absolute;
+    top: 8px;
+    right: 16px;
+    z-index: 6;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: rgba(108,99,255,0.25);
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+/* ── Tooltip ── */
+.tooltip {
+    position: absolute;
+    z-index: 30;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    max-width: 280px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.tooltip.visible { opacity: 1; }
+.tooltip-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+.tooltip-year {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+}
+.tooltip-desc {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+}
+
+/* ── Detail panel ── */
+.detail-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+}
+.detail-overlay.visible { display: flex; }
+
+.detail-panel {
+    width: 100%;
+    max-width: 640px;
+    max-height: 50vh;
+    background: var(--card);
+    border-top: 2px solid var(--accent);
+    border-radius: 16px 16px 0 0;
+    padding: 24px 28px 32px;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+.detail-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1;
+}
+.detail-close:hover { color: var(--accent2); }
+
+.detail-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.detail-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+}
+.detail-titles h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+.detail-titles .en {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    font-weight: 400;
+}
+.detail-meta {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+}
+.detail-desc {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    margin-bottom: 16px;
+    color: var(--text);
+}
+.detail-chars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.char-pill {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    background: rgba(108,99,255,0.15);
+    color: var(--accent);
+    font-weight: 500;
+}
+
+/* ── Layout ── */
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* ── Legend bar ── */
+.legend-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 20px;
+    flex-wrap: wrap;
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+}
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.legend-dot.diamond {
+    border-radius: 0;
+    transform: rotate(45deg);
+    width: 8px;
+    height: 8px;
+}
+
+/* ── Stats counter ── */
+.stats-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 6px 20px 8px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(15,17,23,0.6);
+}
+.stat-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+}
+.stat-item .stat-num {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-right: 3px;
+}
+
+/* ── Keyboard hint ── */
+.kb-hint {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.65rem;
+    color: rgba(136,136,160,0.35);
+    font-family: 'JetBrains Mono', monospace;
+    pointer-events: none;
+    z-index: 4;
+    white-space: nowrap;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="app">
+    <!-- Hero -->
+    <section class="hero">
+        <canvas id="heroCanvas"></canvas>
+        <a href="index.html" class="back-link">&larr; 返回目录 / Back</a>
+        <div class="hero-content">
+            <h1>事件时间线 / Event Timeline</h1>
+            <p class="subtitle">Dream of the Red Chamber</p>
+        </div>
+    </section>
+
+    <!-- Controls -->
+    <div class="controls">
+        <div class="controls-group">
+            <span class="controls-label">线索</span>
+            <div id="threadBtns"></div>
+        </div>
+        <div class="controls-group">
+            <span class="controls-label">章节</span>
+            <div id="chapterBtns"></div>
+        </div>
+        <div class="controls-group zoom-wrap">
+            <span class="controls-label">缩放</span>
+            <input type="range" id="zoomSlider" min="50" max="300" value="150" step="10">
+            <span class="zoom-label" id="zoomLabel">150</span>
+        </div>
+    </div>
+
+    <!-- Legend & Stats -->
+    <div class="stats-bar">
+        <div class="legend-bar" id="legendBar"></div>
+        <div style="flex:1"></div>
+        <div class="stat-item"><span class="stat-num" id="statTotal">0</span>事件</div>
+        <div class="stat-item"><span class="stat-num" id="statVisible">0</span>可见</div>
+        <div class="stat-item"><span class="stat-num" id="statChapters">0</span>章</div>
+    </div>
+
+    <!-- Minimap -->
+    <div class="minimap-wrap" id="minimapWrap">
+        <canvas id="minimapCanvas"></canvas>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline-viewport" id="timelineViewport">
+        <div class="lane-labels" id="laneLabels"></div>
+        <canvas id="timelineCanvas"></canvas>
+        <div class="year-indicator" id="yearIndicator"></div>
+        <div class="kb-hint">Arrow keys / Scroll to navigate &middot; Click event for details &middot; Esc to close</div>
+    </div>
+</div>
+
+<!-- Tooltip -->
+<div class="tooltip" id="tooltip">
+    <div class="tooltip-title" id="ttTitle"></div>
+    <div class="tooltip-year" id="ttYear"></div>
+    <div class="tooltip-desc" id="ttDesc"></div>
+</div>
+
+<!-- Detail overlay -->
+<div class="detail-overlay" id="detailOverlay">
+    <div class="detail-panel" id="detailPanel">
+        <button class="detail-close" onclick="closeDetail()">&times;</button>
+        <div class="detail-header">
+            <div class="detail-dot" id="detailDot"></div>
+            <div class="detail-titles">
+                <h2 id="detailTitle"></h2>
+                <div class="en" id="detailTitleEn"></div>
+            </div>
+        </div>
+        <div class="detail-meta">
+            <span id="detailYear"></span>
+            <span id="detailChapter"></span>
+        </div>
+        <div class="detail-desc" id="detailDesc"></div>
+        <div class="detail-chars" id="detailChars"></div>
+    </div>
+</div>
+
+<script>
+const events = [
+  {
+    "year": 1,
+    "month": 1,
+    "lane": 2,
+    "type": "spiritual",
+    "arc": 1,
+    "chapter": 1,
+    "title": "通灵宝玉下凡",
+    "titleEn": "Mystic Jade descends to mortal world",
+    "desc": "女娲补天遗石化为通灵宝玉，一僧一道携之入红尘，开启一段尘世因缘。",
+    "chars": [
+      "通灵宝玉",
+      "一僧一道"
+    ]
+  },
+  {
+    "year": 1,
+    "month": 2,
+    "lane": 0,
+    "type": "spiritual",
+    "arc": 1,
+    "chapter": 1,
+    "title": "木石前盟",
+    "titleEn": "The bond of wood and stone in a past life",
+    "desc": "神瑛侍者以甘露灌溉绛珠仙草，仙草欲以毕生泪水偿还，由此定下木石前盟。",
+    "chars": [
+      "神瑛侍者",
+      "绛珠仙草"
+    ]
+  },
+  {
+    "year": 1,
+    "month": 3,
+    "lane": 2,
+    "type": "social",
+    "arc": 1,
+    "chapter": 1,
+    "title": "甄士隐梦幻识通灵",
+    "titleEn": "Zhen Shiyin dreams of the mystic jade",
+    "desc": "甄士隐于梦中见一僧一道，闻通灵宝玉入世之缘起。",
+    "chars": [
+      "甄士隐"
+    ]
+  },
+  {
+    "year": 1,
+    "month": 4,
+    "lane": 2,
+    "type": "social",
+    "arc": 1,
+    "chapter": 1,
+    "title": "贾雨村风尘怀闺秀",
+    "titleEn": "Jia Yucun encounters beauty in humble times",
+    "desc": "落魄书生贾雨村得甄士隐资助进京赶考，后与甄家丫鬟娇杏有缘。",
+    "chars": [
+      "贾雨村",
+      "甄士隐",
+      "娇杏"
+    ]
+  },
+  {
+    "year": 1,
+    "month": 6,
+    "lane": 2,
+    "type": "spiritual",
+    "arc": 1,
+    "chapter": 1,
+    "title": "甄士隐出家",
+    "titleEn": "Zhen Shiyin renounces the world",
+    "desc": "甄家遭火灾败落，士隐悟「好了歌」，随跛足道人飘然而去。",
+    "chars": [
+      "甄士隐",
+      "跛足道人"
+    ]
+  },
+  {
+    "year": 1,
+    "month": 8,
+    "lane": 2,
+    "type": "political",
+    "arc": 1,
+    "chapter": 2,
+    "title": "冷子兴演说荣国府",
+    "titleEn": "Leng Zixing describes the Rongguo Mansion",
+    "desc": "冷子兴向贾雨村详述贾府四大家族之盛况与隐忧，引出宝玉衔玉而生之奇事。",
+    "chars": [
+      "冷子兴",
+      "贾雨村"
+    ]
+  },
+  {
+    "year": 2,
+    "month": 1,
+    "lane": 0,
+    "type": "love",
+    "arc": 1,
+    "chapter": 3,
+    "title": "黛玉进贾府",
+    "titleEn": "Daiyu enters the Jia household",
+    "desc": "林黛玉母丧后投奔外祖母，初入贾府，步步留心、时时在意。",
+    "chars": [
+      "林黛玉",
+      "贾母",
+      "王夫人",
+      "王熙凤"
+    ]
+  },
+  {
+    "year": 2,
+    "month": 1,
+    "lane": 0,
+    "type": "love",
+    "arc": 1,
+    "chapter": 3,
+    "title": "宝黛初会",
+    "titleEn": "First meeting of Baoyu and Daiyu",
+    "desc": "宝玉初见黛玉便觉似曾相识，因黛玉无玉竟摔玉发痴，二人宿缘初显。",
+    "chars": [
+      "贾宝玉",
+      "林黛玉"
+    ]
+  },
+  {
+    "year": 2,
+    "month": 2,
+    "lane": 1,
+    "type": "social",
+    "arc": 1,
+    "chapter": 3,
+    "title": "王熙凤初登场",
+    "titleEn": "Wang Xifeng makes her grand entrance",
+    "desc": "凤姐「未见其人，先闻其声」，泼辣精明的形象初露端倪。",
+    "chars": [
+      "王熙凤",
+      "林黛玉"
+    ]
+  },
+  {
+    "year": 2,
+    "month": 3,
+    "lane": 0,
+    "type": "love",
+    "arc": 1,
+    "chapter": 4,
+    "title": "薛宝钗进贾府",
+    "titleEn": "Xue Baochai enters the Jia household",
+    "desc": "薛姨妈携宝钗、薛蟠入住贾府梨香院，宝钗金锁与宝玉玉佩暗合「金玉良缘」。",
+    "chars": [
+      "薛宝钗",
+      "薛姨妈",
+      "薛蟠"
+    ]
+  },
+  {
+    "year": 2,
+    "month": 4,
+    "lane": 2,
+    "type": "political",
+    "arc": 1,
+    "chapter": 4,
+    "title": "葫芦僧判葫芦案",
+    "titleEn": "The gourd monk judges the gourd case",
+    "desc": "贾雨村为讨好贾府，徇私枉法判了薛蟠打死冯渊案，四大家族权势可见一斑。",
+    "chars": [
+      "贾雨村",
+      "薛蟠",
+      "门子"
+    ]
+  },
+  {
+    "year": 2,
+    "month": 5,
+    "lane": 0,
+    "type": "spiritual",
+    "arc": 1,
+    "chapter": 5,
+    "title": "贾宝玉梦游太虚幻境",
+    "titleEn": "Baoyu dreams of the Land of Illusion",
+    "desc": "宝玉在秦可卿房间入梦，游太虚幻境，览金陵十二钗判词，闻「红楼梦」曲。",
+    "chars": [
+      "贾宝玉",
+      "警幻仙姑",
+      "秦可卿"
+    ]
+  },
+  {
+    "year": 2,
+    "month": 5,
+    "lane": 3,
+    "type": "spiritual",
+    "arc": 1,
+    "chapter": 5,
+    "title": "金陵十二钗判词",
+    "titleEn": "Prophecies of the Twelve Beauties of Jinling",
+    "desc": "判词以诗画暗示十二钗各自命运结局，伏笔全书悲剧走向。",
+    "chars": [
+      "警幻仙姑",
+      "贾宝玉"
+    ]
+  },
+  {
+    "year": 2,
+    "month": 6,
+    "lane": 1,
+    "type": "social",
+    "arc": 1,
+    "chapter": 6,
+    "title": "刘姥姥一进荣国府",
+    "titleEn": "Granny Liu's first visit to Rongguo Mansion",
+    "desc": "乡下老妪刘姥姥为度难关，带外孙板儿到贾府打秋风，由凤姐接待。",
+    "chars": [
+      "刘姥姥",
+      "王熙凤",
+      "周瑞家的",
+      "板儿"
+    ]
+  },
+  {
+    "year": 2,
+    "month": 8,
+    "lane": 1,
+    "type": "conflict",
+    "arc": 1,
+    "chapter": 7,
+    "title": "焦大醉骂",
+    "titleEn": "Jiao Da's drunken outburst",
+    "desc": "老仆焦大醉酒大骂，揭露宁府「爬灰的爬灰，养小叔子的养小叔子」之丑事。",
+    "chars": [
+      "焦大"
+    ]
+  },
+  {
+    "year": 2,
+    "month": 9,
+    "lane": 0,
+    "type": "love",
+    "arc": 1,
+    "chapter": 8,
+    "title": "比通灵金莺微露意",
+    "titleEn": "Golden oriole hints at the gold-jade bond",
+    "desc": "宝钗看宝玉通灵玉，莺儿提及金锁上之字与玉上之字恰好配对。",
+    "chars": [
+      "贾宝玉",
+      "薛宝钗",
+      "莺儿"
+    ]
+  },
+  {
+    "year": 2,
+    "month": 10,
+    "lane": 3,
+    "type": "death",
+    "arc": 1,
+    "chapter": 10,
+    "title": "秦可卿病重",
+    "titleEn": "Qin Keqing falls gravely ill",
+    "desc": "秦可卿卧病不起，多方延医问药，暗隐天香楼事端。",
+    "chars": [
+      "秦可卿",
+      "贾珍",
+      "尤氏"
+    ]
+  },
+  {
+    "year": 2,
+    "month": 12,
+    "lane": 3,
+    "type": "death",
+    "arc": 2,
+    "chapter": 13,
+    "title": "秦可卿之死",
+    "titleEn": "Death of Qin Keqing",
+    "desc": "秦可卿病亡（一说自缢），托梦凤姐嘱置祭田祀产以备将来败落。",
+    "chars": [
+      "秦可卿",
+      "王熙凤",
+      "贾珍"
+    ]
+  },
+  {
+    "year": 3,
+    "month": 1,
+    "lane": 1,
+    "type": "political",
+    "arc": 2,
+    "chapter": 13,
+    "title": "凤姐协理宁国府",
+    "titleEn": "Xifeng manages affairs of Ningguo Mansion",
+    "desc": "凤姐受命协理宁国府丧事，大展管理才能，威重令行，众人畏服。",
+    "chars": [
+      "王熙凤",
+      "贾珍",
+      "来旺"
+    ]
+  },
+  {
+    "year": 3,
+    "month": 2,
+    "lane": 1,
+    "type": "conflict",
+    "arc": 2,
+    "chapter": 15,
+    "title": "凤姐弄权铁槛寺",
+    "titleEn": "Xifeng wields power at Iron Threshold Temple",
+    "desc": "凤姐收受三千两银子，暗中操纵长安节度使，害死一对鸳鸯，贪利弄权。",
+    "chars": [
+      "王熙凤",
+      "净虚老尼"
+    ]
+  },
+  {
+    "year": 3,
+    "month": 3,
+    "lane": 2,
+    "type": "political",
+    "arc": 2,
+    "chapter": 16,
+    "title": "元春封妃",
+    "titleEn": "Yuanchun is made Imperial Consort",
+    "desc": "贾元春晋封凤藻宫尚书、贤德妃，贾府荣耀至极，奉旨筹建省亲别墅。",
+    "chars": [
+      "贾元春"
+    ]
+  },
+  {
+    "year": 3,
+    "month": 4,
+    "lane": 2,
+    "type": "ceremony",
+    "arc": 2,
+    "chapter": 17,
+    "title": "大观园建成",
+    "titleEn": "Grand View Garden is completed",
+    "desc": "贾府大兴土木建成大观园，宝玉随贾政试才题对额，展露才华。",
+    "chars": [
+      "贾宝玉",
+      "贾政"
+    ]
+  },
+  {
+    "year": 3,
+    "month": 5,
+    "lane": 2,
+    "type": "ceremony",
+    "arc": 2,
+    "chapter": 18,
+    "title": "元妃省亲",
+    "titleEn": "Imperial Consort Yuanchun visits home",
+    "desc": "贵妃元春回贾府省亲，排场盛大，却在骨肉团聚之际泣不成声，叹「不得见人的去处」。",
+    "chars": [
+      "贾元春",
+      "贾母",
+      "贾宝玉",
+      "林黛玉",
+      "薛宝钗"
+    ]
+  },
+  {
+    "year": 3,
+    "month": 6,
+    "lane": 0,
+    "type": "social",
+    "arc": 2,
+    "chapter": 18,
+    "title": "元妃赐名大观园",
+    "titleEn": "Yuanchun bestows the name Grand View Garden",
+    "desc": "元妃省亲后命宝玉等搬入大观园居住，宝玉住怡红院，黛玉住潇湘馆，宝钗住蘅芜苑。",
+    "chars": [
+      "贾元春",
+      "贾宝玉",
+      "林黛玉",
+      "薛宝钗"
+    ]
+  },
+  {
+    "year": 3,
+    "month": 7,
+    "lane": 0,
+    "type": "love",
+    "arc": 2,
+    "chapter": 19,
+    "title": "情切切良宵花解语",
+    "titleEn": "Tender night talk — flowers speak wisdom",
+    "desc": "宝玉夜访袭人，袭人趁机劝诫宝玉用功读书、少作痴狂态。",
+    "chars": [
+      "贾宝玉",
+      "袭人"
+    ]
+  },
+  {
+    "year": 3,
+    "month": 8,
+    "lane": 0,
+    "type": "love",
+    "arc": 2,
+    "chapter": 20,
+    "title": "宝黛初次争吵",
+    "titleEn": "First quarrel between Baoyu and Daiyu",
+    "desc": "黛玉因宝玉亲近宝钗吃醋闹脾气，宝玉百般劝解，二人感情在试探中加深。",
+    "chars": [
+      "贾宝玉",
+      "林黛玉"
+    ]
+  },
+  {
+    "year": 3,
+    "month": 9,
+    "lane": 0,
+    "type": "love",
+    "arc": 3,
+    "chapter": 23,
+    "title": "共读西厢",
+    "titleEn": "Reading Romance of the Western Chamber together",
+    "desc": "宝玉与黛玉在桃花树下共读《西厢记》，以书中词句互相试探心意，情愫暗生。",
+    "chars": [
+      "贾宝玉",
+      "林黛玉"
+    ]
+  },
+  {
+    "year": 3,
+    "month": 10,
+    "lane": 3,
+    "type": "love",
+    "arc": 3,
+    "chapter": 24,
+    "title": "小红遗帕传情",
+    "titleEn": "Xiaohong drops her handkerchief as a love token",
+    "desc": "怡红院丫鬟小红与贾芸借帕传情，暗通款曲。",
+    "chars": [
+      "小红",
+      "贾芸"
+    ]
+  },
+  {
+    "year": 4,
+    "month": 1,
+    "lane": 0,
+    "type": "love",
+    "arc": 3,
+    "chapter": 25,
+    "title": "魇魔法宝玉遭劫",
+    "titleEn": "Baoyu is struck by a dark curse",
+    "desc": "赵姨娘买通马道婆施魇魔法，宝玉与凤姐中邪，一僧一道持通灵玉除祟。",
+    "chars": [
+      "贾宝玉",
+      "王熙凤",
+      "赵姨娘",
+      "马道婆"
+    ]
+  },
+  {
+    "year": 4,
+    "month": 2,
+    "lane": 0,
+    "type": "love",
+    "arc": 3,
+    "chapter": 26,
+    "title": "潇湘馆春困发幽情",
+    "titleEn": "Spring languor stirs feelings in Xiaoxiang Lodge",
+    "desc": "黛玉于潇湘馆伤春感怀，宝玉来探望，二人情意绵绵却各有心事。",
+    "chars": [
+      "林黛玉",
+      "贾宝玉"
+    ]
+  },
+  {
+    "year": 4,
+    "month": 3,
+    "lane": 0,
+    "type": "love",
+    "arc": 3,
+    "chapter": 27,
+    "title": "黛玉葬花",
+    "titleEn": "Daiyu buries fallen blossoms",
+    "desc": "黛玉误以为宝玉冷落自己，独自到花冢葬花，吟「葬花吟」：「花谢花飞花满天，红消香断有谁怜。」",
+    "chars": [
+      "林黛玉"
+    ]
+  },
+  {
+    "year": 4,
+    "month": 3,
+    "lane": 0,
+    "type": "love",
+    "arc": 3,
+    "chapter": 28,
+    "title": "宝玉听葬花吟动情",
+    "titleEn": "Baoyu weeps upon hearing the burial of flowers song",
+    "desc": "宝玉偶然听到葬花吟，恸倒于花冢之旁，感悟无常，与黛玉尽释前嫌。",
+    "chars": [
+      "贾宝玉",
+      "林黛玉"
+    ]
+  },
+  {
+    "year": 4,
+    "month": 4,
+    "lane": 0,
+    "type": "love",
+    "arc": 3,
+    "chapter": 29,
+    "title": "宝黛大闹砸玉剪穗",
+    "titleEn": "Baoyu smashes jade, Daiyu cuts tassels in rage",
+    "desc": "张道士提亲引发宝黛激烈争吵，宝玉砸玉、黛玉剪玉穗子，贾母为之落泪。",
+    "chars": [
+      "贾宝玉",
+      "林黛玉",
+      "贾母"
+    ]
+  },
+  {
+    "year": 4,
+    "month": 5,
+    "lane": 0,
+    "type": "love",
+    "arc": 3,
+    "chapter": 30,
+    "title": "宝钗借扇机带双敲",
+    "titleEn": "Baochai makes a veiled double rebuke using a fan",
+    "desc": "宝钗听到宝玉将自己比作杨贵妃，怒而借扑蝶之机含蓄敲打宝玉与黛玉。",
+    "chars": [
+      "薛宝钗",
+      "贾宝玉"
+    ]
+  },
+  {
+    "year": 4,
+    "month": 5,
+    "lane": 3,
+    "type": "death",
+    "arc": 3,
+    "chapter": 30,
+    "title": "金钏投井",
+    "titleEn": "Jinchuan drowns herself in a well",
+    "desc": "王夫人撞见金钏与宝玉调笑，怒而将其逐出，金钏含羞投井自尽。",
+    "chars": [
+      "金钏",
+      "王夫人",
+      "贾宝玉"
+    ]
+  },
+  {
+    "year": 4,
+    "month": 6,
+    "lane": 0,
+    "type": "love",
+    "arc": 3,
+    "chapter": 32,
+    "title": "诉肺腑心迷活宝玉",
+    "titleEn": "Baoyu declares his heart to Daiyu",
+    "desc": "宝玉误以为对黛玉说话，脱口而出「你放心」「我心里除了老太太，就只有你」，黛玉闻之又惊又喜。",
+    "chars": [
+      "贾宝玉",
+      "林黛玉"
+    ]
+  },
+  {
+    "year": 4,
+    "month": 7,
+    "lane": 2,
+    "type": "conflict",
+    "arc": 3,
+    "chapter": 33,
+    "title": "宝玉挨打",
+    "titleEn": "Baoyu is severely beaten by his father",
+    "desc": "贾政因忠顺王府索伶人琪官、金钏之死等事，怒不可遏，将宝玉杖责几殆。",
+    "chars": [
+      "贾宝玉",
+      "贾政",
+      "王夫人",
+      "贾母"
+    ]
+  },
+  {
+    "year": 4,
+    "month": 7,
+    "lane": 0,
+    "type": "love",
+    "arc": 3,
+    "chapter": 34,
+    "title": "黛玉探伤送旧帕",
+    "titleEn": "Daiyu visits wounded Baoyu; he sends old handkerchiefs",
+    "desc": "宝玉挨打后托晴雯送旧帕给黛玉，黛玉领悟此中深意，于帕上题诗三首。",
+    "chars": [
+      "贾宝玉",
+      "林黛玉",
+      "晴雯"
+    ]
+  },
+  {
+    "year": 4,
+    "month": 8,
+    "lane": 0,
+    "type": "love",
+    "arc": 3,
+    "chapter": 36,
+    "title": "绣鸳鸯梦兆绛芸轩",
+    "titleEn": "Embroidered mandarin ducks portend dreams",
+    "desc": "宝钗午后至怡红院，见宝玉睡中仍喊「和尚道士之话如何信得，什么金玉姻缘」。",
+    "chars": [
+      "薛宝钗",
+      "贾宝玉"
+    ]
+  },
+  {
+    "year": 4,
+    "month": 9,
+    "lane": 2,
+    "type": "ceremony",
+    "arc": 4,
+    "chapter": 37,
+    "title": "海棠诗社成立",
+    "titleEn": "The Crabapple Poetry Club is founded",
+    "desc": "探春倡议结社吟诗，众人齐聚大观园成立「海棠诗社」，各取雅号。",
+    "chars": [
+      "贾探春",
+      "林黛玉",
+      "薛宝钗",
+      "贾宝玉",
+      "史湘云"
+    ]
+  },
+  {
+    "year": 4,
+    "month": 9,
+    "lane": 0,
+    "type": "ceremony",
+    "arc": 4,
+    "chapter": 38,
+    "title": "菊花诗会",
+    "titleEn": "Chrysanthemum poetry contest",
+    "desc": "众人于藕香榭赏菊赋诗，黛玉「咏菊」「问菊」「菊梦」三首夺魁。",
+    "chars": [
+      "林黛玉",
+      "薛宝钗",
+      "史湘云",
+      "贾宝玉"
+    ]
+  },
+  {
+    "year": 5,
+    "month": 1,
+    "lane": 1,
+    "type": "social",
+    "arc": 4,
+    "chapter": 39,
+    "title": "刘姥姥二进荣国府",
+    "titleEn": "Granny Liu's second visit to Rongguo Mansion",
+    "desc": "刘姥姥带着瓜果蔬菜答谢贾府，受贾母热情款待，留住多日畅游大观园。",
+    "chars": [
+      "刘姥姥",
+      "贾母",
+      "王熙凤"
+    ]
+  },
+  {
+    "year": 5,
+    "month": 1,
+    "lane": 1,
+    "type": "ceremony",
+    "arc": 4,
+    "chapter": 40,
+    "title": "刘姥姥游大观园",
+    "titleEn": "Granny Liu tours the Grand View Garden",
+    "desc": "刘姥姥在大观园中出尽洋相逗众人欢笑，酒醉后误入怡红院宝玉床上。",
+    "chars": [
+      "刘姥姥",
+      "贾母",
+      "王熙凤",
+      "鸳鸯"
+    ]
+  },
+  {
+    "year": 5,
+    "month": 2,
+    "lane": 1,
+    "type": "social",
+    "arc": 4,
+    "chapter": 42,
+    "title": "凤姐为巧姐取名",
+    "titleEn": "Xifeng asks Granny Liu to name Qiaojie",
+    "desc": "刘姥姥临别为凤姐之女取名「巧姐」，以「遇难成祥、逢凶化吉」寄语。",
+    "chars": [
+      "刘姥姥",
+      "王熙凤",
+      "巧姐"
+    ]
+  },
+  {
+    "year": 5,
+    "month": 3,
+    "lane": 0,
+    "type": "love",
+    "arc": 4,
+    "chapter": 42,
+    "title": "钗黛和好",
+    "titleEn": "Baochai and Daiyu reconcile as sisters",
+    "desc": "宝钗私下劝黛玉不要看杂书，黛玉深感其诚，二人冰释前嫌，亲如姐妹。",
+    "chars": [
+      "薛宝钗",
+      "林黛玉"
+    ]
+  },
+  {
+    "year": 5,
+    "month": 4,
+    "lane": 0,
+    "type": "ceremony",
+    "arc": 4,
+    "chapter": 44,
+    "title": "凤姐泼醋",
+    "titleEn": "Xifeng erupts in jealous fury",
+    "desc": "凤姐生日夜撞破贾琏与鲍二家偷情，大闹一场，最终由贾母调停。",
+    "chars": [
+      "王熙凤",
+      "贾琏",
+      "平儿"
+    ]
+  },
+  {
+    "year": 5,
+    "month": 5,
+    "lane": 0,
+    "type": "love",
+    "arc": 4,
+    "chapter": 45,
+    "title": "风雨夕闷制风雨词",
+    "titleEn": "Daiyu composes a poem on a rainy autumn night",
+    "desc": "秋夜风雨中黛玉独对窗前灯火，作「秋窗风雨夕」，宝钗遣婆子送燕窝来探。",
+    "chars": [
+      "林黛玉",
+      "薛宝钗"
+    ]
+  },
+  {
+    "year": 5,
+    "month": 7,
+    "lane": 0,
+    "type": "ceremony",
+    "arc": 4,
+    "chapter": 49,
+    "title": "芦雪广联诗",
+    "titleEn": "Poetry in the snow at Reed Snow Pavilion",
+    "desc": "大雪纷飞之中众人于芦雪广即景联句吟诗，史湘云烤鹿肉豪爽逞才。",
+    "chars": [
+      "史湘云",
+      "林黛玉",
+      "薛宝钗",
+      "贾宝玉"
+    ]
+  },
+  {
+    "year": 5,
+    "month": 8,
+    "lane": 0,
+    "type": "love",
+    "arc": 4,
+    "chapter": 50,
+    "title": "宝琴立雪",
+    "titleEn": "Baoqin stands in the falling snow",
+    "desc": "薛宝琴披鹤氅立于雪中红梅旁，贾母惊为仙人，引发众人对宝琴婚事之议。",
+    "chars": [
+      "薛宝琴",
+      "贾母"
+    ]
+  },
+  {
+    "year": 5,
+    "month": 9,
+    "lane": 0,
+    "type": "love",
+    "arc": 5,
+    "chapter": 52,
+    "title": "晴雯勇补雀金裘",
+    "titleEn": "Qingwen bravely mends the peacock-gold cloak",
+    "desc": "宝玉不慎烧坏雀金裘，晴雯带病连夜赶工缝补，针法精妙，补毕力竭昏倒。",
+    "chars": [
+      "晴雯",
+      "贾宝玉"
+    ]
+  },
+  {
+    "year": 5,
+    "month": 10,
+    "lane": 3,
+    "type": "conflict",
+    "arc": 5,
+    "chapter": 52,
+    "title": "坠儿偷虾须镯",
+    "titleEn": "Zhuier steals the shrimp-whisker bracelet",
+    "desc": "怡红院小丫头坠儿偷窃平儿的虾须镯被查出，晴雯怒而用一丈青戳其手逐之。",
+    "chars": [
+      "晴雯",
+      "坠儿",
+      "平儿"
+    ]
+  },
+  {
+    "year": 6,
+    "month": 1,
+    "lane": 1,
+    "type": "political",
+    "arc": 5,
+    "chapter": 55,
+    "title": "探春理家",
+    "titleEn": "Tanchun takes charge of household affairs",
+    "desc": "凤姐病倒，探春受命与李纨、宝钗协理贾府内务，兴利除弊，展露才干。",
+    "chars": [
+      "贾探春",
+      "李纨",
+      "薛宝钗"
+    ]
+  },
+  {
+    "year": 6,
+    "month": 2,
+    "lane": 1,
+    "type": "conflict",
+    "arc": 5,
+    "chapter": 55,
+    "title": "探春掌掴赵姨娘",
+    "titleEn": "Tanchun slaps her birth mother Zhao",
+    "desc": "赵姨娘为其弟赵国基丧银之事挑唆闹事，探春秉公处理，被激怒时打了赵姨娘一掌。",
+    "chars": [
+      "贾探春",
+      "赵姨娘"
+    ]
+  },
+  {
+    "year": 6,
+    "month": 4,
+    "lane": 3,
+    "type": "conflict",
+    "arc": 5,
+    "chapter": 57,
+    "title": "紫鹃试宝玉",
+    "titleEn": "Zijuan tests Baoyu with talk of Daiyu leaving",
+    "desc": "紫鹃故意说黛玉要回苏州，宝玉闻言如遭雷击，痴病发作，不省人事。",
+    "chars": [
+      "紫鹃",
+      "贾宝玉",
+      "林黛玉"
+    ]
+  },
+  {
+    "year": 6,
+    "month": 5,
+    "lane": 3,
+    "type": "love",
+    "arc": 5,
+    "chapter": 58,
+    "title": "杏子阴假凤泣虚凰",
+    "titleEn": "A false phoenix weeps under apricot shade",
+    "desc": "戏班解散后藕官在园中为死去的搭档菂官烧纸，宝玉闻之动容，暗合痴情之悟。",
+    "chars": [
+      "藕官",
+      "贾宝玉"
+    ]
+  },
+  {
+    "year": 6,
+    "month": 7,
+    "lane": 2,
+    "type": "ceremony",
+    "arc": 5,
+    "chapter": 62,
+    "title": "宝玉生日群芳开夜宴",
+    "titleEn": "Birthday feast for Baoyu — all beauties gather",
+    "desc": "宝玉生日恰逢宝琴、邢岫烟、平儿同日，众人行酒令、掣花签，各签暗伏命运。",
+    "chars": [
+      "贾宝玉",
+      "薛宝钗",
+      "林黛玉",
+      "史湘云"
+    ]
+  },
+  {
+    "year": 6,
+    "month": 8,
+    "lane": 3,
+    "type": "love",
+    "arc": 5,
+    "chapter": 62,
+    "title": "湘云醉卧芍药裀",
+    "titleEn": "Xiangyun drunkenly falls asleep among the peonies",
+    "desc": "史湘云豪饮后醉卧于石凳上，芍药花瓣纷纷落满一身，群蜂围绕，人皆称奇。",
+    "chars": [
+      "史湘云"
+    ]
+  },
+  {
+    "year": 6,
+    "month": 9,
+    "lane": 3,
+    "type": "death",
+    "arc": 5,
+    "chapter": 63,
+    "title": "尤二姐入贾府",
+    "titleEn": "You Erjie enters the Jia household secretly",
+    "desc": "贾琏偷娶尤二姐，金屋藏娇于小花枝巷，瞒着凤姐另筑外室。",
+    "chars": [
+      "尤二姐",
+      "贾琏"
+    ]
+  },
+  {
+    "year": 6,
+    "month": 10,
+    "lane": 3,
+    "type": "death",
+    "arc": 5,
+    "chapter": 66,
+    "title": "尤三姐自刎",
+    "titleEn": "You Sanjie takes her own life with a sword",
+    "desc": "尤三姐钟情柳湘莲，湘莲闻其出身退婚，三姐以鸳鸯剑自刎明志。",
+    "chars": [
+      "尤三姐",
+      "柳湘莲"
+    ]
+  },
+  {
+    "year": 6,
+    "month": 11,
+    "lane": 3,
+    "type": "spiritual",
+    "arc": 5,
+    "chapter": 66,
+    "title": "柳湘莲出家",
+    "titleEn": "Liu Xianglian renounces the world",
+    "desc": "柳湘莲悔恨莫及，在尤三姐灵前痛哭后随跛足道人出家为道。",
+    "chars": [
+      "柳湘莲",
+      "跛足道人"
+    ]
+  },
+  {
+    "year": 7,
+    "month": 1,
+    "lane": 1,
+    "type": "conflict",
+    "arc": 5,
+    "chapter": 68,
+    "title": "凤姐大闹宁国府",
+    "titleEn": "Xifeng creates a scene at Ningguo Mansion",
+    "desc": "凤姐得知贾琏偷娶尤二姐，假意接入贾府，暗中施计苦毒折磨。",
+    "chars": [
+      "王熙凤",
+      "尤二姐",
+      "贾琏"
+    ]
+  },
+  {
+    "year": 7,
+    "month": 2,
+    "lane": 3,
+    "type": "death",
+    "arc": 5,
+    "chapter": 69,
+    "title": "尤二姐吞金自尽",
+    "titleEn": "You Erjie swallows gold and kills herself",
+    "desc": "尤二姐遭凤姐百般刁难、流产后心灰意冷，吞金殉命。",
+    "chars": [
+      "尤二姐",
+      "王熙凤"
+    ]
+  },
+  {
+    "year": 7,
+    "month": 4,
+    "lane": 2,
+    "type": "ceremony",
+    "arc": 6,
+    "chapter": 70,
+    "title": "桃花社重建",
+    "titleEn": "Peach Blossom Poetry Club is revived",
+    "desc": "林黛玉作「桃花行」引众人重结诗社，改名桃花社，众人放风筝嬉乐。",
+    "chars": [
+      "林黛玉",
+      "薛宝钗",
+      "贾宝玉",
+      "贾探春"
+    ]
+  },
+  {
+    "year": 7,
+    "month": 5,
+    "lane": 1,
+    "type": "conflict",
+    "arc": 6,
+    "chapter": 71,
+    "title": "贾母八旬大寿",
+    "titleEn": "Grandmother Jia's eightieth birthday celebration",
+    "desc": "贾母做八旬大寿，热闹非凡之际暗藏矛盾：鸳鸯受辱、凤姐力不从心。",
+    "chars": [
+      "贾母",
+      "王熙凤",
+      "鸳鸯"
+    ]
+  },
+  {
+    "year": 7,
+    "month": 6,
+    "lane": 1,
+    "type": "conflict",
+    "arc": 6,
+    "chapter": 72,
+    "title": "凤姐典当度日",
+    "titleEn": "Xifeng pawns valuables to make ends meet",
+    "desc": "贾府入不敷出，凤姐暗中典当贾母财物、放高利贷维持府中开支。",
+    "chars": [
+      "王熙凤",
+      "旺儿"
+    ]
+  },
+  {
+    "year": 7,
+    "month": 7,
+    "lane": 2,
+    "type": "conflict",
+    "arc": 6,
+    "chapter": 73,
+    "title": "傻大姐拾绣春囊",
+    "titleEn": "Silly Dajie finds an embroidered pouch",
+    "desc": "傻大姐在园中拾到绣春囊（春宫荷包），送至邢夫人手中，引发轩然大波。",
+    "chars": [
+      "傻大姐",
+      "邢夫人"
+    ]
+  },
+  {
+    "year": 7,
+    "month": 7,
+    "lane": 2,
+    "type": "political",
+    "arc": 6,
+    "chapter": 74,
+    "title": "抄检大观园",
+    "titleEn": "Raid and search of Grand View Garden",
+    "desc": "王夫人命凤姐带人夜抄大观园，搜检各房丫鬟箱笼，晴雯、司棋等被牵连。",
+    "chars": [
+      "王夫人",
+      "王熙凤",
+      "王善保家的"
+    ]
+  },
+  {
+    "year": 7,
+    "month": 7,
+    "lane": 3,
+    "type": "conflict",
+    "arc": 6,
+    "chapter": 74,
+    "title": "探春怒斥抄检",
+    "titleEn": "Tanchun furiously rebukes the search party",
+    "desc": "探春痛斥抄检之举乃「自杀自灭」，打了王善保家的一掌，掷地有声。",
+    "chars": [
+      "贾探春",
+      "王善保家的"
+    ]
+  },
+  {
+    "year": 7,
+    "month": 8,
+    "lane": 3,
+    "type": "death",
+    "arc": 6,
+    "chapter": 77,
+    "title": "晴雯之死",
+    "titleEn": "Death of Qingwen",
+    "desc": "晴雯被逐出怡红院后含冤病死于破屋之中，宝玉作「芙蓉女儿诔」祭之。",
+    "chars": [
+      "晴雯",
+      "贾宝玉"
+    ]
+  },
+  {
+    "year": 7,
+    "month": 8,
+    "lane": 0,
+    "type": "love",
+    "arc": 6,
+    "chapter": 77,
+    "title": "宝玉祭晴雯",
+    "titleEn": "Baoyu mourns Qingwen with a eulogy",
+    "desc": "宝玉于芙蓉花前作长篇「芙蓉女儿诔」，字字血泪，黛玉暗中闻之感泣。",
+    "chars": [
+      "贾宝玉",
+      "林黛玉"
+    ]
+  },
+  {
+    "year": 7,
+    "month": 9,
+    "lane": 3,
+    "type": "death",
+    "arc": 6,
+    "chapter": 77,
+    "title": "司棋被逐",
+    "titleEn": "Siqi is expelled from Grand View Garden",
+    "desc": "司棋因与表弟潘又安私情败露被逐出大观园，迎春不敢替她求情。",
+    "chars": [
+      "司棋",
+      "贾迎春"
+    ]
+  },
+  {
+    "year": 8,
+    "month": 1,
+    "lane": 2,
+    "type": "ceremony",
+    "arc": 6,
+    "chapter": 76,
+    "title": "中秋夜宴凄清",
+    "titleEn": "A desolate Mid-Autumn feast",
+    "desc": "贾府中秋团圆夜宴人丁凋零，贾母闻笛声悲凉落泪，暗示衰败不可挽回。",
+    "chars": [
+      "贾母",
+      "王夫人",
+      "王熙凤"
+    ]
+  },
+  {
+    "year": 8,
+    "month": 1,
+    "lane": 0,
+    "type": "love",
+    "arc": 6,
+    "chapter": 76,
+    "title": "黛玉湘云联诗凹晶馆",
+    "titleEn": "Daiyu and Xiangyun compose linked verses at Concave Crystal Hall",
+    "desc": "中秋夜黛玉与湘云于凹晶馆联句，「寒塘渡鹤影，冷月葬花魂」千古绝唱。",
+    "chars": [
+      "林黛玉",
+      "史湘云",
+      "妙玉"
+    ]
+  },
+  {
+    "year": 8,
+    "month": 3,
+    "lane": 3,
+    "type": "death",
+    "arc": 6,
+    "chapter": 79,
+    "title": "迎春误嫁",
+    "titleEn": "Yingchun is married off to a brute",
+    "desc": "迎春被父亲贾赦嫁给孙绍祖抵债，婚后受尽虐待。",
+    "chars": [
+      "贾迎春",
+      "贾赦",
+      "孙绍祖"
+    ]
+  },
+  {
+    "year": 8,
+    "month": 5,
+    "lane": 0,
+    "type": "love",
+    "arc": 6,
+    "chapter": 79,
+    "title": "宝黛互认心迹",
+    "titleEn": "Baoyu and Daiyu confirm their love",
+    "desc": "迎春出嫁一事令宝黛感伤，二人默契渐深，心照不宣认定彼此。",
+    "chars": [
+      "贾宝玉",
+      "林黛玉"
+    ]
+  },
+  {
+    "year": 8,
+    "month": 7,
+    "lane": 3,
+    "type": "death",
+    "arc": 6,
+    "chapter": 80,
+    "title": "香菱遭夏金桂欺凌",
+    "titleEn": "Xiangling is bullied by Xia Jingui",
+    "desc": "薛蟠娶夏金桂后，金桂善妒，百般加害香菱，香菱受尽折磨。",
+    "chars": [
+      "香菱",
+      "夏金桂",
+      "薛蟠"
+    ]
+  },
+  {
+    "year": 9,
+    "month": 1,
+    "lane": 2,
+    "type": "political",
+    "arc": 7,
+    "chapter": 83,
+    "title": "元春宫中染恙",
+    "titleEn": "Yuanchun falls ill in the imperial palace",
+    "desc": "宫中传来元妃抱恙的消息，贾府上下忧虑不安，朝中局势风云变幻。",
+    "chars": [
+      "贾元春"
+    ]
+  },
+  {
+    "year": 9,
+    "month": 3,
+    "lane": 2,
+    "type": "death",
+    "arc": 7,
+    "chapter": 95,
+    "title": "元妃薨逝",
+    "titleEn": "Imperial Consort Yuanchun passes away",
+    "desc": "贾元春病逝于宫中，贾府失去最大的政治靠山，由盛转衰势不可挡。",
+    "chars": [
+      "贾元春",
+      "贾母",
+      "王夫人"
+    ]
+  },
+  {
+    "year": 9,
+    "month": 4,
+    "lane": 3,
+    "type": "death",
+    "arc": 7,
+    "chapter": 80,
+    "title": "迎春被虐致死",
+    "titleEn": "Yingchun dies from abuse",
+    "desc": "迎春嫁入孙家后被孙绍祖凌虐致死，判词「金闺花柳质，一载赴黄粱」应验。",
+    "chars": [
+      "贾迎春"
+    ]
+  },
+  {
+    "year": 9,
+    "month": 5,
+    "lane": 0,
+    "type": "love",
+    "arc": 7,
+    "chapter": 87,
+    "title": "黛玉闻琴心碎",
+    "titleEn": "Daiyu's heart breaks listening to the zither",
+    "desc": "黛玉偶听宝玉琴音，感伤身世与前路，旧疾复发，愈加沉重。",
+    "chars": [
+      "林黛玉",
+      "贾宝玉"
+    ]
+  },
+  {
+    "year": 9,
+    "month": 7,
+    "lane": 0,
+    "type": "spiritual",
+    "arc": 7,
+    "chapter": 89,
+    "title": "宝玉失玉",
+    "titleEn": "Baoyu loses the mystic jade",
+    "desc": "通灵宝玉不翼而飞，宝玉从此神志恍惚、痴傻呆滞，不似从前。",
+    "chars": [
+      "贾宝玉"
+    ]
+  },
+  {
+    "year": 9,
+    "month": 8,
+    "lane": 2,
+    "type": "political",
+    "arc": 7,
+    "chapter": 90,
+    "title": "贾府商议宝玉婚事",
+    "titleEn": "Jia family deliberates Baoyu's marriage",
+    "desc": "贾母与王夫人等商议宝玉娶亲冲喜，王夫人属意宝钗，贾母犹豫不决。",
+    "chars": [
+      "贾母",
+      "王夫人",
+      "薛姨妈"
+    ]
+  },
+  {
+    "year": 10,
+    "month": 1,
+    "lane": 0,
+    "type": "conflict",
+    "arc": 7,
+    "chapter": 96,
+    "title": "掉包计定婚",
+    "titleEn": "The substitution scheme is set in motion",
+    "desc": "王熙凤献「掉包计」，以宝钗冒充黛玉嫁给宝玉冲喜，瞒住宝玉与黛玉双方。",
+    "chars": [
+      "王熙凤",
+      "王夫人",
+      "薛姨妈",
+      "贾母"
+    ]
+  },
+  {
+    "year": 10,
+    "month": 2,
+    "lane": 0,
+    "type": "death",
+    "arc": 7,
+    "chapter": 97,
+    "title": "黛玉焚稿",
+    "titleEn": "Daiyu burns her manuscripts",
+    "desc": "黛玉得知宝玉将娶宝钗，心如死灰，将平生所作诗稿与宝玉赠帕焚于火盆。",
+    "chars": [
+      "林黛玉",
+      "紫鹃"
+    ]
+  },
+  {
+    "year": 10,
+    "month": 2,
+    "lane": 0,
+    "type": "death",
+    "arc": 7,
+    "chapter": 98,
+    "title": "黛玉之死",
+    "titleEn": "Death of Lin Daiyu",
+    "desc": "宝玉大婚之夜，黛玉含恨而逝，临终直呼「宝玉，你好……」，泪尽而亡。",
+    "chars": [
+      "林黛玉",
+      "紫鹃",
+      "李纨"
+    ]
+  },
+  {
+    "year": 10,
+    "month": 2,
+    "lane": 0,
+    "type": "ceremony",
+    "arc": 7,
+    "chapter": 97,
+    "title": "宝玉宝钗成婚",
+    "titleEn": "Baoyu and Baochai are married",
+    "desc": "宝玉在痴傻中与蒙盖头的宝钗成婚，揭盖后发现不是黛玉，如遭雷击。",
+    "chars": [
+      "贾宝玉",
+      "薛宝钗"
+    ]
+  },
+  {
+    "year": 10,
+    "month": 3,
+    "lane": 0,
+    "type": "love",
+    "arc": 7,
+    "chapter": 98,
+    "title": "宝玉得知黛玉之死",
+    "titleEn": "Baoyu learns of Daiyu's passing",
+    "desc": "宝玉得知黛玉已死，悲痛欲绝，到潇湘馆灵前放声痛哭，旧日恩情尽成烟云。",
+    "chars": [
+      "贾宝玉",
+      "紫鹃"
+    ]
+  },
+  {
+    "year": 10,
+    "month": 5,
+    "lane": 3,
+    "type": "death",
+    "arc": 7,
+    "chapter": 99,
+    "title": "司棋殉情",
+    "titleEn": "Siqi dies for love",
+    "desc": "司棋被逐后与潘又安相约殉情,二人双双自尽,以死明志。",
+    "chars": [
+      "司棋",
+      "潘又安"
+    ]
+  },
+  {
+    "year": 10,
+    "month": 7,
+    "lane": 2,
+    "type": "political",
+    "arc": 8,
+    "chapter": 100,
+    "title": "贾赦图谋石呆子扇",
+    "titleEn": "Jia She schemes for Scholar Shi's antique fans",
+    "desc": "贾赦贪图石呆子的古扇，设计陷害将其家产充公、占为己有，引发朝廷注意。",
+    "chars": [
+      "贾赦",
+      "贾雨村"
+    ]
+  },
+  {
+    "year": 11,
+    "month": 1,
+    "lane": 3,
+    "type": "death",
+    "arc": 8,
+    "chapter": 101,
+    "title": "鸳鸯拒嫁",
+    "titleEn": "Yuanyang vows never to marry",
+    "desc": "鸳鸯在贾母去世前再次表明绝不嫁人之志，为贾母忠心耿耿至死不渝。",
+    "chars": [
+      "鸳鸯",
+      "贾母"
+    ]
+  },
+  {
+    "year": 11,
+    "month": 3,
+    "lane": 2,
+    "type": "political",
+    "arc": 8,
+    "chapter": 105,
+    "title": "贾府被抄家",
+    "titleEn": "The Jia mansion is raided and confiscated",
+    "desc": "锦衣卫奉旨抄检贾府，查封家产，贾赦、贾珍等获罪入狱，百年望族一朝倾覆。",
+    "chars": [
+      "贾赦",
+      "贾珍",
+      "贾政",
+      "王熙凤"
+    ]
+  },
+  {
+    "year": 11,
+    "month": 3,
+    "lane": 1,
+    "type": "political",
+    "arc": 8,
+    "chapter": 106,
+    "title": "凤姐获罪抄产",
+    "titleEn": "Xifeng's ill-gotten gains are confiscated",
+    "desc": "抄家时从凤姐房中搜出放高利贷之契据与大量私藏财物，凤姐名声尽毁。",
+    "chars": [
+      "王熙凤"
+    ]
+  },
+  {
+    "year": 11,
+    "month": 4,
+    "lane": 2,
+    "type": "death",
+    "arc": 8,
+    "chapter": 110,
+    "title": "贾母去世",
+    "titleEn": "Death of Grandmother Jia",
+    "desc": "贾母在贾府抄家后悲痛交加中病逝，享年八十三岁，一代庇护者离世。",
+    "chars": [
+      "贾母",
+      "贾政",
+      "王夫人"
+    ]
+  },
+  {
+    "year": 11,
+    "month": 4,
+    "lane": 3,
+    "type": "death",
+    "arc": 8,
+    "chapter": 111,
+    "title": "鸳鸯殉主",
+    "titleEn": "Yuanyang takes her life to follow her mistress",
+    "desc": "鸳鸯于贾母灵前自缢殉主，兑现生前绝不嫁人之誓。",
+    "chars": [
+      "鸳鸯"
+    ]
+  },
+  {
+    "year": 11,
+    "month": 5,
+    "lane": 3,
+    "type": "death",
+    "arc": 8,
+    "chapter": 112,
+    "title": "妙玉被劫",
+    "titleEn": "Miaoyu is abducted by bandits",
+    "desc": "贼人入园掳走妙玉，一心向佛的洁净之人终陷污泥，判词「可怜金玉质，终陷淖泥中」应验。",
+    "chars": [
+      "妙玉"
+    ]
+  },
+  {
+    "year": 11,
+    "month": 6,
+    "lane": 1,
+    "type": "death",
+    "arc": 8,
+    "chapter": 114,
+    "title": "凤姐之死",
+    "titleEn": "Death of Wang Xifeng",
+    "desc": "凤姐积劳成疾，又遭抄家之辱、贾琏休弃，心力交瘁而亡,「机关算尽太聪明，反算了卿卿性命」。",
+    "chars": [
+      "王熙凤",
+      "巧姐"
+    ]
+  },
+  {
+    "year": 11,
+    "month": 7,
+    "lane": 1,
+    "type": "social",
+    "arc": 8,
+    "chapter": 113,
+    "title": "刘姥姥三进贾府",
+    "titleEn": "Granny Liu's third visit — rescuing Qiaojie",
+    "desc": "刘姥姥闻贾府落难赶来探望，凤姐临终托孤，后刘姥姥救巧姐于险境。",
+    "chars": [
+      "刘姥姥",
+      "王熙凤",
+      "巧姐"
+    ]
+  },
+  {
+    "year": 12,
+    "month": 1,
+    "lane": 1,
+    "type": "social",
+    "arc": 8,
+    "chapter": 119,
+    "title": "刘姥姥救巧姐",
+    "titleEn": "Granny Liu rescues Qiaojie from being sold",
+    "desc": "贾府衰败后狠舅奸兄欲将巧姐卖入烟花，刘姥姥设法将巧姐救出嫁于乡间良人。",
+    "chars": [
+      "刘姥姥",
+      "巧姐",
+      "王仁",
+      "贾环"
+    ]
+  },
+  {
+    "year": 12,
+    "month": 2,
+    "lane": 3,
+    "type": "love",
+    "arc": 8,
+    "chapter": 116,
+    "title": "探春远嫁",
+    "titleEn": "Tanchun is married far away",
+    "desc": "探春远嫁海疆，一帆风雨路三千，骨肉分离，判词「清明涕送江边望」应验。",
+    "chars": [
+      "贾探春"
+    ]
+  },
+  {
+    "year": 12,
+    "month": 4,
+    "lane": 0,
+    "type": "spiritual",
+    "arc": 8,
+    "chapter": 116,
+    "title": "宝玉重游太虚幻境",
+    "titleEn": "Baoyu revisits the Land of Illusion",
+    "desc": "宝玉于病中魂游太虚幻境，再见十二钗簿册，窥知众人归宿，大梦将醒。",
+    "chars": [
+      "贾宝玉",
+      "警幻仙姑"
+    ]
+  },
+  {
+    "year": 12,
+    "month": 6,
+    "lane": 2,
+    "type": "political",
+    "arc": 8,
+    "chapter": 107,
+    "title": "贾赦获罪充军",
+    "titleEn": "Jia She is sentenced to exile",
+    "desc": "贾赦因交通外官、倚势凌人之罪被判充军流放。",
+    "chars": [
+      "贾赦"
+    ]
+  },
+  {
+    "year": 13,
+    "month": 1,
+    "lane": 2,
+    "type": "political",
+    "arc": 8,
+    "chapter": 119,
+    "title": "贾府获赦沐恩",
+    "titleEn": "The Jia family receives imperial pardon",
+    "desc": "圣上念贾府先祖之功，赦免部分罪行，归还部分家产，贾府残破复兴。",
+    "chars": [
+      "贾政"
+    ]
+  },
+  {
+    "year": 13,
+    "month": 3,
+    "lane": 0,
+    "type": "ceremony",
+    "arc": 8,
+    "chapter": 119,
+    "title": "宝玉中举",
+    "titleEn": "Baoyu passes the imperial examination",
+    "desc": "宝玉与贾兰一同赴考，宝玉高中第七名举人，却已心如止水。",
+    "chars": [
+      "贾宝玉",
+      "贾兰"
+    ]
+  },
+  {
+    "year": 13,
+    "month": 4,
+    "lane": 0,
+    "type": "spiritual",
+    "arc": 8,
+    "chapter": 120,
+    "title": "宝玉出家",
+    "titleEn": "Baoyu renounces the world and becomes a monk",
+    "desc": "宝玉在雪地中向贾政遥拜告别，随一僧一道飘然而去，归彼大荒。「落了片白茫茫大地真干净。」",
+    "chars": [
+      "贾宝玉",
+      "贾政",
+      "一僧一道"
+    ]
+  },
+  {
+    "year": 13,
+    "month": 5,
+    "lane": 0,
+    "type": "love",
+    "arc": 8,
+    "chapter": 120,
+    "title": "宝钗独守空闺",
+    "titleEn": "Baochai is left alone",
+    "desc": "宝玉出家后宝钗独守空房，「金簪雪里埋」之判词应验，孤寂终老。",
+    "chars": [
+      "薛宝钗"
+    ]
+  },
+  {
+    "year": 13,
+    "month": 6,
+    "lane": 3,
+    "type": "love",
+    "arc": 8,
+    "chapter": 120,
+    "title": "湘云守寡",
+    "titleEn": "Xiangyun becomes a young widow",
+    "desc": "史湘云嫁卫若兰后夫婿早亡，才貌双全的女子终归寂寞，云散高唐。",
+    "chars": [
+      "史湘云"
+    ]
+  },
+  {
+    "year": 14,
+    "month": 1,
+    "lane": 2,
+    "type": "spiritual",
+    "arc": 8,
+    "chapter": 120,
+    "title": "通灵玉归位",
+    "titleEn": "The mystic jade returns to its origin",
+    "desc": "空空道人于青埂峰下重见那块大石，石上字迹即为《红楼梦》全文，归于太虚。",
+    "chars": [
+      "空空道人"
+    ]
+  },
+  {
+    "year": 14,
+    "month": 3,
+    "lane": 2,
+    "type": "spiritual",
+    "arc": 8,
+    "chapter": 120,
+    "title": "贾雨村归结红楼梦",
+    "titleEn": "Jia Yucun concludes the Dream of the Red Chamber",
+    "desc": "贾雨村被削职后遇甄士隐，二人谈论贾府兴衰，首尾呼应，大梦归于虚无。",
+    "chars": [
+      "贾雨村",
+      "甄士隐"
+    ]
+  }
+];
+
+const timelineConfig = {
+  "startYear": 1,
+  "endYear": 15,
+  "yearLabel": "年",
+  "laneNames": [
+    "宝黛钗",
+    "王熙凤/管家",
+    "贾府兴衰",
+    "金钗命运"
+  ],
+  "laneColors": [
+    "#ffe66d",
+    "#ff6b6b",
+    "#4ecdc4",
+    "#6c63ff"
+  ],
+  "eventColors": {
+    "love": "#ff8fab",
+    "death": "#ff6b6b",
+    "ceremony": "#ffe66d",
+    "conflict": "#6c63ff",
+    "spiritual": "#8888a0",
+    "political": "#4ecdc4",
+    "social": "#ff8fab"
+  },
+  "eventTypeLabels": {
+    "love": "情感 love",
+    "death": "死亡 death",
+    "ceremony": "庆典 ceremony",
+    "conflict": "冲突 conflict",
+    "political": "政治 political",
+    "spiritual": "仙境 spiritual",
+    "social": "社交 social"
+  },
+  "eras": [
+    {
+      "start": 1,
+      "end": 3,
+      "label": "初入贾府"
+    },
+    {
+      "start": 3,
+      "end": 6,
+      "label": "大观园"
+    },
+    {
+      "start": 6,
+      "end": 9,
+      "label": "鼎盛时期"
+    },
+    {
+      "start": 9,
+      "end": 12,
+      "label": "衰落"
+    },
+    {
+      "start": 12,
+      "end": 15,
+      "label": "覆灭"
+    }
+  ]
+};
+
+
+// ══════════════════════════════════════════════════
+// CONSTANTS & STATE (derived from timelineConfig)
+// ══════════════════════════════════════════════════
+const START_YEAR = timelineConfig.startYear;
+const END_YEAR = timelineConfig.endYear;
+const YEAR_SPAN = END_YEAR - START_YEAR + 1;
+const HEADER_H = 40;       // year axis height
+const LANE_COUNT = timelineConfig.laneNames.length;
+
+const LANE_COLORS = timelineConfig.laneColors;
+const LANE_NAMES = timelineConfig.laneNames;
+const EVENT_COLORS = timelineConfig.eventColors;
+const EVENT_TYPE_LABELS = timelineConfig.eventTypeLabels;
+const EVENT_TYPE_SHAPES = timelineConfig.eventTypeShapes || {};
+
+// Year label format function — supports both calendar years ("1973年")
+// and narrative numbering ("第3回") via timelineConfig.yearLabel
+const YEAR_LABEL = timelineConfig.yearLabel || '{n}年';
+function formatYear(n) {
+    return YEAR_LABEL.replace('{n}', n);
+}
+
+const chapters = [...new Set(events.map(e => e.chapter))].sort((a, b) => a - b);
+
+// Chapter → year range mapping
+const chapterYearRange = {};
+chapters.forEach(ch => {
+    const chEvents = events.filter(e => e.chapter === ch);
+    const years = chEvents.map(e => e.year);
+    chapterYearRange[ch] = { min: Math.min(...years), max: Math.max(...years) };
+});
+
+let state = {
+    pxPerYear: 150,
+    offsetX: 0,
+    laneVisible: Array(LANE_COUNT).fill(true),
+    hoveredEvent: null,
+    selectedEvent: null,
+    isDragging: false,
+    dragStartX: 0,
+    dragStartOffset: 0,
+    activeChapter: null,
+    animFrame: null,
+    targetOffsetX: null,
+};
+
+// ══════════════════════════════════════════════════
+// DOM REFS
+// ══════════════════════════════════════════════════
+const $hero = document.getElementById('heroCanvas');
+const $minimap = document.getElementById('minimapCanvas');
+const $minimapWrap = document.getElementById('minimapWrap');
+const $timeline = document.getElementById('timelineCanvas');
+const $viewport = document.getElementById('timelineViewport');
+const $laneLabels = document.getElementById('laneLabels');
+const $yearInd = document.getElementById('yearIndicator');
+const $tooltip = document.getElementById('tooltip');
+const $ttTitle = document.getElementById('ttTitle');
+const $ttYear = document.getElementById('ttYear');
+const $ttDesc = document.getElementById('ttDesc');
+const $detailOverlay = document.getElementById('detailOverlay');
+const $detailDot = document.getElementById('detailDot');
+const $detailTitle = document.getElementById('detailTitle');
+const $detailTitleEn = document.getElementById('detailTitleEn');
+const $detailYear = document.getElementById('detailYear');
+const $detailChapter = document.getElementById('detailChapter');
+const $detailDesc = document.getElementById('detailDesc');
+const $detailChars = document.getElementById('detailChars');
+const $zoomSlider = document.getElementById('zoomSlider');
+const $zoomLabel = document.getElementById('zoomLabel');
+const $legendBar = document.getElementById('legendBar');
+const $statTotal = document.getElementById('statTotal');
+const $statVisible = document.getElementById('statVisible');
+const $statChapters = document.getElementById('statChapters');
+
+// ══════════════════════════════════════════════════
+// UTILITY
+// ══════════════════════════════════════════════════
+function dpr() { return window.devicePixelRatio || 1; }
+
+function sizeCanvas(canvas, w, h) {
+    const r = dpr();
+    canvas.width = w * r;
+    canvas.height = h * r;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(r, 0, 0, r, 0, 0);
+    return ctx;
+}
+
+function totalWidth() { return YEAR_SPAN * state.pxPerYear; }
+function maxOffset() { return Math.max(0, totalWidth() - $viewport.clientWidth + 100); }
+
+function clampOffset(v) {
+    return Math.max(0, Math.min(v, maxOffset()));
+}
+
+function yearToX(year, month) {
+    const frac = ((month || 1) - 1) / 12;
+    return (year - START_YEAR + frac) * state.pxPerYear - state.offsetX + 90;
+}
+
+function xToYear(screenX) {
+    return START_YEAR + (screenX - 90 + state.offsetX) / state.pxPerYear;
+}
+
+function laneY(lane, viewH) {
+    const laneH = (viewH - HEADER_H) / LANE_COUNT;
+    return HEADER_H + lane * laneH + laneH / 2;
+}
+
+function laneHeight(viewH) {
+    return (viewH - HEADER_H) / LANE_COUNT;
+}
+
+// ══════════════════════════════════════════════════
+// LEGEND & STATS
+// ══════════════════════════════════════════════════
+function buildLegend() {
+    const types = Object.keys(EVENT_COLORS);
+    types.forEach(type => {
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        const dot = document.createElement('div');
+        dot.className = 'legend-dot' + (EVENT_TYPE_SHAPES[type] === 'diamond' ? ' diamond' : '');
+        dot.style.background = EVENT_COLORS[type];
+        const label = document.createElement('span');
+        label.textContent = EVENT_TYPE_LABELS[type];
+        item.appendChild(dot);
+        item.appendChild(label);
+        $legendBar.appendChild(item);
+    });
+}
+
+function updateStats() {
+    const visCount = events.filter(e => state.laneVisible[e.lane]).length;
+    const visChapters = new Set(events.filter(e => state.laneVisible[e.lane]).map(e => e.chapter)).size;
+    $statTotal.textContent = events.length;
+    $statVisible.textContent = visCount;
+    $statChapters.textContent = visChapters;
+}
+
+// ══════════════════════════════════════════════════
+// HERO — floating particles
+// ══════════════════════════════════════════════════
+function initHero() {
+    const heroSection = document.querySelector('.hero');
+    const w = heroSection.clientWidth;
+    const h = heroSection.clientHeight;
+    const ctx = sizeCanvas($hero, w, h);
+    const particles = [];
+    const PCOUNT = 60;
+
+    for (let i = 0; i < PCOUNT; i++) {
+        particles.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            r: Math.random() * 2 + 0.5,
+            vx: (Math.random() - 0.5) * 0.3,
+            vy: (Math.random() - 0.5) * 0.2,
+            alpha: Math.random() * 0.4 + 0.1,
+            color: LANE_COLORS[Math.floor(Math.random() * LANE_COLORS.length)],
+        });
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, w, h);
+        particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < 0) p.x = w;
+            if (p.x > w) p.x = 0;
+            if (p.y < 0) p.y = h;
+            if (p.y > h) p.y = 0;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = p.alpha;
+            ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+
+        // Draw thin connection lines between close particles
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 80) {
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = particles[i].color;
+                    ctx.globalAlpha = (1 - dist / 80) * 0.08;
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                }
+            }
+        }
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(draw);
+    }
+    draw();
+}
+
+// ══════════════════════════════════════════════════
+// DYNAMIC THREAD BUTTONS
+// ══════════════════════════════════════════════════
+function buildThreadBtns() {
+    const wrap = document.getElementById('threadBtns');
+    wrap.style.display = 'flex';
+    wrap.style.gap = '6px';
+    wrap.style.flexWrap = 'wrap';
+    LANE_NAMES.forEach((name, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'thread-btn active';
+        btn.dataset.lane = i;
+        btn.style.borderColor = LANE_COLORS[i];
+        btn.style.color = LANE_COLORS[i];
+        btn.style.background = LANE_COLORS[i]; // active state
+        btn.textContent = name;
+        btn.addEventListener('click', () => toggleThread(i, btn));
+        wrap.appendChild(btn);
+    });
+}
+
+// ══════════════════════════════════════════════════
+// CHAPTER BUTTONS
+// ══════════════════════════════════════════════════
+function buildChapterBtns() {
+    const wrap = document.getElementById('chapterBtns');
+    wrap.style.display = 'flex';
+    wrap.style.gap = '4px';
+    wrap.style.flexWrap = 'wrap';
+    chapters.forEach(ch => {
+        const btn = document.createElement('button');
+        btn.className = 'chapter-btn';
+        btn.textContent = ch;
+        btn.dataset.chapter = ch;
+        btn.addEventListener('click', () => jumpToChapter(ch));
+        wrap.appendChild(btn);
+    });
+}
+
+function jumpToChapter(ch) {
+    const range = chapterYearRange[ch];
+    if (!range) return;
+
+    // Highlight button
+    document.querySelectorAll('.chapter-btn').forEach(b => {
+        b.classList.toggle('active', +b.dataset.chapter === ch);
+    });
+    state.activeChapter = ch;
+
+    // Calculate target offset to center the chapter's year range
+    const viewW = $viewport.clientWidth;
+    const centerYear = (range.min + range.max) / 2;
+    const targetOff = (centerYear - START_YEAR) * state.pxPerYear - (viewW - 90) / 2 + 90;
+    state.targetOffsetX = clampOffset(targetOff);
+    animateScroll();
+}
+
+function animateScroll() {
+    if (state.targetOffsetX === null) return;
+    const diff = state.targetOffsetX - state.offsetX;
+    if (Math.abs(diff) < 1) {
+        state.offsetX = state.targetOffsetX;
+        state.targetOffsetX = null;
+        render();
+        return;
+    }
+    state.offsetX += diff * 0.15;
+    render();
+    requestAnimationFrame(animateScroll);
+}
+
+// ══════════════════════════════════════════════════
+// THREAD TOGGLE
+// ══════════════════════════════════════════════════
+function toggleThread(lane, btn) {
+    state.laneVisible[lane] = !state.laneVisible[lane];
+    btn.classList.toggle('active');
+    if (state.laneVisible[lane]) {
+        btn.style.background = btn.style.borderColor;
+    } else {
+        btn.style.background = 'transparent';
+    }
+    render();
+}
+
+// ══════════════════════════════════════════════════
+// ZOOM
+// ══════════════════════════════════════════════════
+$zoomSlider.addEventListener('input', () => {
+    const centerYear = xToYear($viewport.clientWidth / 2);
+    state.pxPerYear = +$zoomSlider.value;
+    $zoomLabel.textContent = state.pxPerYear;
+    // Re-center on the same year
+    state.offsetX = clampOffset(
+        (centerYear - START_YEAR) * state.pxPerYear - ($viewport.clientWidth - 90) / 2
+    );
+    render();
+});
+
+// ══════════════════════════════════════════════════
+// LANE LABELS
+// ══════════════════════════════════════════════════
+function updateLaneLabels() {
+    const viewH = $viewport.clientHeight;
+    $laneLabels.innerHTML = '';
+    $laneLabels.style.height = viewH + 'px';
+
+    for (let i = 0; i < LANE_COUNT; i++) {
+        if (!state.laneVisible[i]) continue;
+        const y = laneY(i, viewH);
+        const label = document.createElement('div');
+        label.className = 'lane-label';
+        label.style.top = (y - 8) + 'px';
+        label.style.color = LANE_COLORS[i];
+        label.textContent = LANE_NAMES[i];
+        $laneLabels.appendChild(label);
+    }
+}
+
+// ══════════════════════════════════════════════════
+// MINIMAP
+// ══════════════════════════════════════════════════
+function drawMinimap() {
+    const w = $minimapWrap.clientWidth;
+    const h = $minimapWrap.clientHeight;
+    const ctx = sizeCanvas($minimap, w, h);
+
+    ctx.fillStyle = '#1a1d27';
+    ctx.fillRect(0, 0, w, h);
+
+    const pxPerYearMini = w / YEAR_SPAN;
+    const laneH = h / LANE_COUNT;
+
+    // Lane background tints in minimap
+    for (let i = 0; i < LANE_COUNT; i++) {
+        if (!state.laneVisible[i]) continue;
+        ctx.fillStyle = LANE_COLORS[i];
+        ctx.globalAlpha = 0.04;
+        ctx.fillRect(0, i * laneH, w, laneH);
+    }
+    ctx.globalAlpha = 1;
+
+    // Connection lines between events in minimap
+    for (let lane = 0; lane < LANE_COUNT; lane++) {
+        if (!state.laneVisible[lane]) continue;
+        const laneEvs = events.filter(e => e.lane === lane)
+            .sort((a, b) => a.year - b.year || (a.month || 1) - (b.month || 1));
+        const cy = lane * laneH + laneH / 2;
+        for (let i = 1; i < laneEvs.length; i++) {
+            const x1 = (laneEvs[i-1].year - START_YEAR + ((laneEvs[i-1].month||1)-1)/12) * pxPerYearMini;
+            const x2 = (laneEvs[i].year - START_YEAR + ((laneEvs[i].month||1)-1)/12) * pxPerYearMini;
+            ctx.beginPath();
+            ctx.moveTo(x1, cy);
+            ctx.lineTo(x2, cy);
+            ctx.strokeStyle = LANE_COLORS[lane];
+            ctx.globalAlpha = 0.15;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+        }
+    }
+    ctx.globalAlpha = 1;
+
+    // Draw events as small dots
+    events.forEach(ev => {
+        if (!state.laneVisible[ev.lane]) return;
+        const x = (ev.year - START_YEAR + ((ev.month || 1) - 1) / 12) * pxPerYearMini;
+        const y = ev.lane * laneH + laneH / 2;
+        ctx.beginPath();
+        if (EVENT_TYPE_SHAPES[ev.type] === 'diamond') {
+            // Small diamond in minimap
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(Math.PI / 4);
+            ctx.rect(-1.5, -1.5, 3, 3);
+            ctx.restore();
+        } else {
+            ctx.arc(x, y, 2, 0, Math.PI * 2);
+        }
+        ctx.fillStyle = EVENT_COLORS[ev.type] || '#888';
+        ctx.globalAlpha = 0.8;
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+
+    // Year tick marks and labels
+    for (let yr = START_YEAR; yr <= END_YEAR; yr += 5) {
+        const x = (yr - START_YEAR) * pxPerYearMini;
+        ctx.beginPath();
+        ctx.moveTo(x, h - 5);
+        ctx.lineTo(x, h);
+        ctx.strokeStyle = 'rgba(136,136,160,0.4)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Small year label at bottom
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.fillStyle = 'rgba(136,136,160,0.5)';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(yr.toString(), x, h - 1);
+    }
+
+    // Viewport rectangle
+    const tw = totalWidth() + 100;
+    const viewW = $viewport.clientWidth;
+    const vpLeft = (state.offsetX / tw) * w;
+    const vpW = Math.min((viewW / tw) * w, w);
+
+    ctx.fillStyle = 'rgba(108,99,255,0.15)';
+    ctx.fillRect(vpLeft, 0, vpW, h);
+    ctx.strokeStyle = 'rgba(108,99,255,0.55)';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(vpLeft, 0, vpW, h);
+
+    // Viewport edge glow
+    const edgeGrd = ctx.createLinearGradient(vpLeft, 0, vpLeft + 6, 0);
+    edgeGrd.addColorStop(0, 'rgba(108,99,255,0.3)');
+    edgeGrd.addColorStop(1, 'rgba(108,99,255,0)');
+    ctx.fillStyle = edgeGrd;
+    ctx.fillRect(vpLeft, 0, 6, h);
+
+    const edgeGrd2 = ctx.createLinearGradient(vpLeft + vpW - 6, 0, vpLeft + vpW, 0);
+    edgeGrd2.addColorStop(0, 'rgba(108,99,255,0)');
+    edgeGrd2.addColorStop(1, 'rgba(108,99,255,0.3)');
+    ctx.fillStyle = edgeGrd2;
+    ctx.fillRect(vpLeft + vpW - 6, 0, 6, h);
+}
+
+// ══════════════════════════════════════════════════
+// TIMELINE CANVAS
+// ══════════════════════════════════════════════════
+function drawTimeline() {
+    const viewW = $viewport.clientWidth;
+    const viewH = $viewport.clientHeight;
+    const ctx = sizeCanvas($timeline, viewW, viewH);
+
+    ctx.clearRect(0, 0, viewW, viewH);
+
+    const lH = laneHeight(viewH);
+
+    // ── Lane backgrounds ──
+    for (let i = 0; i < LANE_COUNT; i++) {
+        if (!state.laneVisible[i]) continue;
+        const y = HEADER_H + i * lH;
+
+        // Subtle gradient background per lane
+        const laneGrd = ctx.createLinearGradient(0, y, 0, y + lH);
+        laneGrd.addColorStop(0, hexToRGBA(LANE_COLORS[i], 0.04));
+        laneGrd.addColorStop(0.5, hexToRGBA(LANE_COLORS[i], 0.02));
+        laneGrd.addColorStop(1, hexToRGBA(LANE_COLORS[i], 0.04));
+        ctx.fillStyle = laneGrd;
+        ctx.fillRect(0, y, viewW, lH);
+
+        // Lane separator
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(viewW, y);
+        ctx.strokeStyle = 'rgba(42,45,58,0.6)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }
+    // Bottom separator
+    ctx.beginPath();
+    ctx.moveTo(0, HEADER_H + LANE_COUNT * lH);
+    ctx.lineTo(viewW, HEADER_H + LANE_COUNT * lH);
+    ctx.strokeStyle = 'rgba(42,45,58,0.6)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // ── Era markers ──
+    const eras = timelineConfig.eras || [];
+    eras.forEach(era => {
+        const x1 = yearToX(Math.max(era.start, START_YEAR), 1);
+        const x2 = yearToX(Math.min(era.end, END_YEAR), 12);
+        if (x2 < 60 || x1 > viewW + 20) return;
+
+        // Very subtle era background
+        ctx.fillStyle = 'rgba(108,99,255,0.015)';
+        const eraX = Math.max(90, x1);
+        const eraW = x2 - eraX;
+        if (eraW > 0) {
+            ctx.fillRect(eraX, HEADER_H, eraW, viewH - HEADER_H);
+        }
+
+        // Era label at top
+        const centerX = (x1 + x2) / 2;
+        if (centerX > 90 && centerX < viewW) {
+            ctx.font = '300 9px "Noto Sans SC", sans-serif';
+            ctx.fillStyle = 'rgba(136,136,160,0.2)';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(era.label, centerX, HEADER_H + 4);
+        }
+    });
+
+    // ── Year grid lines and labels ──
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    for (let yr = START_YEAR; yr <= END_YEAR; yr++) {
+        const x = yearToX(yr, 1);
+        if (x < 60 || x > viewW + 20) continue;
+
+        // Vertical dashed line
+        ctx.save();
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(x, HEADER_H);
+        ctx.lineTo(x, viewH);
+        ctx.strokeStyle = yr % 5 === 0 ? 'rgba(42,45,58,0.7)' : 'rgba(42,45,58,0.4)';
+        ctx.lineWidth = yr % 5 === 0 ? 1.5 : 1;
+        ctx.stroke();
+        ctx.restore();
+
+        // Year label
+        ctx.font = yr % 5 === 0
+            ? '700 12px "JetBrains Mono", monospace'
+            : '500 10px "JetBrains Mono", monospace';
+        ctx.fillStyle = yr % 5 === 0 ? 'rgba(232,232,240,0.7)' : 'rgba(136,136,160,0.3)';
+        ctx.fillText(yr.toString(), x, HEADER_H / 2);
+    }
+
+    // Header separator
+    ctx.beginPath();
+    ctx.moveTo(0, HEADER_H);
+    ctx.lineTo(viewW, HEADER_H);
+    ctx.strokeStyle = 'rgba(42,45,58,0.8)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // ── Chapter highlight ──
+    if (state.activeChapter !== null) {
+        const range = chapterYearRange[state.activeChapter];
+        if (range) {
+            const x1 = yearToX(range.min, 1) - 20;
+            const x2 = yearToX(range.max, 12) + 20;
+
+            // Gradient highlight for active chapter
+            const chGrd = ctx.createLinearGradient(x1, 0, x2, 0);
+            chGrd.addColorStop(0, 'rgba(108,99,255,0)');
+            chGrd.addColorStop(0.1, 'rgba(108,99,255,0.06)');
+            chGrd.addColorStop(0.9, 'rgba(108,99,255,0.06)');
+            chGrd.addColorStop(1, 'rgba(108,99,255,0)');
+            ctx.fillStyle = chGrd;
+            ctx.fillRect(x1, HEADER_H, x2 - x1, viewH - HEADER_H);
+
+            ctx.strokeStyle = 'rgba(108,99,255,0.2)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([6, 4]);
+            ctx.strokeRect(x1, HEADER_H, x2 - x1, viewH - HEADER_H);
+            ctx.setLineDash([]);
+
+            // Chapter label
+            const chCenterX = (x1 + x2) / 2;
+            ctx.font = '500 11px "JetBrains Mono", monospace';
+            ctx.fillStyle = 'rgba(108,99,255,0.4)';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('Ch.' + state.activeChapter, chCenterX, HEADER_H - 2);
+        }
+    }
+
+    // ── Connection lines between chronologically adjacent events in same lane ──
+    // Draw these BEFORE events so events render on top
+    for (let lane = 0; lane < LANE_COUNT; lane++) {
+        if (!state.laneVisible[lane]) continue;
+        const laneEventsArr = events.filter(e => e.lane === lane)
+            .sort((a, b) => a.year - b.year || (a.month || 1) - (b.month || 1));
+
+        // Pre-calculate positions
+        laneEventsArr.forEach(ev => {
+            ev._cx = yearToX(ev.year, ev.month);
+            ev._cy = laneY(ev.lane, viewH);
+        });
+
+        for (let i = 1; i < laneEventsArr.length; i++) {
+            const prev = laneEventsArr[i - 1];
+            const cur = laneEventsArr[i];
+            const x1 = prev._cx;
+            const x2 = cur._cx;
+            if (x1 > viewW + 30 && x2 > viewW + 30) continue;
+            if (x1 < 50 && x2 < 50) continue;
+            const cy = laneY(lane, viewH);
+
+            // Curved connection line
+            const midX = (x1 + x2) / 2;
+            const cpOffset = Math.min((x2 - x1) * 0.05, 8);
+
+            ctx.beginPath();
+            ctx.moveTo(x1 + 10, cy);
+            ctx.bezierCurveTo(midX, cy - cpOffset, midX, cy - cpOffset, x2 - 10, cy);
+            ctx.strokeStyle = LANE_COLORS[lane];
+            ctx.globalAlpha = 0.1;
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([3, 5]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.globalAlpha = 1;
+        }
+    }
+
+    // ── Cross-lane connections (events sharing characters within same year) ──
+    const eventsByYear = {};
+    events.forEach(ev => {
+        if (!state.laneVisible[ev.lane]) return;
+        const key = ev.year;
+        if (!eventsByYear[key]) eventsByYear[key] = [];
+        eventsByYear[key].push(ev);
+    });
+    Object.values(eventsByYear).forEach(yearEvs => {
+        for (let i = 0; i < yearEvs.length; i++) {
+            for (let j = i + 1; j < yearEvs.length; j++) {
+                const a = yearEvs[i];
+                const b = yearEvs[j];
+                if (a.lane === b.lane) continue;
+                // Check for shared characters
+                const shared = a.chars.filter(c => b.chars.includes(c));
+                if (shared.length === 0) continue;
+
+                const ax = yearToX(a.year, a.month);
+                const bx = yearToX(b.year, b.month);
+                const ay = laneY(a.lane, viewH);
+                const by = laneY(b.lane, viewH);
+                if (ax < 50 && bx < 50) continue;
+                if (ax > viewW + 30 && bx > viewW + 30) continue;
+
+                // Draw subtle cross-lane link
+                ctx.beginPath();
+                ctx.moveTo(ax, ay);
+                const midCX = (ax + bx) / 2 + 10;
+                ctx.quadraticCurveTo(midCX, (ay + by) / 2, bx, by);
+                ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([2, 4]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+    });
+
+    // ── Events ──
+    const visibleEvents = events.filter(e => state.laneVisible[e.lane]);
+
+    // Collect label positions for overlap avoidance
+    const labelRects = [];
+
+    visibleEvents.forEach((ev, idx) => {
+        const x = yearToX(ev.year, ev.month);
+        if (x < 50 || x > viewW + 30) return;
+        const y = laneY(ev.lane, viewH);
+        const color = EVENT_COLORS[ev.type] || '#888';
+        const isHovered = state.hoveredEvent === ev;
+        const isSelected = state.selectedEvent === ev;
+        const radius = (isHovered || isSelected) ? 12 : 9;
+
+        // Store hit area
+        ev._x = x;
+        ev._y = y;
+        ev._r = radius;
+
+        // Glow
+        if (isHovered || isSelected) {
+            const grd = ctx.createRadialGradient(x, y, 0, x, y, radius * 3.5);
+            grd.addColorStop(0, color + '55');
+            grd.addColorStop(0.5, color + '22');
+            grd.addColorStop(1, color + '00');
+            ctx.beginPath();
+            ctx.arc(x, y, radius * 3.5, 0, Math.PI * 2);
+            ctx.fillStyle = grd;
+            ctx.fill();
+        }
+
+        // Pulsing ring for selected event
+        if (isSelected) {
+            const pulseAlpha = 0.3 + Math.sin(Date.now() / 300) * 0.15;
+            ctx.beginPath();
+            ctx.arc(x, y, radius + 6, 0, Math.PI * 2);
+            ctx.strokeStyle = color;
+            ctx.globalAlpha = pulseAlpha;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+        }
+
+        if (EVENT_TYPE_SHAPES[ev.type] === 'diamond') {
+            // Diamond shape with inner detail
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(Math.PI / 4);
+            const sz = radius * 0.72;
+            ctx.beginPath();
+            ctx.rect(-sz, -sz, sz * 2, sz * 2);
+            ctx.fillStyle = color;
+            ctx.globalAlpha = isHovered || isSelected ? 1 : 0.85;
+            ctx.fill();
+            // Inner highlight
+            ctx.beginPath();
+            ctx.rect(-sz * 0.4, -sz * 0.4, sz * 0.8, sz * 0.8);
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            ctx.fill();
+            ctx.restore();
+        } else {
+            // Circle with inner highlight
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.globalAlpha = isHovered || isSelected ? 1 : 0.85;
+            ctx.fill();
+
+            // Inner bright spot
+            const innerGrd = ctx.createRadialGradient(x - radius*0.25, y - radius*0.25, 0, x, y, radius);
+            innerGrd.addColorStop(0, 'rgba(255,255,255,0.2)');
+            innerGrd.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = innerGrd;
+            ctx.globalAlpha = 0.5;
+            ctx.fill();
+        }
+
+        ctx.globalAlpha = 1;
+
+        // Border ring on hover/select
+        if (isHovered || isSelected) {
+            ctx.beginPath();
+            if (EVENT_TYPE_SHAPES[ev.type] === 'diamond') {
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(Math.PI / 4);
+                const sz = radius * 0.72 + 3;
+                ctx.rect(-sz, -sz, sz * 2, sz * 2);
+                ctx.restore();
+            } else {
+                ctx.arc(x, y, radius + 3, 0, Math.PI * 2);
+            }
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.5;
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+        }
+
+        // Event title label with overlap avoidance
+        ctx.save();
+        ctx.font = '400 11px "Noto Sans SC", sans-serif';
+        const textW = ctx.measureText(ev.title).width;
+        ctx.fillStyle = (isHovered || isSelected) ? '#fff' : 'rgba(232,232,240,0.6)';
+        ctx.textBaseline = 'middle';
+
+        // Try placing label to the right, then above, then below
+        let lx = x + radius + 5;
+        let ly = y - 2;
+
+        // Check overlap with existing labels
+        const newRect = { x: lx, y: ly - 7, w: textW + 4, h: 14 };
+        let overlapping = false;
+        for (const r of labelRects) {
+            if (rectsOverlap(newRect, r)) {
+                overlapping = true;
+                break;
+            }
+        }
+
+        if (overlapping) {
+            // Try above
+            ly = y - radius - 10;
+            newRect.y = ly - 7;
+            overlapping = false;
+            for (const r of labelRects) {
+                if (rectsOverlap(newRect, r)) {
+                    overlapping = true;
+                    break;
+                }
+            }
+        }
+
+        if (overlapping) {
+            // Try below
+            ly = y + radius + 14;
+            newRect.y = ly - 7;
+        }
+
+        newRect.y = ly - 7;
+        labelRects.push(newRect);
+
+        ctx.textAlign = 'left';
+        ctx.fillText(ev.title, lx, ly);
+        ctx.restore();
+    });
+
+    // Year indicator
+    const centerYear = Math.round(xToYear(viewW / 2));
+    const clamped = Math.max(START_YEAR, Math.min(END_YEAR, centerYear));
+    $yearInd.textContent = clamped;
+}
+
+// ── Helper: hex to rgba ──
+function hexToRGBA(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+}
+
+// ── Helper: rectangle overlap ──
+function rectsOverlap(a, b) {
+    return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+// ══════════════════════════════════════════════════
+// HIT TEST
+// ══════════════════════════════════════════════════
+function hitTest(mx, my) {
+    const viewH = $viewport.clientHeight;
+    let closest = null;
+    let closestDist = Infinity;
+
+    events.forEach(ev => {
+        if (!state.laneVisible[ev.lane]) return;
+        if (ev._x === undefined) return;
+        const dx = mx - ev._x;
+        const dy = my - ev._y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 20 && dist < closestDist) {
+            closest = ev;
+            closestDist = dist;
+        }
+    });
+    return closest;
+}
+
+// ══════════════════════════════════════════════════
+// TOOLTIP
+// ══════════════════════════════════════════════════
+function showTooltip(ev, mx, my) {
+    $ttTitle.textContent = ev.title;
+    $ttYear.textContent = formatYear(ev.year) + (ev.month ? ev.month + '月' : '') + ' · 第' + ev.chapter + '章';
+    $ttDesc.textContent = ev.desc;
+    $tooltip.classList.add('visible');
+
+    const rect = $viewport.getBoundingClientRect();
+    let tx = mx + 16;
+    let ty = rect.top + my - 10;
+
+    // Prevent overflow
+    const tw = 280;
+    if (tx + tw > window.innerWidth - 10) tx = mx - tw - 10;
+    if (ty < 10) ty = 10;
+    if (ty + 120 > window.innerHeight) ty = window.innerHeight - 130;
+
+    $tooltip.style.left = tx + 'px';
+    $tooltip.style.top = ty + 'px';
+}
+
+function hideTooltip() {
+    $tooltip.classList.remove('visible');
+}
+
+// ══════════════════════════════════════════════════
+// DETAIL PANEL
+// ══════════════════════════════════════════════════
+function showDetail(ev) {
+    state.selectedEvent = ev;
+    const color = EVENT_COLORS[ev.type] || '#888';
+    $detailDot.style.background = color;
+    $detailTitle.textContent = ev.title;
+    $detailTitleEn.textContent = ev.titleEn;
+    $detailYear.textContent = formatYear(ev.year) + (ev.month ? ev.month + '月' : '');
+    $detailChapter.textContent = '第' + ev.chapter + '章 / Chapter ' + ev.chapter;
+    $detailDesc.textContent = ev.desc;
+    $detailChars.innerHTML = ev.chars.map(c =>
+        '<span class="char-pill">' + c + '</span>'
+    ).join('');
+    $detailOverlay.classList.add('visible');
+    render();
+}
+
+function closeDetail() {
+    $detailOverlay.classList.remove('visible');
+    state.selectedEvent = null;
+    render();
+}
+
+$detailOverlay.addEventListener('click', (e) => {
+    if (e.target === $detailOverlay) closeDetail();
+});
+
+// ══════════════════════════════════════════════════
+// KEYBOARD NAVIGATION
+// ══════════════════════════════════════════════════
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeDetail();
+        return;
+    }
+
+    // Arrow key scrolling
+    const scrollStep = state.pxPerYear * 0.5;
+    if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        state.targetOffsetX = clampOffset(state.offsetX - scrollStep);
+        animateScroll();
+    } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        state.targetOffsetX = clampOffset(state.offsetX + scrollStep);
+        animateScroll();
+    }
+
+    // Home / End for jumping to start / end
+    if (e.key === 'Home') {
+        e.preventDefault();
+        state.targetOffsetX = 0;
+        animateScroll();
+    } else if (e.key === 'End') {
+        e.preventDefault();
+        state.targetOffsetX = maxOffset();
+        animateScroll();
+    }
+
+    // +/- for zoom
+    if (e.key === '+' || e.key === '=') {
+        e.preventDefault();
+        const newZoom = Math.min(300, state.pxPerYear + 20);
+        applyZoom(newZoom);
+    } else if (e.key === '-' || e.key === '_') {
+        e.preventDefault();
+        const newZoom = Math.max(50, state.pxPerYear - 20);
+        applyZoom(newZoom);
+    }
+
+    // Number keys for chapter jump (1-9)
+    if (e.key >= '1' && e.key <= '9') {
+        const ch = parseInt(e.key);
+        if (chapters.includes(ch)) {
+            jumpToChapter(ch);
+        }
+    }
+});
+
+function applyZoom(newVal) {
+    const centerYear = xToYear($viewport.clientWidth / 2);
+    state.pxPerYear = newVal;
+    $zoomSlider.value = newVal;
+    $zoomLabel.textContent = newVal;
+    state.offsetX = clampOffset(
+        (centerYear - START_YEAR) * state.pxPerYear - ($viewport.clientWidth - 90) / 2
+    );
+    render();
+}
+
+// ══════════════════════════════════════════════════
+// INERTIAL SCROLLING
+// ══════════════════════════════════════════════════
+let inertiaVelocity = 0;
+let inertiaFrame = null;
+let lastDragX = 0;
+let lastDragTime = 0;
+
+function startInertia() {
+    if (Math.abs(inertiaVelocity) < 0.5) return;
+    function step() {
+        inertiaVelocity *= 0.94;  // friction
+        if (Math.abs(inertiaVelocity) < 0.5) {
+            inertiaFrame = null;
+            return;
+        }
+        state.offsetX = clampOffset(state.offsetX + inertiaVelocity);
+        render();
+        inertiaFrame = requestAnimationFrame(step);
+    }
+    if (inertiaFrame) cancelAnimationFrame(inertiaFrame);
+    inertiaFrame = requestAnimationFrame(step);
+}
+
+// ══════════════════════════════════════════════════
+// MOUSE / TOUCH INTERACTIONS
+// ══════════════════════════════════════════════════
+
+// ── Mouse drag ──
+$viewport.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    state.isDragging = true;
+    state.dragStartX = e.clientX;
+    state.dragStartOffset = state.offsetX;
+    state.targetOffsetX = null;
+    lastDragX = e.clientX;
+    lastDragTime = performance.now();
+    inertiaVelocity = 0;
+    if (inertiaFrame) { cancelAnimationFrame(inertiaFrame); inertiaFrame = null; }
+    $viewport.classList.add('dragging');
+    e.preventDefault();
+});
+
+window.addEventListener('mousemove', (e) => {
+    if (state.isDragging) {
+        const dx = state.dragStartX - e.clientX;
+        state.offsetX = clampOffset(state.dragStartOffset + dx);
+
+        // Track velocity for inertia
+        const now = performance.now();
+        const dt = now - lastDragTime;
+        if (dt > 0) {
+            inertiaVelocity = (lastDragX - e.clientX) / Math.max(dt, 8) * 16;
+        }
+        lastDragX = e.clientX;
+        lastDragTime = now;
+
+        render();
+        return;
+    }
+
+    // Hover hit test
+    const rect = $viewport.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const hit = hitTest(mx, my);
+
+    if (hit !== state.hoveredEvent) {
+        state.hoveredEvent = hit;
+        render();
+    }
+
+    if (hit) {
+        showTooltip(hit, e.clientX, my);
+        $viewport.style.cursor = 'pointer';
+    } else {
+        hideTooltip();
+        $viewport.style.cursor = state.isDragging ? 'grabbing' : 'grab';
+    }
+});
+
+window.addEventListener('mouseup', () => {
+    if (state.isDragging) {
+        state.isDragging = false;
+        $viewport.classList.remove('dragging');
+        startInertia();
+    }
+});
+
+// ── Click ──
+$viewport.addEventListener('click', (e) => {
+    const rect = $viewport.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const hit = hitTest(mx, my);
+    if (hit) {
+        showDetail(hit);
+    }
+});
+
+// ── Wheel scroll ──
+$viewport.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    // Horizontal scroll
+    const delta = e.shiftKey ? e.deltaY : (e.deltaX || e.deltaY);
+    state.offsetX = clampOffset(state.offsetX + delta * 0.8);
+    state.targetOffsetX = null;
+    render();
+}, { passive: false });
+
+// ── Touch ──
+let touchStartX = 0;
+let touchStartOffset = 0;
+
+$viewport.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartOffset = state.offsetX;
+        state.targetOffsetX = null;
+    }
+}, { passive: true });
+
+$viewport.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 1) {
+        const dx = touchStartX - e.touches[0].clientX;
+        state.offsetX = clampOffset(touchStartOffset + dx);
+        render();
+    }
+}, { passive: true });
+
+$viewport.addEventListener('touchend', (e) => {
+    if (e.changedTouches.length === 1) {
+        const rect = $viewport.getBoundingClientRect();
+        const mx = e.changedTouches[0].clientX - rect.left;
+        const my = e.changedTouches[0].clientY - rect.top;
+        const hit = hitTest(mx, my);
+        if (hit) showDetail(hit);
+    }
+});
+
+// ══════════════════════════════════════════════════
+// RENDER PIPELINE
+// ══════════════════════════════════════════════════
+function render() {
+    drawTimeline();
+    drawMinimap();
+    updateLaneLabels();
+    updateStats();
+}
+
+// ══════════════════════════════════════════════════
+// MINIMAP DRAG SUPPORT
+// ══════════════════════════════════════════════════
+let minimapDragging = false;
+
+function minimapJump(clientX) {
+    const rect = $minimapWrap.getBoundingClientRect();
+    const ratio = (clientX - rect.left) / rect.width;
+    const tw = totalWidth() + 100;
+    const viewW = $viewport.clientWidth;
+    state.offsetX = clampOffset(ratio * tw - viewW / 2);
+    render();
+}
+
+$minimapWrap.addEventListener('mousedown', (e) => {
+    minimapDragging = true;
+    minimapJump(e.clientX);
+    e.preventDefault();
+});
+
+window.addEventListener('mousemove', (e) => {
+    if (minimapDragging) {
+        minimapJump(e.clientX);
+    }
+});
+
+window.addEventListener('mouseup', () => {
+    minimapDragging = false;
+});
+
+// ══════════════════════════════════════════════════
+// RESIZE
+// ══════════════════════════════════════════════════
+let resizeTimer;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+        initHero();
+        render();
+    }, 100);
+});
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+document.fonts.ready.then(() => {
+    buildLegend();
+    buildThreadBtns();
+    buildChapterBtns();
+    initHero();
+    updateStats();
+    render();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>劈开戈尔迪之结 · Cutting the Gordian Knot | Chapter 5</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 5 / 15 · Part I · Programming Techniques 编程技艺</div>
+        <div class="hero-icon">⚔️</div>
+        <h1 class="hero-title">劈开戈尔迪之结</h1>
+        <p class="hero-sub">用简单方案解决复杂问题</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">戈尔迪之结：两种思路</div>
+    <div class="comparison-grid">
+        <div class="comparison-side hard">
+            <div class="comparison-icon">🪢</div>
+            <div class="comparison-label">THE HARD WAY</div>
+            <div class="comparison-title">试图「解开」绳结</div>
+            <div class="comparison-text"></div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side smart">
+            <div class="comparison-icon">⚔️</div>
+            <div class="comparison-label">THE SMART WAY</div>
+            <div class="comparison-title">一刀斩断</div>
+            <div class="comparison-text"></div>
+        </div>
+    </div>
+    
+</section>
+
+<!-- Block: custom — Escape hatch for raw HTML content -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">三道经典难题：你会怎么解？</div>
+    
+</section>
+
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">「劈结」思维工具箱</div>
+    <div class="tips-grid" id="tipsGrid-block3"></div>
+</section>
+
+<!-- Block: custom — Escape hatch for raw HTML content -->
+<section id="sec-block4" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">两则调试趣闻</div>
+    
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "Gordian Knot 隐喻——用出乎意料的简单方案攻克难题"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "别总想着在技术层面「解开」问题，先退一步思考问题本身"
+  },
+  {
+    "step": 3,
+    "title": "找到盲区",
+    "desc": "我们在哪些地方不自觉地把问题复杂化了？"
+  },
+  {
+    "step": 4,
+    "title": "简化输出",
+    "desc": "最好的方案往往只需一刀——像亚历山大那样"
+  }
+];
+const takeaways = [
+  {
+    "icon": "⚔️",
+    "title": "劈结思维",
+    "text": "遇到复杂问题时，先问「能不能绕过去」而非「怎么硬解」。Alexander 的剑就是对问题的重新定义。"
+  },
+  {
+    "icon": "🎯",
+    "title": "理解真实需求",
+    "text": "用户说的和用户想要的往往不同。深挖一层，也许问题本身就消失了。"
+  },
+  {
+    "icon": "🧰",
+    "title": "善用已有系统",
+    "text": "邮局、鸽子、剪刀——最好的工具可能早已存在，只是你没想到去用。"
+  },
+  {
+    "icon": "⚖️",
+    "title": "复杂度守恒定律不成立",
+    "text": "问题的复杂不等于解法的复杂。Polya 的悖论告诉我们，有时泛化比特化更简单。"
+  },
+  {
+    "icon": "🔍",
+    "title": "审视激励与惯性",
+    "text": "按代码行数付费就会得到臃肿代码；「一直如此」的做法可能早已失去意义。持续质疑假设。"
+  }
+];
+const quiz = [
+  {
+    "id": "q1",
+    "question": "「戈尔迪之结」隐喻的核心启示是什么？",
+    "options": [
+      "所有问题都能用暴力算法解决",
+      "复杂问题需要复杂方案",
+      "重新定义问题往往比硬解更有效",
+      "算法优化是唯一出路"
+    ],
+    "correctIndex": 2,
+    "explanation": "亚历山大没有试图解开绳结——他直接用剑斩断。核心是重新定义问题，而非在既有框架内挣扎。"
+  },
+  {
+    "id": "q2",
+    "question": "Scientific American 的邮件分类方案巧妙在哪里？",
+    "options": [
+      "雇了更多员工来分拣",
+      "利用邮局已有系统完成分类",
+      "开发了智能分拣机器人",
+      "要求读者在信封上标注类别"
+    ],
+    "correctIndex": 1,
+    "explanation": "不同类别用不同 PO Box——邮局本来就按信箱号分拣，零额外成本实现自动分类。"
+  },
+  {
+    "id": "q3",
+    "question": "电梯投诉的案例说明了什么？",
+    "options": [
+      "用户抱怨的问题和真实需求可能不同",
+      "应该更换更快的电梯",
+      "投诉总是不合理的",
+      "镜子比电梯更重要"
+    ],
+    "correctIndex": 0,
+    "explanation": "人们真正的问题不是「等太久」而是「等待时太无聊」。装镜子让等待变得可忍受——理解真实需求是关键。"
+  },
+  {
+    "id": "q4",
+    "question": "按代码行数付费会导致什么问题？",
+    "options": [
+      "代码质量提升",
+      "开发速度加快",
+      "代码变得臃肿冗余",
+      "Bug 数量减少"
+    ],
+    "correctIndex": 2,
+    "explanation": "激励结构决定行为：按行数付费 → 开发者有动力写更多不必要的代码。指标即行为 (you get what you measure)。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "遇到一个技术难题时，你是否总是尝试用技术手段解决，而不是先质疑问题本身？",
+    "hint": "想想有没有可能问题的定义就有问题"
+  },
+  {
+    "question": "你认为复杂问题一定需要复杂的解决方案吗？",
+    "hint": "想想你是否见过「简单到令人发笑」的解法"
+  },
+  {
+    "question": "你的 KPI 或度量指标是否真的衡量了你想要的东西？",
+    "hint": "想想按代码行数或 bug 数量来评估开发者会导致什么行为"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "重新定义问题往往比在既有框架内硬解更有效",
+    "evidence": "邮件分拣（用不同邮箱号利用邮局系统自动分类，代码量=0）、信鸽传数据（速度翻倍、成本降到1/100）、随机抽样（复印剪纸条，完全不需要电脑）三个案例都证明了这一点",
+    "counterpoint": "「劈结思维」有被滥用的风险——有些问题确实需要深入的技术解法。过度追求巧妙绕过可能导致问题只是被掩盖而非真正解决"
+  },
+  {
+    "claim": "用户抱怨的问题和真实需求可能不同",
+    "evidence": "电梯太慢的案例：装镜子让人不无聊，投诉下降 90%，电梯速度没变。IBM 键盘案例：键盘没坏，只是键帽被调换了"
+  }
+];
+const application = [
+  {
+    "scenario": "当产品经理提出一个需要复杂技术方案的需求时",
+    "action": "先退一步问「用户真正想要什么」。也许一个简单的 UI 改动就能解决用户的真实痛点，根本不需要改后端"
+  },
+  {
+    "scenario": "当你发现自己的方案越来越复杂，代码写了好几百行还没写完时",
+    "action": "停下来，问自己：能不能利用已有的系统或工具来解决？一条 shell 命令可能替代一百行代码"
+  },
+  {
+    "scenario": "当团队的绩效指标似乎在鼓励错误行为时",
+    "action": "审视激励结构——「你衡量什么就会得到什么」。如果按代码行数评估就会得到冗余代码，按 bug 修复数评估就会有人故意留 bug"
+  }
+];
+const chapterNav = {"prev": {"num": 4, "title": "构建可靠软件", "href": "ch04.html"}, "next": {"num": 6, "title": "计算机科学箴言集", "href": "ch06.html"}};
+window.tipsData_block3 = [
+  {
+    "icon": "🪞",
+    "title": "用户真正需要什么？",
+    "desc": "别急着优化方案，先确认问题本身。也许用户抱怨的不是真正的痛点。",
+    "example": "电梯太慢？装镜子让人不无聊——投诉下降 90%，电梯速度没变。"
+  },
+  {
+    "icon": "⚖️",
+    "title": "成本 vs 收益分析",
+    "desc": "不同层级的干预成本和效果差异巨大，选择性价比最高的切入点。",
+    "example": "减少车祸：安全带 < 安全气囊 < 道路设计 < 城市规划——越上层杠杆越大。"
+  },
+  {
+    "icon": "✂️",
+    "title": "别过度复杂化",
+    "desc": "当你发现方案越来越复杂时，停下来。也许存在更简洁的路径。",
+    "example": "用气压计量楼高？拿绳子绑着从楼顶放下去量绳长就行。"
+  },
+  {
+    "icon": "🔭",
+    "title": "也别过度简化",
+    "desc": "Polya 的「发明家悖论」：有时解决更一般化的问题反而更容易。",
+    "example": "证明特定数列性质很难？试试证明整个函数族的不等式——约束更多、反而有迹可循。"
+  },
+  {
+    "icon": "🔧",
+    "title": "用对工具",
+    "desc": "了解你的工具栈。一个命令可能替代一百行代码。",
+    "example": "大小写转换：26 次 tr 调用 → 一句 tr a-z A-Z。"
+  },
+  {
+    "icon": "💰",
+    "title": "激励结构决定行为",
+    "desc": "你衡量什么，就会得到什么。错误的 KPI 产生扭曲的行为。",
+    "example": "按代码行数付费 → 开发者写出臃肿冗余的代码。指标即行为。"
+  },
+  {
+    "icon": "🔄",
+    "title": "警惕「一直如此」陷阱",
+    "desc": "\"We've always done it this way\" 是创新最大的阻碍。",
+    "example": "某工厂在产品上钻孔——20 年后才发现，那个孔原本是给早已废弃的零件设计的。"
+  },
+  {
+    "icon": "🎮",
+    "title": "从玩耍中学习",
+    "desc": "业余时间的探索往往能在工作中派上用场。保持好奇心。",
+    "example": "一个人对 binary search 的业余研究 → 后来在真实工作中优化了关键流程。"
+  }
+];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: tips-grid
+(function() {
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'tip-card fade-in';
+            div.innerHTML = `
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

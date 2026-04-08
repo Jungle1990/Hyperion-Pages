@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>红楼梦 意象追踪 / Symbolic Motifs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --bg: #0f1117; --card: #1a1d27; --card-hover: #222636;
+    --accent: #6c63ff; --accent2: #ff6b6b; --accent3: #4ecdc4; --accent4: #ffe66d;
+    --text: #e8e8f0; --text-dim: #8888a0; --border: #2a2d3a; --glow: rgba(108,99,255,0.15);
+}
+
+html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'Noto Sans SC', sans-serif; }
+.app { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
+
+/* ── Hero ── */
+.hero {
+    height: 18vh; min-height: 130px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+    background: linear-gradient(180deg, #13151f 0%, var(--bg) 100%);
+}
+.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.hero-content { position: relative; z-index: 1; text-align: center; }
+.hero h1 {
+    font-size: clamp(1.4rem, 3vw, 2.2rem); font-weight: 700;
+    background: linear-gradient(135deg, var(--accent3) 0%, var(--accent) 50%, var(--accent4) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero .subtitle { margin-top: 6px; font-size: clamp(0.8rem, 1.4vw, 1rem); color: var(--text-dim); font-weight: 300; }
+.back-link { position: absolute; top: 16px; left: 20px; color: var(--text-dim); text-decoration: none; font-size: 0.85rem; z-index: 2; transition: color 0.2s; }
+.back-link:hover { color: var(--accent3); }
+
+/* ── Controls ── */
+.controls {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 14px; padding: 8px 20px;
+    background: rgba(15,17,23,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border); flex-wrap: wrap;
+}
+.controls-label { font-size: 0.75rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+.sort-btn {
+    padding: 4px 10px; border-radius: 8px; border: 1px solid var(--border);
+    background: transparent; color: var(--text-dim); font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.75rem; cursor: pointer; transition: all 0.2s;
+}
+.sort-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Heatmap area ── */
+.heatmap-area { flex: 1; overflow: auto; position: relative; }
+.heatmap-area canvas { display: block; }
+
+/* ── Tooltip ── */
+.tooltip {
+    position: fixed; z-index: 30; background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px; max-width: 300px; pointer-events: none;
+    opacity: 0; transition: opacity 0.15s; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.tooltip.visible { opacity: 1; }
+.tooltip-symbol { font-size: 0.85rem; font-weight: 700; margin-bottom: 2px; }
+.tooltip-chapter { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 6px; }
+.tooltip-context { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+
+/* ── Sparkline panel ── */
+.sparkline-panel {
+    position: fixed; right: 0; top: 0; bottom: 0; width: 320px; z-index: 40;
+    background: var(--card); border-left: 1px solid var(--border);
+    transform: translateX(100%); transition: transform 0.3s ease;
+    overflow-y: auto; padding: 20px;
+}
+.sparkline-panel.visible { transform: translateX(0); }
+.sparkline-close { position: absolute; top: 12px; right: 16px; background: none; border: none; color: var(--text-dim); font-size: 1.4rem; cursor: pointer; }
+.sparkline-close:hover { color: var(--accent2); }
+.sparkline-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.sparkline-icon { font-size: 1.5rem; }
+.sparkline-name { font-size: 1.1rem; font-weight: 700; }
+.sparkline-name-en { font-size: 0.78rem; color: var(--text-dim); }
+.sparkline-canvas { width: 100%; height: 80px; margin-bottom: 12px; }
+.sparkline-occurrences { display: flex; flex-direction: column; gap: 6px; }
+.occ-row { display: flex; align-items: baseline; gap: 8px; font-size: 0.8rem; }
+.occ-ch { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--accent); min-width: 40px; }
+.occ-ctx { color: var(--text-dim); }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="app">
+    <section class="hero">
+        <canvas id="heroCanvas"></canvas>
+        <a href="index.html" class="back-link">&larr; 返回目录 / Back</a>
+        <div class="hero-content">
+            <h1>意象追踪 / Symbolic Motifs</h1>
+            <p class="subtitle">红楼梦 — 贯穿全书的隐喻与象征</p>
+        </div>
+    </section>
+
+    <div class="controls">
+        <span class="controls-label">排序</span>
+        <button class="sort-btn active" data-sort="frequency" onclick="setSort('frequency',this)">按频率</button>
+        <button class="sort-btn" data-sort="first" onclick="setSort('first',this)">按首次出现</button>
+        <button class="sort-btn" data-sort="name" onclick="setSort('name',this)">按名称</button>
+    </div>
+
+    <div class="heatmap-area" id="heatmapArea">
+        <canvas id="heatmapCanvas"></canvas>
+    </div>
+</div>
+
+<div class="tooltip" id="tooltip">
+    <div class="tooltip-symbol" id="ttSymbol"></div>
+    <div class="tooltip-chapter" id="ttChapter"></div>
+    <div class="tooltip-context" id="ttContext"></div>
+</div>
+
+<div class="sparkline-panel" id="sparklinePanel">
+    <button class="sparkline-close" onclick="closeSparkline()">&times;</button>
+    <div class="sparkline-header">
+        <span class="sparkline-icon" id="spIcon"></span>
+        <div>
+            <div class="sparkline-name" id="spName"></div>
+            <div class="sparkline-name-en" id="spNameEn"></div>
+        </div>
+    </div>
+    <canvas class="sparkline-canvas" id="sparklineCanvas"></canvas>
+    <div class="sparkline-occurrences" id="spOccurrences"></div>
+</div>
+
+<script>
+const motifs = {
+  "symbols": [
+    {
+      "id": "jade",
+      "name": "通灵宝玉",
+      "nameEn": "Mystic Jade",
+      "icon": "💎",
+      "color": "#4ecdc4"
+    },
+    {
+      "id": "lock",
+      "name": "金锁",
+      "nameEn": "Golden Lock",
+      "icon": "🔒",
+      "color": "#ffe66d"
+    },
+    {
+      "id": "flowers",
+      "name": "落花/葬花",
+      "nameEn": "Fallen Flowers",
+      "icon": "🌸",
+      "color": "#ff8fab"
+    },
+    {
+      "id": "poems",
+      "name": "诗词/判词",
+      "nameEn": "Poems & Prophecies",
+      "icon": "📜",
+      "color": "#6c63ff"
+    },
+    {
+      "id": "dreams",
+      "name": "梦境",
+      "nameEn": "Dreams",
+      "icon": "🌙",
+      "color": "#8888a0"
+    },
+    {
+      "id": "mirror",
+      "name": "风月宝鉴",
+      "nameEn": "Mirror of Passion",
+      "icon": "🪞",
+      "color": "#ff6b6b"
+    },
+    {
+      "id": "chess",
+      "name": "棋/围棋",
+      "nameEn": "Chess/Go",
+      "icon": "♟️",
+      "color": "#4ecdc4"
+    },
+    {
+      "id": "garden",
+      "name": "大观园",
+      "nameEn": "Grand View Garden",
+      "icon": "🏡",
+      "color": "#4ecdc4"
+    }
+  ],
+  "occurrences": [
+    {
+      "symbol": "jade",
+      "chapter": 1,
+      "intensity": 3,
+      "context": "女娲补天遗石化为通灵宝玉"
+    },
+    {
+      "symbol": "jade",
+      "chapter": 3,
+      "intensity": 2,
+      "context": "黛玉初见宝玉，见其项上宝玉"
+    },
+    {
+      "symbol": "jade",
+      "chapter": 8,
+      "intensity": 3,
+      "context": "比通灵与金锁，宝黛钗三人互看信物"
+    },
+    {
+      "symbol": "jade",
+      "chapter": 25,
+      "intensity": 3,
+      "context": "通灵宝玉除邪，癞僧跛道持玉念咒"
+    },
+    {
+      "symbol": "jade",
+      "chapter": 29,
+      "intensity": 2,
+      "context": "宝玉摔玉，黛玉哭泣"
+    },
+    {
+      "symbol": "jade",
+      "chapter": 35,
+      "intensity": 1,
+      "context": "莺儿打络子配宝玉"
+    },
+    {
+      "symbol": "jade",
+      "chapter": 57,
+      "intensity": 2,
+      "context": "紫鹃试玉，宝玉听闻黛玉要走而失玉疯癫"
+    },
+    {
+      "symbol": "jade",
+      "chapter": 94,
+      "intensity": 3,
+      "context": "通灵宝玉失踪，贾府大乱"
+    },
+    {
+      "symbol": "jade",
+      "chapter": 95,
+      "intensity": 2,
+      "context": "岫烟占卦寻玉"
+    },
+    {
+      "symbol": "jade",
+      "chapter": 115,
+      "intensity": 2,
+      "context": "和尚送回通灵宝玉"
+    },
+    {
+      "symbol": "jade",
+      "chapter": 116,
+      "intensity": 3,
+      "context": "宝玉梦入真如福地，通灵玉归位"
+    },
+    {
+      "symbol": "jade",
+      "chapter": 120,
+      "intensity": 3,
+      "context": "通灵宝玉回归青埂峰下"
+    },
+    {
+      "symbol": "lock",
+      "chapter": 8,
+      "intensity": 3,
+      "context": "宝钗展示金锁，「不离不弃，芳龄永继」"
+    },
+    {
+      "symbol": "lock",
+      "chapter": 28,
+      "intensity": 2,
+      "context": "元妃赐礼，宝玉宝钗之物相同，暗合金玉良缘"
+    },
+    {
+      "symbol": "lock",
+      "chapter": 34,
+      "intensity": 1,
+      "context": "宝钗送药探伤，金玉之缘再被提及"
+    },
+    {
+      "symbol": "lock",
+      "chapter": 36,
+      "intensity": 1,
+      "context": "宝钗午间绣鸳鸯，金锁在颈"
+    },
+    {
+      "symbol": "lock",
+      "chapter": 57,
+      "intensity": 2,
+      "context": "薛姨妈提金玉良缘"
+    },
+    {
+      "symbol": "lock",
+      "chapter": 96,
+      "intensity": 3,
+      "context": "金玉良缘定局，黛玉绝望"
+    },
+    {
+      "symbol": "lock",
+      "chapter": 97,
+      "intensity": 2,
+      "context": "宝钗代嫁，金锁之谶应验"
+    },
+    {
+      "symbol": "flowers",
+      "chapter": 23,
+      "intensity": 2,
+      "context": "宝黛共读西厢，落花满身"
+    },
+    {
+      "symbol": "flowers",
+      "chapter": 27,
+      "intensity": 3,
+      "context": "黛玉葬花吟《葬花吟》"
+    },
+    {
+      "symbol": "flowers",
+      "chapter": 28,
+      "intensity": 1,
+      "context": "葬花之后宝黛误会渐解"
+    },
+    {
+      "symbol": "flowers",
+      "chapter": 37,
+      "intensity": 2,
+      "context": "海棠诗社起社，以花为题咏诗"
+    },
+    {
+      "symbol": "flowers",
+      "chapter": 38,
+      "intensity": 2,
+      "context": "菊花诗，黛玉夺魁"
+    },
+    {
+      "symbol": "flowers",
+      "chapter": 62,
+      "intensity": 1,
+      "context": "宝玉生日，群芳开夜宴，花签抽签"
+    },
+    {
+      "symbol": "flowers",
+      "chapter": 63,
+      "intensity": 2,
+      "context": "群芳夜宴续，各人花签暗示命运"
+    },
+    {
+      "symbol": "flowers",
+      "chapter": 70,
+      "intensity": 2,
+      "context": "林黛玉重建桃花社，咏柳絮词"
+    },
+    {
+      "symbol": "flowers",
+      "chapter": 78,
+      "intensity": 1,
+      "context": "宝玉作《芙蓉女儿诔》祭晴雯"
+    },
+    {
+      "symbol": "flowers",
+      "chapter": 87,
+      "intensity": 1,
+      "context": "黛玉感秋窗风雨，残花飘零"
+    },
+    {
+      "symbol": "poems",
+      "chapter": 5,
+      "intensity": 3,
+      "context": "金陵十二钗判词与《红楼梦》曲"
+    },
+    {
+      "symbol": "poems",
+      "chapter": 18,
+      "intensity": 2,
+      "context": "元妃省亲，众人题咏大观园"
+    },
+    {
+      "symbol": "poems",
+      "chapter": 22,
+      "intensity": 2,
+      "context": "制灯谜，各人灯谜暗含命运"
+    },
+    {
+      "symbol": "poems",
+      "chapter": 37,
+      "intensity": 3,
+      "context": "海棠诗社成立，首次结社赋诗"
+    },
+    {
+      "symbol": "poems",
+      "chapter": 38,
+      "intensity": 3,
+      "context": "菊花诗十二题，黛玉三首夺魁"
+    },
+    {
+      "symbol": "poems",
+      "chapter": 48,
+      "intensity": 2,
+      "context": "香菱学诗，黛玉教诗"
+    },
+    {
+      "symbol": "poems",
+      "chapter": 50,
+      "intensity": 2,
+      "context": "芦雪广联诗，即景联句"
+    },
+    {
+      "symbol": "poems",
+      "chapter": 64,
+      "intensity": 2,
+      "context": "黛玉作《五美吟》"
+    },
+    {
+      "symbol": "poems",
+      "chapter": 70,
+      "intensity": 3,
+      "context": "桃花社重起，柳絮词各有寓意"
+    },
+    {
+      "symbol": "poems",
+      "chapter": 76,
+      "intensity": 2,
+      "context": "中秋夜黛玉湘云联诗「寒塘渡鹤影，冷月葬花魂」"
+    },
+    {
+      "symbol": "poems",
+      "chapter": 78,
+      "intensity": 3,
+      "context": "宝玉作《芙蓉女儿诔》"
+    },
+    {
+      "symbol": "dreams",
+      "chapter": 5,
+      "intensity": 3,
+      "context": "宝玉梦游太虚幻境，阅金陵十二钗册"
+    },
+    {
+      "symbol": "dreams",
+      "chapter": 12,
+      "intensity": 2,
+      "context": "贾瑞照风月宝鉴，梦中见凤姐"
+    },
+    {
+      "symbol": "dreams",
+      "chapter": 13,
+      "intensity": 2,
+      "context": "秦可卿托梦凤姐"
+    },
+    {
+      "symbol": "dreams",
+      "chapter": 56,
+      "intensity": 2,
+      "context": "宝玉梦中遇甄宝玉"
+    },
+    {
+      "symbol": "dreams",
+      "chapter": 82,
+      "intensity": 1,
+      "context": "黛玉梦魇，梦中无依"
+    },
+    {
+      "symbol": "dreams",
+      "chapter": 116,
+      "intensity": 3,
+      "context": "宝玉梦入真如福地，重游太虚幻境"
+    },
+    {
+      "symbol": "mirror",
+      "chapter": 12,
+      "intensity": 3,
+      "context": "跛足道人送风月宝鉴予贾瑞"
+    },
+    {
+      "symbol": "mirror",
+      "chapter": 25,
+      "intensity": 1,
+      "context": "凤姐宝玉遭魇，癞僧跛道以法器除邪"
+    },
+    {
+      "symbol": "mirror",
+      "chapter": 116,
+      "intensity": 1,
+      "context": "宝玉悟道，风月宝鉴意象回响"
+    },
+    {
+      "symbol": "chess",
+      "chapter": 22,
+      "intensity": 1,
+      "context": "宝钗生日宴上谜语含棋意"
+    },
+    {
+      "symbol": "chess",
+      "chapter": 62,
+      "intensity": 1,
+      "context": "探春理家，运筹如棋"
+    },
+    {
+      "symbol": "chess",
+      "chapter": 73,
+      "intensity": 1,
+      "context": "迎春下棋自喻命运"
+    },
+    {
+      "symbol": "chess",
+      "chapter": 86,
+      "intensity": 2,
+      "context": "黛玉教宝玉琴棋之理"
+    },
+    {
+      "symbol": "chess",
+      "chapter": 92,
+      "intensity": 1,
+      "context": "巧姐学棋"
+    },
+    {
+      "symbol": "garden",
+      "chapter": 17,
+      "intensity": 3,
+      "context": "大观园落成，贾政率众题匾额对联"
+    },
+    {
+      "symbol": "garden",
+      "chapter": 23,
+      "intensity": 3,
+      "context": "众人入住大观园"
+    },
+    {
+      "symbol": "garden",
+      "chapter": 37,
+      "intensity": 2,
+      "context": "海棠诗社在大观园中结社"
+    },
+    {
+      "symbol": "garden",
+      "chapter": 40,
+      "intensity": 2,
+      "context": "刘姥姥游大观园"
+    },
+    {
+      "symbol": "garden",
+      "chapter": 41,
+      "intensity": 2,
+      "context": "刘姥姥醉卧怡红院"
+    },
+    {
+      "symbol": "garden",
+      "chapter": 56,
+      "intensity": 1,
+      "context": "探春理家兴利除弊"
+    },
+    {
+      "symbol": "garden",
+      "chapter": 74,
+      "intensity": 3,
+      "context": "抄检大观园，诸人受辱"
+    },
+    {
+      "symbol": "garden",
+      "chapter": 77,
+      "intensity": 2,
+      "context": "晴雯被逐出大观园"
+    },
+    {
+      "symbol": "garden",
+      "chapter": 102,
+      "intensity": 1,
+      "context": "大观园荒废，夜间闹鬼"
+    },
+    {
+      "symbol": "garden",
+      "chapter": 108,
+      "intensity": 1,
+      "context": "大观园已然衰败"
+    }
+  ]
+};
+
+
+// ══════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════
+const symbols = motifs.symbols;
+const occurrences = motifs.occurrences;
+const allChapters = [...new Set(occurrences.map(o => o.chapter))].sort((a, b) => a - b);
+const maxChapter = Math.max(...allChapters, 1);
+
+const CELL_W = 18;
+const CELL_H = 32;
+const LABEL_W = 160;
+const HEADER_H = 40;
+
+let sortMode = 'frequency';
+let hoveredCell = null;
+let selectedSymbol = null;
+
+// ══════════════════════════════════════════════════
+// DOM REFS
+// ══════════════════════════════════════════════════
+const $hero = document.getElementById('heroCanvas');
+const $heatmap = document.getElementById('heatmapCanvas');
+const $heatmapArea = document.getElementById('heatmapArea');
+const $tooltip = document.getElementById('tooltip');
+const $ttSymbol = document.getElementById('ttSymbol');
+const $ttChapter = document.getElementById('ttChapter');
+const $ttContext = document.getElementById('ttContext');
+const $sparkline = document.getElementById('sparklinePanel');
+const $spIcon = document.getElementById('spIcon');
+const $spName = document.getElementById('spName');
+const $spNameEn = document.getElementById('spNameEn');
+const $spCanvas = document.getElementById('sparklineCanvas');
+const $spOccs = document.getElementById('spOccurrences');
+
+// ══════════════════════════════════════════════════
+// UTILITY
+// ══════════════════════════════════════════════════
+function dpr() { return window.devicePixelRatio || 1; }
+function sizeCanvas(canvas, w, h) {
+    const r = dpr();
+    canvas.width = w * r; canvas.height = h * r;
+    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(r, 0, 0, r, 0, 0);
+    return ctx;
+}
+
+// Build occurrence lookup: symbolId → chapter → {intensity, context}
+const occMap = {};
+let maxIntensity = 1;
+occurrences.forEach(o => {
+    if (!occMap[o.symbol]) occMap[o.symbol] = {};
+    occMap[o.symbol][o.chapter] = o;
+    if (o.intensity > maxIntensity) maxIntensity = o.intensity;
+});
+
+function getSymbolFreq(sym) {
+    return occurrences.filter(o => o.symbol === sym.id).length;
+}
+
+function getSymbolFirst(sym) {
+    const occs = occurrences.filter(o => o.symbol === sym.id);
+    return occs.length > 0 ? Math.min(...occs.map(o => o.chapter)) : 999;
+}
+
+function getSortedSymbols() {
+    const sorted = [...symbols];
+    if (sortMode === 'frequency') {
+        sorted.sort((a, b) => getSymbolFreq(b) - getSymbolFreq(a));
+    } else if (sortMode === 'first') {
+        sorted.sort((a, b) => getSymbolFirst(a) - getSymbolFirst(b));
+    } else {
+        sorted.sort((a, b) => a.name.localeCompare(b.name, 'zh'));
+    }
+    return sorted;
+}
+
+// ══════════════════════════════════════════════════
+// HERO PARTICLES
+// ══════════════════════════════════════════════════
+function initHero() {
+    const heroSection = document.querySelector('.hero');
+    const w = heroSection.clientWidth; const h = heroSection.clientHeight;
+    const ctx = sizeCanvas($hero, w, h);
+    const particles = [];
+    const colors = symbols.map(s => s.color || '#6c63ff').slice(0, 6);
+    for (let i = 0; i < 40; i++) {
+        particles.push({
+            x: Math.random() * w, y: Math.random() * h,
+            r: Math.random() * 1.5 + 0.5, vx: (Math.random() - 0.5) * 0.2, vy: (Math.random() - 0.5) * 0.15,
+            alpha: Math.random() * 0.3 + 0.1,
+            color: colors[Math.floor(Math.random() * colors.length)],
+        });
+    }
+    function draw() {
+        ctx.clearRect(0, 0, w, h);
+        particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+            if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha; ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(draw);
+    }
+    draw();
+}
+
+// ══════════════════════════════════════════════════
+// HEATMAP DRAWING
+// ══════════════════════════════════════════════════
+function drawHeatmap() {
+    const sorted = getSortedSymbols();
+    const numCols = maxChapter;
+    const canvasW = LABEL_W + numCols * CELL_W + 40;
+    const canvasH = HEADER_H + sorted.length * CELL_H + 20;
+    const ctx = sizeCanvas($heatmap, canvasW, canvasH);
+    ctx.clearRect(0, 0, canvasW, canvasH);
+
+    // ── Column headers (chapters) ──
+    ctx.font = '9px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    for (let ch = 1; ch <= numCols; ch++) {
+        const x = LABEL_W + (ch - 1) * CELL_W + CELL_W / 2;
+        if (ch % 5 === 0 || ch === 1 || ch === numCols) {
+            ctx.fillStyle = 'rgba(136,136,160,0.5)';
+            ctx.fillText(ch, x, HEADER_H - 4);
+        }
+        // Grid column line
+        ctx.beginPath(); ctx.moveTo(x, HEADER_H); ctx.lineTo(x, canvasH - 20);
+        ctx.strokeStyle = 'rgba(42,45,58,0.2)'; ctx.lineWidth = 0.5; ctx.stroke();
+    }
+
+    // ── Row labels + cells ──
+    sorted.forEach((sym, row) => {
+        const y = HEADER_H + row * CELL_H;
+        const cy = y + CELL_H / 2;
+        const isSelected = selectedSymbol === sym.id;
+
+        // Row background on hover/select
+        if (isSelected) {
+            ctx.fillStyle = 'rgba(108,99,255,0.06)';
+            ctx.fillRect(0, y, canvasW, CELL_H);
+        }
+
+        // Row separator
+        ctx.beginPath(); ctx.moveTo(LABEL_W, y); ctx.lineTo(canvasW - 20, y);
+        ctx.strokeStyle = 'rgba(42,45,58,0.3)'; ctx.lineWidth = 0.5; ctx.stroke();
+
+        // Label: icon + name
+        ctx.font = '11px "Noto Sans SC", sans-serif';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = isSelected ? sym.color || '#e8e8f0' : 'rgba(232,232,240,0.7)';
+        const label = (sym.icon || '') + ' ' + sym.name;
+        ctx.fillText(label, LABEL_W - 10, cy);
+
+        // Frequency badge
+        const freq = getSymbolFreq(sym);
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.fillStyle = 'rgba(136,136,160,0.3)';
+        ctx.textAlign = 'left';
+        ctx.fillText('×' + freq, LABEL_W - 8, cy + 10);
+
+        // Heatmap cells
+        for (let ch = 1; ch <= numCols; ch++) {
+            const occ = (occMap[sym.id] || {})[ch];
+            if (!occ) continue;
+            const x = LABEL_W + (ch - 1) * CELL_W + CELL_W / 2;
+            const normI = occ.intensity / maxIntensity;
+            const r = 2 + normI * (CELL_W / 2 - 3);
+            const color = sym.color || '#6c63ff';
+
+            // Glow
+            const grd = ctx.createRadialGradient(x, cy, 0, x, cy, r * 2);
+            grd.addColorStop(0, color + '44');
+            grd.addColorStop(1, color + '00');
+            ctx.beginPath(); ctx.arc(x, cy, r * 2, 0, Math.PI * 2);
+            ctx.fillStyle = grd; ctx.fill();
+
+            // Dot
+            ctx.beginPath(); ctx.arc(x, cy, r, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.globalAlpha = 0.3 + normI * 0.6;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            // Store hit data
+            occ._x = x; occ._y = cy; occ._r = Math.max(r, 6);
+            occ._sym = sym;
+        }
+    });
+
+    // Store row hit data for click-to-expand
+    sorted.forEach((sym, row) => {
+        sym._rowY = HEADER_H + row * CELL_H;
+        sym._rowH = CELL_H;
+    });
+}
+
+// ══════════════════════════════════════════════════
+// INTERACTIONS
+// ══════════════════════════════════════════════════
+function setSort(mode, btn) {
+    sortMode = mode;
+    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    drawHeatmap();
+}
+
+$heatmapArea.addEventListener('mousemove', (e) => {
+    const rect = $heatmap.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * dpr() / dpr();
+    const my = (e.clientY - rect.top) * dpr() / dpr();
+
+    let hit = null;
+    occurrences.forEach(o => {
+        if (o._x === undefined) return;
+        const dx = mx - o._x; const dy = my - o._y;
+        if (Math.sqrt(dx * dx + dy * dy) < o._r + 4) hit = o;
+    });
+
+    if (hit) {
+        hoveredCell = hit;
+        $ttSymbol.textContent = (hit._sym.icon || '') + ' ' + hit._sym.name;
+        $ttChapter.textContent = '第 ' + hit.chapter + ' 章 · 强度 ' + hit.intensity;
+        $ttContext.textContent = hit.context || '';
+        $tooltip.classList.add('visible');
+        $tooltip.style.left = (e.clientX + 16) + 'px';
+        $tooltip.style.top = (e.clientY - 10) + 'px';
+        $heatmapArea.style.cursor = 'pointer';
+    } else {
+        hoveredCell = null;
+        $tooltip.classList.remove('visible');
+        // Check if hovering over a row label area
+        const sorted = getSortedSymbols();
+        let overRow = false;
+        sorted.forEach(sym => {
+            if (mx < LABEL_W && my >= sym._rowY && my < sym._rowY + sym._rowH) {
+                overRow = true;
+                $heatmapArea.style.cursor = 'pointer';
+            }
+        });
+        if (!overRow) $heatmapArea.style.cursor = 'default';
+    }
+});
+
+$heatmapArea.addEventListener('mouseleave', () => {
+    hoveredCell = null;
+    $tooltip.classList.remove('visible');
+});
+
+$heatmapArea.addEventListener('click', (e) => {
+    const rect = $heatmap.getBoundingClientRect();
+    const mx = (e.clientX - rect.left);
+    const my = (e.clientY - rect.top);
+
+    // Click on row label → open sparkline panel
+    if (mx < LABEL_W) {
+        const sorted = getSortedSymbols();
+        sorted.forEach(sym => {
+            if (my >= sym._rowY && my < sym._rowY + sym._rowH) {
+                showSparkline(sym);
+            }
+        });
+        return;
+    }
+    // Click on cell → open sparkline for that symbol
+    if (hoveredCell && hoveredCell._sym) {
+        showSparkline(hoveredCell._sym);
+    }
+});
+
+// ══════════════════════════════════════════════════
+// SPARKLINE PANEL
+// ══════════════════════════════════════════════════
+function showSparkline(sym) {
+    selectedSymbol = sym.id;
+    $spIcon.textContent = sym.icon || '●';
+    $spName.textContent = sym.name;
+    $spNameEn.textContent = sym.nameEn || '';
+
+    // Draw sparkline
+    const w = 280; const h = 60;
+    const ctx = sizeCanvas($spCanvas, w, h);
+    ctx.clearRect(0, 0, w, h);
+    const color = sym.color || '#6c63ff';
+
+    // Build intensity array per chapter
+    const data = [];
+    for (let ch = 1; ch <= maxChapter; ch++) {
+        const occ = (occMap[sym.id] || {})[ch];
+        data.push(occ ? occ.intensity : 0);
+    }
+    const maxVal = Math.max(...data, 1);
+    const xStep = w / (data.length - 1 || 1);
+
+    // Area fill
+    ctx.beginPath();
+    ctx.moveTo(0, h);
+    data.forEach((v, i) => {
+        const x = i * xStep;
+        const y = h - (v / maxVal) * (h - 4);
+        if (i === 0) ctx.lineTo(x, y);
+        else {
+            const px = (i - 1) * xStep;
+            const py = h - (data[i - 1] / maxVal) * (h - 4);
+            const cpx = (px + x) / 2;
+            ctx.bezierCurveTo(cpx, py, cpx, y, x, y);
+        }
+    });
+    ctx.lineTo(w, h); ctx.closePath();
+    ctx.fillStyle = color + '22'; ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    data.forEach((v, i) => {
+        const x = i * xStep;
+        const y = h - (v / maxVal) * (h - 4);
+        if (i === 0) ctx.moveTo(x, y);
+        else {
+            const px = (i - 1) * xStep;
+            const py = h - (data[i - 1] / maxVal) * (h - 4);
+            const cpx = (px + x) / 2;
+            ctx.bezierCurveTo(cpx, py, cpx, y, x, y);
+        }
+    });
+    ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // Dots for non-zero
+    data.forEach((v, i) => {
+        if (v === 0) return;
+        const x = i * xStep;
+        const y = h - (v / maxVal) * (h - 4);
+        ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = color; ctx.fill();
+    });
+
+    // List occurrences
+    $spOccs.innerHTML = '';
+    const symOccs = occurrences.filter(o => o.symbol === sym.id).sort((a, b) => a.chapter - b.chapter);
+    symOccs.forEach(o => {
+        const row = document.createElement('div');
+        row.className = 'occ-row';
+        row.innerHTML = '<span class="occ-ch">Ch.' + o.chapter + '</span><span class="occ-ctx">' + (o.context || '') + '</span>';
+        $spOccs.appendChild(row);
+    });
+
+    $sparkline.classList.add('visible');
+    drawHeatmap();
+}
+
+function closeSparkline() {
+    $sparkline.classList.remove('visible');
+    selectedSymbol = null;
+    drawHeatmap();
+}
+
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSparkline(); });
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+let resizeTimer;
+window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { initHero(); drawHeatmap(); }, 100); });
+
+document.fonts.ready.then(() => {
+    initHero();
+    drawHeatmap();
+});
+</script>
+</body>
+</html>

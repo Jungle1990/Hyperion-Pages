@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>归并排序 · Mergesort | Chapter 7</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
+/* Block: code-evolution */
+.evolution-timeline { position: relative; padding-left: 50px; }
+.evolution-timeline::before { content: ''; position: absolute; left: 30px; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--accent), var(--accent3), var(--accent2)); border-radius: 2px; }
+.evo-step { position: relative; padding-left: 30px; margin-bottom: 2rem; }
+.evo-dot { position: absolute; left: -30px; top: 5px; width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--accent); background: var(--bg); z-index: 1; }
+.evo-step.active .evo-dot { background: var(--accent); box-shadow: 0 0 12px rgba(108,99,255,0.5); }
+.evo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all 0.3s; }
+.evo-card:hover { border-color: var(--accent); }
+.evo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+.evo-title { font-weight: 700; }
+.evo-speed { font-family: var(--font-mono); font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 1rem; }
+.evo-speed.success { background: rgba(52,211,153,0.15); color: var(--success); }
+.evo-speed.danger { background: rgba(248,113,113,0.15); color: var(--danger); }
+.evo-speed.neutral { background: rgba(136,136,160,0.15); color: var(--text-dim); }
+.evo-desc { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 10px; }
+.evo-code { background: #12141c; border: 1px solid #1e2030; border-radius: 0.5rem; padding: 1rem; font-family: var(--font-mono); font-size: 0.8rem; color: #a0a0c0; overflow-x: auto; white-space: pre; }
+
+
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* Block: bar-chart */
+.bar-chart { display: flex; flex-direction: column; gap: 12px; }
+.bar-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 1rem; }
+.bar-label { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; color: var(--text-dim); }
+.bar-track { height: 32px; background: rgba(255,255,255,0.03); border-radius: 0.5rem; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 0.5rem; display: flex; align-items: center; padding-left: 0.75rem; font-size: 0.75rem; font-family: var(--font-mono); color: #fff; transition: width 1.5s ease-out; }
+.bar-fill.success { background: linear-gradient(90deg, var(--accent3), #2dd4bf); }
+.bar-fill.danger { background: linear-gradient(90deg, var(--accent2), #ef4444); }
+.bar-fill.neutral { background: linear-gradient(90deg, var(--accent), #8b5cf6); }
+.bar-fill.warning { background: linear-gradient(90deg, var(--accent4), var(--warning)); }
+.bar-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; }
+
+
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 7 / 25 · Part II · Sorting 排序</div>
+        <div class="hero-icon">🔀</div>
+        <h1 class="hero-title">归并排序</h1>
+        <p class="hero-sub">把一副乱牌分成两半各自排好再合并——听起来像作弊，但这恰恰是 N log N 的数学必然</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">核心类比：两摞已排好的牌</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">🃏</div>
+            <div class="analogy-label">两摞已排序的扑克牌</div>
+            <div class="analogy-desc">左手一摞、右手一摞，都已从小到大排好
+每次比较两摞最上面的牌，取较小的放到桌上
+任何一摞用完就把另一摞全部放下
+结果：桌上就是完整的有序牌堆</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">💻</div>
+            <div class="analogy-label">merge(a, lo, mid, hi)</div>
+            <div class="analogy-desc">a[lo..mid] 和 a[mid+1..hi] 各自有序
+用双指针 i、j 分别扫描两半，取较小者放入结果
+某一半用完就把另一半剩余元素依次放入
+结果：a[lo..hi] 整体有序</div>
+        </div>
+    </div>
+    
+</section>
+
+<!-- Block: code-evolution — Step-by-step code transformation timeline -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">归并排序的代码演进</div>
+    <p class="section-intro" style="color:var(--text-dim);margin-bottom:2rem;">从最基本的抽象归并到自顶向下、自底向上，再到三种实用优化——每一步都在同一个 merge() 基础上构建。</p>
+    <div class="evolution-timeline" id="evoTimeline-block2"></div>
+</section>
+
+<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">自顶向下 vs 自底向上</div>
+    <div class="comparison-grid">
+        <div class="comparison-side hard">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">自顶向下 (Top-down)</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">sort(a, 0, 15)
+  sort(a, 0, 7)
+    sort(a, 0, 3)
+      merge(a, 0, 0, 1)  // 先处理最小块
+      merge(a, 2, 2, 3)
+    merge(a, 0, 1, 3)    // 再合并
+    ...
+  merge(a, 0, 3, 7)      // 最后大合并
+  ...
+merge(a, 0, 7, 15)        // 最终合并</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side smart">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">自底向上 (Bottom-up)</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">// sz=1: 两两合并
+merge(a, 0,0,1) merge(a, 2,2,3) ...
+// sz=2: 四个一组合并
+merge(a, 0,1,3) merge(a, 4,5,7) ...
+// sz=4: 八个一组合并
+merge(a, 0,3,7) merge(a, 8,11,15)
+// sz=8: 最终合并
+merge(a, 0,7,15)</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">当 N 是 2 的幂时，两者执行完全相同的比较和数组访问，只是顺序不同。
+自顶向下用递归（更自然），自底向上用迭代（更适合链表）。
+核心洞察：分治可以「自上而下拆」也可以「自下而上建」。</div></div>
+</section>
+
+<!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block4" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">🔒 </div>
+        <div class="insight-content">任何基于比较的排序算法，最坏情况下至少需要 lg(N!) ~ N lg N 次比较。
+
+证明思路（决策树）：N 个元素有 N! 种排列，每次比较最多排除一半可能性，因此至少需要 lg(N!) 次比较才能确定是哪种排列。
+
+这意味着归并排序是渐近最优的——你不可能发明一个比较排序算法，在最坏情况下比 N lg N 快一个常数倍以上。这就像光速是信息传递的极限一样，N lg N 是比较排序的极限。</div>
+    </div>
+</section>
+
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block5" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">归并排序的关键特性速查</div>
+    <div class="tips-grid" id="tipsGrid-block5"></div>
+</section>
+
+<!-- Block: bar-chart — Horizontal bar chart -->
+<section id="sec-block6" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">递归树每层工作量分析 (N=16)</div>
+    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
+    <div class="bar-chart" id="barChart-block6"></div>
+</section>
+
+<!-- Block: custom — Escape hatch for raw HTML content -->
+<section id="sec-block7" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">归并排序的「不完美」与超越</div>
+    
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "归并排序 = 分而治之的排序典范：把大问题切成两半，各自排好，再合并成有序整体"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "想象你要把一堆论文按姓名排序。你把它分成两摞交给两个助手，各自排好后你只需要从两摞的最上面反复取较小的那张——合并比从零排序轻松得多"
+  },
+  {
+    "step": 3,
+    "title": "发现盲点",
+    "desc": "归并排序保证 N log N 但需要 N 的额外空间；真正的原地归并极其复杂。另外自顶向下和自底向上产生相同数量的比较，但合并顺序完全不同"
+  },
+  {
+    "step": 4,
+    "title": "简化与类比",
+    "desc": "归并排序像拼图：先把小块拼好，再把小块合成大块。无论你是「先递归拆分再合并」还是「直接从最小块开始两两合并」，最终拼出同一幅完整图画"
+  }
+];
+const takeaways = [
+  {
+    "icon": "🔀",
+    "title": "分治的力量",
+    "text": "将问题一分为二、各自解决再合并——递归树恰好 lg N 层，每层 N 的工作量，总计 N lg N。"
+  },
+  {
+    "icon": "🔒",
+    "title": "N lg N 是铁律",
+    "text": "任何基于比较的排序算法最坏情况不可能快于 N lg N。归并排序达到了这个理论极限，是渐近最优的。"
+  },
+  {
+    "icon": "🔄",
+    "title": "稳定性不可忽视",
+    "text": "归并排序是稳定的：相等元素保持原始顺序。这在多键排序、数据库排序等场景中至关重要。"
+  },
+  {
+    "icon": "💾",
+    "title": "空间是代价",
+    "text": "N 的额外空间是归并排序的「学费」。原地归并虽然理论可行，但实现复杂度远超其收益。"
+  },
+  {
+    "icon": "🔗",
+    "title": "链表的最佳搭档",
+    "text": "自底向上归并排序通过调整指针实现原地链表排序，无需额外空间，是链表排序的首选。"
+  },
+  {
+    "icon": "🧩",
+    "title": "两种视角看分治",
+    "text": "自顶向下（递归拆分）和自底向上（迭代构建）执行相同的比较，只是方向不同。遇到分治算法时，值得思考另一种方向。"
+  }
+];
+const quiz = [
+  {
+    "id": "q1",
+    "question": "归并排序的 merge() 操作中，为什么要先把数据复制到辅助数组 aux[]，而不是直接在原数组上操作？",
+    "answer": "因为归并过程需要同时读取两个有序子数组的元素并写入结果。如果直接在原数组上操作，写入新位置时会覆盖掉还没读取的原始数据。辅助数组保存了原始数据的副本，使得我们可以安全地从 aux[] 读取、向 a[] 写入，互不干扰。这就像你在整理两摞文件时，需要一张空桌子来放合并后的结果——不能直接在原来的两堆上操作。"
+  },
+  {
+    "id": "q2",
+    "question": "归并排序保证 N log N，快速排序平均也是 N log N 但最坏 N²——为什么实际中快速排序往往更快？",
+    "answer": "三个原因：① 快速排序的内循环极其简洁（只做一次比较和一次交换），缓存命中率高；归并排序需要额外的数组复制操作。② 快速排序是原地排序，不需要 N 的额外空间，对缓存更友好。③ 快速排序的最坏情况 N² 可以通过随机化枢轴几乎完全避免。但当需要稳定排序或最坏情况保证时，归并排序更合适。"
+  },
+  {
+    "id": "q3",
+    "question": "N lg N 比较下界的证明用了「决策树」模型。请用自己的话解释：为什么 N 个元素的排序需要至少 lg(N!) 次比较？",
+    "answer": "N 个不同元素有 N! 种可能的排列。排序算法的任务是确定输入属于哪种排列。每次比较只有两个结果（大于或小于），最多把可能性减半。就像猜数字游戏中每次「大了/小了」的回答最多排除一半可能性一样——要从 N! 种可能中锁定唯一答案，至少需要 lg(N!) 次「二选一」判断。由 Stirling 近似，lg(N!) ~ N lg N。"
+  },
+  {
+    "id": "q4",
+    "question": "自底向上归并排序为什么特别适合链表排序？",
+    "answer": "自底向上归并排序从最小的单元素开始两两合并，逐步构建更大的有序段。对链表而言：① 归并两个有序链表只需要调整指针，不需要额外数组空间；② 不需要随机访问（链表不支持），只需顺序遍历；③ 不需要递归栈（迭代实现）。因此自底向上归并排序在链表上既是原地的（O(1) 额外空间），又是 N lg N 时间的，是链表排序的首选方法。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "如果给你两副已经按大小排好的扑克牌，你怎样最快地合并成一副有序的？",
+    "hint": "每次从两堆最顶上各看一张，取小的那张放到结果堆——想想这需要多少步"
+  },
+  {
+    "question": "你认为排序 N 个元素最少需要多少次比较？有没有理论下限？",
+    "hint": "N 个元素有 N! 种排列，每次比较最多排除一半可能"
+  },
+  {
+    "question": "「递归拆分再合并」和「从小块开始逐步合并」这两种思路你觉得哪个更自然？",
+    "hint": "想想你在现实中整理大量文件时会怎么做"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "归并排序是渐近最优的比较排序算法",
+    "evidence": "命题 H 证明归并排序最坏情况使用 ~N lg N 次比较；命题 I 证明任何比较排序算法最坏情况至少需要 lg(N!) ~ N lg N 次比较。两者匹配，构成命题 J。",
+    "counterpoint": "「渐近最优」只是说比较次数的增长率一致，不代表常数因子也最优。快速排序在实际中常数因子更小、缓存更友好，因此平均性能通常优于归并排序。此外，非比较排序（基数排序等）可以突破 N lg N 下界。"
+  },
+  {
+    "claim": "归并排序需要 N 的额外空间是不可避免的代价",
+    "evidence": "书中指出原地归并理论可行但「solutions that are known are quite complicated」，实际实现复杂度远超使用辅助数组的方案。",
+    "counterpoint": "Katajainen 等人在 1990 年代提出了实用的原地归并方案（时间复杂度仍为 N lg N），只是常数因子较大。此外 TimSort（Python/Java 默认排序）通过利用已有序的 run 来减少实际使用的辅助空间，是折中方案。"
+  },
+  {
+    "claim": "自顶向下和自底向上归并排序在 N 为 2 的幂时执行完全相同的比较",
+    "evidence": "书中明确说「When the array length is a power of 2, top-down and bottom-up mergesort perform precisely the same compares and array accesses, just in a different order」。",
+    "counterpoint": "当 N 不是 2 的幂时，两者的比较序列不同（练习 2.2.5），可能导致性能上的微小差异。在实际中还需考虑递归开销 vs 循环开销的差异。"
+  }
+];
+const application = [
+  {
+    "scenario": "数据库中的多键排序（如先按部门再按薪资排序）",
+    "action": "利用归并排序的稳定性：先按薪资排序，再按部门排序。由于归并排序不会改变相同键值元素的相对顺序，第二次排序后同一部门内的员工仍按薪资有序。这就是为什么 Java 的 Arrays.sort 对对象数组使用基于归并的 TimSort。"
+  },
+  {
+    "scenario": "大文件外部排序（文件无法完全载入内存）",
+    "action": "将文件分成内存能容纳的块，每块用内部排序（如快速排序）排好后写入磁盘，再用多路归并将所有有序块合并。这是数据库和 MapReduce 框架中排序阶段的核心算法，本质就是归并排序的思想。"
+  },
+  {
+    "scenario": "统计数组中的逆序对数量（衡量数组「混乱程度」）",
+    "action": "在归并排序的 merge() 步骤中，每当从右半部分取元素时，它与左半部分剩余元素构成的逆序对数就等于左半部分剩余元素的个数。这样在 N lg N 时间内即可统计完毕，比暴力的 N² 方法快得多。"
+  }
+];
+const chapterNav = {"prev": {"num": 6, "title": "初级排序", "href": "ch06.html"}, "next": {"num": 8, "title": "快速排序", "href": "ch08.html"}};
+window.evoData_block2 = [
+  {
+    "title": "抽象原地归并 — merge() 核心操作",
+    "badge": "基础积木",
+    "desc": "先复制到辅助数组 aux[]，再用双指针归并回原数组。四个分支处理左半耗尽、右半耗尽、右 < 左、右 >= 左四种情况。",
+    "code": "public static void merge(Comparable[] a, int lo, int mid, int hi) {\n    int i = lo, j = mid + 1;\n    for (int k = lo; k <= hi; k++)\n        aux[k] = a[k];              // 复制到辅助数组\n    for (int k = lo; k <= hi; k++)\n        if      (i > mid)              a[k] = aux[j++];\n        else if (j > hi)               a[k] = aux[i++];\n        else if (less(aux[j], aux[i])) a[k] = aux[j++];\n        else                           a[k] = aux[i++];\n}"
+  },
+  {
+    "title": "自顶向下归并排序 — 分治递归",
+    "badge": "经典版本",
+    "desc": "将数组一分为二，递归排序左半和右半，最后归并。递归树恰好 lg N 层，每层总共 N 次操作。",
+    "code": "private static void sort(Comparable[] a, int lo, int hi) {\n    if (hi <= lo) return;\n    int mid = lo + (hi - lo) / 2;\n    sort(a, lo, mid);        // 排序左半\n    sort(a, mid + 1, hi);    // 排序右半\n    merge(a, lo, mid, hi);   // 归并结果\n}"
+  },
+  {
+    "title": "自底向上归并排序 — 迭代构建",
+    "badge": "非递归版",
+    "desc": "从 sz=1 开始两两归并，sz 每轮翻倍。不需要递归，仅两层 for 循环。对链表排序时这是首选方法。",
+    "code": "public static void sort(Comparable[] a) {\n    int N = a.length;\n    aux = new Comparable[N];\n    for (int sz = 1; sz < N; sz = sz + sz)         // sz: 子数组大小\n        for (int lo = 0; lo < N - sz; lo += sz + sz) // lo: 子数组起点\n            merge(a, lo, lo + sz - 1, Math.min(lo + sz + sz - 1, N - 1));\n}"
+  },
+  {
+    "title": "三项实用优化",
+    "badge": "10-15% 提速",
+    "desc": "① 小数组(≤15)切换为插入排序；② 若 a[mid] <= a[mid+1] 则跳过 merge（已有序子数组线性时间）；③ 交换输入/辅助数组角色，省去复制开销。",
+    "code": "// 优化1: 小数组用插入排序\nif (hi <= lo + CUTOFF) { insertionSort(a, lo, hi); return; }\n\n// 优化2: 已有序则跳过归并\nif (!less(a[mid + 1], a[mid])) return;\n\n// 优化3: 交换角色避免复制\n// 递归中交替使用 a[] 和 aux[] 的角色"
+  }
+];
+window.tipsData_block5 = [
+  {
+    "icon": "⏱️",
+    "title": "时间复杂度",
+    "text": "最好 / 平均 / 最坏都是 N lg N。比较次数在 ½NlgN 到 NlgN 之间。"
+  },
+  {
+    "icon": "💾",
+    "title": "空间复杂度",
+    "text": "需要 N 的额外空间用于辅助数组。这是归并排序的主要缺点。原地归并理论上可行但实现极为复杂。"
+  },
+  {
+    "icon": "🔄",
+    "title": "稳定性",
+    "text": "归并排序是稳定的——相等元素的相对顺序不变。这使得它适合多键排序场景（如先按姓排序再按名排序）。"
+  },
+  {
+    "icon": "🔗",
+    "title": "链表排序首选",
+    "text": "自底向上归并排序只需调整指针，不需要额外空间，是链表排序的最佳选择。"
+  },
+  {
+    "icon": "📊",
+    "title": "数组访问次数",
+    "text": "最多 6N lg N 次数组访问（2N 复制 + 2N 写回 + 至多 2N 比较，共 lg N 层）。"
+  },
+  {
+    "icon": "🏆",
+    "title": "渐近最优",
+    "text": "归并排序的比较次数与比较排序的理论下界 N lg N 相匹配，是渐近最优的比较排序算法。"
+  }
+];
+window.barData_block6 = [
+  {
+    "label": "第0层",
+    "value": "1 x 16",
+    "pct": 100,
+    "note": "1个merge, 大小16"
+  },
+  {
+    "label": "第1层",
+    "value": "2 x 8",
+    "pct": 100,
+    "note": "2个merge, 各大小8"
+  },
+  {
+    "label": "第2层",
+    "value": "4 x 4",
+    "pct": 100,
+    "note": "4个merge, 各大小4"
+  },
+  {
+    "label": "第3层",
+    "value": "8 x 2",
+    "pct": 100,
+    "note": "8个merge, 各大小2"
+  }
+];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: bar-chart
+(function() {
+    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
+        const blockId = container.id.replace('barChart-', '');
+        const dataVar = window['barData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(bar => {
+            const div = document.createElement('div');
+            div.className = 'bar-row fade-in';
+            const colorClass = bar.warning ? 'danger' : 'success';
+            div.innerHTML = `
+                <div class="bar-label">${bar.label}</div>
+                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
+                <div class="bar-value">${bar.value || ''}</div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: tips-grid
+(function() {
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'tip-card fade-in';
+            div.innerHTML = `
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: code-evolution
+(function() {
+    document.querySelectorAll('[id^="evoTimeline-"]').forEach(container => {
+        const blockId = container.id.replace('evoTimeline-', '');
+        const dataVar = window['evoData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach((step, i) => {
+            const div = document.createElement('div');
+            div.className = 'evo-step' + (i === 0 ? ' active' : '') + ' fade-in';
+            const badge = step.badge || '';
+            const speedClass = badge.match(/O\(1\)|\u03B1|lg/) ? 'success' : badge.match(/O\(N\)/) ? 'danger' : 'neutral';
+            div.innerHTML = `
+                <div class="evo-dot"></div>
+                <div class="evo-card">
+                    <div class="evo-header">
+                        <span class="evo-title">${step.title}</span>
+                        <span class="evo-speed ${speedClass}">${badge}</span>
+                    </div>
+                    <div class="evo-desc">${step.desc || ''}</div>
+                    ${step.code ? '<pre class="evo-code">' + step.code + '</pre>' : ''}
+                </div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

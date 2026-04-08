@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>红楼梦 空间地图 / Spatial Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --bg: #0f1117; --card: #1a1d27; --card-hover: #222636;
+    --accent: #6c63ff; --accent2: #ff6b6b; --accent3: #4ecdc4; --accent4: #ffe66d;
+    --text: #e8e8f0; --text-dim: #8888a0; --border: #2a2d3a; --glow: rgba(108,99,255,0.15);
+}
+
+html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'Noto Sans SC', sans-serif; }
+.app { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
+
+/* ── Hero ── */
+.hero {
+    height: 18vh; min-height: 130px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+    background: linear-gradient(180deg, #13151f 0%, var(--bg) 100%);
+}
+.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.hero-content { position: relative; z-index: 1; text-align: center; }
+.hero h1 {
+    font-size: clamp(1.4rem, 3vw, 2.2rem); font-weight: 700;
+    background: linear-gradient(135deg, var(--accent3) 0%, var(--accent4) 50%, var(--accent3) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero .subtitle { margin-top: 6px; font-size: clamp(0.8rem, 1.4vw, 1rem); color: var(--text-dim); font-weight: 300; }
+.back-link { position: absolute; top: 16px; left: 20px; color: var(--text-dim); text-decoration: none; font-size: 0.85rem; z-index: 2; transition: color 0.2s; }
+.back-link:hover { color: var(--accent3); }
+
+/* ── Controls ── */
+.controls {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 14px; padding: 8px 20px;
+    background: rgba(15,17,23,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border); flex-wrap: wrap;
+}
+.controls-group { display: flex; align-items: center; gap: 6px; }
+.controls-label { font-size: 0.75rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; white-space: nowrap; margin-right: 4px; }
+.char-filter-btn {
+    padding: 3px 8px; border-radius: 10px; border: 1.5px solid var(--border);
+    background: transparent; color: var(--text-dim); font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.72rem; cursor: pointer; transition: all 0.2s;
+}
+.char-filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.range-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim); min-width: 50px; }
+
+/* ── Map area ── */
+.map-area { flex: 1; position: relative; overflow: hidden; }
+.map-area canvas { position: absolute; top: 0; left: 0; }
+
+/* ── Tooltip ── */
+.tooltip {
+    position: fixed; z-index: 30; background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px; max-width: 280px; pointer-events: none;
+    opacity: 0; transition: opacity 0.15s; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.tooltip.visible { opacity: 1; }
+.tooltip-name { font-size: 0.85rem; font-weight: 700; margin-bottom: 2px; }
+.tooltip-name-en { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 6px; }
+.tooltip-events { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+
+/* ── Detail panel ── */
+.detail-overlay { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.55); display: none; align-items: flex-end; justify-content: center; }
+.detail-overlay.visible { display: flex; }
+.detail-panel {
+    width: 100%; max-width: 640px; max-height: 55vh;
+    background: var(--card); border-top: 2px solid var(--accent3);
+    border-radius: 16px 16px 0 0; padding: 24px 28px 32px; overflow-y: auto;
+    animation: slideUp 0.3s ease-out;
+}
+@keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.detail-close { position: absolute; top: 12px; right: 16px; background: none; border: none; color: var(--text-dim); font-size: 1.4rem; cursor: pointer; }
+.detail-close:hover { color: var(--accent2); }
+.detail-loc-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
+.detail-loc-en { font-size: 0.82rem; color: var(--text-dim); margin-bottom: 14px; }
+.detail-event-list { display: flex; flex-direction: column; gap: 8px; }
+.detail-event { display: flex; gap: 10px; padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.03); }
+.detail-event-ch { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--accent); min-width: 36px; padding-top: 2px; }
+.detail-event-desc { font-size: 0.82rem; color: var(--text); line-height: 1.5; }
+
+/* ── Legend ── */
+.legend-bar {
+    position: absolute; bottom: 16px; left: 16px; z-index: 10;
+    display: flex; flex-direction: column; gap: 4px; padding: 10px 14px;
+    background: rgba(26,29,39,0.9); border: 1px solid var(--border); border-radius: 8px;
+    font-size: 0.7rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace;
+}
+.legend-row { display: flex; align-items: center; gap: 6px; }
+.legend-circle { width: 10px; height: 10px; border-radius: 50%; }
+.legend-line { width: 20px; height: 0; border-top: 2px dashed; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="app">
+    <section class="hero">
+        <canvas id="heroCanvas"></canvas>
+        <a href="index.html" class="back-link">&larr; 返回目录 / Back</a>
+        <div class="hero-content">
+            <h1>空间地图 / Spatial Map</h1>
+            <p class="subtitle">红楼梦 — 故事发生的舞台</p>
+        </div>
+    </section>
+
+    <div class="controls">
+        <div class="controls-group">
+            <span class="controls-label">人物</span>
+            <div id="charFilters"></div>
+        </div>
+        <div class="controls-group">
+            <span class="controls-label">章节</span>
+            <input type="range" id="chapterRange" min="1" max="120" value="120" style="width:120px;accent-color:var(--accent);">
+            <span class="range-label" id="chapterLabel">1–120</span>
+        </div>
+    </div>
+
+    <div class="map-area" id="mapArea">
+        <canvas id="mapCanvas"></canvas>
+        <div class="legend-bar" id="legendBar"></div>
+    </div>
+</div>
+
+<div class="tooltip" id="tooltip">
+    <div class="tooltip-name" id="ttName"></div>
+    <div class="tooltip-name-en" id="ttNameEn"></div>
+    <div class="tooltip-events" id="ttEvents"></div>
+</div>
+
+<div class="detail-overlay" id="detailOverlay">
+    <div class="detail-panel">
+        <button class="detail-close" onclick="closeDetail()">&times;</button>
+        <div class="detail-loc-name" id="detailName"></div>
+        <div class="detail-loc-en" id="detailNameEn"></div>
+        <div class="detail-event-list" id="detailEvents"></div>
+    </div>
+</div>
+
+<script>
+const spatial = {
+  "locations": [
+    {
+      "id": "rongguo",
+      "name": "荣国府",
+      "nameEn": "Rongguo Mansion",
+      "x": 0.5,
+      "y": 0.5,
+      "radius": 100,
+      "color": "#ffe66d",
+      "subLocations": [
+        {
+          "id": "yihong",
+          "name": "怡红院",
+          "x": 0.48,
+          "y": 0.38
+        },
+        {
+          "id": "xiaoxiang",
+          "name": "潇湘馆",
+          "x": 0.36,
+          "y": 0.34
+        },
+        {
+          "id": "hengwu",
+          "name": "蘅芜苑",
+          "x": 0.58,
+          "y": 0.34
+        },
+        {
+          "id": "daoxiang",
+          "name": "稻香村",
+          "x": 0.4,
+          "y": 0.28
+        },
+        {
+          "id": "longcui",
+          "name": "栊翠庵",
+          "x": 0.62,
+          "y": 0.28
+        },
+        {
+          "id": "ziling",
+          "name": "紫菱洲",
+          "x": 0.52,
+          "y": 0.3
+        },
+        {
+          "id": "qiushuang",
+          "name": "秋爽斋",
+          "x": 0.44,
+          "y": 0.32
+        }
+      ]
+    },
+    {
+      "id": "ningguo",
+      "name": "宁国府",
+      "nameEn": "Ningguo Mansion",
+      "x": 0.75,
+      "y": 0.5,
+      "radius": 70,
+      "color": "#ff6b6b",
+      "subLocations": [
+        {
+          "id": "tianyixiang",
+          "name": "天香楼",
+          "x": 0.73,
+          "y": 0.45
+        },
+        {
+          "id": "huifang",
+          "name": "会芳园",
+          "x": 0.77,
+          "y": 0.46
+        }
+      ]
+    },
+    {
+      "id": "taixu",
+      "name": "太虚幻境",
+      "nameEn": "Land of Illusion",
+      "x": 0.5,
+      "y": 0.1,
+      "radius": 60,
+      "color": "#8888a0",
+      "subLocations": [
+        {
+          "id": "bocao",
+          "name": "薄命司",
+          "x": 0.48,
+          "y": 0.08
+        },
+        {
+          "id": "qinggenhe",
+          "name": "青埂峰",
+          "x": 0.52,
+          "y": 0.06
+        }
+      ]
+    },
+    {
+      "id": "outside",
+      "name": "扬州/外地",
+      "nameEn": "Yangzhou / Outside",
+      "x": 0.15,
+      "y": 0.7,
+      "radius": 50,
+      "color": "#4ecdc4",
+      "subLocations": [
+        {
+          "id": "linfu",
+          "name": "林如海宅",
+          "x": 0.13,
+          "y": 0.68
+        }
+      ]
+    },
+    {
+      "id": "xuejia",
+      "name": "梨香院/薛家",
+      "nameEn": "Xue Family Quarters",
+      "x": 0.65,
+      "y": 0.65,
+      "radius": 45,
+      "color": "#ff8fab",
+      "subLocations": []
+    },
+    {
+      "id": "temple",
+      "name": "寺庙/道观",
+      "nameEn": "Temples & Monasteries",
+      "x": 0.2,
+      "y": 0.25,
+      "radius": 45,
+      "color": "#6c63ff",
+      "subLocations": [
+        {
+          "id": "tiequan",
+          "name": "铁槛寺",
+          "x": 0.18,
+          "y": 0.23
+        },
+        {
+          "id": "qingguo",
+          "name": "清虚观",
+          "x": 0.22,
+          "y": 0.22
+        }
+      ]
+    },
+    {
+      "id": "palace",
+      "name": "皇宫/宫中",
+      "nameEn": "Imperial Palace",
+      "x": 0.5,
+      "y": 0.85,
+      "radius": 50,
+      "color": "#ffe66d",
+      "subLocations": []
+    }
+  ],
+  "movements": [
+    {
+      "chapter": 1,
+      "character": "zhenyin",
+      "from": "outside",
+      "to": "taixu",
+      "desc": "甄士隐梦入太虚幻境"
+    },
+    {
+      "chapter": 3,
+      "character": "daiyu",
+      "from": "outside",
+      "to": "rongguo",
+      "desc": "林黛玉离扬州进贾府"
+    },
+    {
+      "chapter": 4,
+      "character": "baochai",
+      "from": "xuejia",
+      "to": "rongguo",
+      "desc": "薛宝钗随家入京寄居荣国府"
+    },
+    {
+      "chapter": 5,
+      "character": "baoyu",
+      "from": "rongguo",
+      "to": "taixu",
+      "desc": "宝玉梦游太虚幻境"
+    },
+    {
+      "chapter": 15,
+      "character": "xifeng",
+      "from": "rongguo",
+      "to": "temple",
+      "desc": "凤姐至铁槛寺弄权"
+    },
+    {
+      "chapter": 17,
+      "character": "baoyu",
+      "from": "rongguo",
+      "to": "rongguo",
+      "desc": "贾政携宝玉游大观园题匾"
+    },
+    {
+      "chapter": 18,
+      "character": "yuanchun",
+      "from": "palace",
+      "to": "rongguo",
+      "desc": "元妃省亲归宁"
+    },
+    {
+      "chapter": 23,
+      "character": "baoyu",
+      "from": "rongguo",
+      "to": "yihong",
+      "desc": "宝玉入住怡红院"
+    },
+    {
+      "chapter": 23,
+      "character": "daiyu",
+      "from": "rongguo",
+      "to": "xiaoxiang",
+      "desc": "黛玉入住潇湘馆"
+    },
+    {
+      "chapter": 23,
+      "character": "baochai",
+      "from": "rongguo",
+      "to": "hengwu",
+      "desc": "宝钗入住蘅芜苑"
+    },
+    {
+      "chapter": 27,
+      "character": "daiyu",
+      "from": "xiaoxiang",
+      "to": "rongguo",
+      "desc": "黛玉出园葬花"
+    },
+    {
+      "chapter": 29,
+      "character": "jiamu",
+      "from": "rongguo",
+      "to": "temple",
+      "desc": "贾母率众往清虚观打醮"
+    },
+    {
+      "chapter": 40,
+      "character": "liulaolao",
+      "from": "outside",
+      "to": "rongguo",
+      "desc": "刘姥姥二进荣国府游大观园"
+    },
+    {
+      "chapter": 58,
+      "character": "yuanchun",
+      "from": "palace",
+      "to": "palace",
+      "desc": "元妃薨逝（宫中）"
+    },
+    {
+      "chapter": 74,
+      "character": "xifeng",
+      "from": "rongguo",
+      "to": "rongguo",
+      "desc": "抄检大观园各处院落"
+    },
+    {
+      "chapter": 77,
+      "character": "qingwen",
+      "from": "yihong",
+      "to": "outside",
+      "desc": "晴雯被逐出大观园"
+    },
+    {
+      "chapter": 97,
+      "character": "baochai",
+      "from": "hengwu",
+      "to": "rongguo",
+      "desc": "宝钗出嫁入洞房"
+    },
+    {
+      "chapter": 98,
+      "character": "daiyu",
+      "from": "xiaoxiang",
+      "to": "taixu",
+      "desc": "黛玉焚稿断痴情，魂归离恨天"
+    },
+    {
+      "chapter": 105,
+      "character": "baoyu",
+      "from": "rongguo",
+      "to": "rongguo",
+      "desc": "贾府被抄家，锦衣军查封"
+    },
+    {
+      "chapter": 113,
+      "character": "xifeng",
+      "from": "rongguo",
+      "to": "rongguo",
+      "desc": "凤姐病死，魂归金陵"
+    },
+    {
+      "chapter": 116,
+      "character": "baoyu",
+      "from": "rongguo",
+      "to": "taixu",
+      "desc": "宝玉再入太虚幻境悟道"
+    },
+    {
+      "chapter": 119,
+      "character": "baoyu",
+      "from": "rongguo",
+      "to": "temple",
+      "desc": "宝玉出家随僧道而去"
+    },
+    {
+      "chapter": 120,
+      "character": "baoyu",
+      "from": "temple",
+      "to": "taixu",
+      "desc": "宝玉回归青埂峰，复归太虚"
+    }
+  ]
+};
+
+const characters = [
+  {
+    "id": "baoyu",
+    "name": "贾宝玉",
+    "en": "Jia Baoyu",
+    "group": "core",
+    "desc": "荣国府贾政之子，衔通灵宝玉而生。性情温柔多情，厌恶仕途经济，视女儿为水做的骨肉，是全书灵魂人物。",
+    "radius": 28
+  },
+  {
+    "id": "daiyu",
+    "name": "林黛玉",
+    "en": "Lin Daiyu",
+    "group": "core",
+    "desc": "贾母外孙女，林如海与贾敏之女。才华横溢、敏感多愁，与宝玉有「木石前盟」之情，最终泪尽而亡。",
+    "radius": 28
+  },
+  {
+    "id": "baochai",
+    "name": "薛宝钗",
+    "en": "Xue Baochai",
+    "group": "core",
+    "desc": "薛姨妈之女，佩戴金锁。端庄大方、恪守礼教，与宝玉有「金玉良缘」之说，最终嫁入贾府。",
+    "radius": 28
+  },
+  {
+    "id": "xifeng",
+    "name": "王熙凤",
+    "en": "Wang Xifeng",
+    "group": "core",
+    "desc": "贾琏之妻，荣国府实际管家。精明强干、心狠手辣，人称「凤辣子」，掌控贾府内务大权。",
+    "radius": 28
+  },
+  {
+    "id": "yuanchun",
+    "name": "贾元春",
+    "en": "Jia Yuanchun",
+    "group": "twelve",
+    "desc": "贾政长女，入宫为妃。省亲时修建大观园，是贾府鼎盛的象征，后薨逝于宫中。",
+    "radius": 22
+  },
+  {
+    "id": "yingchun",
+    "name": "贾迎春",
+    "en": "Jia Yingchun",
+    "group": "twelve",
+    "desc": "贾赦之女，性格懦弱温柔，人称「二木头」。嫁给孙绍祖后饱受虐待，一年后含恨而死。",
+    "radius": 22
+  },
+  {
+    "id": "tanchun",
+    "name": "贾探春",
+    "en": "Jia Tanchun",
+    "group": "twelve",
+    "desc": "贾政与赵姨娘之女，精明有为、志向高远。曾代理荣府家务，推行改革，后远嫁海外。",
+    "radius": 22
+  },
+  {
+    "id": "xichun",
+    "name": "贾惜春",
+    "en": "Jia Xichun",
+    "group": "twelve",
+    "desc": "宁国府贾珍之妹，性格孤僻冷漠，善于绘画。目睹家族败落后看破红尘，削发为尼。",
+    "radius": 22
+  },
+  {
+    "id": "xiangyun",
+    "name": "史湘云",
+    "en": "Shi Xiangyun",
+    "group": "twelve",
+    "desc": "贾母侄孙女，史家千金。性格豪爽开朗、心直口快，醉眠芍药裀是其经典场景。",
+    "radius": 22
+  },
+  {
+    "id": "miaoyu",
+    "name": "妙玉",
+    "en": "Miaoyu",
+    "group": "twelve",
+    "desc": "带发修行的尼姑，寄居大观园栊翠庵。出身仕宦之家，性情孤高清冷，精通茶道。",
+    "radius": 22
+  },
+  {
+    "id": "liwang",
+    "name": "李纨",
+    "en": "Li Wan",
+    "group": "twelve",
+    "desc": "贾珠之妻，青年守寡。性格温厚恬淡，一心抚育儿子贾兰，后因贾兰中举而受封诰命。",
+    "radius": 22
+  },
+  {
+    "id": "keqing",
+    "name": "秦可卿",
+    "en": "Qin Keqing",
+    "group": "twelve",
+    "desc": "贾蓉之妻，兼具黛玉之风流与宝钗之妩媚。早逝时托梦凤姐，预言贾府衰败。",
+    "radius": 22
+  },
+  {
+    "id": "qiaojie",
+    "name": "巧姐",
+    "en": "Qiaojie",
+    "group": "twelve",
+    "desc": "王熙凤与贾琏之女。贾府败落后险被卖入青楼，幸得刘姥姥搭救，嫁入乡间。",
+    "radius": 22
+  },
+  {
+    "id": "jiamu",
+    "name": "贾母",
+    "en": "Grandmother Jia",
+    "group": "jia",
+    "desc": "荣国府辈分最高的老太君，史家出身。溺爱宝玉和黛玉，是贾府的精神支柱与最高权威。",
+    "radius": 18
+  },
+  {
+    "id": "jiazheng",
+    "name": "贾政",
+    "en": "Jia Zheng",
+    "group": "jia",
+    "desc": "荣国府次子，宝玉之父。为人端方正直，崇尚仕途经济，对宝玉管教严厉。",
+    "radius": 18
+  },
+  {
+    "id": "jiashe",
+    "name": "贾赦",
+    "en": "Jia She",
+    "group": "jia",
+    "desc": "荣国府长子，贾母之长子。好色贪财、荒淫无度，曾强纳鸳鸯为妾未遂。",
+    "radius": 18
+  },
+  {
+    "id": "xingfuren",
+    "name": "邢夫人",
+    "en": "Lady Xing",
+    "group": "jia",
+    "desc": "贾赦之妻，为人愚钝吝啬。唯夫命是从，在贾赦强纳鸳鸯事件中充当帮凶。",
+    "radius": 18
+  },
+  {
+    "id": "wangfuren",
+    "name": "王夫人",
+    "en": "Lady Wang",
+    "group": "jia",
+    "desc": "贾政之妻，宝玉之母。表面慈善虔佛，实则手段狠辣，驱逐晴雯、抄检大观园的幕后推手。",
+    "radius": 18
+  },
+  {
+    "id": "jiazhen",
+    "name": "贾珍",
+    "en": "Jia Zhen",
+    "group": "jia",
+    "desc": "宁国府族长，贾蓉之父。生活荒淫，与秦可卿关系暧昧，是宁府败坏的代表。",
+    "radius": 18
+  },
+  {
+    "id": "jialian",
+    "name": "贾琏",
+    "en": "Jia Lian",
+    "group": "jia",
+    "desc": "贾赦之子，王熙凤之夫。风流好色，偷娶尤二姐，常与凤姐发生冲突。",
+    "radius": 18
+  },
+  {
+    "id": "jiarong",
+    "name": "贾蓉",
+    "en": "Jia Rong",
+    "group": "jia",
+    "desc": "宁国府贾珍之子，秦可卿之夫。为人轻浮放荡，是宁府年轻一代的代表。",
+    "radius": 18
+  },
+  {
+    "id": "xiren",
+    "name": "袭人",
+    "en": "Xiren",
+    "group": "servant",
+    "desc": "宝玉身边首席大丫鬟，本名花珍珠。温柔体贴、谨守规矩，暗与宝玉有云雨之情，后嫁蒋玉菡。",
+    "radius": 14
+  },
+  {
+    "id": "qingwen",
+    "name": "晴雯",
+    "en": "Qingwen",
+    "group": "servant",
+    "desc": "宝玉身边丫鬟，容貌出众、性格刚烈。病补雀金裘是其名场面，后被王夫人逐出，含冤而死。",
+    "radius": 14
+  },
+  {
+    "id": "zijuan",
+    "name": "紫鹃",
+    "en": "Zijuan",
+    "group": "servant",
+    "desc": "林黛玉贴身丫鬟，忠心耿耿。曾以「试玉」之举试探宝玉真心，是黛玉最亲近的陪伴。",
+    "radius": 14
+  },
+  {
+    "id": "pinger",
+    "name": "平儿",
+    "en": "Ping'er",
+    "group": "servant",
+    "desc": "王熙凤的陪嫁丫鬟兼贾琏通房。心地善良、处事周全，在凤姐与贾琏之间左右为难。",
+    "radius": 14
+  },
+  {
+    "id": "yuanyang",
+    "name": "鸳鸯",
+    "en": "Yuanyang",
+    "group": "servant",
+    "desc": "贾母身边首席大丫鬟。性格刚烈，誓死抗拒贾赦纳妾之命，贾母去世后自缢殉主。",
+    "radius": 14
+  },
+  {
+    "id": "sheyue",
+    "name": "麝月",
+    "en": "Sheyue",
+    "group": "servant",
+    "desc": "宝玉身边丫鬟，性格沉稳。袭人不在时代为照管怡红院事务，是宝玉最后身边的丫鬟之一。",
+    "radius": 14
+  },
+  {
+    "id": "yinger",
+    "name": "莺儿",
+    "en": "Ying'er",
+    "group": "servant",
+    "desc": "薛宝钗的贴身丫鬟，本名黄金莺。心灵手巧，擅长编织络子，性格活泼直率。",
+    "radius": 14
+  },
+  {
+    "id": "liulaolao",
+    "name": "刘姥姥",
+    "en": "Granny Liu",
+    "group": "other",
+    "desc": "乡村老妇，与王家有远亲关系。三进荣国府，从借贷求助到游览大观园，最终在贾府败落时搭救巧姐。",
+    "radius": 14
+  },
+  {
+    "id": "xuepan",
+    "name": "薛蟠",
+    "en": "Xue Pan",
+    "group": "other",
+    "desc": "薛宝钗之兄，人称「呆霸王」。纨绔子弟、横行霸道，曾因争买香菱打死冯渊。",
+    "radius": 14
+  },
+  {
+    "id": "jiayucun",
+    "name": "贾雨村",
+    "en": "Jia Yucun",
+    "group": "other",
+    "desc": "落魄书生出身，后靠贾府提携做官。忘恩负义、趋炎附势，抄检贾府时落井下石。",
+    "radius": 14
+  },
+  {
+    "id": "zhenshiyin",
+    "name": "甄士隐",
+    "en": "Zhen Shiyin",
+    "group": "other",
+    "desc": "姑苏乡绅，开篇人物。经历家道中落后随跛足道人出家，对应「真事隐去」之意。",
+    "radius": 14
+  },
+  {
+    "id": "yisengdao",
+    "name": "一僧一道",
+    "en": "The Monk and Taoist",
+    "group": "other",
+    "desc": "癞头和尚与跛足道人，超凡世外之人。携通灵宝玉入世，贯穿全书始终，象征命运与觉悟。",
+    "radius": 14
+  },
+  {
+    "id": "xueyimo",
+    "name": "薛姨妈",
+    "en": "Aunt Xue",
+    "group": "jia",
+    "desc": "薛宝钗之母，王夫人之妹。携儿女寄居贾府，力促「金玉良缘」，为人厚道慈祥。",
+    "radius": 18
+  },
+  {
+    "id": "zhaoyiniang",
+    "name": "赵姨娘",
+    "en": "Concubine Zhao",
+    "group": "jia",
+    "desc": "贾政之妾，探春与贾环生母。心胸狭隘、屡生事端，曾密谋魇魔法暗害宝玉与凤姐。",
+    "radius": 18
+  },
+  {
+    "id": "youerjie",
+    "name": "尤二姐",
+    "en": "You Erjie",
+    "group": "other",
+    "desc": "尤氏继妹，温柔美貌。被贾琏偷娶为妾，后遭王熙凤设计迫害，吞金自尽。",
+    "radius": 14
+  },
+  {
+    "id": "yousanjie",
+    "name": "尤三姐",
+    "en": "You Sanjie",
+    "group": "other",
+    "desc": "尤二姐之妹，性格刚烈泼辣。痴心等候柳湘莲，遭退婚后以鸳鸯剑自刎明志。",
+    "radius": 14
+  },
+  {
+    "id": "xiangling",
+    "name": "香菱",
+    "en": "Xiangling",
+    "group": "servant",
+    "desc": "本名甄英莲，甄士隐之女。幼年被拐卖，后为薛蟠之妾。天资聪颖，向黛玉学诗传为佳话。",
+    "radius": 14
+  },
+  {
+    "id": "liuxianglian",
+    "name": "柳湘莲",
+    "en": "Liu Xianglian",
+    "group": "other",
+    "desc": "世家子弟，好侠仗义、英俊倜傥。与宝玉交好，因退婚致三姐自刎后悔恨出家。",
+    "radius": 14
+  },
+  {
+    "id": "jiangyhuan",
+    "name": "蒋玉菡",
+    "en": "Jiang Yuhan",
+    "group": "other",
+    "desc": "戏子出身，艺名琪官。与宝玉互赠汗巾结交，后迎娶袭人为妻。",
+    "radius": 14
+  },
+  {
+    "id": "jiahuan",
+    "name": "贾环",
+    "en": "Jia Huan",
+    "group": "jia",
+    "desc": "贾政与赵姨娘之子，宝玉异母弟。性情阴鸷卑劣，常受赵姨娘挑唆与宝玉为敌。",
+    "radius": 18
+  }
+];
+
+const groupConfig = {
+  "core": {
+    "color": "#ffe66d",
+    "label": "核心"
+  },
+  "twelve": {
+    "color": "#ff6b6b",
+    "label": "金陵十二钗"
+  },
+  "jia": {
+    "color": "#6c63ff",
+    "label": "贾家长辈"
+  },
+  "servant": {
+    "color": "#4ecdc4",
+    "label": "丫鬟仆人"
+  },
+  "other": {
+    "color": "#8888a0",
+    "label": "外人僧道"
+  }
+};
+
+
+// ══════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════
+const locations = spatial.locations;
+const movements = spatial.movements || [];
+const charMap = {};
+if (typeof characters !== 'undefined') characters.forEach(c => { charMap[c.id] = c; });
+const gConfig = (typeof groupConfig !== 'undefined') ? groupConfig : {};
+
+let state = {
+    selectedLocation: null,
+    hoveredLocation: null,
+    charFilter: null, // null = show all
+    maxChapter: parseInt(document.getElementById('chapterRange').max) || 120,
+    chapterCutoff: parseInt(document.getElementById('chapterRange').max) || 120,
+    animFrame: null,
+    movementProgress: 0,
+};
+
+// ══════════════════════════════════════════════════
+// DOM REFS
+// ══════════════════════════════════════════════════
+const $hero = document.getElementById('heroCanvas');
+const $map = document.getElementById('mapCanvas');
+const $mapArea = document.getElementById('mapArea');
+const $tooltip = document.getElementById('tooltip');
+const $ttName = document.getElementById('ttName');
+const $ttNameEn = document.getElementById('ttNameEn');
+const $ttEvents = document.getElementById('ttEvents');
+const $detailOverlay = document.getElementById('detailOverlay');
+const $detailName = document.getElementById('detailName');
+const $detailNameEn = document.getElementById('detailNameEn');
+const $detailEvents = document.getElementById('detailEvents');
+const $chapterRange = document.getElementById('chapterRange');
+const $chapterLabel = document.getElementById('chapterLabel');
+
+// ══════════════════════════════════════════════════
+// UTILITY
+// ══════════════════════════════════════════════════
+function dpr() { return window.devicePixelRatio || 1; }
+function sizeCanvas(canvas, w, h) {
+    const r = dpr(); canvas.width = w * r; canvas.height = h * r;
+    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(r, 0, 0, r, 0, 0); return ctx;
+}
+function hexToRGBA(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+}
+
+// Set chapter range max from data
+const maxCh = Math.max(...movements.map(m => m.chapter || 1), ...locations.flatMap(l => (l.events || []).map(e => e.chapter || 1)), 1);
+$chapterRange.max = maxCh;
+$chapterRange.value = maxCh;
+state.maxChapter = maxCh;
+state.chapterCutoff = maxCh;
+$chapterLabel.textContent = '1–' + maxCh;
+
+// ══════════════════════════════════════════════════
+// BUILD CONTROLS
+// ══════════════════════════════════════════════════
+function buildCharFilters() {
+    const wrap = document.getElementById('charFilters');
+    wrap.style.display = 'flex'; wrap.style.gap = '4px'; wrap.style.flexWrap = 'wrap';
+
+    // "All" button
+    const allBtn = document.createElement('button');
+    allBtn.className = 'char-filter-btn active'; allBtn.textContent = '全部';
+    allBtn.addEventListener('click', () => {
+        state.charFilter = null;
+        document.querySelectorAll('.char-filter-btn').forEach(b => b.classList.remove('active'));
+        allBtn.classList.add('active');
+        render();
+    });
+    wrap.appendChild(allBtn);
+
+    // Key characters from movements
+    const charIds = [...new Set(movements.map(m => m.character))];
+    charIds.slice(0, 8).forEach(id => {
+        const c = charMap[id];
+        if (!c) return;
+        const btn = document.createElement('button');
+        btn.className = 'char-filter-btn';
+        btn.textContent = c.name;
+        const groupColor = (gConfig[c.group] || {}).color || '#8888a0';
+        btn.style.borderColor = groupColor;
+        btn.addEventListener('click', () => {
+            state.charFilter = id;
+            document.querySelectorAll('.char-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            render();
+        });
+        wrap.appendChild(btn);
+    });
+}
+
+$chapterRange.addEventListener('input', () => {
+    state.chapterCutoff = parseInt($chapterRange.value);
+    $chapterLabel.textContent = '1–' + state.chapterCutoff;
+    render();
+});
+
+// ══════════════════════════════════════════════════
+// HERO PARTICLES
+// ══════════════════════════════════════════════════
+function initHero() {
+    const heroSection = document.querySelector('.hero');
+    const w = heroSection.clientWidth; const h = heroSection.clientHeight;
+    const ctx = sizeCanvas($hero, w, h);
+    const particles = [];
+    for (let i = 0; i < 40; i++) {
+        particles.push({
+            x: Math.random() * w, y: Math.random() * h,
+            r: Math.random() * 1.5 + 0.5, vx: (Math.random() - 0.5) * 0.2, vy: (Math.random() - 0.5) * 0.15,
+            alpha: Math.random() * 0.3 + 0.1,
+            color: ['#4ecdc4','#ffe66d','#6c63ff','#ff6b6b'][Math.floor(Math.random() * 4)],
+        });
+    }
+    function draw() {
+        ctx.clearRect(0, 0, w, h);
+        particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+            if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha; ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(draw);
+    }
+    draw();
+}
+
+// ══════════════════════════════════════════════════
+// MAP DRAWING
+// ══════════════════════════════════════════════════
+function drawMap() {
+    const w = $mapArea.clientWidth; const h = $mapArea.clientHeight;
+    const ctx = sizeCanvas($map, w, h);
+    ctx.clearRect(0, 0, w, h);
+
+    // Filter movements by chapter cutoff and character
+    const filteredMovements = movements.filter(m => {
+        if (m.chapter > state.chapterCutoff) return false;
+        if (state.charFilter && m.character !== state.charFilter) return false;
+        return true;
+    });
+
+    // Count events per location for sizing
+    const locEventCount = {};
+    locations.forEach(loc => {
+        const events = (loc.events || []).filter(e => (e.chapter || 0) <= state.chapterCutoff);
+        locEventCount[loc.id] = events.length;
+    });
+
+    // Build location lookup
+    const locMap = {};
+    locations.forEach(loc => { locMap[loc.id] = loc; });
+
+    // ── Draw movement paths ──
+    filteredMovements.forEach(m => {
+        const fromLoc = locMap[m.from];
+        const toLoc = locMap[m.to];
+        if (!fromLoc || !toLoc) return;
+        const fx = fromLoc.x * w; const fy = fromLoc.y * h;
+        const tx = toLoc.x * w; const ty = toLoc.y * h;
+        const c = charMap[m.character];
+        const groupColor = c ? (gConfig[c.group] || {}).color || '#8888a0' : '#8888a0';
+
+        ctx.beginPath();
+        const midX = (fx + tx) / 2 + (Math.random() - 0.5) * 30;
+        const midY = (fy + ty) / 2 - 20;
+        ctx.moveTo(fx, fy);
+        ctx.quadraticCurveTo(midX, midY, tx, ty);
+        ctx.strokeStyle = groupColor;
+        ctx.globalAlpha = 0.15;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
+
+        // Arrow head
+        const angle = Math.atan2(ty - midY, tx - midX);
+        ctx.beginPath();
+        ctx.moveTo(tx, ty);
+        ctx.lineTo(tx - 8 * Math.cos(angle - 0.3), ty - 8 * Math.sin(angle - 0.3));
+        ctx.lineTo(tx - 8 * Math.cos(angle + 0.3), ty - 8 * Math.sin(angle + 0.3));
+        ctx.closePath();
+        ctx.fillStyle = groupColor;
+        ctx.globalAlpha = 0.25;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+    });
+
+    // ── Draw locations ──
+    locations.forEach(loc => {
+        const x = loc.x * w;
+        const y = loc.y * h;
+        const evCount = locEventCount[loc.id] || 0;
+        const baseR = loc.radius || 30;
+        const r = baseR + evCount * 2;
+        const color = loc.color || '#4ecdc4';
+        const isHovered = state.hoveredLocation === loc.id;
+        const isSelected = state.selectedLocation === loc.id;
+
+        // Glow
+        const grd = ctx.createRadialGradient(x, y, 0, x, y, r * 2);
+        grd.addColorStop(0, hexToRGBA(color, isHovered || isSelected ? 0.2 : 0.08));
+        grd.addColorStop(1, hexToRGBA(color, 0));
+        ctx.beginPath(); ctx.arc(x, y, r * 2, 0, Math.PI * 2);
+        ctx.fillStyle = grd; ctx.fill();
+
+        // Circle
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = hexToRGBA(color, isHovered || isSelected ? 0.3 : 0.12);
+        ctx.fill();
+        ctx.strokeStyle = hexToRGBA(color, isHovered || isSelected ? 0.8 : 0.4);
+        ctx.lineWidth = isHovered || isSelected ? 2 : 1;
+        ctx.stroke();
+
+        // Label
+        ctx.font = (isHovered || isSelected ? '700' : '500') + ' 13px "Noto Sans SC", sans-serif';
+        ctx.fillStyle = isHovered || isSelected ? '#fff' : 'rgba(232,232,240,0.8)';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(loc.name, x, y - r - 12);
+
+        // Event count badge
+        if (evCount > 0) {
+            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.fillStyle = 'rgba(136,136,160,0.5)';
+            ctx.fillText(evCount + ' events', x, y + r + 14);
+        }
+
+        // Sub-locations
+        if (loc.subLocations) {
+            loc.subLocations.forEach(sub => {
+                const sx = sub.x * w; const sy = sub.y * h;
+                ctx.beginPath(); ctx.arc(sx, sy, 6, 0, Math.PI * 2);
+                ctx.fillStyle = hexToRGBA(color, 0.25); ctx.fill();
+                ctx.font = '10px "Noto Sans SC", sans-serif';
+                ctx.fillStyle = 'rgba(232,232,240,0.5)';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                ctx.fillText(sub.name, sx, sy + 10);
+            });
+        }
+
+        // Store hit data
+        loc._x = x; loc._y = y; loc._r = r;
+    });
+}
+
+// ══════════════════════════════════════════════════
+// HIT TEST
+// ══════════════════════════════════════════════════
+function hitTestLoc(mx, my) {
+    for (const loc of locations) {
+        if (loc._x === undefined) continue;
+        const dx = mx - loc._x; const dy = my - loc._y;
+        if (Math.sqrt(dx * dx + dy * dy) < loc._r + 10) return loc;
+    }
+    return null;
+}
+
+// ══════════════════════════════════════════════════
+// INTERACTIONS
+// ══════════════════════════════════════════════════
+$mapArea.addEventListener('mousemove', (e) => {
+    const rect = $mapArea.getBoundingClientRect();
+    const mx = e.clientX - rect.left; const my = e.clientY - rect.top;
+    const hit = hitTestLoc(mx, my);
+    const newHovered = hit ? hit.id : null;
+    if (newHovered !== state.hoveredLocation) {
+        state.hoveredLocation = newHovered;
+        render();
+    }
+    if (hit) {
+        $ttName.textContent = hit.name;
+        $ttNameEn.textContent = hit.nameEn || '';
+        const evCount = (hit.events || []).filter(ev => (ev.chapter || 0) <= state.chapterCutoff).length;
+        $ttEvents.textContent = evCount + ' 个事件发生于此';
+        $tooltip.classList.add('visible');
+        $tooltip.style.left = (e.clientX + 16) + 'px'; $tooltip.style.top = (e.clientY - 10) + 'px';
+        $mapArea.style.cursor = 'pointer';
+    } else {
+        $tooltip.classList.remove('visible');
+        $mapArea.style.cursor = 'default';
+    }
+});
+
+$mapArea.addEventListener('mouseleave', () => {
+    state.hoveredLocation = null; $tooltip.classList.remove('visible'); render();
+});
+
+$mapArea.addEventListener('click', (e) => {
+    const rect = $mapArea.getBoundingClientRect();
+    const hit = hitTestLoc(e.clientX - rect.left, e.clientY - rect.top);
+    if (hit) showDetail(hit);
+});
+
+function showDetail(loc) {
+    state.selectedLocation = loc.id;
+    $detailName.textContent = loc.name;
+    $detailNameEn.textContent = loc.nameEn || '';
+    $detailEvents.innerHTML = '';
+    const events = (loc.events || []).filter(ev => (ev.chapter || 0) <= state.chapterCutoff);
+    events.sort((a, b) => (a.chapter || 0) - (b.chapter || 0));
+    events.forEach(ev => {
+        const row = document.createElement('div');
+        row.className = 'detail-event';
+        row.innerHTML = '<div class="detail-event-ch">Ch.' + (ev.chapter || '?') + '</div><div class="detail-event-desc">' + (ev.desc || '') + '</div>';
+        $detailEvents.appendChild(row);
+    });
+    $detailOverlay.classList.add('visible');
+    render();
+}
+
+function closeDetail() { $detailOverlay.classList.remove('visible'); state.selectedLocation = null; render(); }
+$detailOverlay.addEventListener('click', (e) => { if (e.target === $detailOverlay) closeDetail(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDetail(); });
+
+// ══════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════
+function render() { drawMap(); }
+
+let resizeTimer;
+window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { initHero(); render(); }, 100); });
+
+document.fonts.ready.then(() => {
+    buildCharFilters();
+    initHero();
+    render();
+});
+</script>
+</body>
+</html>

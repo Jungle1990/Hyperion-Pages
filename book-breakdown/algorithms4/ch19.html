@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>最短路径 · Shortest Paths | Chapter 19</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
+/* Block: pipeline */
+.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
+.pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(108,99,255,0.3); }
+.pipe-node.highlight { background: linear-gradient(135deg, var(--accent2), #ef4444); }
+.pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
+.pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
+@media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
+
+
+/* Block: code-evolution */
+.evolution-timeline { position: relative; padding-left: 50px; }
+.evolution-timeline::before { content: ''; position: absolute; left: 30px; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--accent), var(--accent3), var(--accent2)); border-radius: 2px; }
+.evo-step { position: relative; padding-left: 30px; margin-bottom: 2rem; }
+.evo-dot { position: absolute; left: -30px; top: 5px; width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--accent); background: var(--bg); z-index: 1; }
+.evo-step.active .evo-dot { background: var(--accent); box-shadow: 0 0 12px rgba(108,99,255,0.5); }
+.evo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all 0.3s; }
+.evo-card:hover { border-color: var(--accent); }
+.evo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+.evo-title { font-weight: 700; }
+.evo-speed { font-family: var(--font-mono); font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 1rem; }
+.evo-speed.success { background: rgba(52,211,153,0.15); color: var(--success); }
+.evo-speed.danger { background: rgba(248,113,113,0.15); color: var(--danger); }
+.evo-speed.neutral { background: rgba(136,136,160,0.15); color: var(--text-dim); }
+.evo-desc { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 10px; }
+.evo-code { background: #12141c; border: 1px solid #1e2030; border-radius: 0.5rem; padding: 1rem; font-family: var(--font-mono); font-size: 0.8rem; color: #a0a0c0; overflow-x: auto; white-space: pre; }
+
+
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 19 / 25 · Part IV · Graphs 图</div>
+        <div class="hero-icon">🛤️</div>
+        <h1 class="hero-title">最短路径</h1>
+        <p class="hero-sub">如同导航系统为你规划最优路线一样，最短路径算法为有向加权图中的每一个顶点找到从源点出发的最低代价路径</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">核心类比：导航系统与最短路径</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">🗺️</div>
+            <div class="analogy-label">GPS 导航</div>
+            <div class="analogy-desc">交叉口 = 顶点，道路 = 有向边
+通行费/时间 = 权重
+从你当前位置出发，找到去每个目的地最便宜的路线
+把所有最优路线画出来，形成一棵「导航树」</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">🖥️</div>
+            <div class="analogy-label">SPT 算法</div>
+            <div class="analogy-desc">顶点对应交叉口，有向边对应道路
+边的权重对应代价（距离/时间/费用）
+从源点 s 出发，对每个可达顶点计算最低代价路径
+所有最短路径构成一棵「最短路径树 (SPT)」</div>
+        </div>
+    </div>
+    
+</section>
+
+<!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block2" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">🔑 </div>
+        <div class="insight-content">「松弛」是所有最短路径算法的基础操作。对于边 v->w：如果经由 v 到达 w 的路径更短（distTo[v] + weight < distTo[w]），就更新 distTo[w] 和 edgeTo[w]。
+想象一根橡皮筋绷在两个钉子之间 —— 如果发现了更短的路径，就把橡皮筋「松弛」到新路径上。
+所有算法的区别仅在于：按什么顺序松弛哪些边。</div>
+    </div>
+</section>
+
+<!-- Block: code-evolution — Step-by-step code transformation timeline -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">三大算法的代码演进</div>
+    <p class="section-intro" style="color:var(--text-dim);margin-bottom:2rem;">从 Dijkstra 到拓扑排序法再到 Bellman-Ford，核心都是 relax()，区别在于松弛边的顺序策略。</p>
+    <div class="evolution-timeline" id="evoTimeline-block3"></div>
+</section>
+
+<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
+<section id="sec-block4" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">三大算法对比：何时用哪个？</div>
+    <div class="comparison-grid">
+        <div class="comparison-side hard">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">Dijkstra 算法</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">前提：权重 >= 0
+时间：O(E log V)
+空间：O(V)
+策略：贪心 + 索引优先队列
+适用：路网导航、正权图</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side smart">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">Bellman-Ford 算法</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">前提：无限制（可检测负环）
+时间：O(EV) 最坏情况
+空间：O(V)
+策略：多轮松弛 + FIFO 队列
+适用：汇率套利、带截止期的调度</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">DAG 最短路径（AcyclicSP）是第三个选择：
+前提：图必须无环（但允许负权边）
+时间：O(E + V) —— 三者中最快！
+策略：拓扑排序 + 一轮松弛
+适用：项目调度（关键路径法）、DAG 中的最长路径</div></div>
+</section>
+
+<!-- Block: pipeline — Flow diagram with connected nodes -->
+<section id="sec-block5" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">关键路径法 (CPM)：最短路径的经典应用</div>
+    <div class="pipeline-flow" id="pipeline-block5"></div>
+    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;">将并行作业调度问题转化为 DAG 最长路径问题</div>
+</section>
+
+<!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block6" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">💰 </div>
+        <div class="insight-content">把汇率表建模为有向完全图，边权 = -ln(汇率)。
+乘法路径（1000 USD × 0.741 × 1.366 × 0.995）变成加法路径（-ln(0.741) + -ln(1.366) + -ln(0.995)）。
+如果某条环路的权重之和为负 => 乘积 > 1 => 套利机会！
+1000 美元 → 741 欧元 → 1012.206 加元 → 1007.14 美元，净赚 7.14 美元。
+Bellman-Ford 的负环检测就是交易员发现套利机会的「秘密武器」。</div>
+    </div>
+</section>
+
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block7" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">实战贴士</div>
+    <div class="tips-grid" id="tipsGrid-block7"></div>
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "最短路径 = 在有向加权图中，从源点到目标点的「总权重最小」的路径"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "想象你在一座城市里打车，每条路有不同的收费。你想从 A 到 B 花最少的钱 —— 导航就是帮你找那条最便宜的路线"
+  },
+  {
+    "step": 3,
+    "title": "发现盲点",
+    "desc": "Dijkstra 算法不能处理负权边！如果图中有负权环，「最短路径」甚至没有定义 —— 可以无限绕环来压低总权重"
+  },
+  {
+    "step": 4,
+    "title": "简化与类比",
+    "desc": "三种算法就像三种交通工具：Dijkstra 是高速公路（快但不能倒车/负权），拓扑排序法是单行道系统（无环才能用），Bellman-Ford 是越野车（慢但什么路都能走）"
+  }
+];
+const takeaways = [
+  {
+    "icon": "🔑",
+    "title": "松弛是万物之基",
+    "text": "所有最短路径算法的核心都是同一个 relax() 操作，区别仅在于按什么顺序、对哪些边执行松弛。"
+  },
+  {
+    "icon": "🎯",
+    "title": "选对算法看约束",
+    "text": "非负权 → Dijkstra (E log V)；DAG → 拓扑排序法 (E + V)；有负权有环 → Bellman-Ford (EV)。没有万能方案，只有最适合的方案。"
+  },
+  {
+    "icon": "🔄",
+    "title": "负权环让问题无解",
+    "text": "如果从源点可达的路径经过负权环，最短路径就没有定义——可以无限绕环来降低路径权重。Bellman-Ford 能检测这种情况。"
+  },
+  {
+    "icon": "🏗️",
+    "title": "CPM 是最长路径的伪装",
+    "text": "关键路径法将项目调度转化为 DAG 中的最长路径问题——关键路径上任何一个作业的延迟都会推迟整个项目。"
+  },
+  {
+    "icon": "💰",
+    "title": "套利 = 负环检测",
+    "text": "货币套利机会等价于有向图中的负权环。将汇率取对数再取反，用 Bellman-Ford 检测负环即可发现套利。"
+  },
+  {
+    "icon": "📊",
+    "title": "最优性条件是验证利器",
+    "text": "无论算法多复杂，只需一遍检查所有边是否满足 distTo[w] <= distTo[v] + e.weight()，就能验证结果的正确性。"
+  }
+];
+const quiz = [
+  {
+    "id": "q1",
+    "question": "为什么 Dijkstra 算法不能处理负权边？试用一个具体例子说明。",
+    "answer": "Dijkstra 的正确性证明依赖于一个关键假设：一旦某个顶点 v 从优先队列中被取出，distTo[v] 就是最终的最短路径长度，不会再被更新。这是因为后续取出的顶点距源点更远（非负权保证），不可能「绕路」回来提供更短的路径。\n\n反例：源点 s 到 A 权重 5，s 到 B 权重 2，B 到 A 权重 -4。Dijkstra 会先取出 B（distTo=2），再取出 A（distTo=5），但实际上 s→B→A 的路径长度为 2+(-4)=-2，比 5 短得多。Dijkstra 取出 A 后不会再更新它。"
+  },
+  {
+    "id": "q2",
+    "question": "在关键路径法 (CPM) 中，为什么要求最长路径而不是最短路径？",
+    "answer": "因为每个作业的最早开始时间取决于它所有前置作业中完成最晚的那个。假设作业 C 依赖于作业 A 和 B：A 在时刻 10 完成，B 在时刻 20 完成，则 C 最早只能在时刻 20 开始 —— 取的是 max 而不是 min。从源点到任意作业的最长路径恰好代表「所有前置约束链中耗时最长的那条」，也就是该作业的最早可能开始时间。关键路径（最长路径）上的延迟会直接推迟整个项目的完工时间。"
+  },
+  {
+    "id": "q3",
+    "question": "用你自己的话向非程序员解释：什么是「边松弛」？为什么叫「松弛」？",
+    "answer": "参考答案：想象你在一个大城市里，手里有一本笔记本记着「到每个地方的已知最便宜路费」。刚开始全写着「无穷大」（因为还不知道怎么去）。\n\n现在你发现了一条新路：从 A 到 B 只要 3 元。你翻开笔记本一看：之前到 A 要 5 元，到 B 要 10 元。5 + 3 = 8 < 10，所以你把 B 的记录从 10 改成 8，并备注「经由 A」。这就是一次「松弛」。\n\n叫「松弛」是因为像一根橡皮筋：原来绷得很紧（路径很长），发现了更短的路径后，橡皮筋就松弛到新的更短路径上了。"
+  },
+  {
+    "id": "q4",
+    "question": "DAG 最短路径算法（AcyclicSP）比 Dijkstra 快（O(E+V) vs O(E log V)），为什么不总是用它？",
+    "answer": "因为 AcyclicSP 要求图必须是 DAG（有向无环图）。很多实际场景中的图包含环路——比如道路网络（你可以从 A 到 B 再从 B 到 A）。对于有环图，拓扑排序不存在，AcyclicSP 根本无法运行。所以三种算法各有适用场景：\n- DAG 且允许负权 → AcyclicSP (E+V)\n- 有环但非负权 → Dijkstra (E log V)\n- 有环且有负权 → Bellman-Ford (EV)\n每种算法都放弃了某些通用性来换取更好的性能。"
+  },
+  {
+    "id": "q5",
+    "question": "为什么货币套利问题可以用负环检测来解决？取对数再取反的数学原理是什么？",
+    "answer": "货币兑换是连乘关系：USD→EUR→CAD→USD 的收益 = 0.741 × 1.366 × 0.995。如果乘积 > 1，就存在套利。但最短路径算法处理的是加法（路径权重 = 边权之和），所以需要把乘法变成加法。\n\n数学变换：ln(a × b) = ln(a) + ln(b)，所以取对数后乘法变加法。再取反是因为：乘积 > 1 意味着 ln(乘积) > 0，取反后变成 < 0，即负权环。\n\n最终：边权 = -ln(汇率)，寻找负权环就是寻找套利机会。Bellman-Ford 的负环检测正好派上用场。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "你觉得在一个所有边权都为正的有向图中，贪心策略（每次选最近的顶点）能保证找到最短路径吗？",
+    "hint": "想想「每次选局部最优是否总能得到全局最优」，以及负权边会如何打破这种假设"
+  },
+  {
+    "question": "如果图中存在一条总权重为负的环路，「从 A 到 B 的最短路径」还有意义吗？",
+    "hint": "想想能不能一直绕这个环来不断降低路径的总权重"
+  },
+  {
+    "question": "项目管理中，多个并行任务有先后依赖关系，你会如何确定整个项目的最短完成时间？",
+    "hint": "想想哪条依赖链决定了项目不可能更早完成——是最短的那条还是最长的那条"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "Dijkstra 算法对非负权重的有向图是最优的单源最短路径算法",
+    "evidence": "时间复杂度 O(E log V) 在使用二叉堆的索引优先队列时成立，Sedgewick 通过与 Prim MST 算法的类比严格证明了其正确性（Proposition R）",
+    "counterpoint": "对于稀疏图可以用 Fibonacci 堆优化到 O(E + V log V)；对于整数权重的特殊情况，存在理论上更快的算法（如 Thorup 算法 O(E)）。实际应用中（如导航），A* 算法利用启发式函数可以大幅减少搜索空间"
+  },
+  {
+    "claim": "Bellman-Ford 是处理负权边的通用方案（O(EV)）",
+    "evidence": "书中严格证明（Proposition X）：经过 V 轮松弛后，所有长度不超过 V-1 条边的最短路径都被正确计算，队列优化版本在实际应用中通常远快于最坏情况",
+    "counterpoint": "O(EV) 在大图上可能不够快。Johnson 算法通过势函数重新赋权后可以对所有点对使用 Dijkstra，全局复杂度 O(VE log V)，对稀疏图更优。此外 SPFA（就是书中的队列优化 Bellman-Ford）在某些图结构上可被构造出最坏情况"
+  },
+  {
+    "claim": "关键路径法 (CPM) 通过最长路径确定项目最短完成时间",
+    "evidence": "书中通过构造性证明（Proposition U）展示了 CPM 的正确性：最长路径既是下界（同一机器上的顺序约束）又是上界（所有约束都可行）",
+    "counterpoint": "经典 CPM 假设有无限多台处理器和确定性的作业时间，这在现实中很少成立。PERT 方法引入概率性时间估计，而资源有限的调度问题是 NP 难的。带相对截止期限的版本引入了负权边，可能导致不可行的情况"
+  }
+];
+const application = [
+  {
+    "scenario": "导航系统中的路径规划",
+    "action": "将路网建模为有向加权图（交叉口=顶点，道路=有向边，通行时间=权重），使用 Dijkstra 算法计算从当前位置到目的地的最短路径。实际系统中常用 A* 算法（Dijkstra 的启发式变体）加速搜索"
+  },
+  {
+    "scenario": "大型项目的进度管理",
+    "action": "用关键路径法 (CPM)：将任务建模为 DAG 中的边（权重=持续时间），优先约束为零权边。求最长路径得到最早完成时间。关键路径上的任务没有任何浮动时间，需要重点管理和资源倾斜"
+  },
+  {
+    "scenario": "金融市场中的套利检测",
+    "action": "将汇率表建模为完全有向图，边权 = -ln(汇率)。用 Bellman-Ford 检测负权环：如果找到负环，沿环路交易就能获利。实际交易中需要考虑手续费、延迟和交易量限制"
+  }
+];
+const chapterNav = {"prev": {"num": 18, "title": "最小生成树", "href": "ch18.html"}, "next": {"num": 20, "title": "字符串排序", "href": "ch20.html"}};
+window.evoData_block3 = [
+  {
+    "title": "基础：边松弛操作 relax()",
+    "badge": "通用基础",
+    "desc": "所有最短路径算法共享的核心操作：检查经由 v 到 w 是否更短，若是则更新。",
+    "code": "private void relax(DirectedEdge e) {\n    int v = e.from(), w = e.to();\n    if (distTo[w] > distTo[v] + e.weight()) {\n        distTo[w] = distTo[v] + e.weight();\n        edgeTo[w] = e;\n    }\n}"
+  },
+  {
+    "title": "Dijkstra：贪心策略 + 优先队列",
+    "badge": "非负权重 O(E log V)",
+    "desc": "每次从优先队列中取出 distTo 最小的顶点进行松弛。类似 Prim 的 MST 算法，但 Dijkstra 选「离源点最近」的顶点，Prim 选「离树最近」的顶点。",
+    "code": "// Dijkstra 核心循环\npq.insert(s, 0.0);\nwhile (!pq.isEmpty()) {\n    int v = pq.delMin();  // 取离源最近的\n    for (DirectedEdge e : G.adj(v)) {\n        int w = e.to();\n        if (distTo[w] > distTo[v] + e.weight()) {\n            distTo[w] = distTo[v] + e.weight();\n            edgeTo[w] = e;\n            if (pq.contains(w)) pq.change(w, distTo[w]);\n            else                pq.insert(w, distTo[w]);\n        }\n    }\n}"
+  },
+  {
+    "title": "DAG 最短路径：拓扑排序 + 松弛",
+    "badge": "DAG 专用 O(E + V)",
+    "desc": "先做一次拓扑排序，然后按拓扑顺序松弛每个顶点。不需要优先队列，线性时间完成！而且能处理负权边。",
+    "code": "// AcyclicSP 核心\nTopological top = new Topological(G);\nfor (int v : top.order())\n    for (DirectedEdge e : G.adj(v)) {\n        int w = e.to();\n        if (distTo[w] > distTo[v] + e.weight()) {\n            distTo[w] = distTo[v] + e.weight();\n            edgeTo[w] = e;\n        }\n    }"
+  },
+  {
+    "title": "Bellman-Ford：队列驱动的通用方案",
+    "badge": "通用 O(EV)",
+    "desc": "对所有边做 V 轮松弛。队列优化版本只松弛上一轮 distTo 发生变化的顶点的出边，大幅减少实际工作量。还能检测负权环。",
+    "code": "// BellmanFord 核心（队列优化）\nqueue.enqueue(s);\nwhile (!queue.isEmpty() && !hasNegativeCycle()) {\n    int v = queue.dequeue();\n    for (DirectedEdge e : G.adj(v)) {\n        int w = e.to();\n        if (distTo[w] > distTo[v] + e.weight()) {\n            distTo[w] = distTo[v] + e.weight();\n            edgeTo[w] = e;\n            if (!onQ[w]) { queue.enqueue(w); onQ[w] = true; }\n        }\n    }\n}"
+  }
+];
+window.pipeData_block5 = [
+  {
+    "cmd": "为每个作业创建两个顶点",
+    "annotation": "开始顶点 + 结束顶点"
+  },
+  {
+    "cmd": "作业持续时间 => 边权重",
+    "annotation": "开始→结束的边"
+  },
+  {
+    "cmd": "优先约束 => 零权边",
+    "annotation": "结束→后继的开始"
+  },
+  {
+    "cmd": "添加虚拟源点 s 和汇点 t",
+    "annotation": "零权边连接所有作业"
+  },
+  {
+    "cmd": "求 s 到每个顶点的最长路径",
+    "annotation": "用 AcyclicLP",
+    "bottleneck": true
+  },
+  {
+    "cmd": "最长路径长度 = 最早开始时间",
+    "annotation": "关键路径决定总工期"
+  }
+];
+window.tipsData_block7 = [
+  {
+    "icon": "⚠️",
+    "title": "Dijkstra 不能处理负权",
+    "text": "Dijkstra 的正确性依赖于「添加边只会让路径更长」的假设，负权边直接打破这一假设"
+  },
+  {
+    "icon": "🔄",
+    "title": "负权 ≠ 负权环",
+    "text": "有负权边不一定有负权环。负权边可以用 DAG 法或 Bellman-Ford 处理，但负权环让最短路径无定义"
+  },
+  {
+    "icon": "🏗️",
+    "title": "Prim vs Dijkstra",
+    "text": "二者结构几乎相同！Prim 选离「树」最近的顶点，Dijkstra 选离「源点」最近的顶点"
+  },
+  {
+    "icon": "📐",
+    "title": "最长路径 = 取反后的最短路径",
+    "text": "在 DAG 中，把所有边权取反后求最短路径，结果就是原图的最长路径。但在一般图中，最长简单路径是 NP 难问题"
+  }
+];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: tips-grid
+(function() {
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'tip-card fade-in';
+            div.innerHTML = `
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: pipeline
+(function() {
+    document.querySelectorAll('[id^="pipeline-"]').forEach(container => {
+        const blockId = container.id.replace('pipeline-', '');
+        const dataVar = window['pipeData_' + blockId];
+        if (!dataVar) return;
+        const pipeData = dataVar;
+        pipeData.forEach((node, i) => {
+            if (i > 0) {
+                const arrow = document.createElement('div');
+                arrow.className = 'pipe-arrow';
+                arrow.textContent = '→';
+                container.appendChild(arrow);
+            }
+            const wrapper = document.createElement('div');
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'pipe-node' + (node.bottleneck ? ' highlight' : '');
+            nodeDiv.textContent = node.cmd || node.name || '';
+            wrapper.appendChild(nodeDiv);
+            if (node.annotation || node.data) {
+                const dataDiv = document.createElement('div');
+                dataDiv.className = 'pipe-data';
+                dataDiv.textContent = node.annotation || node.data;
+                wrapper.appendChild(dataDiv);
+            }
+            container.appendChild(wrapper);
+        });
+    });
+})();
+
+
+// Block: code-evolution
+(function() {
+    document.querySelectorAll('[id^="evoTimeline-"]').forEach(container => {
+        const blockId = container.id.replace('evoTimeline-', '');
+        const dataVar = window['evoData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach((step, i) => {
+            const div = document.createElement('div');
+            div.className = 'evo-step' + (i === 0 ? ' active' : '') + ' fade-in';
+            const badge = step.badge || '';
+            const speedClass = badge.match(/O\(1\)|\u03B1|lg/) ? 'success' : badge.match(/O\(N\)/) ? 'danger' : 'neutral';
+            div.innerHTML = `
+                <div class="evo-dot"></div>
+                <div class="evo-card">
+                    <div class="evo-header">
+                        <span class="evo-title">${step.title}</span>
+                        <span class="evo-speed ${speedClass}">${badge}</span>
+                    </div>
+                    <div class="evo-desc">${step.desc || ''}</div>
+                    ${step.code ? '<pre class="evo-code">' + step.code + '</pre>' : ''}
+                </div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

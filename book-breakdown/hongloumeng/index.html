@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>红楼梦 · 小说解构 | Dream of the Red Chamber</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108,99,255,0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ── Hero ── */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(255,107,107,0.06) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.hero-icon {
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+    animation: float 4s ease-in-out infinite;
+    filter: drop-shadow(0 0 30px rgba(255,230,109,0.3));
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+.hero h1 {
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent4) 50%, var(--text) 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s ease-in-out infinite;
+    margin-bottom: 0.3rem;
+}
+
+@keyframes shimmer {
+    0%, 100% { background-position: 0% center; }
+    50% { background-position: 200% center; }
+}
+
+.hero .author {
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    color: var(--text-dim);
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    margin-bottom: 0.5rem;
+}
+
+.hero .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    color: var(--accent3);
+    opacity: 0.7;
+    margin-bottom: 3rem;
+}
+
+.meta-pills {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 3rem;
+}
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    background: var(--card);
+}
+
+.pill .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--accent4);
+}
+
+.scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    animation: bounce 2s infinite;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.scroll-hint .arrow { font-size: 1.2rem; }
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); opacity: 0.6; }
+    50% { transform: translateY(8px); opacity: 1; }
+}
+
+/* ── Navigation Cards ── */
+.nav-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem 6rem;
+}
+
+.nav-section h2 {
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 400;
+    color: var(--text-dim);
+    margin-bottom: 3rem;
+    letter-spacing: 0.1em;
+}
+
+.nav-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+}
+
+.nav-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem 1.6rem;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.nav-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 16px 16px 0 0;
+}
+
+.nav-card:hover {
+    background: var(--card-hover);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 40px var(--glow);
+    border-color: var(--accent);
+}
+
+.nav-card .card-icon { font-size: 2.2rem; margin-bottom: 1rem; }
+.nav-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.2rem; }
+.nav-card .card-en {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent3);
+    opacity: 0.7;
+    margin-bottom: 0.6rem;
+}
+.nav-card p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.6; }
+.nav-card .card-tag {
+    margin-top: auto;
+    padding-top: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    opacity: 0.6;
+}
+
+/* ── Stars background ── */
+.stars { position: fixed; inset: 0; pointer-events: none; z-index: -1; }
+.star {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: var(--text);
+    border-radius: 50%;
+    opacity: 0;
+    animation: twinkle var(--dur) ease-in-out infinite;
+    animation-delay: var(--delay);
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0; }
+    50% { opacity: var(--max-opacity); }
+}
+
+.footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .nav-grid { grid-template-columns: 1fr; }
+    .meta-pills { flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<section class="hero">
+    <div class="hero-icon">🏮</div>
+    <h1>红楼梦</h1>
+    <div class="author">曹雪芹 / 高鹗(续)</div>
+    <div class="subtitle">Dream of the Red Chamber</div>
+    <div class="meta-pills" id="metaPills"></div>
+    <div class="scroll-hint">
+        <span>探索解构</span>
+        <span class="arrow">&darr;</span>
+    </div>
+</section>
+
+<section class="nav-section">
+    <h2>选择视角 / Choose a Lens</h2>
+    <div class="nav-grid" id="navGrid"></div>
+</section>
+
+<div class="footer">红楼梦 · 小说解构 &mdash; Built with Hyperion</div>
+
+<script>
+const meta = {
+  "title": "红楼梦",
+  "titleEn": "Dream of the Red Chamber",
+  "author": "曹雪芹 / 高鹗(续)",
+  "authorEn": "Cao Xueqin / Gao E",
+  "icon": "🏮",
+  "slug": "hongloumeng",
+  "subtitle": "Dream of the Red Chamber",
+  "tagline": "A grand epic of love, fate, and the decline of a noble house",
+  "stats": [
+    {
+      "num": "120",
+      "label": "回",
+      "icon": "📖",
+      "sub": "chapters"
+    },
+    {
+      "num": "~15",
+      "label": "年叙事",
+      "icon": "⏳",
+      "sub": "years of narrative"
+    },
+    {
+      "num": "40+",
+      "label": "核心人物",
+      "icon": "👥",
+      "sub": "key characters"
+    },
+    {
+      "num": "4",
+      "label": "大家族",
+      "icon": "🏛️",
+      "sub": "noble families"
+    }
+  ],
+  "nav": {
+    "summary_desc": "逐回拆解全书脉络，梳理每回的关键事件、出场人物和叙事线索。",
+    "summary_tag": "120 回 → key events → themes",
+    "characters_desc": "交互式关系网络图——拖拽、筛选、揭示四大家族间错综复杂的人物关联。",
+    "characters_tag": "40+ characters → drag · filter · reveal",
+    "timeline_desc": "跨越十五年的时间轴——追踪宝黛钗情感纠葛、四大家族兴衰与金钗命运。",
+    "timeline_tag": "~15 years → swim lanes → 100+ events",
+    "emotions_desc": "情感弧线图——追踪全书120回中的喜悦、悲伤、紧张与宁静。",
+    "emotions_tag": "120 chapters → 4 dimensions → emotional heartbeat",
+    "motifs_desc": "追踪通灵宝玉、金锁、诗词判词等核心意象在全书中的出现与演变。",
+    "motifs_tag": "symbols → heatmap → narrative threads",
+    "spatial_desc": "大观园与贾府空间地图——人物活动轨迹与关键事件发生地点。",
+    "spatial_tag": "locations → movements → event pins",
+    "dialogue_desc": "人物对话网络——展示角色之间的对话频率与权力关系。",
+    "dialogue_tag": "conversation pairs → chord diagram → power dynamics"
+  },
+  "quote": "满纸荒唐言，一把辛酸泪。都云作者痴，谁解其中味。",
+  "quoteSource": "——曹雪芹"
+};
+
+
+// ── Nav card definitions (static) ──
+const NAV_CARDS = [
+    { href: 'summary.html', icon: '📖', title: '章回概览', en: 'Chapter Summary',
+      descKey: 'summary_desc', tagKey: 'summary_tag' },
+    { href: 'characters.html', icon: '🕸️', title: '人物关系', en: 'Character Relationships',
+      descKey: 'characters_desc', tagKey: 'characters_tag' },
+    { href: 'timeline.html', icon: '⏳', title: '事件时间线', en: 'Event Timeline',
+      descKey: 'timeline_desc', tagKey: 'timeline_tag' },
+    { href: 'emotions.html', icon: '💓', title: '情感弧线', en: 'Emotional Arc',
+      descKey: 'emotions_desc', tagKey: 'emotions_tag' },
+    { href: 'motifs.html', icon: '🔮', title: '意象追踪', en: 'Symbolic Motifs',
+      descKey: 'motifs_desc', tagKey: 'motifs_tag' },
+    { href: 'spatial.html', icon: '🗺️', title: '空间地图', en: 'Spatial Map',
+      descKey: 'spatial_desc', tagKey: 'spatial_tag' },
+    { href: 'dialogue.html', icon: '💬', title: '对话网络', en: 'Dialogue Network',
+      descKey: 'dialogue_desc', tagKey: 'dialogue_tag' },
+];
+
+// Gradient pairs for card top borders
+const GRADIENTS = [
+    'linear-gradient(90deg, #6c63ff, #4ecdc4)',
+    'linear-gradient(90deg, #ffe66d, #ff6b6b)',
+    'linear-gradient(90deg, #4ecdc4, #6c63ff)',
+    'linear-gradient(90deg, #ff6b6b, #ffe66d)',
+    'linear-gradient(90deg, #6c63ff, #ff6b6b)',
+    'linear-gradient(90deg, #4ecdc4, #ffe66d)',
+    'linear-gradient(90deg, #ffe66d, #4ecdc4)',
+];
+
+// Build stat pills from meta (if available)
+if (typeof meta !== 'undefined' && meta.stats) {
+    const pillsEl = document.getElementById('metaPills');
+    meta.stats.forEach(s => {
+        const pill = document.createElement('span');
+        pill.className = 'pill';
+        pill.innerHTML = '<span class="num">' + s.num + '</span> ' + s.label;
+        pillsEl.appendChild(pill);
+    });
+}
+
+// Build nav cards
+const navGrid = document.getElementById('navGrid');
+const navData = (typeof meta !== 'undefined' && meta.nav) ? meta.nav : {};
+
+NAV_CARDS.forEach((card, i) => {
+    const desc = navData[card.descKey] || '';
+    const tag = navData[card.tagKey] || '';
+    if (!desc) return; // skip cards with no description in data
+
+    const a = document.createElement('a');
+    a.href = card.href;
+    a.className = 'nav-card';
+    a.style.setProperty('--card-gradient', GRADIENTS[i % GRADIENTS.length]);
+    a.innerHTML =
+        '<div class="card-icon">' + card.icon + '</div>' +
+        '<h3>' + card.title + '</h3>' +
+        '<div class="card-en">' + card.en + '</div>' +
+        '<p>' + desc + '</p>' +
+        '<div class="card-tag">' + tag + '</div>';
+
+    // Dynamic top border gradient
+    const before = document.createElement('style');
+    before.textContent = '.nav-card:nth-child(' + (i + 1) + ')::before { background: ' + GRADIENTS[i % GRADIENTS.length] + '; }';
+    document.head.appendChild(before);
+
+    navGrid.appendChild(a);
+});
+
+// Generate twinkling stars
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 60; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.setProperty('--dur', (3 + Math.random() * 4) + 's');
+    star.style.setProperty('--delay', (Math.random() * 5) + 's');
+    star.style.setProperty('--max-opacity', (0.15 + Math.random() * 0.35).toString());
+    starsEl.appendChild(star);
+}
+</script>
+</body>
+</html>

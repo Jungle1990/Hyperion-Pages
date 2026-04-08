@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>渗滤：适度中断，预冲向前，先退一退 · Percolation: The Value of Strategic Interruption | Chapter 7</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
+/* Block: pipeline */
+.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
+.pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(108,99,255,0.3); }
+.pipe-node.highlight { background: linear-gradient(135deg, var(--accent2), #ef4444); }
+.pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
+.pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
+@media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
+
+
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 7 / 10 · Part III · 解答难题 — 如何完成复杂课题</div>
+        <div class="hero-icon">☕</div>
+        <h1 class="hero-title">渗滤：适度中断，预冲向前，先退一退</h1>
+        <p class="hero-sub">在继续猛冲之前先退下来——大脑会持续搜索与未完成任务相关的一切，直到灵感渗滤而出</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">速效药 vs 长效药：孵化与渗滤的区别</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">💊</div>
+            <div class="analogy-label">孵化（速效药）</div>
+            <div class="analogy-desc">5~20分钟的短暂休息
+适用于：一锤定音的谜题
+如几何证明、化学式、铅笔谜题
+需要灵光一现找出答案
+像尼古丁——迅速释放药效</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">☕</div>
+            <div class="analogy-label">渗滤（长效药）</div>
+            <div class="analogy-desc">数小时、数天、数周的持续浸泡
+适用于：旷日持久的复杂项目
+如论文、建筑设计、音乐创作
+需要零碎灵感逐渐累积
+像慢炖——浸泡时间越长味道越入味</div>
+        </div>
+    </div>
+    
+</section>
+
+<!-- Block: pipeline — Flow diagram with connected nodes -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">蔡加尼克效应：未完成的任务占据大脑首位</div>
+    <div class="pipeline-flow" id="pipeline-block2"></div>
+    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;">打断 → 记忆加深 → 大脑持续关注</div>
+</section>
+
+<!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block3" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">🎯 </div>
+        <div class="insight-content">阿尔兹让一组学生吃下令人口渴的比萨尔糖，另一组不吃。随后两组人在同一间办公室坐了4分钟。
+结果：口渴的学生记住的跟饮水相关的物品是对照组的两倍！
+
+关键洞察：大脑中一旦有了一个「最重要的目标」，它就会调动我们的感知系统，让我们不自觉地关注与目标相关的一切——矿泉水瓶、水杯、饮料罐盖子......
+
+同理：当你沉浸在论文创作中，你会突然发现地铁上的对话、新闻报道、朋友的闲聊都变成了素材。不是世界变了，是你的感知雷达被激活了。</div>
+    </div>
+</section>
+
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block4" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">渗滤三步法：中断 → 采集 → 反思</div>
+    <div class="tips-grid" id="tipsGrid-block4"></div>
+</section>
+
+<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
+<section id="sec-block5" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">戴夫利教学实验：让渗滤变成可见的过程</div>
+    <div class="comparison-grid">
+        <div class="comparison-side hard">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">传统方式（第一学期）</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">6篇文章，6个不同主题
+每篇只有约2周时间
+学生匆忙赶进度
+无时间咀嚼和沉淀
+------
+结果：期末作品 = 
+「前人文章的剪贴编辑」
+毫无个人见地</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side smart">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">渗滤方式（第二学期）</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">1篇文章，1个主题，整学期
+5篇「练习作业」构建台阶
+采访专家、辨析术语、回应争议
+全程写学习笔记记录思考
+------
+结果：学生「担当起行家角色」
+质疑学术权威，形成自己观点</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">关键差异不是时间更多，而是渗滤的三要素都被激活了：
+1. 练习作业 = 反复的「中断+重启」，让课题始终占据大脑首位
+2. 整学期关注同一主题 = 感知雷达持续被激活
+3. 学习笔记 = 有意识的反思，从「借用别人」到「形成自己」</div></div>
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "渗滤 = 长期孵化。不同于短暂的「啊哈！」顿悟，渗滤是在数天、数周中持续浸泡思考，像咖啡慢慢滴滤一样积累灵感"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "想象你刚买了一双亮绿色的匡威鞋——突然发现满大街都是这种鞋！不是鞋变多了，而是你的「目标」（新鞋）激活了大脑的感知雷达。写论文也一样：一旦你开始动笔，与主题相关的素材就会不断「吸」过来"
+  },
+  {
+    "step": 3,
+    "title": "发现盲点",
+    "desc": "我们以为「拖延」和「中断」是学习的敌人。但蔡加尼克效应证明：被打断的任务反而记得更牢！在关键时刻停下来，大脑会把未完成的任务推到最高优先级"
+  },
+  {
+    "step": 4,
+    "title": "简化与类比",
+    "desc": "渗滤就像慢炖锅——你把食材（信息）和调料（思考）放进去，然后盖上盖子去做别的事。炖的时间越长，味道越入味。急火快炒出不来这种「深度风味」"
+  }
+];
+const takeaways = [
+  {
+    "icon": "⏸️",
+    "title": "中断是武器，不是敌人",
+    "text": "蔡加尼克效应证明：被打断的任务比完成的任务记得更牢。主动在关键时刻停下来，能让大脑把项目推到最高优先级，持续为你工作。"
+  },
+  {
+    "icon": "📡",
+    "title": "目标激活感知雷达",
+    "text": "一旦你开始着手某个项目，大脑会自动调动感知系统，让你不自觉地从环境中捕获相关信息。就像买了新鞋后满大街都是同款——不是世界变了，是你的雷达开了。"
+  },
+  {
+    "icon": "📓",
+    "title": "写给自己的笔记最重要",
+    "text": "渗滤的第三要素是「有意识的反思」——不是摘抄别人的话，而是记录自己的思考和感受。这能让你从被动引用进化到主动探索自己的观点。"
+  },
+  {
+    "icon": "🚀",
+    "title": "尽早破土动工",
+    "text": "一个项目一旦开始，就被你「收缩」了——变得更可掌控。早开始不是为了早完成，而是为了给渗滤留出更多时间。拖延到最后一刻猛冲是最低效的策略。"
+  },
+  {
+    "icon": "☕",
+    "title": "拖延的正名",
+    "text": "遇到复杂项目时，每天只做一点点，碰到难题时在半路停下来——这不是偷懒，而是主动进入渗滤过程。渗滤需要时间，急火快炒出不来深度风味。"
+  }
+];
+const quiz = [
+  {
+    "id": "q1",
+    "question": "「蔡加尼克效应」是什么？它对学习策略有什么实际指导意义？",
+    "answer": "蔡加尼克效应是指：被打断而未完成的任务，比已经完成的任务在记忆中保留的时间更长、优先级更高。蔡加尼克的实验中，参与者能记住的未完成任务比已完成任务多近90%。\n实际指导意义：写论文或做复杂项目时，不必非要一口气做完。在关键时刻主动停下来（就像电视剧的悬念结尾），大脑会自动把这个未完成的任务推到首位，让你在日常生活中持续关注与之相关的信息。这就是渗滤的第一步。"
+  },
+  {
+    "id": "q2",
+    "question": "渗滤的三个要素是什么？用比萨尔糖实验解释第二个要素。",
+    "answer": "渗滤的三个要素是：1. 中断（蔡加尼克效应，让任务占据大脑首位）；2. 感知采集（目标激活感知雷达，持续捕获相关信息）；3. 有意识的反思（写笔记记录思考）。\n比萨尔糖实验解释第二要素：阿尔兹让一组学生吃下令人口渴的糖，另一组不吃。然后两组人在同一间办公室待4分钟。口渴组记住的跟水相关的物品是对照组的两倍——他们无意中注意到了水瓶、水杯、饮料罐盖子。这说明一旦大脑有了首要目标（口渴→想喝水），感知系统就会被调动起来，自动搜索环境中与目标相关的一切。"
+  },
+  {
+    "id": "q3",
+    "question": "孵化（上一章）和渗滤（本章）有什么本质区别？各自适用于什么场景？",
+    "answer": "孵化是「速效药」——短暂的5~20分钟休息，适用于需要灵光一现、一锤定音的谜题（如几何证明、字谜、铅笔谜题）。关键时刻是那个「啊哈！」的瞬间。\n渗滤是「长效药」——数天到数周的持续浸泡，适用于旷日持久的复杂创作项目（如论文、建筑设计、音乐创作、软件开发）。灵感不是一次性爆发，而是像咖啡渗滤一样零碎地、一点一点地冒出来。\n两者互补：做复杂项目时，宏观上靠渗滤（长期浸泡），碰到具体技术难点时靠孵化（短暂休息后灵光一现）。"
+  },
+  {
+    "id": "q4",
+    "question": "如果你正在写一篇毕业论文，根据本章学到的知识，设计一个利用渗滤的学习计划。",
+    "answer": "参考方案：\n1. 尽早破土动工——不必等「准备好」再开始。哪怕只写一个提纲或者搜集几篇参考文献，项目就开始「收缩」了\n2. 设置策略性中断——在写到困难段落或关键论点时主动停下来（蔡加尼克效应会让大脑持续惦记它），去做别的事\n3. 拆分「练习作业」——像戴夫利那样，设定多个小阶段任务（采访专家、分析核心概念、回应反方观点），让论文主题反复回到大脑首位\n4. 写反思笔记——每次做完调研后，记录自己的感受和想法（「我觉得这篇论文的论据有漏洞」），而不只是摘抄\n5. 保持感知雷达开启——带着论文主题去生活，地铁上听到的对话、新闻中的案例、朋友的闲聊都可能成为素材\n核心理念：不是「先准备好再写」，而是「写着写着就准备好了」。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "你认为写论文/做项目时，在关键时刻被打断是好事还是坏事？",
+    "hint": "想想电视剧的悬念结尾——你是不是一直惦记着下一集？"
+  },
+  {
+    "question": "你觉得「拖延」一个长期项目（比如隔几天才做一点点）对最终质量有什么影响？",
+    "hint": "对比一口气赶完和慢慢磨出来的作品质量"
+  },
+  {
+    "question": "当你沉浸在某个项目中时，你是否注意到生活中到处都能看到与它相关的东西？这是巧合吗？",
+    "hint": "想想你买了一双新鞋后是否满大街都能看到同款"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "蔡加尼克效应：被打断的未完成任务比已完成的任务记得更牢——多记住近90%",
+    "evidence": "蔡加尼克对164名参与者的实验，以及后续多次重复实验均显示未完成任务的记忆优势，且在投入最深的关键时刻被打断效果最强",
+    "counterpoint": "后续不少研究未能稳定复现蔡加尼克效应的90%数值——效应大小因个人动机、任务类型和打断方式不同而差异很大"
+  },
+  {
+    "claim": "渗滤（长期孵化）对复杂创作项目的效果优于短期集中突击",
+    "evidence": "戴夫利的写作课实验：从6篇赶进度论文改为1篇整学期渗滤，学生从「剪贴编辑」进化到「担当行家角色、质疑学术权威」",
+    "counterpoint": "渗滤效应的证据主要来自质性观察和教学案例，缺乏大规模随机对照实验——很难排除「更多时间」本身就是主要原因"
+  }
+];
+const application = [
+  {
+    "scenario": "当你面对一个大型编程项目或论文，不知从何下手时",
+    "action": "立即「破土动工」——哪怕只写一个提纲或搭一个空项目框架。一旦开始，蔡加尼克效应会让大脑把它推到首位，渗滤也才能启动"
+  },
+  {
+    "scenario": "当你写代码写到一个复杂的算法设计卡住时",
+    "action": "不要死磕——在关键节点主动停下来去做别的事。带着这个「未完成」的问题去吃饭、散步，感知雷达会帮你从日常中捕获灵感"
+  },
+  {
+    "scenario": "当你担心自己在「拖延」一个长期项目时",
+    "action": "区分「消极拖延」和「积极渗滤」。如果你每天想着项目、随手记录灵感、即使没在动手也在思考——那不是拖延，而是大脑在慢炖"
+  }
+];
+const chapterNav = {"prev": {"num": 6, "title": "孵化：沉淀思维离不开分心", "href": "ch06.html"}, "next": {"num": 8, "title": "交替：混杂在一起印象更深", "href": "ch08.html"}};
+window.pipeData_block2 = [
+  {
+    "cmd": "开始任务",
+    "annotation": "用橡皮泥捏小狗\n对任务产生完成欲"
+  },
+  {
+    "cmd": "关键时刻被打断",
+    "annotation": "正做到忘我时中断\n「完成欲」变成强烈渴望"
+  },
+  {
+    "cmd": "记忆加深90%",
+    "annotation": "未完成任务的记忆\n比已完成的多近一倍"
+  },
+  {
+    "cmd": "大脑推至首位",
+    "annotation": "未完成项目自动\n占据最高优先级"
+  }
+];
+window.tipsData_block4 = [
+  {
+    "title": "第一步：主动中断",
+    "text": "在困难时刻或关键节点停下来。蔡加尼克效应会把未完成的任务推到大脑首位，让你持续惦记它。\n这不是放弃，而是策略性退让。"
+  },
+  {
+    "title": "第二步：感知采集",
+    "text": "带着「未完成」的目标去生活。你的感知雷达已被激活，会不自觉地从环境中吸收与项目相关的信息——对话、报道、偶然的见闻。\n就像小说家韦尔蒂说的：「耳朵变成了磁石」。"
+  },
+  {
+    "title": "第三步：有意识反思",
+    "text": "记录自己在调研中的感受和想法。戴夫利让学生写「学习笔记」——不是摘抄别人的话，而是记录自己的思考。\n反思让你从「借用别人观点」进化到「形成自己观点」。"
+  },
+  {
+    "title": "核心心法：尽早动手",
+    "text": "一个复杂项目一旦破土动工，就开始「收缩」——变得更可掌控。早开始不是为了早完成，而是为了给渗滤留出足够时间。\n「数学家就是那种走到哪儿脑袋里都装着一个概念的人。」"
+  }
+];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: tips-grid
+(function() {
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'tip-card fade-in';
+            div.innerHTML = `
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: pipeline
+(function() {
+    document.querySelectorAll('[id^="pipeline-"]').forEach(container => {
+        const blockId = container.id.replace('pipeline-', '');
+        const dataVar = window['pipeData_' + blockId];
+        if (!dataVar) return;
+        const pipeData = dataVar;
+        pipeData.forEach((node, i) => {
+            if (i > 0) {
+                const arrow = document.createElement('div');
+                arrow.className = 'pipe-arrow';
+                arrow.textContent = '→';
+                container.appendChild(arrow);
+            }
+            const wrapper = document.createElement('div');
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'pipe-node' + (node.bottleneck ? ' highlight' : '');
+            nodeDiv.textContent = node.cmd || node.name || '';
+            wrapper.appendChild(nodeDiv);
+            if (node.annotation || node.data) {
+                const dataDiv = document.createElement('div');
+                dataDiv.className = 'pipe-data';
+                dataDiv.textContent = node.annotation || node.data;
+                wrapper.appendChild(dataDiv);
+            }
+            container.appendChild(wrapper);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

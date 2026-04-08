@@ -1,0 +1,2256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>白夜行 事件时间线 / Event Timeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108,99,255,0.15);
+}
+
+html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans SC', sans-serif;
+}
+
+/* ── Hero ── */
+.hero {
+    height: 25vh;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, #13151f 0%, var(--bg) 100%);
+}
+
+.hero canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    background: linear-gradient(135deg, var(--accent3) 0%, var(--accent) 50%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero .subtitle {
+    margin-top: 8px;
+    font-size: clamp(0.85rem, 1.6vw, 1.1rem);
+    color: var(--text-dim);
+    font-weight: 300;
+    letter-spacing: 0.06em;
+}
+
+.back-link {
+    position: absolute;
+    top: 16px;
+    left: 20px;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.85rem;
+    z-index: 2;
+    transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent3); }
+
+/* ── Controls bar ── */
+.controls {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 20px;
+    background: rgba(15,17,23,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.controls-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.controls-label {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    margin-right: 4px;
+    white-space: nowrap;
+}
+
+.thread-btn {
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 1.5px solid;
+    background: transparent;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+}
+.thread-btn.active { color: var(--bg) !important; }
+.thread-btn:not(.active) { opacity: 0.45; }
+
+.chapter-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.chapter-btn:hover, .chapter-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+.zoom-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.zoom-wrap input[type="range"] {
+    width: 90px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+.zoom-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    min-width: 40px;
+}
+
+/* ── Minimap ── */
+.minimap-wrap {
+    height: 30px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    cursor: pointer;
+}
+.minimap-wrap canvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* ── Timeline viewport ── */
+.timeline-viewport {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    cursor: grab;
+}
+.timeline-viewport.dragging { cursor: grabbing; }
+
+.timeline-viewport canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Lane labels */
+.lane-labels {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 90px;
+    height: 100%;
+    z-index: 5;
+    background: linear-gradient(90deg, rgba(15,17,23,0.95) 0%, rgba(15,17,23,0.7) 80%, transparent 100%);
+    pointer-events: none;
+}
+.lane-label {
+    position: absolute;
+    left: 10px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    writing-mode: horizontal-tb;
+    white-space: nowrap;
+}
+
+/* Year indicator */
+.year-indicator {
+    position: absolute;
+    top: 8px;
+    right: 16px;
+    z-index: 6;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: rgba(108,99,255,0.25);
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+/* ── Tooltip ── */
+.tooltip {
+    position: absolute;
+    z-index: 30;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    max-width: 280px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.tooltip.visible { opacity: 1; }
+.tooltip-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+.tooltip-year {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+}
+.tooltip-desc {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+}
+
+/* ── Detail panel ── */
+.detail-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+}
+.detail-overlay.visible { display: flex; }
+
+.detail-panel {
+    width: 100%;
+    max-width: 640px;
+    max-height: 50vh;
+    background: var(--card);
+    border-top: 2px solid var(--accent);
+    border-radius: 16px 16px 0 0;
+    padding: 24px 28px 32px;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+.detail-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1;
+}
+.detail-close:hover { color: var(--accent2); }
+
+.detail-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.detail-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+}
+.detail-titles h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+.detail-titles .en {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    font-weight: 400;
+}
+.detail-meta {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+}
+.detail-desc {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    margin-bottom: 16px;
+    color: var(--text);
+}
+.detail-chars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.char-pill {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    background: rgba(108,99,255,0.15);
+    color: var(--accent);
+    font-weight: 500;
+}
+
+/* ── Layout ── */
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* ── Legend bar ── */
+.legend-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 20px;
+    flex-wrap: wrap;
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+}
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.legend-dot.diamond {
+    border-radius: 0;
+    transform: rotate(45deg);
+    width: 8px;
+    height: 8px;
+}
+
+/* ── Stats counter ── */
+.stats-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 6px 20px 8px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(15,17,23,0.6);
+}
+.stat-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+}
+.stat-item .stat-num {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-right: 3px;
+}
+
+/* ── Keyboard hint ── */
+.kb-hint {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.65rem;
+    color: rgba(136,136,160,0.35);
+    font-family: 'JetBrains Mono', monospace;
+    pointer-events: none;
+    z-index: 4;
+    white-space: nowrap;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="app">
+    <!-- Hero -->
+    <section class="hero">
+        <canvas id="heroCanvas"></canvas>
+        <a href="index.html" class="back-link">&larr; 返回目录 / Back</a>
+        <div class="hero-content">
+            <h1>事件时间线 / Event Timeline</h1>
+            <p class="subtitle">Journey Under the Midnight Sun</p>
+        </div>
+    </section>
+
+    <!-- Controls -->
+    <div class="controls">
+        <div class="controls-group">
+            <span class="controls-label">线索</span>
+            <div id="threadBtns"></div>
+        </div>
+        <div class="controls-group">
+            <span class="controls-label">章节</span>
+            <div id="chapterBtns"></div>
+        </div>
+        <div class="controls-group zoom-wrap">
+            <span class="controls-label">缩放</span>
+            <input type="range" id="zoomSlider" min="50" max="300" value="150" step="10">
+            <span class="zoom-label" id="zoomLabel">150</span>
+        </div>
+    </div>
+
+    <!-- Legend & Stats -->
+    <div class="stats-bar">
+        <div class="legend-bar" id="legendBar"></div>
+        <div style="flex:1"></div>
+        <div class="stat-item"><span class="stat-num" id="statTotal">0</span>事件</div>
+        <div class="stat-item"><span class="stat-num" id="statVisible">0</span>可见</div>
+        <div class="stat-item"><span class="stat-num" id="statChapters">0</span>章</div>
+    </div>
+
+    <!-- Minimap -->
+    <div class="minimap-wrap" id="minimapWrap">
+        <canvas id="minimapCanvas"></canvas>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline-viewport" id="timelineViewport">
+        <div class="lane-labels" id="laneLabels"></div>
+        <canvas id="timelineCanvas"></canvas>
+        <div class="year-indicator" id="yearIndicator"></div>
+        <div class="kb-hint">Arrow keys / Scroll to navigate &middot; Click event for details &middot; Esc to close</div>
+    </div>
+</div>
+
+<!-- Tooltip -->
+<div class="tooltip" id="tooltip">
+    <div class="tooltip-title" id="ttTitle"></div>
+    <div class="tooltip-year" id="ttYear"></div>
+    <div class="tooltip-desc" id="ttDesc"></div>
+</div>
+
+<!-- Detail overlay -->
+<div class="detail-overlay" id="detailOverlay">
+    <div class="detail-panel" id="detailPanel">
+        <button class="detail-close" onclick="closeDetail()">&times;</button>
+        <div class="detail-header">
+            <div class="detail-dot" id="detailDot"></div>
+            <div class="detail-titles">
+                <h2 id="detailTitle"></h2>
+                <div class="en" id="detailTitleEn"></div>
+            </div>
+        </div>
+        <div class="detail-meta">
+            <span id="detailYear"></span>
+            <span id="detailChapter"></span>
+        </div>
+        <div class="detail-desc" id="detailDesc"></div>
+        <div class="detail-chars" id="detailChars"></div>
+    </div>
+</div>
+
+<script>
+const events = [
+  {
+    "year": 1973,
+    "month": 10,
+    "lane": 2,
+    "type": "crime",
+    "chapter": 1,
+    "title": "桐原洋介遇害",
+    "titleEn": "Yosuke Kirihara murdered",
+    "desc": "在废弃建筑中被剪刀刺死。当天提取100万日元现金失踪。",
+    "chars": [
+      "桐原洋介",
+      "桐原亮司",
+      "笹垣润三"
+    ]
+  },
+  {
+    "year": 1973,
+    "month": 10,
+    "lane": 2,
+    "type": "investigation",
+    "chapter": 1,
+    "title": "笹垣开始调查",
+    "titleEn": "Sasagaki begins investigation",
+    "desc": "刑警笹垣润三负责调查桐原洋介被杀案。",
+    "chars": [
+      "笹垣润三"
+    ]
+  },
+  {
+    "year": 1973,
+    "month": 11,
+    "lane": 0,
+    "type": "tragedy",
+    "chapter": 1,
+    "title": "西本文代死亡",
+    "titleEn": "Fumiyo Nishimoto dies",
+    "desc": "雪穗的生母煤气中毒死亡，疑似自杀。",
+    "chars": [
+      "西本文代",
+      "唐泽雪穗"
+    ]
+  },
+  {
+    "year": 1973,
+    "month": 12,
+    "lane": 1,
+    "type": "identity",
+    "chapter": 1,
+    "title": "亮司目睹真相",
+    "titleEn": "Ryoji witnesses the truth",
+    "desc": "年幼的亮司目睹父亲对雪穗的侵害，杀死父亲。",
+    "chars": [
+      "桐原亮司",
+      "唐泽雪穗",
+      "桐原洋介"
+    ]
+  },
+  {
+    "year": 1977,
+    "month": 4,
+    "lane": 0,
+    "type": "identity",
+    "chapter": 2,
+    "title": "雪穗进入清华女子学园",
+    "titleEn": "Yukiho enters Seika school",
+    "desc": "被唐泽礼子收养后，进入名门女校。",
+    "chars": [
+      "唐泽雪穗",
+      "川岛江利子"
+    ]
+  },
+  {
+    "year": 1977,
+    "month": 9,
+    "lane": 3,
+    "type": "crime",
+    "chapter": 2,
+    "title": "藤村都子遇袭",
+    "titleEn": "Miyako Fujimura attacked",
+    "desc": "清华女子学园学生遭到性侵，案件震动学校。",
+    "chars": [
+      "藤村都子",
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1978,
+    "month": 4,
+    "lane": 1,
+    "type": "identity",
+    "chapter": 3,
+    "title": "亮司与友彦结识",
+    "titleEn": "Ryoji meets Tomohiko",
+    "desc": "高中时期，桐原亮司与园村友彦成为同学和伙伴。",
+    "chars": [
+      "桐原亮司",
+      "园村友彦"
+    ]
+  },
+  {
+    "year": 1978,
+    "month": 8,
+    "lane": 1,
+    "type": "crime",
+    "chapter": 3,
+    "title": "花冈夕子之死",
+    "titleEn": "Yuko Hanaoka dies",
+    "desc": "有夫之妇花冈夕子与友彦发生关系后死亡，桐原帮助善后。",
+    "chars": [
+      "花冈夕子",
+      "园村友彦",
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1980,
+    "month": 4,
+    "lane": 0,
+    "type": "romance",
+    "chapter": 4,
+    "title": "中道正晴追求雪穗",
+    "titleEn": "Nakamichi pursues Yukiho",
+    "desc": "大学生正晴做雪穗的家教，被她吸引。",
+    "chars": [
+      "中道正晴",
+      "唐泽雪穗"
+    ]
+  },
+  {
+    "year": 1980,
+    "month": 9,
+    "lane": 0,
+    "type": "identity",
+    "chapter": 4,
+    "title": "正晴调查雪穗身世",
+    "titleEn": "Nakamichi investigates Yukiho's past",
+    "desc": "在图书馆偶然发现雪穗母亲之死的旧新闻。",
+    "chars": [
+      "中道正晴",
+      "唐泽雪穗"
+    ]
+  },
+  {
+    "year": 1982,
+    "month": 4,
+    "lane": 0,
+    "type": "identity",
+    "chapter": 5,
+    "title": "雪穗进入大学",
+    "titleEn": "Yukiho enters university",
+    "desc": "雪穗与江利子分别进入不同大学。",
+    "chars": [
+      "唐泽雪穗",
+      "川岛江利子"
+    ]
+  },
+  {
+    "year": 1982,
+    "month": 5,
+    "lane": 0,
+    "type": "romance",
+    "chapter": 5,
+    "title": "雪穗接近筱冢家",
+    "titleEn": "Yukiho approaches Shinozuka family",
+    "desc": "通过社交舞社接近筱冢一成。",
+    "chars": [
+      "唐泽雪穗",
+      "筱冢一成"
+    ]
+  },
+  {
+    "year": 1982,
+    "month": 9,
+    "lane": 3,
+    "type": "tragedy",
+    "chapter": 5,
+    "title": "江利子遭到性侵",
+    "titleEn": "Eriko sexually assaulted",
+    "desc": "江利子被侵害，精神崩溃。一成怀疑雪穗参与。",
+    "chars": [
+      "川岛江利子",
+      "唐泽雪穗",
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1984,
+    "month": 6,
+    "lane": 1,
+    "type": "crime",
+    "chapter": 6,
+    "title": "银行诈骗",
+    "titleEn": "Bank fraud scheme",
+    "desc": "友彦参与桐原策划的银行诈骗行动。",
+    "chars": [
+      "园村友彦",
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1985,
+    "month": 4,
+    "lane": 0,
+    "type": "romance",
+    "chapter": 7,
+    "title": "雪穗与高宫诚结婚",
+    "titleEn": "Yukiho marries Makoto",
+    "desc": "精心安排的相亲后，雪穗嫁给专利事务所职员高宫诚。",
+    "chars": [
+      "唐泽雪穗",
+      "高宫诚"
+    ]
+  },
+  {
+    "year": 1985,
+    "month": 4,
+    "lane": 3,
+    "type": "tragedy",
+    "chapter": 7,
+    "title": "千都留酒店事件",
+    "titleEn": "Chizuru hotel incident",
+    "desc": "婚礼当天，千都留在酒店遭遇意外（暗示被设计）。",
+    "chars": [
+      "三泽千都留",
+      "唐泽雪穗",
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1986,
+    "month": 1,
+    "lane": 1,
+    "type": "business",
+    "chapter": 8,
+    "title": "MUGEN电脑店开业",
+    "titleEn": "MUGEN computer shop opens",
+    "desc": "友彦开设电脑店，桐原在幕后操控。",
+    "chars": [
+      "园村友彦",
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1986,
+    "month": 6,
+    "lane": 1,
+    "type": "crime",
+    "chapter": 8,
+    "title": "盗版软件事业",
+    "titleEn": "Pirated software business",
+    "desc": "桐原涉足盗版超级马里奥兄弟软件。",
+    "chars": [
+      "桐原亮司",
+      "松浦"
+    ]
+  },
+  {
+    "year": 1986,
+    "month": 12,
+    "lane": 1,
+    "type": "crime",
+    "chapter": 8,
+    "title": "盗版软件被查获",
+    "titleEn": "Pirated software seized",
+    "desc": "警方查获大量盗版软件，松浦行踪不明。",
+    "chars": [
+      "松浦",
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1989,
+    "month": 4,
+    "lane": 0,
+    "type": "business",
+    "chapter": 9,
+    "title": "雪穗开设R&Y精品店",
+    "titleEn": "Yukiho opens R&Y boutique",
+    "desc": "雪穗创立自己的精品服装店「R&Y」。",
+    "chars": [
+      "唐泽雪穗"
+    ]
+  },
+  {
+    "year": 1989,
+    "month": 7,
+    "lane": 0,
+    "type": "romance",
+    "chapter": 9,
+    "title": "诚与千都留重逢",
+    "titleEn": "Makoto reunites with Chizuru",
+    "desc": "高宫诚与三泽千都留再次相遇并开始约会。",
+    "chars": [
+      "高宫诚",
+      "三泽千都留"
+    ]
+  },
+  {
+    "year": 1989,
+    "month": 10,
+    "lane": 0,
+    "type": "identity",
+    "chapter": 9,
+    "title": "雪穗主导离婚",
+    "titleEn": "Yukiho initiates divorce",
+    "desc": "发现诚的外遇后，雪穗果断主导离婚。",
+    "chars": [
+      "唐泽雪穗",
+      "高宫诚"
+    ]
+  },
+  {
+    "year": 1991,
+    "month": 6,
+    "lane": 2,
+    "type": "investigation",
+    "chapter": 10,
+    "title": "今枝受雇调查雪穗",
+    "titleEn": "Imaeda hired to investigate Yukiho",
+    "desc": "私家侦探今枝直巳受雇展开对雪穗的调查。",
+    "chars": [
+      "今枝直巳",
+      "唐泽雪穗"
+    ]
+  },
+  {
+    "year": 1991,
+    "month": 9,
+    "lane": 2,
+    "type": "investigation",
+    "chapter": 10,
+    "title": "今枝找到江利子",
+    "titleEn": "Imaeda finds Eriko",
+    "desc": "今枝找到已婚的江利子（手冢太太）作为证人。",
+    "chars": [
+      "今枝直巳",
+      "川岛江利子"
+    ]
+  },
+  {
+    "year": 1991,
+    "month": 10,
+    "lane": 0,
+    "type": "romance",
+    "chapter": 10,
+    "title": "雪穗接近筱冢康晴",
+    "titleEn": "Yukiho approaches Yasuharu",
+    "desc": "雪穗与筱冢一成的堂兄康晴建立关系。",
+    "chars": [
+      "唐泽雪穗",
+      "筱冢康晴"
+    ]
+  },
+  {
+    "year": 1992,
+    "month": 3,
+    "lane": 2,
+    "type": "investigation",
+    "chapter": 11,
+    "title": "今枝深入调查",
+    "titleEn": "Imaeda deepens investigation",
+    "desc": "今枝发现雪穗身边的可疑模式和R&Y的秘密。",
+    "chars": [
+      "今枝直巳",
+      "唐泽雪穗",
+      "菅原绘里"
+    ]
+  },
+  {
+    "year": 1992,
+    "month": 5,
+    "lane": 0,
+    "type": "tragedy",
+    "chapter": 11,
+    "title": "唐泽礼子去世",
+    "titleEn": "Reiko Karasawa dies",
+    "desc": "雪穗的养母唐泽礼子去世。",
+    "chars": [
+      "唐泽礼子",
+      "唐泽雪穗"
+    ]
+  },
+  {
+    "year": 1992,
+    "month": 8,
+    "lane": 2,
+    "type": "tragedy",
+    "chapter": 11,
+    "title": "今枝失踪",
+    "titleEn": "Imaeda disappears",
+    "desc": "今枝的调查突然中断，本人失踪（暗示遭遇不测）。",
+    "chars": [
+      "今枝直巳",
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1998,
+    "month": 3,
+    "lane": 1,
+    "type": "romance",
+    "chapter": 12,
+    "title": "亮司与典子交往",
+    "titleEn": "Ryoji dates Noriko",
+    "desc": "以「秋吉雄一」身份与药剂师栗原典子交往。",
+    "chars": [
+      "桐原亮司",
+      "栗原典子"
+    ]
+  },
+  {
+    "year": 1998,
+    "month": 6,
+    "lane": 3,
+    "type": "crime",
+    "chapter": 12,
+    "title": "筱冢美佳遭侵害",
+    "titleEn": "Mika Shinozuka assaulted",
+    "desc": "筱冢康晴的女儿美佳遭到性侵。一成怀疑亮司。",
+    "chars": [
+      "筱冢美佳",
+      "桐原亮司",
+      "筱冢一成"
+    ]
+  },
+  {
+    "year": 1998,
+    "month": 9,
+    "lane": 2,
+    "type": "investigation",
+    "chapter": 12,
+    "title": "笹垣重启调查",
+    "titleEn": "Sasagaki reopens investigation",
+    "desc": "退休的笹垣重新开始追查19年前的旧案。",
+    "chars": [
+      "笹垣润三"
+    ]
+  },
+  {
+    "year": 1998,
+    "month": 11,
+    "lane": 1,
+    "type": "identity",
+    "chapter": 12,
+    "title": "典子发现秘密",
+    "titleEn": "Noriko discovers secrets",
+    "desc": "典子发现「秋吉雄一」的种种可疑之处。",
+    "chars": [
+      "栗原典子",
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1999,
+    "month": 1,
+    "lane": 2,
+    "type": "investigation",
+    "chapter": 13,
+    "title": "笹垣与一成联手",
+    "titleEn": "Sasagaki and Kazunari team up",
+    "desc": "两人联手，真相逐步浮现。",
+    "chars": [
+      "笹垣润三",
+      "筱冢一成"
+    ]
+  },
+  {
+    "year": 1999,
+    "month": 6,
+    "lane": 1,
+    "type": "identity",
+    "chapter": 13,
+    "title": "亮司真实身份暴露",
+    "titleEn": "Ryoji's identity exposed",
+    "desc": "典子发现秋吉雄一就是桐原亮司。",
+    "chars": [
+      "桐原亮司",
+      "栗原典子"
+    ]
+  },
+  {
+    "year": 1999,
+    "month": 11,
+    "lane": 0,
+    "type": "business",
+    "chapter": 13,
+    "title": "R&Y大阪店开业",
+    "titleEn": "R&Y Osaka store opens",
+    "desc": "雪穗的精品店回到大阪扩张。",
+    "chars": [
+      "唐泽雪穗"
+    ]
+  },
+  {
+    "year": 1999,
+    "month": 12,
+    "lane": 1,
+    "type": "tragedy",
+    "chapter": 13,
+    "title": "桐原亮司之死",
+    "titleEn": "Ryoji Kirihara dies",
+    "desc": "亮司在商场被发现死亡。剪刀贯穿——与26年前父亲的死如出一辙。",
+    "chars": [
+      "桐原亮司",
+      "唐泽雪穗",
+      "笹垣润三"
+    ]
+  },
+  {
+    "year": 1999,
+    "month": 12,
+    "lane": 0,
+    "type": "identity",
+    "chapter": 13,
+    "title": "雪穗转身离去",
+    "titleEn": "Yukiho walks away",
+    "desc": "「只见雪穗正沿扶梯上楼，她的背影犹如白色的影子。」她没有回头。",
+    "chars": [
+      "唐泽雪穗"
+    ]
+  }
+];
+
+const timelineConfig = {
+  "startYear": 1973,
+  "endYear": 1999,
+  "yearLabel": "年",
+  "laneNames": [
+    "雪穗",
+    "亮司",
+    "警方/调查",
+    "其他"
+  ],
+  "laneColors": [
+    "#4ecdc4",
+    "#ff6b6b",
+    "#6c63ff",
+    "#8888a0"
+  ],
+  "eventColors": {
+    "crime": "#ff6b6b",
+    "romance": "#ff8fab",
+    "investigation": "#6c63ff",
+    "business": "#4ecdc4",
+    "identity": "#ffe66d",
+    "tragedy": "#ff6b6b"
+  },
+  "eventTypeLabels": {
+    "crime": "犯罪 crime",
+    "romance": "情感 romance",
+    "investigation": "调查 investigation",
+    "business": "商业 business",
+    "identity": "身份 identity",
+    "tragedy": "悲剧 tragedy"
+  },
+  "eras": [
+    {
+      "start": 1970,
+      "end": 1979,
+      "label": "70年代"
+    },
+    {
+      "start": 1980,
+      "end": 1989,
+      "label": "80年代"
+    },
+    {
+      "start": 1990,
+      "end": 1999,
+      "label": "90年代"
+    }
+  ]
+};
+
+
+// ══════════════════════════════════════════════════
+// CONSTANTS & STATE (derived from timelineConfig)
+// ══════════════════════════════════════════════════
+const START_YEAR = timelineConfig.startYear;
+const END_YEAR = timelineConfig.endYear;
+const YEAR_SPAN = END_YEAR - START_YEAR + 1;
+const HEADER_H = 40;       // year axis height
+const LANE_COUNT = timelineConfig.laneNames.length;
+
+const LANE_COLORS = timelineConfig.laneColors;
+const LANE_NAMES = timelineConfig.laneNames;
+const EVENT_COLORS = timelineConfig.eventColors;
+const EVENT_TYPE_LABELS = timelineConfig.eventTypeLabels;
+const EVENT_TYPE_SHAPES = timelineConfig.eventTypeShapes || {};
+
+// Year label format function — supports both calendar years ("1973年")
+// and narrative numbering ("第3回") via timelineConfig.yearLabel
+const YEAR_LABEL = timelineConfig.yearLabel || '{n}年';
+function formatYear(n) {
+    return YEAR_LABEL.replace('{n}', n);
+}
+
+const chapters = [...new Set(events.map(e => e.chapter))].sort((a, b) => a - b);
+
+// Chapter → year range mapping
+const chapterYearRange = {};
+chapters.forEach(ch => {
+    const chEvents = events.filter(e => e.chapter === ch);
+    const years = chEvents.map(e => e.year);
+    chapterYearRange[ch] = { min: Math.min(...years), max: Math.max(...years) };
+});
+
+let state = {
+    pxPerYear: 150,
+    offsetX: 0,
+    laneVisible: Array(LANE_COUNT).fill(true),
+    hoveredEvent: null,
+    selectedEvent: null,
+    isDragging: false,
+    dragStartX: 0,
+    dragStartOffset: 0,
+    activeChapter: null,
+    animFrame: null,
+    targetOffsetX: null,
+};
+
+// ══════════════════════════════════════════════════
+// DOM REFS
+// ══════════════════════════════════════════════════
+const $hero = document.getElementById('heroCanvas');
+const $minimap = document.getElementById('minimapCanvas');
+const $minimapWrap = document.getElementById('minimapWrap');
+const $timeline = document.getElementById('timelineCanvas');
+const $viewport = document.getElementById('timelineViewport');
+const $laneLabels = document.getElementById('laneLabels');
+const $yearInd = document.getElementById('yearIndicator');
+const $tooltip = document.getElementById('tooltip');
+const $ttTitle = document.getElementById('ttTitle');
+const $ttYear = document.getElementById('ttYear');
+const $ttDesc = document.getElementById('ttDesc');
+const $detailOverlay = document.getElementById('detailOverlay');
+const $detailDot = document.getElementById('detailDot');
+const $detailTitle = document.getElementById('detailTitle');
+const $detailTitleEn = document.getElementById('detailTitleEn');
+const $detailYear = document.getElementById('detailYear');
+const $detailChapter = document.getElementById('detailChapter');
+const $detailDesc = document.getElementById('detailDesc');
+const $detailChars = document.getElementById('detailChars');
+const $zoomSlider = document.getElementById('zoomSlider');
+const $zoomLabel = document.getElementById('zoomLabel');
+const $legendBar = document.getElementById('legendBar');
+const $statTotal = document.getElementById('statTotal');
+const $statVisible = document.getElementById('statVisible');
+const $statChapters = document.getElementById('statChapters');
+
+// ══════════════════════════════════════════════════
+// UTILITY
+// ══════════════════════════════════════════════════
+function dpr() { return window.devicePixelRatio || 1; }
+
+function sizeCanvas(canvas, w, h) {
+    const r = dpr();
+    canvas.width = w * r;
+    canvas.height = h * r;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(r, 0, 0, r, 0, 0);
+    return ctx;
+}
+
+function totalWidth() { return YEAR_SPAN * state.pxPerYear; }
+function maxOffset() { return Math.max(0, totalWidth() - $viewport.clientWidth + 100); }
+
+function clampOffset(v) {
+    return Math.max(0, Math.min(v, maxOffset()));
+}
+
+function yearToX(year, month) {
+    const frac = ((month || 1) - 1) / 12;
+    return (year - START_YEAR + frac) * state.pxPerYear - state.offsetX + 90;
+}
+
+function xToYear(screenX) {
+    return START_YEAR + (screenX - 90 + state.offsetX) / state.pxPerYear;
+}
+
+function laneY(lane, viewH) {
+    const laneH = (viewH - HEADER_H) / LANE_COUNT;
+    return HEADER_H + lane * laneH + laneH / 2;
+}
+
+function laneHeight(viewH) {
+    return (viewH - HEADER_H) / LANE_COUNT;
+}
+
+// ══════════════════════════════════════════════════
+// LEGEND & STATS
+// ══════════════════════════════════════════════════
+function buildLegend() {
+    const types = Object.keys(EVENT_COLORS);
+    types.forEach(type => {
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        const dot = document.createElement('div');
+        dot.className = 'legend-dot' + (EVENT_TYPE_SHAPES[type] === 'diamond' ? ' diamond' : '');
+        dot.style.background = EVENT_COLORS[type];
+        const label = document.createElement('span');
+        label.textContent = EVENT_TYPE_LABELS[type];
+        item.appendChild(dot);
+        item.appendChild(label);
+        $legendBar.appendChild(item);
+    });
+}
+
+function updateStats() {
+    const visCount = events.filter(e => state.laneVisible[e.lane]).length;
+    const visChapters = new Set(events.filter(e => state.laneVisible[e.lane]).map(e => e.chapter)).size;
+    $statTotal.textContent = events.length;
+    $statVisible.textContent = visCount;
+    $statChapters.textContent = visChapters;
+}
+
+// ══════════════════════════════════════════════════
+// HERO — floating particles
+// ══════════════════════════════════════════════════
+function initHero() {
+    const heroSection = document.querySelector('.hero');
+    const w = heroSection.clientWidth;
+    const h = heroSection.clientHeight;
+    const ctx = sizeCanvas($hero, w, h);
+    const particles = [];
+    const PCOUNT = 60;
+
+    for (let i = 0; i < PCOUNT; i++) {
+        particles.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            r: Math.random() * 2 + 0.5,
+            vx: (Math.random() - 0.5) * 0.3,
+            vy: (Math.random() - 0.5) * 0.2,
+            alpha: Math.random() * 0.4 + 0.1,
+            color: LANE_COLORS[Math.floor(Math.random() * LANE_COLORS.length)],
+        });
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, w, h);
+        particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < 0) p.x = w;
+            if (p.x > w) p.x = 0;
+            if (p.y < 0) p.y = h;
+            if (p.y > h) p.y = 0;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = p.alpha;
+            ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+
+        // Draw thin connection lines between close particles
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 80) {
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = particles[i].color;
+                    ctx.globalAlpha = (1 - dist / 80) * 0.08;
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                }
+            }
+        }
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(draw);
+    }
+    draw();
+}
+
+// ══════════════════════════════════════════════════
+// DYNAMIC THREAD BUTTONS
+// ══════════════════════════════════════════════════
+function buildThreadBtns() {
+    const wrap = document.getElementById('threadBtns');
+    wrap.style.display = 'flex';
+    wrap.style.gap = '6px';
+    wrap.style.flexWrap = 'wrap';
+    LANE_NAMES.forEach((name, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'thread-btn active';
+        btn.dataset.lane = i;
+        btn.style.borderColor = LANE_COLORS[i];
+        btn.style.color = LANE_COLORS[i];
+        btn.style.background = LANE_COLORS[i]; // active state
+        btn.textContent = name;
+        btn.addEventListener('click', () => toggleThread(i, btn));
+        wrap.appendChild(btn);
+    });
+}
+
+// ══════════════════════════════════════════════════
+// CHAPTER BUTTONS
+// ══════════════════════════════════════════════════
+function buildChapterBtns() {
+    const wrap = document.getElementById('chapterBtns');
+    wrap.style.display = 'flex';
+    wrap.style.gap = '4px';
+    wrap.style.flexWrap = 'wrap';
+    chapters.forEach(ch => {
+        const btn = document.createElement('button');
+        btn.className = 'chapter-btn';
+        btn.textContent = ch;
+        btn.dataset.chapter = ch;
+        btn.addEventListener('click', () => jumpToChapter(ch));
+        wrap.appendChild(btn);
+    });
+}
+
+function jumpToChapter(ch) {
+    const range = chapterYearRange[ch];
+    if (!range) return;
+
+    // Highlight button
+    document.querySelectorAll('.chapter-btn').forEach(b => {
+        b.classList.toggle('active', +b.dataset.chapter === ch);
+    });
+    state.activeChapter = ch;
+
+    // Calculate target offset to center the chapter's year range
+    const viewW = $viewport.clientWidth;
+    const centerYear = (range.min + range.max) / 2;
+    const targetOff = (centerYear - START_YEAR) * state.pxPerYear - (viewW - 90) / 2 + 90;
+    state.targetOffsetX = clampOffset(targetOff);
+    animateScroll();
+}
+
+function animateScroll() {
+    if (state.targetOffsetX === null) return;
+    const diff = state.targetOffsetX - state.offsetX;
+    if (Math.abs(diff) < 1) {
+        state.offsetX = state.targetOffsetX;
+        state.targetOffsetX = null;
+        render();
+        return;
+    }
+    state.offsetX += diff * 0.15;
+    render();
+    requestAnimationFrame(animateScroll);
+}
+
+// ══════════════════════════════════════════════════
+// THREAD TOGGLE
+// ══════════════════════════════════════════════════
+function toggleThread(lane, btn) {
+    state.laneVisible[lane] = !state.laneVisible[lane];
+    btn.classList.toggle('active');
+    if (state.laneVisible[lane]) {
+        btn.style.background = btn.style.borderColor;
+    } else {
+        btn.style.background = 'transparent';
+    }
+    render();
+}
+
+// ══════════════════════════════════════════════════
+// ZOOM
+// ══════════════════════════════════════════════════
+$zoomSlider.addEventListener('input', () => {
+    const centerYear = xToYear($viewport.clientWidth / 2);
+    state.pxPerYear = +$zoomSlider.value;
+    $zoomLabel.textContent = state.pxPerYear;
+    // Re-center on the same year
+    state.offsetX = clampOffset(
+        (centerYear - START_YEAR) * state.pxPerYear - ($viewport.clientWidth - 90) / 2
+    );
+    render();
+});
+
+// ══════════════════════════════════════════════════
+// LANE LABELS
+// ══════════════════════════════════════════════════
+function updateLaneLabels() {
+    const viewH = $viewport.clientHeight;
+    $laneLabels.innerHTML = '';
+    $laneLabels.style.height = viewH + 'px';
+
+    for (let i = 0; i < LANE_COUNT; i++) {
+        if (!state.laneVisible[i]) continue;
+        const y = laneY(i, viewH);
+        const label = document.createElement('div');
+        label.className = 'lane-label';
+        label.style.top = (y - 8) + 'px';
+        label.style.color = LANE_COLORS[i];
+        label.textContent = LANE_NAMES[i];
+        $laneLabels.appendChild(label);
+    }
+}
+
+// ══════════════════════════════════════════════════
+// MINIMAP
+// ══════════════════════════════════════════════════
+function drawMinimap() {
+    const w = $minimapWrap.clientWidth;
+    const h = $minimapWrap.clientHeight;
+    const ctx = sizeCanvas($minimap, w, h);
+
+    ctx.fillStyle = '#1a1d27';
+    ctx.fillRect(0, 0, w, h);
+
+    const pxPerYearMini = w / YEAR_SPAN;
+    const laneH = h / LANE_COUNT;
+
+    // Lane background tints in minimap
+    for (let i = 0; i < LANE_COUNT; i++) {
+        if (!state.laneVisible[i]) continue;
+        ctx.fillStyle = LANE_COLORS[i];
+        ctx.globalAlpha = 0.04;
+        ctx.fillRect(0, i * laneH, w, laneH);
+    }
+    ctx.globalAlpha = 1;
+
+    // Connection lines between events in minimap
+    for (let lane = 0; lane < LANE_COUNT; lane++) {
+        if (!state.laneVisible[lane]) continue;
+        const laneEvs = events.filter(e => e.lane === lane)
+            .sort((a, b) => a.year - b.year || (a.month || 1) - (b.month || 1));
+        const cy = lane * laneH + laneH / 2;
+        for (let i = 1; i < laneEvs.length; i++) {
+            const x1 = (laneEvs[i-1].year - START_YEAR + ((laneEvs[i-1].month||1)-1)/12) * pxPerYearMini;
+            const x2 = (laneEvs[i].year - START_YEAR + ((laneEvs[i].month||1)-1)/12) * pxPerYearMini;
+            ctx.beginPath();
+            ctx.moveTo(x1, cy);
+            ctx.lineTo(x2, cy);
+            ctx.strokeStyle = LANE_COLORS[lane];
+            ctx.globalAlpha = 0.15;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+        }
+    }
+    ctx.globalAlpha = 1;
+
+    // Draw events as small dots
+    events.forEach(ev => {
+        if (!state.laneVisible[ev.lane]) return;
+        const x = (ev.year - START_YEAR + ((ev.month || 1) - 1) / 12) * pxPerYearMini;
+        const y = ev.lane * laneH + laneH / 2;
+        ctx.beginPath();
+        if (EVENT_TYPE_SHAPES[ev.type] === 'diamond') {
+            // Small diamond in minimap
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(Math.PI / 4);
+            ctx.rect(-1.5, -1.5, 3, 3);
+            ctx.restore();
+        } else {
+            ctx.arc(x, y, 2, 0, Math.PI * 2);
+        }
+        ctx.fillStyle = EVENT_COLORS[ev.type] || '#888';
+        ctx.globalAlpha = 0.8;
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+
+    // Year tick marks and labels
+    for (let yr = START_YEAR; yr <= END_YEAR; yr += 5) {
+        const x = (yr - START_YEAR) * pxPerYearMini;
+        ctx.beginPath();
+        ctx.moveTo(x, h - 5);
+        ctx.lineTo(x, h);
+        ctx.strokeStyle = 'rgba(136,136,160,0.4)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Small year label at bottom
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.fillStyle = 'rgba(136,136,160,0.5)';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(yr.toString(), x, h - 1);
+    }
+
+    // Viewport rectangle
+    const tw = totalWidth() + 100;
+    const viewW = $viewport.clientWidth;
+    const vpLeft = (state.offsetX / tw) * w;
+    const vpW = Math.min((viewW / tw) * w, w);
+
+    ctx.fillStyle = 'rgba(108,99,255,0.15)';
+    ctx.fillRect(vpLeft, 0, vpW, h);
+    ctx.strokeStyle = 'rgba(108,99,255,0.55)';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(vpLeft, 0, vpW, h);
+
+    // Viewport edge glow
+    const edgeGrd = ctx.createLinearGradient(vpLeft, 0, vpLeft + 6, 0);
+    edgeGrd.addColorStop(0, 'rgba(108,99,255,0.3)');
+    edgeGrd.addColorStop(1, 'rgba(108,99,255,0)');
+    ctx.fillStyle = edgeGrd;
+    ctx.fillRect(vpLeft, 0, 6, h);
+
+    const edgeGrd2 = ctx.createLinearGradient(vpLeft + vpW - 6, 0, vpLeft + vpW, 0);
+    edgeGrd2.addColorStop(0, 'rgba(108,99,255,0)');
+    edgeGrd2.addColorStop(1, 'rgba(108,99,255,0.3)');
+    ctx.fillStyle = edgeGrd2;
+    ctx.fillRect(vpLeft + vpW - 6, 0, 6, h);
+}
+
+// ══════════════════════════════════════════════════
+// TIMELINE CANVAS
+// ══════════════════════════════════════════════════
+function drawTimeline() {
+    const viewW = $viewport.clientWidth;
+    const viewH = $viewport.clientHeight;
+    const ctx = sizeCanvas($timeline, viewW, viewH);
+
+    ctx.clearRect(0, 0, viewW, viewH);
+
+    const lH = laneHeight(viewH);
+
+    // ── Lane backgrounds ──
+    for (let i = 0; i < LANE_COUNT; i++) {
+        if (!state.laneVisible[i]) continue;
+        const y = HEADER_H + i * lH;
+
+        // Subtle gradient background per lane
+        const laneGrd = ctx.createLinearGradient(0, y, 0, y + lH);
+        laneGrd.addColorStop(0, hexToRGBA(LANE_COLORS[i], 0.04));
+        laneGrd.addColorStop(0.5, hexToRGBA(LANE_COLORS[i], 0.02));
+        laneGrd.addColorStop(1, hexToRGBA(LANE_COLORS[i], 0.04));
+        ctx.fillStyle = laneGrd;
+        ctx.fillRect(0, y, viewW, lH);
+
+        // Lane separator
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(viewW, y);
+        ctx.strokeStyle = 'rgba(42,45,58,0.6)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }
+    // Bottom separator
+    ctx.beginPath();
+    ctx.moveTo(0, HEADER_H + LANE_COUNT * lH);
+    ctx.lineTo(viewW, HEADER_H + LANE_COUNT * lH);
+    ctx.strokeStyle = 'rgba(42,45,58,0.6)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // ── Era markers ──
+    const eras = timelineConfig.eras || [];
+    eras.forEach(era => {
+        const x1 = yearToX(Math.max(era.start, START_YEAR), 1);
+        const x2 = yearToX(Math.min(era.end, END_YEAR), 12);
+        if (x2 < 60 || x1 > viewW + 20) return;
+
+        // Very subtle era background
+        ctx.fillStyle = 'rgba(108,99,255,0.015)';
+        const eraX = Math.max(90, x1);
+        const eraW = x2 - eraX;
+        if (eraW > 0) {
+            ctx.fillRect(eraX, HEADER_H, eraW, viewH - HEADER_H);
+        }
+
+        // Era label at top
+        const centerX = (x1 + x2) / 2;
+        if (centerX > 90 && centerX < viewW) {
+            ctx.font = '300 9px "Noto Sans SC", sans-serif';
+            ctx.fillStyle = 'rgba(136,136,160,0.2)';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(era.label, centerX, HEADER_H + 4);
+        }
+    });
+
+    // ── Year grid lines and labels ──
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    for (let yr = START_YEAR; yr <= END_YEAR; yr++) {
+        const x = yearToX(yr, 1);
+        if (x < 60 || x > viewW + 20) continue;
+
+        // Vertical dashed line
+        ctx.save();
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(x, HEADER_H);
+        ctx.lineTo(x, viewH);
+        ctx.strokeStyle = yr % 5 === 0 ? 'rgba(42,45,58,0.7)' : 'rgba(42,45,58,0.4)';
+        ctx.lineWidth = yr % 5 === 0 ? 1.5 : 1;
+        ctx.stroke();
+        ctx.restore();
+
+        // Year label
+        ctx.font = yr % 5 === 0
+            ? '700 12px "JetBrains Mono", monospace'
+            : '500 10px "JetBrains Mono", monospace';
+        ctx.fillStyle = yr % 5 === 0 ? 'rgba(232,232,240,0.7)' : 'rgba(136,136,160,0.3)';
+        ctx.fillText(yr.toString(), x, HEADER_H / 2);
+    }
+
+    // Header separator
+    ctx.beginPath();
+    ctx.moveTo(0, HEADER_H);
+    ctx.lineTo(viewW, HEADER_H);
+    ctx.strokeStyle = 'rgba(42,45,58,0.8)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // ── Chapter highlight ──
+    if (state.activeChapter !== null) {
+        const range = chapterYearRange[state.activeChapter];
+        if (range) {
+            const x1 = yearToX(range.min, 1) - 20;
+            const x2 = yearToX(range.max, 12) + 20;
+
+            // Gradient highlight for active chapter
+            const chGrd = ctx.createLinearGradient(x1, 0, x2, 0);
+            chGrd.addColorStop(0, 'rgba(108,99,255,0)');
+            chGrd.addColorStop(0.1, 'rgba(108,99,255,0.06)');
+            chGrd.addColorStop(0.9, 'rgba(108,99,255,0.06)');
+            chGrd.addColorStop(1, 'rgba(108,99,255,0)');
+            ctx.fillStyle = chGrd;
+            ctx.fillRect(x1, HEADER_H, x2 - x1, viewH - HEADER_H);
+
+            ctx.strokeStyle = 'rgba(108,99,255,0.2)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([6, 4]);
+            ctx.strokeRect(x1, HEADER_H, x2 - x1, viewH - HEADER_H);
+            ctx.setLineDash([]);
+
+            // Chapter label
+            const chCenterX = (x1 + x2) / 2;
+            ctx.font = '500 11px "JetBrains Mono", monospace';
+            ctx.fillStyle = 'rgba(108,99,255,0.4)';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('Ch.' + state.activeChapter, chCenterX, HEADER_H - 2);
+        }
+    }
+
+    // ── Connection lines between chronologically adjacent events in same lane ──
+    // Draw these BEFORE events so events render on top
+    for (let lane = 0; lane < LANE_COUNT; lane++) {
+        if (!state.laneVisible[lane]) continue;
+        const laneEventsArr = events.filter(e => e.lane === lane)
+            .sort((a, b) => a.year - b.year || (a.month || 1) - (b.month || 1));
+
+        // Pre-calculate positions
+        laneEventsArr.forEach(ev => {
+            ev._cx = yearToX(ev.year, ev.month);
+            ev._cy = laneY(ev.lane, viewH);
+        });
+
+        for (let i = 1; i < laneEventsArr.length; i++) {
+            const prev = laneEventsArr[i - 1];
+            const cur = laneEventsArr[i];
+            const x1 = prev._cx;
+            const x2 = cur._cx;
+            if (x1 > viewW + 30 && x2 > viewW + 30) continue;
+            if (x1 < 50 && x2 < 50) continue;
+            const cy = laneY(lane, viewH);
+
+            // Curved connection line
+            const midX = (x1 + x2) / 2;
+            const cpOffset = Math.min((x2 - x1) * 0.05, 8);
+
+            ctx.beginPath();
+            ctx.moveTo(x1 + 10, cy);
+            ctx.bezierCurveTo(midX, cy - cpOffset, midX, cy - cpOffset, x2 - 10, cy);
+            ctx.strokeStyle = LANE_COLORS[lane];
+            ctx.globalAlpha = 0.1;
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([3, 5]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.globalAlpha = 1;
+        }
+    }
+
+    // ── Cross-lane connections (events sharing characters within same year) ──
+    const eventsByYear = {};
+    events.forEach(ev => {
+        if (!state.laneVisible[ev.lane]) return;
+        const key = ev.year;
+        if (!eventsByYear[key]) eventsByYear[key] = [];
+        eventsByYear[key].push(ev);
+    });
+    Object.values(eventsByYear).forEach(yearEvs => {
+        for (let i = 0; i < yearEvs.length; i++) {
+            for (let j = i + 1; j < yearEvs.length; j++) {
+                const a = yearEvs[i];
+                const b = yearEvs[j];
+                if (a.lane === b.lane) continue;
+                // Check for shared characters
+                const shared = a.chars.filter(c => b.chars.includes(c));
+                if (shared.length === 0) continue;
+
+                const ax = yearToX(a.year, a.month);
+                const bx = yearToX(b.year, b.month);
+                const ay = laneY(a.lane, viewH);
+                const by = laneY(b.lane, viewH);
+                if (ax < 50 && bx < 50) continue;
+                if (ax > viewW + 30 && bx > viewW + 30) continue;
+
+                // Draw subtle cross-lane link
+                ctx.beginPath();
+                ctx.moveTo(ax, ay);
+                const midCX = (ax + bx) / 2 + 10;
+                ctx.quadraticCurveTo(midCX, (ay + by) / 2, bx, by);
+                ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([2, 4]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+    });
+
+    // ── Events ──
+    const visibleEvents = events.filter(e => state.laneVisible[e.lane]);
+
+    // Collect label positions for overlap avoidance
+    const labelRects = [];
+
+    visibleEvents.forEach((ev, idx) => {
+        const x = yearToX(ev.year, ev.month);
+        if (x < 50 || x > viewW + 30) return;
+        const y = laneY(ev.lane, viewH);
+        const color = EVENT_COLORS[ev.type] || '#888';
+        const isHovered = state.hoveredEvent === ev;
+        const isSelected = state.selectedEvent === ev;
+        const radius = (isHovered || isSelected) ? 12 : 9;
+
+        // Store hit area
+        ev._x = x;
+        ev._y = y;
+        ev._r = radius;
+
+        // Glow
+        if (isHovered || isSelected) {
+            const grd = ctx.createRadialGradient(x, y, 0, x, y, radius * 3.5);
+            grd.addColorStop(0, color + '55');
+            grd.addColorStop(0.5, color + '22');
+            grd.addColorStop(1, color + '00');
+            ctx.beginPath();
+            ctx.arc(x, y, radius * 3.5, 0, Math.PI * 2);
+            ctx.fillStyle = grd;
+            ctx.fill();
+        }
+
+        // Pulsing ring for selected event
+        if (isSelected) {
+            const pulseAlpha = 0.3 + Math.sin(Date.now() / 300) * 0.15;
+            ctx.beginPath();
+            ctx.arc(x, y, radius + 6, 0, Math.PI * 2);
+            ctx.strokeStyle = color;
+            ctx.globalAlpha = pulseAlpha;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+        }
+
+        if (EVENT_TYPE_SHAPES[ev.type] === 'diamond') {
+            // Diamond shape with inner detail
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(Math.PI / 4);
+            const sz = radius * 0.72;
+            ctx.beginPath();
+            ctx.rect(-sz, -sz, sz * 2, sz * 2);
+            ctx.fillStyle = color;
+            ctx.globalAlpha = isHovered || isSelected ? 1 : 0.85;
+            ctx.fill();
+            // Inner highlight
+            ctx.beginPath();
+            ctx.rect(-sz * 0.4, -sz * 0.4, sz * 0.8, sz * 0.8);
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            ctx.fill();
+            ctx.restore();
+        } else {
+            // Circle with inner highlight
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.globalAlpha = isHovered || isSelected ? 1 : 0.85;
+            ctx.fill();
+
+            // Inner bright spot
+            const innerGrd = ctx.createRadialGradient(x - radius*0.25, y - radius*0.25, 0, x, y, radius);
+            innerGrd.addColorStop(0, 'rgba(255,255,255,0.2)');
+            innerGrd.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = innerGrd;
+            ctx.globalAlpha = 0.5;
+            ctx.fill();
+        }
+
+        ctx.globalAlpha = 1;
+
+        // Border ring on hover/select
+        if (isHovered || isSelected) {
+            ctx.beginPath();
+            if (EVENT_TYPE_SHAPES[ev.type] === 'diamond') {
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(Math.PI / 4);
+                const sz = radius * 0.72 + 3;
+                ctx.rect(-sz, -sz, sz * 2, sz * 2);
+                ctx.restore();
+            } else {
+                ctx.arc(x, y, radius + 3, 0, Math.PI * 2);
+            }
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.5;
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+        }
+
+        // Event title label with overlap avoidance
+        ctx.save();
+        ctx.font = '400 11px "Noto Sans SC", sans-serif';
+        const textW = ctx.measureText(ev.title).width;
+        ctx.fillStyle = (isHovered || isSelected) ? '#fff' : 'rgba(232,232,240,0.6)';
+        ctx.textBaseline = 'middle';
+
+        // Try placing label to the right, then above, then below
+        let lx = x + radius + 5;
+        let ly = y - 2;
+
+        // Check overlap with existing labels
+        const newRect = { x: lx, y: ly - 7, w: textW + 4, h: 14 };
+        let overlapping = false;
+        for (const r of labelRects) {
+            if (rectsOverlap(newRect, r)) {
+                overlapping = true;
+                break;
+            }
+        }
+
+        if (overlapping) {
+            // Try above
+            ly = y - radius - 10;
+            newRect.y = ly - 7;
+            overlapping = false;
+            for (const r of labelRects) {
+                if (rectsOverlap(newRect, r)) {
+                    overlapping = true;
+                    break;
+                }
+            }
+        }
+
+        if (overlapping) {
+            // Try below
+            ly = y + radius + 14;
+            newRect.y = ly - 7;
+        }
+
+        newRect.y = ly - 7;
+        labelRects.push(newRect);
+
+        ctx.textAlign = 'left';
+        ctx.fillText(ev.title, lx, ly);
+        ctx.restore();
+    });
+
+    // Year indicator
+    const centerYear = Math.round(xToYear(viewW / 2));
+    const clamped = Math.max(START_YEAR, Math.min(END_YEAR, centerYear));
+    $yearInd.textContent = clamped;
+}
+
+// ── Helper: hex to rgba ──
+function hexToRGBA(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+}
+
+// ── Helper: rectangle overlap ──
+function rectsOverlap(a, b) {
+    return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+// ══════════════════════════════════════════════════
+// HIT TEST
+// ══════════════════════════════════════════════════
+function hitTest(mx, my) {
+    const viewH = $viewport.clientHeight;
+    let closest = null;
+    let closestDist = Infinity;
+
+    events.forEach(ev => {
+        if (!state.laneVisible[ev.lane]) return;
+        if (ev._x === undefined) return;
+        const dx = mx - ev._x;
+        const dy = my - ev._y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 20 && dist < closestDist) {
+            closest = ev;
+            closestDist = dist;
+        }
+    });
+    return closest;
+}
+
+// ══════════════════════════════════════════════════
+// TOOLTIP
+// ══════════════════════════════════════════════════
+function showTooltip(ev, mx, my) {
+    $ttTitle.textContent = ev.title;
+    $ttYear.textContent = formatYear(ev.year) + (ev.month ? ev.month + '月' : '') + ' · 第' + ev.chapter + '章';
+    $ttDesc.textContent = ev.desc;
+    $tooltip.classList.add('visible');
+
+    const rect = $viewport.getBoundingClientRect();
+    let tx = mx + 16;
+    let ty = rect.top + my - 10;
+
+    // Prevent overflow
+    const tw = 280;
+    if (tx + tw > window.innerWidth - 10) tx = mx - tw - 10;
+    if (ty < 10) ty = 10;
+    if (ty + 120 > window.innerHeight) ty = window.innerHeight - 130;
+
+    $tooltip.style.left = tx + 'px';
+    $tooltip.style.top = ty + 'px';
+}
+
+function hideTooltip() {
+    $tooltip.classList.remove('visible');
+}
+
+// ══════════════════════════════════════════════════
+// DETAIL PANEL
+// ══════════════════════════════════════════════════
+function showDetail(ev) {
+    state.selectedEvent = ev;
+    const color = EVENT_COLORS[ev.type] || '#888';
+    $detailDot.style.background = color;
+    $detailTitle.textContent = ev.title;
+    $detailTitleEn.textContent = ev.titleEn;
+    $detailYear.textContent = formatYear(ev.year) + (ev.month ? ev.month + '月' : '');
+    $detailChapter.textContent = '第' + ev.chapter + '章 / Chapter ' + ev.chapter;
+    $detailDesc.textContent = ev.desc;
+    $detailChars.innerHTML = ev.chars.map(c =>
+        '<span class="char-pill">' + c + '</span>'
+    ).join('');
+    $detailOverlay.classList.add('visible');
+    render();
+}
+
+function closeDetail() {
+    $detailOverlay.classList.remove('visible');
+    state.selectedEvent = null;
+    render();
+}
+
+$detailOverlay.addEventListener('click', (e) => {
+    if (e.target === $detailOverlay) closeDetail();
+});
+
+// ══════════════════════════════════════════════════
+// KEYBOARD NAVIGATION
+// ══════════════════════════════════════════════════
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeDetail();
+        return;
+    }
+
+    // Arrow key scrolling
+    const scrollStep = state.pxPerYear * 0.5;
+    if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        state.targetOffsetX = clampOffset(state.offsetX - scrollStep);
+        animateScroll();
+    } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        state.targetOffsetX = clampOffset(state.offsetX + scrollStep);
+        animateScroll();
+    }
+
+    // Home / End for jumping to start / end
+    if (e.key === 'Home') {
+        e.preventDefault();
+        state.targetOffsetX = 0;
+        animateScroll();
+    } else if (e.key === 'End') {
+        e.preventDefault();
+        state.targetOffsetX = maxOffset();
+        animateScroll();
+    }
+
+    // +/- for zoom
+    if (e.key === '+' || e.key === '=') {
+        e.preventDefault();
+        const newZoom = Math.min(300, state.pxPerYear + 20);
+        applyZoom(newZoom);
+    } else if (e.key === '-' || e.key === '_') {
+        e.preventDefault();
+        const newZoom = Math.max(50, state.pxPerYear - 20);
+        applyZoom(newZoom);
+    }
+
+    // Number keys for chapter jump (1-9)
+    if (e.key >= '1' && e.key <= '9') {
+        const ch = parseInt(e.key);
+        if (chapters.includes(ch)) {
+            jumpToChapter(ch);
+        }
+    }
+});
+
+function applyZoom(newVal) {
+    const centerYear = xToYear($viewport.clientWidth / 2);
+    state.pxPerYear = newVal;
+    $zoomSlider.value = newVal;
+    $zoomLabel.textContent = newVal;
+    state.offsetX = clampOffset(
+        (centerYear - START_YEAR) * state.pxPerYear - ($viewport.clientWidth - 90) / 2
+    );
+    render();
+}
+
+// ══════════════════════════════════════════════════
+// INERTIAL SCROLLING
+// ══════════════════════════════════════════════════
+let inertiaVelocity = 0;
+let inertiaFrame = null;
+let lastDragX = 0;
+let lastDragTime = 0;
+
+function startInertia() {
+    if (Math.abs(inertiaVelocity) < 0.5) return;
+    function step() {
+        inertiaVelocity *= 0.94;  // friction
+        if (Math.abs(inertiaVelocity) < 0.5) {
+            inertiaFrame = null;
+            return;
+        }
+        state.offsetX = clampOffset(state.offsetX + inertiaVelocity);
+        render();
+        inertiaFrame = requestAnimationFrame(step);
+    }
+    if (inertiaFrame) cancelAnimationFrame(inertiaFrame);
+    inertiaFrame = requestAnimationFrame(step);
+}
+
+// ══════════════════════════════════════════════════
+// MOUSE / TOUCH INTERACTIONS
+// ══════════════════════════════════════════════════
+
+// ── Mouse drag ──
+$viewport.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    state.isDragging = true;
+    state.dragStartX = e.clientX;
+    state.dragStartOffset = state.offsetX;
+    state.targetOffsetX = null;
+    lastDragX = e.clientX;
+    lastDragTime = performance.now();
+    inertiaVelocity = 0;
+    if (inertiaFrame) { cancelAnimationFrame(inertiaFrame); inertiaFrame = null; }
+    $viewport.classList.add('dragging');
+    e.preventDefault();
+});
+
+window.addEventListener('mousemove', (e) => {
+    if (state.isDragging) {
+        const dx = state.dragStartX - e.clientX;
+        state.offsetX = clampOffset(state.dragStartOffset + dx);
+
+        // Track velocity for inertia
+        const now = performance.now();
+        const dt = now - lastDragTime;
+        if (dt > 0) {
+            inertiaVelocity = (lastDragX - e.clientX) / Math.max(dt, 8) * 16;
+        }
+        lastDragX = e.clientX;
+        lastDragTime = now;
+
+        render();
+        return;
+    }
+
+    // Hover hit test
+    const rect = $viewport.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const hit = hitTest(mx, my);
+
+    if (hit !== state.hoveredEvent) {
+        state.hoveredEvent = hit;
+        render();
+    }
+
+    if (hit) {
+        showTooltip(hit, e.clientX, my);
+        $viewport.style.cursor = 'pointer';
+    } else {
+        hideTooltip();
+        $viewport.style.cursor = state.isDragging ? 'grabbing' : 'grab';
+    }
+});
+
+window.addEventListener('mouseup', () => {
+    if (state.isDragging) {
+        state.isDragging = false;
+        $viewport.classList.remove('dragging');
+        startInertia();
+    }
+});
+
+// ── Click ──
+$viewport.addEventListener('click', (e) => {
+    const rect = $viewport.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const hit = hitTest(mx, my);
+    if (hit) {
+        showDetail(hit);
+    }
+});
+
+// ── Wheel scroll ──
+$viewport.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    // Horizontal scroll
+    const delta = e.shiftKey ? e.deltaY : (e.deltaX || e.deltaY);
+    state.offsetX = clampOffset(state.offsetX + delta * 0.8);
+    state.targetOffsetX = null;
+    render();
+}, { passive: false });
+
+// ── Touch ──
+let touchStartX = 0;
+let touchStartOffset = 0;
+
+$viewport.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartOffset = state.offsetX;
+        state.targetOffsetX = null;
+    }
+}, { passive: true });
+
+$viewport.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 1) {
+        const dx = touchStartX - e.touches[0].clientX;
+        state.offsetX = clampOffset(touchStartOffset + dx);
+        render();
+    }
+}, { passive: true });
+
+$viewport.addEventListener('touchend', (e) => {
+    if (e.changedTouches.length === 1) {
+        const rect = $viewport.getBoundingClientRect();
+        const mx = e.changedTouches[0].clientX - rect.left;
+        const my = e.changedTouches[0].clientY - rect.top;
+        const hit = hitTest(mx, my);
+        if (hit) showDetail(hit);
+    }
+});
+
+// ══════════════════════════════════════════════════
+// RENDER PIPELINE
+// ══════════════════════════════════════════════════
+function render() {
+    drawTimeline();
+    drawMinimap();
+    updateLaneLabels();
+    updateStats();
+}
+
+// ══════════════════════════════════════════════════
+// MINIMAP DRAG SUPPORT
+// ══════════════════════════════════════════════════
+let minimapDragging = false;
+
+function minimapJump(clientX) {
+    const rect = $minimapWrap.getBoundingClientRect();
+    const ratio = (clientX - rect.left) / rect.width;
+    const tw = totalWidth() + 100;
+    const viewW = $viewport.clientWidth;
+    state.offsetX = clampOffset(ratio * tw - viewW / 2);
+    render();
+}
+
+$minimapWrap.addEventListener('mousedown', (e) => {
+    minimapDragging = true;
+    minimapJump(e.clientX);
+    e.preventDefault();
+});
+
+window.addEventListener('mousemove', (e) => {
+    if (minimapDragging) {
+        minimapJump(e.clientX);
+    }
+});
+
+window.addEventListener('mouseup', () => {
+    minimapDragging = false;
+});
+
+// ══════════════════════════════════════════════════
+// RESIZE
+// ══════════════════════════════════════════════════
+let resizeTimer;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+        initHero();
+        render();
+    }, 100);
+});
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+document.fonts.ready.then(() => {
+    buildLegend();
+    buildThreadBtns();
+    buildChapterBtns();
+    initHero();
+    updateStats();
+    render();
+});
+</script>
+</body>
+</html>

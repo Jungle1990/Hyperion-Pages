@@ -1,0 +1,3894 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>红楼梦 · 对话网络 | Dialogue Network</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108,99,255,0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ── Hero ── */
+.hero {
+    height: 25vh; min-height: 160px;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    text-align: center; padding: 1rem;
+    position: relative; overflow: hidden;
+}
+.hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 40% 50%, rgba(108,99,255,0.06) 0%, transparent 60%);
+    pointer-events: none;
+}
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.4rem); font-weight: 700; }
+.hero .sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem; color: var(--accent3); opacity: 0.7;
+}
+.back-link {
+    position: absolute; top: 1rem; left: 1.5rem;
+    color: var(--text-dim); text-decoration: none; font-size: 0.85rem;
+    transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent); }
+
+/* ── Controls ── */
+.controls {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--card); border-bottom: 1px solid var(--border);
+    padding: 0.6rem 1.5rem; display: flex; align-items: center;
+    gap: 1.2rem; flex-wrap: wrap;
+}
+.ctrl-label {
+    font-size: 0.75rem; color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+}
+.ctrl-group { display: flex; align-items: center; gap: 0.5rem; }
+.range-wrap { display: flex; align-items: center; gap: 0.4rem; }
+.range-wrap input[type="range"] {
+    width: 100px; accent-color: var(--accent);
+}
+.range-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem; color: var(--accent4); min-width: 2ch;
+}
+.ch-range { display: flex; align-items: center; gap: 0.3rem; }
+.ch-range input[type="range"] { width: 80px; accent-color: var(--accent3); }
+
+/* ── Layout ── */
+.main-layout {
+    display: flex; height: calc(75vh - 45px);
+    min-height: 400px;
+}
+.canvas-wrap {
+    flex: 1; position: relative; overflow: hidden;
+}
+.canvas-wrap canvas { display: block; }
+
+/* ── Side Panel ── */
+.side-panel {
+    width: 280px; background: var(--card);
+    border-left: 1px solid var(--border);
+    overflow-y: auto; padding: 1rem;
+    font-size: 0.82rem;
+}
+.side-panel h3 {
+    font-size: 0.9rem; margin-bottom: 0.8rem;
+    color: var(--accent3);
+}
+.rank-list { list-style: none; }
+.rank-item {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.35rem 0; border-bottom: 1px solid var(--border);
+}
+.rank-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--text-dim);
+    width: 1.5rem; text-align: right;
+}
+.rank-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.rank-name { flex: 1; }
+.rank-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem; color: var(--accent4);
+}
+.pair-section { margin-top: 1.5rem; }
+.pair-item {
+    padding: 0.35rem 0; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+}
+.pair-names { font-size: 0.8rem; }
+.pair-arrow { color: var(--text-dim); margin: 0 0.3rem; }
+
+/* ── Tooltip ── */
+.tooltip {
+    position: fixed; z-index: 100;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.7rem 1rem;
+    pointer-events: none; opacity: 0;
+    transition: opacity 0.15s; max-width: 260px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+.tooltip.show { opacity: 1; }
+.tooltip .tt-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.3rem; }
+.tooltip .tt-sub { font-size: 0.75rem; color: var(--text-dim); }
+.tooltip .tt-val {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent4); font-size: 0.85rem;
+}
+
+/* ── Detail Panel ── */
+.detail-overlay {
+    display: none; position: fixed; inset: 0; z-index: 50;
+    background: rgba(0,0,0,0.5);
+}
+.detail-overlay.show { display: flex; justify-content: center; align-items: center; }
+.detail-box {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.8rem; max-width: 420px;
+    width: 90%; max-height: 70vh; overflow-y: auto;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+.detail-box h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+.detail-box .detail-sub {
+    font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1rem;
+}
+.detail-chapters {
+    display: flex; flex-wrap: wrap; gap: 0.3rem;
+}
+.ch-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; padding: 0.15rem 0.5rem;
+    border-radius: 10px; background: var(--bg);
+    border: 1px solid var(--border); color: var(--text-dim);
+}
+.detail-close {
+    float: right; background: none; border: none;
+    color: var(--text-dim); font-size: 1.2rem; cursor: pointer;
+}
+.detail-close:hover { color: var(--text); }
+
+@media (max-width: 768px) {
+    .main-layout { flex-direction: column; height: auto; }
+    .canvas-wrap { height: 50vh; }
+    .side-panel { width: 100%; height: auto; max-height: 40vh; border-left: none; border-top: 1px solid var(--border); }
+    .controls { gap: 0.6rem; }
+}
+</style>
+</head>
+<body>
+
+<section class="hero">
+    <a href="index.html" class="back-link">&larr; 返回首页</a>
+    <h1>💬 对话网络</h1>
+    <div class="sub">Dialogue Network &mdash; 红楼梦</div>
+</section>
+
+<div class="controls" id="controls">
+    <div class="ctrl-group">
+        <span class="ctrl-label">Min对话</span>
+        <div class="range-wrap">
+            <input type="range" id="thresholdSlider" min="1" max="50" value="1">
+            <span class="range-val" id="thresholdVal">1</span>
+        </div>
+    </div>
+    <div class="ctrl-group">
+        <span class="ctrl-label">章节</span>
+        <div class="ch-range">
+            <input type="range" id="chStartSlider" min="1" max="100" value="1">
+            <span class="range-val" id="chStartVal">1</span>
+            <span class="ctrl-label">~</span>
+            <input type="range" id="chEndSlider" min="1" max="100" value="100">
+            <span class="range-val" id="chEndVal">100</span>
+        </div>
+    </div>
+</div>
+
+<div class="main-layout">
+    <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="chordCanvas"></canvas>
+    </div>
+    <div class="side-panel" id="sidePanel">
+        <h3>话多排行 Top Speakers</h3>
+        <ul class="rank-list" id="speakerRank"></ul>
+        <div class="pair-section">
+            <h3>最频繁对话 Top Pairs</h3>
+            <ul class="rank-list" id="pairRank"></ul>
+        </div>
+    </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<div class="detail-overlay" id="detailOverlay">
+    <div class="detail-box" id="detailBox"></div>
+</div>
+
+<script>
+const dialogue = {
+  "pairs": [
+    {
+      "a": "baoyu",
+      "b": "daiyu",
+      "count": 85,
+      "chapters": [
+        3,
+        5,
+        8,
+        9,
+        17,
+        19,
+        20,
+        21,
+        23,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        34,
+        35,
+        36,
+        42,
+        45,
+        49,
+        52,
+        57,
+        62,
+        64,
+        70,
+        76,
+        79,
+        82,
+        87,
+        89,
+        96
+      ]
+    },
+    {
+      "a": "baoyu",
+      "b": "baochai",
+      "count": 50,
+      "chapters": [
+        8,
+        17,
+        18,
+        22,
+        28,
+        34,
+        35,
+        36,
+        42,
+        49,
+        50,
+        56,
+        62,
+        70,
+        92,
+        97,
+        100,
+        108,
+        115,
+        118
+      ]
+    },
+    {
+      "a": "baoyu",
+      "b": "xiren",
+      "count": 42,
+      "chapters": [
+        6,
+        8,
+        19,
+        20,
+        21,
+        24,
+        31,
+        34,
+        36,
+        51,
+        52,
+        57,
+        77,
+        78,
+        100,
+        108,
+        115
+      ]
+    },
+    {
+      "a": "xifeng",
+      "b": "jialian",
+      "count": 36,
+      "chapters": [
+        7,
+        12,
+        16,
+        21,
+        44,
+        65,
+        68,
+        72,
+        88,
+        100
+      ]
+    },
+    {
+      "a": "baoyu",
+      "b": "jiamu",
+      "count": 33,
+      "chapters": [
+        3,
+        5,
+        17,
+        22,
+        25,
+        29,
+        33,
+        35,
+        40,
+        54,
+        57,
+        71,
+        75,
+        83,
+        94,
+        97,
+        110
+      ]
+    },
+    {
+      "a": "baoyu",
+      "b": "qingwen",
+      "count": 30,
+      "chapters": [
+        8,
+        19,
+        20,
+        26,
+        31,
+        34,
+        36,
+        51,
+        52,
+        73,
+        74,
+        77
+      ]
+    },
+    {
+      "a": "xifeng",
+      "b": "jiamu",
+      "count": 28,
+      "chapters": [
+        3,
+        6,
+        11,
+        22,
+        25,
+        29,
+        35,
+        38,
+        40,
+        43,
+        46,
+        54,
+        71,
+        75,
+        84,
+        110
+      ]
+    },
+    {
+      "a": "xifeng",
+      "b": "pinger",
+      "count": 27,
+      "chapters": [
+        7,
+        16,
+        21,
+        39,
+        44,
+        55,
+        61,
+        65,
+        68,
+        72,
+        101,
+        113
+      ]
+    },
+    {
+      "a": "baoyu",
+      "b": "zijuan",
+      "count": 22,
+      "chapters": [
+        26,
+        27,
+        35,
+        45,
+        57,
+        82,
+        89,
+        96
+      ]
+    },
+    {
+      "a": "daiyu",
+      "b": "zijuan",
+      "count": 20,
+      "chapters": [
+        26,
+        27,
+        45,
+        57,
+        82,
+        87,
+        89,
+        96,
+        97
+      ]
+    },
+    {
+      "a": "baoyu",
+      "b": "tanchun",
+      "count": 18,
+      "chapters": [
+        22,
+        37,
+        46,
+        55,
+        56,
+        62,
+        74,
+        100
+      ]
+    },
+    {
+      "a": "baoyu",
+      "b": "xiangyun",
+      "count": 18,
+      "chapters": [
+        20,
+        22,
+        31,
+        32,
+        37,
+        38,
+        49,
+        50,
+        62,
+        63,
+        76
+      ]
+    },
+    {
+      "a": "jiamu",
+      "b": "daiyu",
+      "count": 17,
+      "chapters": [
+        3,
+        5,
+        25,
+        29,
+        35,
+        40,
+        45,
+        57,
+        83,
+        97
+      ]
+    },
+    {
+      "a": "daiyu",
+      "b": "baochai",
+      "count": 16,
+      "chapters": [
+        8,
+        27,
+        28,
+        42,
+        45,
+        49,
+        62,
+        64,
+        70,
+        87
+      ]
+    },
+    {
+      "a": "jiamu",
+      "b": "baochai",
+      "count": 14,
+      "chapters": [
+        8,
+        22,
+        35,
+        40,
+        50,
+        54,
+        84,
+        97,
+        108
+      ]
+    },
+    {
+      "a": "xifeng",
+      "b": "liulaolao",
+      "count": 14,
+      "chapters": [
+        6,
+        39,
+        40,
+        41,
+        113,
+        119
+      ]
+    },
+    {
+      "a": "baoyu",
+      "b": "miaoyu",
+      "count": 10,
+      "chapters": [
+        41,
+        50,
+        63,
+        76,
+        87,
+        112
+      ]
+    },
+    {
+      "a": "xifeng",
+      "b": "youshi",
+      "count": 12,
+      "chapters": [
+        11,
+        13,
+        14,
+        43,
+        44,
+        68,
+        75
+      ]
+    },
+    {
+      "a": "baoyu",
+      "b": "jiazheng",
+      "count": 15,
+      "chapters": [
+        9,
+        17,
+        18,
+        23,
+        33,
+        73,
+        78,
+        81,
+        84,
+        86,
+        105,
+        119
+      ]
+    },
+    {
+      "a": "daiyu",
+      "b": "xifeng",
+      "count": 10,
+      "chapters": [
+        3,
+        25,
+        27,
+        35,
+        57,
+        83
+      ]
+    },
+    {
+      "a": "baochai",
+      "b": "xiren",
+      "count": 10,
+      "chapters": [
+        21,
+        34,
+        36,
+        62,
+        100
+      ]
+    },
+    {
+      "a": "tanchun",
+      "b": "xifeng",
+      "count": 9,
+      "chapters": [
+        27,
+        46,
+        55,
+        56,
+        74
+      ]
+    },
+    {
+      "a": "daiyu",
+      "b": "xiangyun",
+      "count": 9,
+      "chapters": [
+        22,
+        32,
+        37,
+        49,
+        62,
+        76
+      ]
+    },
+    {
+      "a": "jiazheng",
+      "b": "jiamu",
+      "count": 12,
+      "chapters": [
+        17,
+        25,
+        33,
+        71,
+        75,
+        105,
+        107,
+        110
+      ]
+    },
+    {
+      "a": "baochai",
+      "b": "tanchun",
+      "count": 8,
+      "chapters": [
+        37,
+        38,
+        42,
+        55,
+        56,
+        62,
+        70
+      ]
+    },
+    {
+      "a": "xifeng",
+      "b": "wangfuren",
+      "count": 10,
+      "chapters": [
+        7,
+        25,
+        36,
+        46,
+        55,
+        61,
+        74,
+        77
+      ]
+    },
+    {
+      "a": "baoyu",
+      "b": "qinzhong",
+      "count": 7,
+      "chapters": [
+        7,
+        9,
+        10,
+        15,
+        16
+      ]
+    },
+    {
+      "a": "xifeng",
+      "b": "qiaojie",
+      "count": 5,
+      "chapters": [
+        84,
+        92,
+        101,
+        113,
+        119
+      ]
+    },
+    {
+      "a": "jialian",
+      "b": "erjie",
+      "count": 8,
+      "chapters": [
+        64,
+        65,
+        66,
+        68,
+        69
+      ]
+    },
+    {
+      "a": "baoyu",
+      "b": "jiangyunu",
+      "count": 6,
+      "chapters": [
+        43,
+        47,
+        66,
+        77
+      ]
+    },
+    {
+      "a": "daiyu",
+      "b": "tanchun",
+      "count": 6,
+      "chapters": [
+        37,
+        38,
+        49,
+        62,
+        70,
+        76
+      ]
+    },
+    {
+      "a": "xiangyun",
+      "b": "baochai",
+      "count": 7,
+      "chapters": [
+        32,
+        37,
+        38,
+        49,
+        62,
+        76
+      ]
+    }
+  ],
+  "chapterBreakdown": [
+    {
+      "chapter": 1,
+      "speakers": [
+        {
+          "id": "zhenyin",
+          "lines": 14
+        },
+        {
+          "id": "yucun",
+          "lines": 12
+        },
+        {
+          "id": "narrator",
+          "lines": 8
+        }
+      ]
+    },
+    {
+      "chapter": 2,
+      "speakers": [
+        {
+          "id": "yucun",
+          "lines": 15
+        },
+        {
+          "id": "leng_zixing",
+          "lines": 18
+        },
+        {
+          "id": "narrator",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 3,
+      "speakers": [
+        {
+          "id": "jiamu",
+          "lines": 16
+        },
+        {
+          "id": "xifeng",
+          "lines": 14
+        },
+        {
+          "id": "daiyu",
+          "lines": 10
+        },
+        {
+          "id": "baoyu",
+          "lines": 8
+        }
+      ]
+    },
+    {
+      "chapter": 4,
+      "speakers": [
+        {
+          "id": "yucun",
+          "lines": 12
+        },
+        {
+          "id": "xue_pan",
+          "lines": 8
+        },
+        {
+          "id": "narrator",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 5,
+      "speakers": [
+        {
+          "id": "jinghuanxiangu",
+          "lines": 16
+        },
+        {
+          "id": "baoyu",
+          "lines": 10
+        },
+        {
+          "id": "qinkeqing",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 6,
+      "speakers": [
+        {
+          "id": "liulaolao",
+          "lines": 16
+        },
+        {
+          "id": "xifeng",
+          "lines": 14
+        },
+        {
+          "id": "zhour",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 7,
+      "speakers": [
+        {
+          "id": "xifeng",
+          "lines": 12
+        },
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "qinzhong",
+          "lines": 6
+        },
+        {
+          "id": "jialian",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 8,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 14
+        },
+        {
+          "id": "baochai",
+          "lines": 12
+        },
+        {
+          "id": "daiyu",
+          "lines": 10
+        },
+        {
+          "id": "xiren",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 9,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 10
+        },
+        {
+          "id": "qinzhong",
+          "lines": 8
+        },
+        {
+          "id": "jiazheng",
+          "lines": 6
+        },
+        {
+          "id": "li_gui",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 10,
+      "speakers": [
+        {
+          "id": "jinshi",
+          "lines": 10
+        },
+        {
+          "id": "youshi",
+          "lines": 8
+        },
+        {
+          "id": "jiazhen",
+          "lines": 7
+        }
+      ]
+    },
+    {
+      "chapter": 11,
+      "speakers": [
+        {
+          "id": "xifeng",
+          "lines": 14
+        },
+        {
+          "id": "qinkeqing",
+          "lines": 8
+        },
+        {
+          "id": "jiamu",
+          "lines": 6
+        },
+        {
+          "id": "youshi",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 12,
+      "speakers": [
+        {
+          "id": "jiarui",
+          "lines": 14
+        },
+        {
+          "id": "xifeng",
+          "lines": 10
+        },
+        {
+          "id": "daoshi",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 13,
+      "speakers": [
+        {
+          "id": "xifeng",
+          "lines": 16
+        },
+        {
+          "id": "jiazhen",
+          "lines": 10
+        },
+        {
+          "id": "qinkeqing",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 14,
+      "speakers": [
+        {
+          "id": "xifeng",
+          "lines": 20
+        },
+        {
+          "id": "jiazhen",
+          "lines": 8
+        },
+        {
+          "id": "narrator",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 15,
+      "speakers": [
+        {
+          "id": "xifeng",
+          "lines": 14
+        },
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "qinzhong",
+          "lines": 6
+        },
+        {
+          "id": "monk",
+          "lines": 4
+        }
+      ]
+    },
+    {
+      "chapter": 16,
+      "speakers": [
+        {
+          "id": "xifeng",
+          "lines": 12
+        },
+        {
+          "id": "jialian",
+          "lines": 10
+        },
+        {
+          "id": "jiamu",
+          "lines": 6
+        },
+        {
+          "id": "zhao_yiniang",
+          "lines": 4
+        }
+      ]
+    },
+    {
+      "chapter": 17,
+      "speakers": [
+        {
+          "id": "jiazheng",
+          "lines": 16
+        },
+        {
+          "id": "baoyu",
+          "lines": 18
+        },
+        {
+          "id": "jiamu",
+          "lines": 4
+        }
+      ]
+    },
+    {
+      "chapter": 18,
+      "speakers": [
+        {
+          "id": "yuanchun",
+          "lines": 14
+        },
+        {
+          "id": "baoyu",
+          "lines": 10
+        },
+        {
+          "id": "jiamu",
+          "lines": 6
+        },
+        {
+          "id": "jiazheng",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 19,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 15
+        },
+        {
+          "id": "daiyu",
+          "lines": 10
+        },
+        {
+          "id": "xiren",
+          "lines": 12
+        }
+      ]
+    },
+    {
+      "chapter": 20,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 14
+        },
+        {
+          "id": "daiyu",
+          "lines": 10
+        },
+        {
+          "id": "xifeng",
+          "lines": 8
+        },
+        {
+          "id": "xiren",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 21,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 10
+        },
+        {
+          "id": "xifeng",
+          "lines": 8
+        },
+        {
+          "id": "xiren",
+          "lines": 8
+        },
+        {
+          "id": "pinger",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 22,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 10
+        },
+        {
+          "id": "baochai",
+          "lines": 8
+        },
+        {
+          "id": "daiyu",
+          "lines": 8
+        },
+        {
+          "id": "jiamu",
+          "lines": 6
+        },
+        {
+          "id": "xifeng",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 23,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 14
+        },
+        {
+          "id": "daiyu",
+          "lines": 12
+        },
+        {
+          "id": "jiazheng",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 24,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "jia_yun",
+          "lines": 10
+        },
+        {
+          "id": "xifeng",
+          "lines": 6
+        },
+        {
+          "id": "xiao_hong",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 25,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 10
+        },
+        {
+          "id": "xifeng",
+          "lines": 8
+        },
+        {
+          "id": "jiamu",
+          "lines": 6
+        },
+        {
+          "id": "daoshi",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 26,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 14
+        },
+        {
+          "id": "daiyu",
+          "lines": 10
+        },
+        {
+          "id": "qingwen",
+          "lines": 6
+        },
+        {
+          "id": "xue_pan",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 27,
+      "speakers": [
+        {
+          "id": "daiyu",
+          "lines": 16
+        },
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "xifeng",
+          "lines": 6
+        },
+        {
+          "id": "baochai",
+          "lines": 4
+        }
+      ]
+    },
+    {
+      "chapter": 28,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 14
+        },
+        {
+          "id": "daiyu",
+          "lines": 8
+        },
+        {
+          "id": "xue_pan",
+          "lines": 6
+        },
+        {
+          "id": "baochai",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 29,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 12
+        },
+        {
+          "id": "daiyu",
+          "lines": 10
+        },
+        {
+          "id": "jiamu",
+          "lines": 8
+        },
+        {
+          "id": "zhangdaoshi",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 30,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 14
+        },
+        {
+          "id": "daiyu",
+          "lines": 8
+        },
+        {
+          "id": "qingwen",
+          "lines": 5
+        },
+        {
+          "id": "jinchuan",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 31,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 12
+        },
+        {
+          "id": "qingwen",
+          "lines": 10
+        },
+        {
+          "id": "xiangyun",
+          "lines": 8
+        },
+        {
+          "id": "daiyu",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 32,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 12
+        },
+        {
+          "id": "daiyu",
+          "lines": 8
+        },
+        {
+          "id": "xiangyun",
+          "lines": 8
+        },
+        {
+          "id": "xiren",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 33,
+      "speakers": [
+        {
+          "id": "jiazheng",
+          "lines": 14
+        },
+        {
+          "id": "baoyu",
+          "lines": 6
+        },
+        {
+          "id": "jiamu",
+          "lines": 10
+        },
+        {
+          "id": "wangfuren",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 34,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 12
+        },
+        {
+          "id": "daiyu",
+          "lines": 10
+        },
+        {
+          "id": "baochai",
+          "lines": 8
+        },
+        {
+          "id": "xifeng",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 35,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 10
+        },
+        {
+          "id": "daiyu",
+          "lines": 6
+        },
+        {
+          "id": "jiamu",
+          "lines": 8
+        },
+        {
+          "id": "yinger",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 36,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "xiren",
+          "lines": 10
+        },
+        {
+          "id": "baochai",
+          "lines": 6
+        },
+        {
+          "id": "wangfuren",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 37,
+      "speakers": [
+        {
+          "id": "tanchun",
+          "lines": 14
+        },
+        {
+          "id": "baoyu",
+          "lines": 10
+        },
+        {
+          "id": "baochai",
+          "lines": 8
+        },
+        {
+          "id": "daiyu",
+          "lines": 8
+        }
+      ]
+    },
+    {
+      "chapter": 38,
+      "speakers": [
+        {
+          "id": "daiyu",
+          "lines": 10
+        },
+        {
+          "id": "baochai",
+          "lines": 10
+        },
+        {
+          "id": "jiamu",
+          "lines": 8
+        },
+        {
+          "id": "xiangyun",
+          "lines": 8
+        }
+      ]
+    },
+    {
+      "chapter": 39,
+      "speakers": [
+        {
+          "id": "liulaolao",
+          "lines": 18
+        },
+        {
+          "id": "jiamu",
+          "lines": 8
+        },
+        {
+          "id": "xifeng",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 40,
+      "speakers": [
+        {
+          "id": "liulaolao",
+          "lines": 16
+        },
+        {
+          "id": "jiamu",
+          "lines": 10
+        },
+        {
+          "id": "xifeng",
+          "lines": 10
+        },
+        {
+          "id": "daiyu",
+          "lines": 4
+        }
+      ]
+    },
+    {
+      "chapter": 41,
+      "speakers": [
+        {
+          "id": "liulaolao",
+          "lines": 14
+        },
+        {
+          "id": "miaoyu",
+          "lines": 8
+        },
+        {
+          "id": "baochai",
+          "lines": 6
+        },
+        {
+          "id": "daiyu",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 42,
+      "speakers": [
+        {
+          "id": "baochai",
+          "lines": 12
+        },
+        {
+          "id": "daiyu",
+          "lines": 10
+        },
+        {
+          "id": "baoyu",
+          "lines": 6
+        },
+        {
+          "id": "xifeng",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 43,
+      "speakers": [
+        {
+          "id": "xifeng",
+          "lines": 14
+        },
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "jiamu",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 44,
+      "speakers": [
+        {
+          "id": "xifeng",
+          "lines": 16
+        },
+        {
+          "id": "jialian",
+          "lines": 12
+        },
+        {
+          "id": "pinger",
+          "lines": 8
+        },
+        {
+          "id": "baoyu",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 45,
+      "speakers": [
+        {
+          "id": "daiyu",
+          "lines": 14
+        },
+        {
+          "id": "baochai",
+          "lines": 12
+        },
+        {
+          "id": "baoyu",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 46,
+      "speakers": [
+        {
+          "id": "jiamu",
+          "lines": 14
+        },
+        {
+          "id": "yuanyang",
+          "lines": 12
+        },
+        {
+          "id": "xifeng",
+          "lines": 8
+        },
+        {
+          "id": "xing_furen",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 47,
+      "speakers": [
+        {
+          "id": "xue_pan",
+          "lines": 12
+        },
+        {
+          "id": "liuxianglian",
+          "lines": 10
+        },
+        {
+          "id": "baoyu",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 48,
+      "speakers": [
+        {
+          "id": "xiangling",
+          "lines": 14
+        },
+        {
+          "id": "daiyu",
+          "lines": 12
+        },
+        {
+          "id": "baochai",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 49,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 10
+        },
+        {
+          "id": "xiangyun",
+          "lines": 8
+        },
+        {
+          "id": "daiyu",
+          "lines": 6
+        },
+        {
+          "id": "xing_xiuyan",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 50,
+      "speakers": [
+        {
+          "id": "daiyu",
+          "lines": 10
+        },
+        {
+          "id": "xiangyun",
+          "lines": 10
+        },
+        {
+          "id": "baochai",
+          "lines": 8
+        },
+        {
+          "id": "baoyu",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 51,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "qingwen",
+          "lines": 12
+        },
+        {
+          "id": "xiren",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 52,
+      "speakers": [
+        {
+          "id": "qingwen",
+          "lines": 14
+        },
+        {
+          "id": "baoyu",
+          "lines": 10
+        },
+        {
+          "id": "xiren",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 53,
+      "speakers": [
+        {
+          "id": "jiamu",
+          "lines": 10
+        },
+        {
+          "id": "xifeng",
+          "lines": 8
+        },
+        {
+          "id": "jia_zhen",
+          "lines": 6
+        },
+        {
+          "id": "baoyu",
+          "lines": 4
+        }
+      ]
+    },
+    {
+      "chapter": 54,
+      "speakers": [
+        {
+          "id": "jiamu",
+          "lines": 14
+        },
+        {
+          "id": "xifeng",
+          "lines": 10
+        },
+        {
+          "id": "baoyu",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 55,
+      "speakers": [
+        {
+          "id": "tanchun",
+          "lines": 16
+        },
+        {
+          "id": "xifeng",
+          "lines": 8
+        },
+        {
+          "id": "pinger",
+          "lines": 6
+        },
+        {
+          "id": "wangshanbao_jia",
+          "lines": 4
+        }
+      ]
+    },
+    {
+      "chapter": 56,
+      "speakers": [
+        {
+          "id": "tanchun",
+          "lines": 14
+        },
+        {
+          "id": "baochai",
+          "lines": 10
+        },
+        {
+          "id": "baoyu",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 57,
+      "speakers": [
+        {
+          "id": "zijuan",
+          "lines": 14
+        },
+        {
+          "id": "baoyu",
+          "lines": 12
+        },
+        {
+          "id": "daiyu",
+          "lines": 8
+        },
+        {
+          "id": "jiamu",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 58,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "narrator",
+          "lines": 6
+        },
+        {
+          "id": "fangguang",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 59,
+      "speakers": [
+        {
+          "id": "chunyan",
+          "lines": 10
+        },
+        {
+          "id": "narrator",
+          "lines": 5
+        },
+        {
+          "id": "lianhuaer",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 60,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 6
+        },
+        {
+          "id": "tanchun",
+          "lines": 8
+        },
+        {
+          "id": "zhao_yiniang",
+          "lines": 8
+        },
+        {
+          "id": "xifeng",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 61,
+      "speakers": [
+        {
+          "id": "xifeng",
+          "lines": 12
+        },
+        {
+          "id": "pinger",
+          "lines": 10
+        },
+        {
+          "id": "liuwu_jia",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 62,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 10
+        },
+        {
+          "id": "xiangyun",
+          "lines": 8
+        },
+        {
+          "id": "tanchun",
+          "lines": 6
+        },
+        {
+          "id": "daiyu",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 63,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 12
+        },
+        {
+          "id": "qingwen",
+          "lines": 6
+        },
+        {
+          "id": "xiren",
+          "lines": 5
+        },
+        {
+          "id": "miaoyu",
+          "lines": 4
+        }
+      ]
+    },
+    {
+      "chapter": 64,
+      "speakers": [
+        {
+          "id": "daiyu",
+          "lines": 12
+        },
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "jialian",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 65,
+      "speakers": [
+        {
+          "id": "jialian",
+          "lines": 14
+        },
+        {
+          "id": "erjie",
+          "lines": 10
+        },
+        {
+          "id": "xing_er",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 66,
+      "speakers": [
+        {
+          "id": "liuxianglian",
+          "lines": 14
+        },
+        {
+          "id": "sanjie",
+          "lines": 8
+        },
+        {
+          "id": "baoyu",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 67,
+      "speakers": [
+        {
+          "id": "baochai",
+          "lines": 10
+        },
+        {
+          "id": "xifeng",
+          "lines": 8
+        },
+        {
+          "id": "daiyu",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 68,
+      "speakers": [
+        {
+          "id": "xifeng",
+          "lines": 18
+        },
+        {
+          "id": "erjie",
+          "lines": 8
+        },
+        {
+          "id": "jialian",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 69,
+      "speakers": [
+        {
+          "id": "xifeng",
+          "lines": 14
+        },
+        {
+          "id": "erjie",
+          "lines": 6
+        },
+        {
+          "id": "narrator",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 70,
+      "speakers": [
+        {
+          "id": "daiyu",
+          "lines": 10
+        },
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "baochai",
+          "lines": 6
+        },
+        {
+          "id": "xiangyun",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 71,
+      "speakers": [
+        {
+          "id": "jiamu",
+          "lines": 12
+        },
+        {
+          "id": "xifeng",
+          "lines": 8
+        },
+        {
+          "id": "yuanyang",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 72,
+      "speakers": [
+        {
+          "id": "xifeng",
+          "lines": 14
+        },
+        {
+          "id": "jialian",
+          "lines": 8
+        },
+        {
+          "id": "pinger",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 73,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "jiazheng",
+          "lines": 6
+        },
+        {
+          "id": "yingchun",
+          "lines": 6
+        },
+        {
+          "id": "xiren",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 74,
+      "speakers": [
+        {
+          "id": "xifeng",
+          "lines": 14
+        },
+        {
+          "id": "wangshanbao_jia",
+          "lines": 8
+        },
+        {
+          "id": "tanchun",
+          "lines": 10
+        },
+        {
+          "id": "xiren",
+          "lines": 4
+        }
+      ]
+    },
+    {
+      "chapter": 75,
+      "speakers": [
+        {
+          "id": "jiamu",
+          "lines": 10
+        },
+        {
+          "id": "baoyu",
+          "lines": 6
+        },
+        {
+          "id": "jiazhen",
+          "lines": 6
+        },
+        {
+          "id": "daiyu",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 76,
+      "speakers": [
+        {
+          "id": "daiyu",
+          "lines": 12
+        },
+        {
+          "id": "xiangyun",
+          "lines": 12
+        },
+        {
+          "id": "miaoyu",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 77,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 12
+        },
+        {
+          "id": "qingwen",
+          "lines": 10
+        },
+        {
+          "id": "wangfuren",
+          "lines": 8
+        }
+      ]
+    },
+    {
+      "chapter": 78,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 16
+        },
+        {
+          "id": "jiazheng",
+          "lines": 6
+        },
+        {
+          "id": "narrator",
+          "lines": 4
+        }
+      ]
+    },
+    {
+      "chapter": 79,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "xiangling",
+          "lines": 6
+        },
+        {
+          "id": "xue_pan",
+          "lines": 8
+        }
+      ]
+    },
+    {
+      "chapter": 80,
+      "speakers": [
+        {
+          "id": "xue_pan",
+          "lines": 10
+        },
+        {
+          "id": "xia_jingui",
+          "lines": 12
+        },
+        {
+          "id": "xiangling",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 81,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 10
+        },
+        {
+          "id": "daiyu",
+          "lines": 6
+        },
+        {
+          "id": "jiazheng",
+          "lines": 8
+        }
+      ]
+    },
+    {
+      "chapter": 82,
+      "speakers": [
+        {
+          "id": "daiyu",
+          "lines": 14
+        },
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "zijuan",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 83,
+      "speakers": [
+        {
+          "id": "daiyu",
+          "lines": 10
+        },
+        {
+          "id": "jiamu",
+          "lines": 8
+        },
+        {
+          "id": "xifeng",
+          "lines": 6
+        },
+        {
+          "id": "baoyu",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 84,
+      "speakers": [
+        {
+          "id": "jiazheng",
+          "lines": 10
+        },
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "jiamu",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 85,
+      "speakers": [
+        {
+          "id": "jiamu",
+          "lines": 8
+        },
+        {
+          "id": "baoyu",
+          "lines": 6
+        },
+        {
+          "id": "wangfuren",
+          "lines": 6
+        },
+        {
+          "id": "xifeng",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 86,
+      "speakers": [
+        {
+          "id": "daiyu",
+          "lines": 10
+        },
+        {
+          "id": "baoyu",
+          "lines": 12
+        },
+        {
+          "id": "jiazheng",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 87,
+      "speakers": [
+        {
+          "id": "daiyu",
+          "lines": 14
+        },
+        {
+          "id": "miaoyu",
+          "lines": 8
+        },
+        {
+          "id": "baoyu",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 88,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "jiamu",
+          "lines": 6
+        },
+        {
+          "id": "xifeng",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 89,
+      "speakers": [
+        {
+          "id": "daiyu",
+          "lines": 14
+        },
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "zijuan",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 90,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "xue_pan",
+          "lines": 6
+        },
+        {
+          "id": "baochai",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 91,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 12
+        },
+        {
+          "id": "daiyu",
+          "lines": 8
+        },
+        {
+          "id": "baochai",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 92,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 10
+        },
+        {
+          "id": "jiamu",
+          "lines": 6
+        },
+        {
+          "id": "baochai",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 93,
+      "speakers": [
+        {
+          "id": "jiazheng",
+          "lines": 8
+        },
+        {
+          "id": "narrator",
+          "lines": 5
+        },
+        {
+          "id": "baoyu",
+          "lines": 4
+        }
+      ]
+    },
+    {
+      "chapter": 94,
+      "speakers": [
+        {
+          "id": "jiamu",
+          "lines": 10
+        },
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "xifeng",
+          "lines": 8
+        },
+        {
+          "id": "wangfuren",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 95,
+      "speakers": [
+        {
+          "id": "jiamu",
+          "lines": 8
+        },
+        {
+          "id": "xifeng",
+          "lines": 8
+        },
+        {
+          "id": "wangfuren",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 96,
+      "speakers": [
+        {
+          "id": "jiamu",
+          "lines": 10
+        },
+        {
+          "id": "xifeng",
+          "lines": 12
+        },
+        {
+          "id": "daiyu",
+          "lines": 6
+        },
+        {
+          "id": "wangfuren",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 97,
+      "speakers": [
+        {
+          "id": "daiyu",
+          "lines": 10
+        },
+        {
+          "id": "zijuan",
+          "lines": 8
+        },
+        {
+          "id": "baochai",
+          "lines": 4
+        },
+        {
+          "id": "jiamu",
+          "lines": 4
+        }
+      ]
+    },
+    {
+      "chapter": 98,
+      "speakers": [
+        {
+          "id": "daiyu",
+          "lines": 8
+        },
+        {
+          "id": "baoyu",
+          "lines": 10
+        },
+        {
+          "id": "zijuan",
+          "lines": 6
+        },
+        {
+          "id": "baochai",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 99,
+      "speakers": [
+        {
+          "id": "jiazheng",
+          "lines": 10
+        },
+        {
+          "id": "narrator",
+          "lines": 6
+        },
+        {
+          "id": "baoyu",
+          "lines": 4
+        }
+      ]
+    },
+    {
+      "chapter": 100,
+      "speakers": [
+        {
+          "id": "baochai",
+          "lines": 10
+        },
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "xifeng",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 101,
+      "speakers": [
+        {
+          "id": "xifeng",
+          "lines": 12
+        },
+        {
+          "id": "pinger",
+          "lines": 6
+        },
+        {
+          "id": "jiamu",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 102,
+      "speakers": [
+        {
+          "id": "jiamu",
+          "lines": 6
+        },
+        {
+          "id": "baoyu",
+          "lines": 5
+        },
+        {
+          "id": "narrator",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 103,
+      "speakers": [
+        {
+          "id": "xue_pan",
+          "lines": 10
+        },
+        {
+          "id": "baochai",
+          "lines": 6
+        },
+        {
+          "id": "narrator",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 104,
+      "speakers": [
+        {
+          "id": "jialian",
+          "lines": 8
+        },
+        {
+          "id": "xifeng",
+          "lines": 6
+        },
+        {
+          "id": "wangfuren",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 105,
+      "speakers": [
+        {
+          "id": "jiazheng",
+          "lines": 8
+        },
+        {
+          "id": "baoyu",
+          "lines": 5
+        },
+        {
+          "id": "jiamu",
+          "lines": 6
+        },
+        {
+          "id": "narrator",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 106,
+      "speakers": [
+        {
+          "id": "jiamu",
+          "lines": 12
+        },
+        {
+          "id": "jiazheng",
+          "lines": 6
+        },
+        {
+          "id": "xifeng",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 107,
+      "speakers": [
+        {
+          "id": "jiazheng",
+          "lines": 10
+        },
+        {
+          "id": "jiamu",
+          "lines": 8
+        },
+        {
+          "id": "baoyu",
+          "lines": 4
+        }
+      ]
+    },
+    {
+      "chapter": 108,
+      "speakers": [
+        {
+          "id": "jiamu",
+          "lines": 10
+        },
+        {
+          "id": "baochai",
+          "lines": 8
+        },
+        {
+          "id": "baoyu",
+          "lines": 6
+        },
+        {
+          "id": "xifeng",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 109,
+      "speakers": [
+        {
+          "id": "jiamu",
+          "lines": 8
+        },
+        {
+          "id": "yuanyang",
+          "lines": 6
+        },
+        {
+          "id": "xifeng",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 110,
+      "speakers": [
+        {
+          "id": "jiamu",
+          "lines": 6
+        },
+        {
+          "id": "xifeng",
+          "lines": 8
+        },
+        {
+          "id": "jiazheng",
+          "lines": 5
+        },
+        {
+          "id": "baoyu",
+          "lines": 4
+        }
+      ]
+    },
+    {
+      "chapter": 111,
+      "speakers": [
+        {
+          "id": "xifeng",
+          "lines": 8
+        },
+        {
+          "id": "yuanyang",
+          "lines": 6
+        },
+        {
+          "id": "wangfuren",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 112,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 6
+        },
+        {
+          "id": "miaoyu",
+          "lines": 5
+        },
+        {
+          "id": "narrator",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 113,
+      "speakers": [
+        {
+          "id": "xifeng",
+          "lines": 10
+        },
+        {
+          "id": "pinger",
+          "lines": 8
+        },
+        {
+          "id": "liulaolao",
+          "lines": 6
+        },
+        {
+          "id": "qiaojie",
+          "lines": 4
+        }
+      ]
+    },
+    {
+      "chapter": 114,
+      "speakers": [
+        {
+          "id": "jiazheng",
+          "lines": 8
+        },
+        {
+          "id": "baoyu",
+          "lines": 6
+        },
+        {
+          "id": "wangfuren",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 115,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 10
+        },
+        {
+          "id": "baochai",
+          "lines": 6
+        },
+        {
+          "id": "monk",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 116,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 14
+        },
+        {
+          "id": "jinghuanxiangu",
+          "lines": 8
+        },
+        {
+          "id": "narrator",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 117,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 10
+        },
+        {
+          "id": "baochai",
+          "lines": 6
+        },
+        {
+          "id": "xiren",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 118,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 12
+        },
+        {
+          "id": "baochai",
+          "lines": 8
+        },
+        {
+          "id": "xiren",
+          "lines": 6
+        }
+      ]
+    },
+    {
+      "chapter": 119,
+      "speakers": [
+        {
+          "id": "baoyu",
+          "lines": 8
+        },
+        {
+          "id": "jiazheng",
+          "lines": 10
+        },
+        {
+          "id": "baochai",
+          "lines": 6
+        },
+        {
+          "id": "liulaolao",
+          "lines": 5
+        }
+      ]
+    },
+    {
+      "chapter": 120,
+      "speakers": [
+        {
+          "id": "jiazheng",
+          "lines": 10
+        },
+        {
+          "id": "narrator",
+          "lines": 8
+        },
+        {
+          "id": "monk",
+          "lines": 5
+        }
+      ]
+    }
+  ]
+};
+
+const characters = [
+  {
+    "id": "baoyu",
+    "name": "贾宝玉",
+    "en": "Jia Baoyu",
+    "group": "core",
+    "desc": "荣国府贾政之子，衔通灵宝玉而生。性情温柔多情，厌恶仕途经济，视女儿为水做的骨肉，是全书灵魂人物。",
+    "radius": 28
+  },
+  {
+    "id": "daiyu",
+    "name": "林黛玉",
+    "en": "Lin Daiyu",
+    "group": "core",
+    "desc": "贾母外孙女，林如海与贾敏之女。才华横溢、敏感多愁，与宝玉有「木石前盟」之情，最终泪尽而亡。",
+    "radius": 28
+  },
+  {
+    "id": "baochai",
+    "name": "薛宝钗",
+    "en": "Xue Baochai",
+    "group": "core",
+    "desc": "薛姨妈之女，佩戴金锁。端庄大方、恪守礼教，与宝玉有「金玉良缘」之说，最终嫁入贾府。",
+    "radius": 28
+  },
+  {
+    "id": "xifeng",
+    "name": "王熙凤",
+    "en": "Wang Xifeng",
+    "group": "core",
+    "desc": "贾琏之妻，荣国府实际管家。精明强干、心狠手辣，人称「凤辣子」，掌控贾府内务大权。",
+    "radius": 28
+  },
+  {
+    "id": "yuanchun",
+    "name": "贾元春",
+    "en": "Jia Yuanchun",
+    "group": "twelve",
+    "desc": "贾政长女，入宫为妃。省亲时修建大观园，是贾府鼎盛的象征，后薨逝于宫中。",
+    "radius": 22
+  },
+  {
+    "id": "yingchun",
+    "name": "贾迎春",
+    "en": "Jia Yingchun",
+    "group": "twelve",
+    "desc": "贾赦之女，性格懦弱温柔，人称「二木头」。嫁给孙绍祖后饱受虐待，一年后含恨而死。",
+    "radius": 22
+  },
+  {
+    "id": "tanchun",
+    "name": "贾探春",
+    "en": "Jia Tanchun",
+    "group": "twelve",
+    "desc": "贾政与赵姨娘之女，精明有为、志向高远。曾代理荣府家务，推行改革，后远嫁海外。",
+    "radius": 22
+  },
+  {
+    "id": "xichun",
+    "name": "贾惜春",
+    "en": "Jia Xichun",
+    "group": "twelve",
+    "desc": "宁国府贾珍之妹，性格孤僻冷漠，善于绘画。目睹家族败落后看破红尘，削发为尼。",
+    "radius": 22
+  },
+  {
+    "id": "xiangyun",
+    "name": "史湘云",
+    "en": "Shi Xiangyun",
+    "group": "twelve",
+    "desc": "贾母侄孙女，史家千金。性格豪爽开朗、心直口快，醉眠芍药裀是其经典场景。",
+    "radius": 22
+  },
+  {
+    "id": "miaoyu",
+    "name": "妙玉",
+    "en": "Miaoyu",
+    "group": "twelve",
+    "desc": "带发修行的尼姑，寄居大观园栊翠庵。出身仕宦之家，性情孤高清冷，精通茶道。",
+    "radius": 22
+  },
+  {
+    "id": "liwang",
+    "name": "李纨",
+    "en": "Li Wan",
+    "group": "twelve",
+    "desc": "贾珠之妻，青年守寡。性格温厚恬淡，一心抚育儿子贾兰，后因贾兰中举而受封诰命。",
+    "radius": 22
+  },
+  {
+    "id": "keqing",
+    "name": "秦可卿",
+    "en": "Qin Keqing",
+    "group": "twelve",
+    "desc": "贾蓉之妻，兼具黛玉之风流与宝钗之妩媚。早逝时托梦凤姐，预言贾府衰败。",
+    "radius": 22
+  },
+  {
+    "id": "qiaojie",
+    "name": "巧姐",
+    "en": "Qiaojie",
+    "group": "twelve",
+    "desc": "王熙凤与贾琏之女。贾府败落后险被卖入青楼，幸得刘姥姥搭救，嫁入乡间。",
+    "radius": 22
+  },
+  {
+    "id": "jiamu",
+    "name": "贾母",
+    "en": "Grandmother Jia",
+    "group": "jia",
+    "desc": "荣国府辈分最高的老太君，史家出身。溺爱宝玉和黛玉，是贾府的精神支柱与最高权威。",
+    "radius": 18
+  },
+  {
+    "id": "jiazheng",
+    "name": "贾政",
+    "en": "Jia Zheng",
+    "group": "jia",
+    "desc": "荣国府次子，宝玉之父。为人端方正直，崇尚仕途经济，对宝玉管教严厉。",
+    "radius": 18
+  },
+  {
+    "id": "jiashe",
+    "name": "贾赦",
+    "en": "Jia She",
+    "group": "jia",
+    "desc": "荣国府长子，贾母之长子。好色贪财、荒淫无度，曾强纳鸳鸯为妾未遂。",
+    "radius": 18
+  },
+  {
+    "id": "xingfuren",
+    "name": "邢夫人",
+    "en": "Lady Xing",
+    "group": "jia",
+    "desc": "贾赦之妻，为人愚钝吝啬。唯夫命是从，在贾赦强纳鸳鸯事件中充当帮凶。",
+    "radius": 18
+  },
+  {
+    "id": "wangfuren",
+    "name": "王夫人",
+    "en": "Lady Wang",
+    "group": "jia",
+    "desc": "贾政之妻，宝玉之母。表面慈善虔佛，实则手段狠辣，驱逐晴雯、抄检大观园的幕后推手。",
+    "radius": 18
+  },
+  {
+    "id": "jiazhen",
+    "name": "贾珍",
+    "en": "Jia Zhen",
+    "group": "jia",
+    "desc": "宁国府族长，贾蓉之父。生活荒淫，与秦可卿关系暧昧，是宁府败坏的代表。",
+    "radius": 18
+  },
+  {
+    "id": "jialian",
+    "name": "贾琏",
+    "en": "Jia Lian",
+    "group": "jia",
+    "desc": "贾赦之子，王熙凤之夫。风流好色，偷娶尤二姐，常与凤姐发生冲突。",
+    "radius": 18
+  },
+  {
+    "id": "jiarong",
+    "name": "贾蓉",
+    "en": "Jia Rong",
+    "group": "jia",
+    "desc": "宁国府贾珍之子，秦可卿之夫。为人轻浮放荡，是宁府年轻一代的代表。",
+    "radius": 18
+  },
+  {
+    "id": "xiren",
+    "name": "袭人",
+    "en": "Xiren",
+    "group": "servant",
+    "desc": "宝玉身边首席大丫鬟，本名花珍珠。温柔体贴、谨守规矩，暗与宝玉有云雨之情，后嫁蒋玉菡。",
+    "radius": 14
+  },
+  {
+    "id": "qingwen",
+    "name": "晴雯",
+    "en": "Qingwen",
+    "group": "servant",
+    "desc": "宝玉身边丫鬟，容貌出众、性格刚烈。病补雀金裘是其名场面，后被王夫人逐出，含冤而死。",
+    "radius": 14
+  },
+  {
+    "id": "zijuan",
+    "name": "紫鹃",
+    "en": "Zijuan",
+    "group": "servant",
+    "desc": "林黛玉贴身丫鬟，忠心耿耿。曾以「试玉」之举试探宝玉真心，是黛玉最亲近的陪伴。",
+    "radius": 14
+  },
+  {
+    "id": "pinger",
+    "name": "平儿",
+    "en": "Ping'er",
+    "group": "servant",
+    "desc": "王熙凤的陪嫁丫鬟兼贾琏通房。心地善良、处事周全，在凤姐与贾琏之间左右为难。",
+    "radius": 14
+  },
+  {
+    "id": "yuanyang",
+    "name": "鸳鸯",
+    "en": "Yuanyang",
+    "group": "servant",
+    "desc": "贾母身边首席大丫鬟。性格刚烈，誓死抗拒贾赦纳妾之命，贾母去世后自缢殉主。",
+    "radius": 14
+  },
+  {
+    "id": "sheyue",
+    "name": "麝月",
+    "en": "Sheyue",
+    "group": "servant",
+    "desc": "宝玉身边丫鬟，性格沉稳。袭人不在时代为照管怡红院事务，是宝玉最后身边的丫鬟之一。",
+    "radius": 14
+  },
+  {
+    "id": "yinger",
+    "name": "莺儿",
+    "en": "Ying'er",
+    "group": "servant",
+    "desc": "薛宝钗的贴身丫鬟，本名黄金莺。心灵手巧，擅长编织络子，性格活泼直率。",
+    "radius": 14
+  },
+  {
+    "id": "liulaolao",
+    "name": "刘姥姥",
+    "en": "Granny Liu",
+    "group": "other",
+    "desc": "乡村老妇，与王家有远亲关系。三进荣国府，从借贷求助到游览大观园，最终在贾府败落时搭救巧姐。",
+    "radius": 14
+  },
+  {
+    "id": "xuepan",
+    "name": "薛蟠",
+    "en": "Xue Pan",
+    "group": "other",
+    "desc": "薛宝钗之兄，人称「呆霸王」。纨绔子弟、横行霸道，曾因争买香菱打死冯渊。",
+    "radius": 14
+  },
+  {
+    "id": "jiayucun",
+    "name": "贾雨村",
+    "en": "Jia Yucun",
+    "group": "other",
+    "desc": "落魄书生出身，后靠贾府提携做官。忘恩负义、趋炎附势，抄检贾府时落井下石。",
+    "radius": 14
+  },
+  {
+    "id": "zhenshiyin",
+    "name": "甄士隐",
+    "en": "Zhen Shiyin",
+    "group": "other",
+    "desc": "姑苏乡绅，开篇人物。经历家道中落后随跛足道人出家，对应「真事隐去」之意。",
+    "radius": 14
+  },
+  {
+    "id": "yisengdao",
+    "name": "一僧一道",
+    "en": "The Monk and Taoist",
+    "group": "other",
+    "desc": "癞头和尚与跛足道人，超凡世外之人。携通灵宝玉入世，贯穿全书始终，象征命运与觉悟。",
+    "radius": 14
+  },
+  {
+    "id": "xueyimo",
+    "name": "薛姨妈",
+    "en": "Aunt Xue",
+    "group": "jia",
+    "desc": "薛宝钗之母，王夫人之妹。携儿女寄居贾府，力促「金玉良缘」，为人厚道慈祥。",
+    "radius": 18
+  },
+  {
+    "id": "zhaoyiniang",
+    "name": "赵姨娘",
+    "en": "Concubine Zhao",
+    "group": "jia",
+    "desc": "贾政之妾，探春与贾环生母。心胸狭隘、屡生事端，曾密谋魇魔法暗害宝玉与凤姐。",
+    "radius": 18
+  },
+  {
+    "id": "youerjie",
+    "name": "尤二姐",
+    "en": "You Erjie",
+    "group": "other",
+    "desc": "尤氏继妹，温柔美貌。被贾琏偷娶为妾，后遭王熙凤设计迫害，吞金自尽。",
+    "radius": 14
+  },
+  {
+    "id": "yousanjie",
+    "name": "尤三姐",
+    "en": "You Sanjie",
+    "group": "other",
+    "desc": "尤二姐之妹，性格刚烈泼辣。痴心等候柳湘莲，遭退婚后以鸳鸯剑自刎明志。",
+    "radius": 14
+  },
+  {
+    "id": "xiangling",
+    "name": "香菱",
+    "en": "Xiangling",
+    "group": "servant",
+    "desc": "本名甄英莲，甄士隐之女。幼年被拐卖，后为薛蟠之妾。天资聪颖，向黛玉学诗传为佳话。",
+    "radius": 14
+  },
+  {
+    "id": "liuxianglian",
+    "name": "柳湘莲",
+    "en": "Liu Xianglian",
+    "group": "other",
+    "desc": "世家子弟，好侠仗义、英俊倜傥。与宝玉交好，因退婚致三姐自刎后悔恨出家。",
+    "radius": 14
+  },
+  {
+    "id": "jiangyhuan",
+    "name": "蒋玉菡",
+    "en": "Jiang Yuhan",
+    "group": "other",
+    "desc": "戏子出身，艺名琪官。与宝玉互赠汗巾结交，后迎娶袭人为妻。",
+    "radius": 14
+  },
+  {
+    "id": "jiahuan",
+    "name": "贾环",
+    "en": "Jia Huan",
+    "group": "jia",
+    "desc": "贾政与赵姨娘之子，宝玉异母弟。性情阴鸷卑劣，常受赵姨娘挑唆与宝玉为敌。",
+    "radius": 18
+  }
+];
+
+const groupConfig = {
+  "core": {
+    "color": "#ffe66d",
+    "label": "核心"
+  },
+  "twelve": {
+    "color": "#ff6b6b",
+    "label": "金陵十二钗"
+  },
+  "jia": {
+    "color": "#6c63ff",
+    "label": "贾家长辈"
+  },
+  "servant": {
+    "color": "#4ecdc4",
+    "label": "丫鬟仆人"
+  },
+  "other": {
+    "color": "#8888a0",
+    "label": "外人僧道"
+  }
+};
+
+
+// ── Derived lookups ──
+const charMap = {};
+characters.forEach(c => { charMap[c.id] = c; });
+
+const groupColors = {};
+if (typeof groupConfig !== 'undefined') {
+    Object.keys(groupConfig).forEach(g => { groupColors[g] = groupConfig[g].color; });
+}
+
+function charColor(id) {
+    const c = charMap[id];
+    if (!c) return '#8888a0';
+    return groupColors[c.group] || '#8888a0';
+}
+
+// ── State ──
+const canvas = document.getElementById('chordCanvas');
+const ctx = canvas.getContext('2d');
+let W, H, cx, cy, R;
+let dpr = window.devicePixelRatio || 1;
+let threshold = 1;
+let chStart = 1, chEnd = 999;
+let hoveredArc = -1;  // index into filteredChars
+let hoveredChord = -1; // index into filteredPairs
+let arcAngles = [];     // [{startAngle, endAngle, charId}]
+let filteredChars = []; // char ids with at least one visible chord
+let filteredPairs = []; // pairs passing filters
+
+// ── Canvas sizing ──
+function sizeCanvas() {
+    const wrap = document.getElementById('canvasWrap');
+    W = wrap.clientWidth;
+    H = wrap.clientHeight;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cx = W / 2;
+    cy = H / 2;
+    R = Math.min(W, H) * 0.36;
+}
+
+// ── Filter data ──
+function filterData() {
+    const maxCh = dialogue.chapterBreakdown
+        ? Math.max(...dialogue.chapterBreakdown.map(c => c.chapter))
+        : (dialogue.pairs.length > 0
+            ? Math.max(...dialogue.pairs.flatMap(p => p.chapters || []))
+            : 20);
+
+    // Set slider max
+    const chStartSlider = document.getElementById('chStartSlider');
+    const chEndSlider = document.getElementById('chEndSlider');
+    chStartSlider.max = maxCh;
+    chEndSlider.max = maxCh;
+    if (chEnd > maxCh) { chEnd = maxCh; chEndSlider.value = maxCh; }
+    document.getElementById('chEndVal').textContent = chEnd;
+
+    // Filter pairs by chapter range and threshold
+    filteredPairs = [];
+    dialogue.pairs.forEach(p => {
+        let count = p.count;
+        if (p.chapters && p.chapters.length > 0) {
+            const inRange = p.chapters.filter(ch => ch >= chStart && ch <= chEnd);
+            count = inRange.length > 0 ? Math.round(p.count * inRange.length / p.chapters.length) : 0;
+        }
+        if (count >= threshold) {
+            filteredPairs.push({ a: p.a, b: p.b, count: count, chapters: p.chapters || [] });
+        }
+    });
+
+    // Unique chars that appear in filtered pairs
+    const charSet = new Set();
+    filteredPairs.forEach(p => { charSet.add(p.a); charSet.add(p.b); });
+    filteredChars = Array.from(charSet);
+
+    // Sort by total dialogue count
+    const totals = {};
+    filteredPairs.forEach(p => {
+        totals[p.a] = (totals[p.a] || 0) + p.count;
+        totals[p.b] = (totals[p.b] || 0) + p.count;
+    });
+    filteredChars.sort((a, b) => (totals[b] || 0) - (totals[a] || 0));
+
+    // Compute arc angles (proportional to total dialogue count)
+    const totalAll = filteredChars.reduce((s, id) => s + (totals[id] || 0), 0) || 1;
+    const gap = 0.02; // radians gap between arcs
+    const totalGap = gap * filteredChars.length;
+    const available = Math.PI * 2 - totalGap;
+    let angle = -Math.PI / 2;
+    arcAngles = [];
+    filteredChars.forEach(id => {
+        const frac = (totals[id] || 0) / totalAll;
+        const sweep = frac * available;
+        arcAngles.push({ startAngle: angle, endAngle: angle + sweep, charId: id, total: totals[id] || 0 });
+        angle += sweep + gap;
+    });
+
+    // Update threshold slider max
+    const maxCount = dialogue.pairs.length > 0
+        ? Math.max(...dialogue.pairs.map(p => p.count))
+        : 50;
+    document.getElementById('thresholdSlider').max = Math.max(maxCount, 2);
+
+    updateSidePanel(totals);
+}
+
+// ── Side Panel ──
+function updateSidePanel(totals) {
+    // Top speakers
+    const ranked = filteredChars.slice(0, 15);
+    const speakerList = document.getElementById('speakerRank');
+    speakerList.innerHTML = '';
+    ranked.forEach((id, i) => {
+        const c = charMap[id];
+        const name = c ? c.name : id;
+        const li = document.createElement('li');
+        li.className = 'rank-item';
+        li.innerHTML =
+            '<span class="rank-num">' + (i + 1) + '</span>' +
+            '<span class="rank-dot" style="background:' + charColor(id) + '"></span>' +
+            '<span class="rank-name">' + name + '</span>' +
+            '<span class="rank-val">' + (totals[id] || 0) + '</span>';
+        speakerList.appendChild(li);
+    });
+
+    // Top pairs
+    const sortedPairs = filteredPairs.slice().sort((a, b) => b.count - a.count).slice(0, 15);
+    const pairList = document.getElementById('pairRank');
+    pairList.innerHTML = '';
+    sortedPairs.forEach((p, i) => {
+        const nameA = charMap[p.a] ? charMap[p.a].name : p.a;
+        const nameB = charMap[p.b] ? charMap[p.b].name : p.b;
+        const li = document.createElement('li');
+        li.className = 'rank-item pair-item';
+        li.innerHTML =
+            '<span class="rank-num">' + (i + 1) + '</span>' +
+            '<span class="pair-names">' + nameA + '<span class="pair-arrow">⇄</span>' + nameB + '</span>' +
+            '<span class="rank-val">' + p.count + '</span>';
+        li.style.cursor = 'pointer';
+        li.onclick = function() { showDetail(p); };
+        pairList.appendChild(li);
+    });
+}
+
+// ── Drawing ──
+function hexToRGBA(hex, a) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+}
+
+function midAngle(arc) { return (arc.startAngle + arc.endAngle) / 2; }
+
+function arcIndex(charId) { return filteredChars.indexOf(charId); }
+
+function draw() {
+    ctx.clearRect(0, 0, W, H);
+    if (filteredChars.length === 0) {
+        ctx.fillStyle = '#8888a0';
+        ctx.font = '14px "Noto Sans SC"';
+        ctx.textAlign = 'center';
+        ctx.fillText('无符合条件的对话数据', cx, cy);
+        return;
+    }
+
+    const arcWidth = 18;
+    const innerR = R - arcWidth;
+    const maxCount = filteredPairs.length > 0 ? Math.max(...filteredPairs.map(p => p.count)) : 1;
+
+    // ── Draw chords ──
+    filteredPairs.forEach((p, pi) => {
+        const ai = arcIndex(p.a);
+        const bi = arcIndex(p.b);
+        if (ai < 0 || bi < 0) return;
+
+        const arcA = arcAngles[ai];
+        const arcB = arcAngles[bi];
+        const angA = midAngle(arcA);
+        const angB = midAngle(arcB);
+
+        const x1 = cx + Math.cos(angA) * innerR;
+        const y1 = cy + Math.sin(angA) * innerR;
+        const x2 = cx + Math.cos(angB) * innerR;
+        const y2 = cy + Math.sin(angB) * innerR;
+
+        const thickness = 1 + (p.count / maxCount) * 8;
+        let alpha = 0.25 + (p.count / maxCount) * 0.35;
+
+        // Highlight logic
+        if (hoveredArc >= 0) {
+            if (ai === hoveredArc || bi === hoveredArc) {
+                alpha = 0.7;
+            } else {
+                alpha = 0.05;
+            }
+        }
+        if (hoveredChord >= 0) {
+            if (pi === hoveredChord) {
+                alpha = 0.85;
+            } else if (hoveredArc < 0) {
+                alpha = 0.08;
+            }
+        }
+
+        const color = charColor(p.a);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.quadraticCurveTo(cx, cy, x2, y2);
+        ctx.strokeStyle = hexToRGBA(color, alpha);
+        ctx.lineWidth = thickness;
+        ctx.stroke();
+    });
+
+    // ── Draw arcs ──
+    arcAngles.forEach((arc, i) => {
+        const color = charColor(arc.charId);
+        let alpha = hoveredArc >= 0 ? (i === hoveredArc ? 1 : 0.25) : 0.85;
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, R - arcWidth / 2, arc.startAngle, arc.endAngle);
+        ctx.strokeStyle = hexToRGBA(color, alpha);
+        ctx.lineWidth = arcWidth;
+        ctx.lineCap = 'butt';
+        ctx.stroke();
+
+        // Glow on hover
+        if (i === hoveredArc) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, R - arcWidth / 2, arc.startAngle, arc.endAngle);
+            ctx.strokeStyle = hexToRGBA(color, 0.15);
+            ctx.lineWidth = arcWidth + 12;
+            ctx.stroke();
+        }
+    });
+
+    // ── Draw labels ──
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '500 12px "Noto Sans SC"';
+
+    arcAngles.forEach((arc, i) => {
+        const ang = midAngle(arc);
+        const labelR = R + 14;
+        const lx = cx + Math.cos(ang) * labelR;
+        const ly = cy + Math.sin(ang) * labelR;
+
+        const c = charMap[arc.charId];
+        const name = c ? c.name : arc.charId;
+
+        ctx.save();
+        ctx.translate(lx, ly);
+        let rot = ang;
+        if (rot > Math.PI / 2 && rot < Math.PI * 1.5) {
+            rot += Math.PI;
+        }
+        if (rot < -Math.PI / 2 && rot > -Math.PI * 1.5) {
+            rot += Math.PI;
+        }
+        ctx.rotate(rot);
+
+        const alpha = hoveredArc >= 0 ? (i === hoveredArc ? 1 : 0.3) : 0.9;
+        ctx.fillStyle = hexToRGBA('#e8e8f0', alpha);
+        ctx.fillText(name, 0, 0);
+        ctx.restore();
+    });
+}
+
+// ── Hit testing ──
+function hitTest(mx, my) {
+    const dx = mx - cx, dy = my - cy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const angle = Math.atan2(dy, dx);
+
+    // Test arc hit (outer ring)
+    const arcWidth = 18;
+    if (dist >= R - arcWidth - 5 && dist <= R + 5) {
+        for (let i = 0; i < arcAngles.length; i++) {
+            const arc = arcAngles[i];
+            let a = angle;
+            // Normalize angles for comparison
+            let start = arc.startAngle, end = arc.endAngle;
+            while (a < start - Math.PI) a += Math.PI * 2;
+            while (a > start + Math.PI) a -= Math.PI * 2;
+            if (a >= start && a <= end) {
+                return { type: 'arc', index: i };
+            }
+        }
+    }
+
+    // Test chord hit (center area)
+    if (dist < R - arcWidth) {
+        const innerR2 = R - arcWidth;
+        let closest = -1, closestDist = 20;
+        filteredPairs.forEach((p, pi) => {
+            const ai = arcIndex(p.a), bi = arcIndex(p.b);
+            if (ai < 0 || bi < 0) return;
+            const angA = midAngle(arcAngles[ai]);
+            const angB = midAngle(arcAngles[bi]);
+            const x1 = cx + Math.cos(angA) * innerR2;
+            const y1 = cy + Math.sin(angA) * innerR2;
+            const x2 = cx + Math.cos(angB) * innerR2;
+            const y2 = cy + Math.sin(angB) * innerR2;
+
+            // Sample points along quadratic bezier and find min distance
+            for (let t = 0; t <= 1; t += 0.05) {
+                const bx = (1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * cx + t * t * x2;
+                const by = (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * cy + t * t * y2;
+                const d = Math.sqrt((mx - bx) ** 2 + (my - by) ** 2);
+                if (d < closestDist) {
+                    closestDist = d;
+                    closest = pi;
+                }
+            }
+        });
+        if (closest >= 0) return { type: 'chord', index: closest };
+    }
+
+    return null;
+}
+
+// ── Tooltip ──
+const tooltipEl = document.getElementById('tooltip');
+
+function showTooltip(x, y, html) {
+    tooltipEl.innerHTML = html;
+    tooltipEl.classList.add('show');
+    const rect = tooltipEl.getBoundingClientRect();
+    let tx = x + 15, ty = y - 10;
+    if (tx + rect.width > window.innerWidth - 10) tx = x - rect.width - 15;
+    if (ty + rect.height > window.innerHeight - 10) ty = y - rect.height - 10;
+    if (ty < 5) ty = 5;
+    tooltipEl.style.left = tx + 'px';
+    tooltipEl.style.top = ty + 'px';
+}
+
+function hideTooltip() {
+    tooltipEl.classList.remove('show');
+}
+
+// ── Detail Panel ──
+function showDetail(pair) {
+    const nameA = charMap[pair.a] ? charMap[pair.a].name : pair.a;
+    const nameB = charMap[pair.b] ? charMap[pair.b].name : pair.b;
+    const overlay = document.getElementById('detailOverlay');
+    const box = document.getElementById('detailBox');
+
+    let chapHtml = '';
+    if (pair.chapters && pair.chapters.length > 0) {
+        const filtered = pair.chapters.filter(ch => ch >= chStart && ch <= chEnd);
+        chapHtml = '<div class="detail-chapters">' +
+            filtered.map(ch => '<span class="ch-pill">Ch.' + ch + '</span>').join('') +
+            '</div>';
+    }
+
+    box.innerHTML =
+        '<button class="detail-close" onclick="closeDetail()">&times;</button>' +
+        '<h3>' + nameA + ' ⇄ ' + nameB + '</h3>' +
+        '<div class="detail-sub">' + pair.count + ' 次对话交互</div>' +
+        (chapHtml ? '<p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:0.5rem;">出现章节：</p>' + chapHtml : '');
+
+    overlay.classList.add('show');
+}
+
+function closeDetail() {
+    document.getElementById('detailOverlay').classList.remove('show');
+}
+
+// ── Event handlers ──
+function getCanvasPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+
+canvas.addEventListener('mousemove', function(e) {
+    const pos = getCanvasPos(e);
+    const hit = hitTest(pos.x, pos.y);
+
+    if (hit && hit.type === 'arc') {
+        hoveredArc = hit.index;
+        hoveredChord = -1;
+        canvas.style.cursor = 'pointer';
+        const arc = arcAngles[hit.index];
+        const c = charMap[arc.charId];
+        const name = c ? c.name : arc.charId;
+        const en = c && c.en ? c.en : '';
+        showTooltip(e.clientX, e.clientY,
+            '<div class="tt-title">' + name + '</div>' +
+            (en ? '<div class="tt-sub">' + en + '</div>' : '') +
+            '<div class="tt-val">' + arc.total + ' 次对话</div>');
+    } else if (hit && hit.type === 'chord') {
+        hoveredChord = hit.index;
+        hoveredArc = -1;
+        canvas.style.cursor = 'pointer';
+        const p = filteredPairs[hit.index];
+        const nameA = charMap[p.a] ? charMap[p.a].name : p.a;
+        const nameB = charMap[p.b] ? charMap[p.b].name : p.b;
+        showTooltip(e.clientX, e.clientY,
+            '<div class="tt-title">' + nameA + ' ⇄ ' + nameB + '</div>' +
+            '<div class="tt-val">' + p.count + ' 次对话</div>');
+    } else {
+        hoveredArc = -1;
+        hoveredChord = -1;
+        canvas.style.cursor = 'default';
+        hideTooltip();
+    }
+    draw();
+});
+
+canvas.addEventListener('click', function(e) {
+    const pos = getCanvasPos(e);
+    const hit = hitTest(pos.x, pos.y);
+    if (hit && hit.type === 'chord') {
+        showDetail(filteredPairs[hit.index]);
+    } else if (hit && hit.type === 'arc') {
+        // Highlight this character's connections
+        hoveredArc = hit.index;
+        draw();
+    }
+});
+
+canvas.addEventListener('mouseleave', function() {
+    hoveredArc = -1;
+    hoveredChord = -1;
+    hideTooltip();
+    draw();
+});
+
+// Touch support
+canvas.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    const t = e.touches[0];
+    const pos = getCanvasPos(t);
+    const hit = hitTest(pos.x, pos.y);
+    if (hit && hit.type === 'arc') {
+        hoveredArc = hit.index;
+        hoveredChord = -1;
+    } else if (hit && hit.type === 'chord') {
+        hoveredChord = hit.index;
+        hoveredArc = -1;
+        showDetail(filteredPairs[hit.index]);
+    }
+    draw();
+}, { passive: false });
+
+// Detail overlay close on backdrop click
+document.getElementById('detailOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeDetail();
+});
+
+// Controls
+document.getElementById('thresholdSlider').addEventListener('input', function() {
+    threshold = parseInt(this.value);
+    document.getElementById('thresholdVal').textContent = threshold;
+    filterData();
+    draw();
+});
+
+document.getElementById('chStartSlider').addEventListener('input', function() {
+    chStart = parseInt(this.value);
+    document.getElementById('chStartVal').textContent = chStart;
+    if (chStart > chEnd) {
+        chEnd = chStart;
+        document.getElementById('chEndSlider').value = chEnd;
+        document.getElementById('chEndVal').textContent = chEnd;
+    }
+    filterData();
+    draw();
+});
+
+document.getElementById('chEndSlider').addEventListener('input', function() {
+    chEnd = parseInt(this.value);
+    document.getElementById('chEndVal').textContent = chEnd;
+    if (chEnd < chStart) {
+        chStart = chEnd;
+        document.getElementById('chStartSlider').value = chStart;
+        document.getElementById('chStartVal').textContent = chStart;
+    }
+    filterData();
+    draw();
+});
+
+// Resize
+let resizeTimer;
+window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function() {
+        dpr = window.devicePixelRatio || 1;
+        sizeCanvas();
+        draw();
+    }, 150);
+});
+
+// ── Init ──
+document.fonts.ready.then(function() {
+    sizeCanvas();
+    filterData();
+    draw();
+});
+</script>
+</body>
+</html>

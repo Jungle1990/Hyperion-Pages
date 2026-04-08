@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graphs: Traversal · 图：遍历 | Algo Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(108, 99, 255, 0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+  --success: #34d399;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ─── Progress Bar ─── */
+#progressBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  width: 0%;
+  z-index: 100;
+  transition: width 0.1s linear;
+}
+
+/* ─── Hero (compact) ─── */
+.hero {
+  padding: 6rem 2rem 3rem;
+  text-align: center;
+  position: relative;
+}
+.hero-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px var(--glow));
+}
+.hero h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.2rem;
+}
+.hero-zh {
+  font-size: 1.2rem;
+  color: var(--text-dim);
+  font-weight: 300;
+  margin-bottom: 0.8rem;
+}
+.hero-desc {
+  font-size: 1rem;
+  color: var(--accent3);
+  font-family: var(--font-mono);
+  margin-bottom: 1.5rem;
+}
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.back-link {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  transition: color 0.3s ease;
+}
+.back-link:hover { color: var(--accent); }
+
+/* ─── Container ─── */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+}
+
+/* ─── Controls ─── */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.control-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.ctrl-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.ctrl-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.ctrl-btn.active {
+  background: rgba(108, 99, 255, 0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.expand-all-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.expand-all-btn:hover {
+  border-color: var(--accent3);
+  color: var(--accent3);
+}
+
+/* ─── Badge System ─── */
+.badge {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 1rem;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.badge--time {
+  background: rgba(108, 99, 255, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(108, 99, 255, 0.3);
+}
+.badge--space {
+  background: rgba(78, 205, 196, 0.1);
+  color: var(--accent3);
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+.badge--easy {
+  background: rgba(78, 205, 196, 0.15);
+  color: var(--accent3);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+}
+.badge--medium {
+  background: rgba(255, 230, 109, 0.15);
+  color: var(--accent4);
+  border: 1px solid rgba(255, 230, 109, 0.3);
+}
+.badge--hard {
+  background: rgba(255, 107, 107, 0.15);
+  color: var(--accent2);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+}
+.badge--source {
+  background: rgba(136, 136, 160, 0.1);
+  color: var(--text-dim);
+  border: 1px solid rgba(136, 136, 160, 0.2);
+}
+
+/* ─── Algorithm Card ─── */
+.algo-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 0.75rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+.algo-card:hover {
+  border-color: rgba(108, 99, 255, 0.3);
+}
+.algo-card.expanded-l1 {
+  border-color: var(--accent);
+  box-shadow: 0 4px 20px var(--glow);
+}
+
+/* ─── Algo Header (Level 0 — always visible) ─── */
+.algo-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease;
+}
+.algo-header:hover {
+  background: var(--card-hover);
+}
+.algo-title-group {
+  flex-shrink: 0;
+  min-width: 0;
+}
+.algo-name {
+  font-size: 1rem;
+  font-weight: 700;
+}
+.algo-name-zh {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+.algo-oneliner {
+  flex: 1;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.algo-badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+.algo-chevron {
+  font-size: 1rem;
+  color: var(--text-dim);
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+.algo-card.expanded-l1 .algo-chevron {
+  transform: rotate(180deg);
+}
+
+/* ─── Algo Detail (Level 1 — expand on click) ─── */
+.algo-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.algo-detail-inner {
+  padding: 0 1.25rem 1.25rem;
+}
+.detail-section {
+  margin-bottom: 1.25rem;
+}
+.detail-section:last-child { margin-bottom: 0; }
+.detail-section h3 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-mono);
+}
+.detail-section p {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--text);
+}
+.detail-section ul {
+  list-style: none;
+  padding: 0;
+}
+.detail-section ul li {
+  font-size: 0.85rem;
+  color: var(--text);
+  padding: 0.25rem 0;
+  padding-left: 1.2rem;
+  position: relative;
+}
+.detail-section ul li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+.insight-box {
+  background: rgba(108, 99, 255, 0.08);
+  border-left: 3px solid var(--accent);
+  padding: 0.8rem 1rem;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.insight-box-zh {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+}
+
+/* ─── Code Block ─── */
+.code-block {
+  background: #12141c;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #c0c0d8;
+  overflow-x: auto;
+  white-space: pre;
+  line-height: 1.7;
+  position: relative;
+}
+.code-block::before {
+  content: 'Python';
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.code-keyword { color: var(--accent); }
+.code-string { color: var(--accent3); }
+.code-comment { color: #5a5a7a; font-style: italic; }
+.code-number { color: var(--accent4); }
+.code-func { color: var(--accent2); }
+.code-builtin { color: #c792ea; }
+
+/* ─── Complexity Table ─── */
+.complexity-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+}
+.complexity-table th {
+  color: var(--text-dim);
+  font-weight: 400;
+  text-align: left;
+  padding: 0.4rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.7rem;
+}
+.complexity-table td {
+  padding: 0.4rem 0.8rem;
+  border-bottom: 1px solid rgba(42, 45, 58, 0.5);
+}
+.complexity-table tr:last-child td { border-bottom: none; }
+
+/* ─── Deep Dive Button ─── */
+.deep-dive-btn {
+  display: block;
+  width: 100%;
+  background: rgba(108, 99, 255, 0.06);
+  border: 1px dashed rgba(108, 99, 255, 0.3);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  padding: 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 1rem;
+}
+.deep-dive-btn:hover {
+  background: rgba(108, 99, 255, 0.12);
+  border-color: var(--accent);
+}
+
+/* ─── Deep Dive (Level 2) ─── */
+.algo-deep-dive {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.algo-deep-dive-inner {
+  padding-top: 1rem;
+}
+.variation-list, .related-list, .app-list {
+  display: grid;
+  gap: 0.4rem;
+}
+.variation-item, .related-item, .app-item {
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  background: rgba(108, 99, 255, 0.04);
+  border-radius: 6px;
+  border-left: 2px solid var(--accent);
+}
+.related-item { border-left-color: var(--accent3); }
+.app-item { border-left-color: var(--accent4); }
+.vs-box {
+  background: rgba(255, 107, 107, 0.06);
+  border-left: 3px solid var(--accent2);
+  padding: 0.8rem 1rem;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+.walkthrough-block {
+  background: #12141c;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: #c0c0d8;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+/* ─── Navigation ─── */
+.nav-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+.nav-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  text-decoration: none;
+  color: var(--text);
+  padding: 0.8rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: all 0.3s ease;
+  min-width: 0;
+}
+.nav-btn:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 15px var(--glow);
+}
+.nav-prev { align-items: flex-start; }
+.nav-next { align-items: flex-end; }
+.nav-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+.nav-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.nav-placeholder { flex: 1; }
+
+/* ─── Coming Soon (category page) ─── */
+.coming-soon-container {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+.coming-soon-msg {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+}
+.coming-soon-msg-zh {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  margin-bottom: 2rem;
+}
+.planned-list {
+  list-style: none;
+  padding: 0;
+  max-width: 400px;
+  margin: 0 auto;
+}
+.planned-list li {
+  padding: 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  border-bottom: 1px dashed var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.planned-check {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* ─── Footer ─── */
+.footer {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ─── Fade-in ─── */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .hero { padding: 4rem 1.5rem 2rem; }
+  .hero h1 { font-size: 1.8rem; }
+  .algo-header { flex-wrap: wrap; gap: 0.5rem; }
+  .algo-oneliner { display: none; }
+  .controls { flex-direction: column; align-items: flex-start; }
+  .nav-footer { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<section class="hero">
+  <div class="hero-icon">🕸️</div>
+  <h1>Graphs: Traversal</h1>
+  <div class="hero-zh">图：遍历</div>
+  <div class="hero-desc">Exploring graph structure with DFS, BFS, and applications</div>
+  <div class="hero-stats" id="heroStats"></div>
+  <a href="index.html" class="back-link">← Back to Atlas</a>
+</section>
+
+<div class="container">
+  <div class="controls" id="controls">
+    <div class="control-group">
+      <span class="control-label">Sort</span>
+      <button class="ctrl-btn active" data-sort="default" onclick="sortBy('default', this)">Default</button>
+      <button class="ctrl-btn" data-sort="difficulty" onclick="sortBy('difficulty', this)">Difficulty</button>
+      <button class="ctrl-btn" data-sort="complexity" onclick="sortBy('complexity', this)">Complexity</button>
+    </div>
+    <div class="control-group">
+      <span class="control-label">Filter</span>
+      <button class="ctrl-btn active" data-filter="all" onclick="filterBy('all', this)">All</button>
+      <button class="ctrl-btn" data-filter="easy" onclick="filterBy('easy', this)">Easy</button>
+      <button class="ctrl-btn" data-filter="medium" onclick="filterBy('medium', this)">Medium</button>
+      <button class="ctrl-btn" data-filter="hard" onclick="filterBy('hard', this)">Hard</button>
+    </div>
+    <button class="expand-all-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand All</button>
+  </div>
+
+  <div class="algo-list" id="algoList"></div>
+
+  <nav class="nav-footer">
+    <a href="trees.html" class="nav-btn nav-prev"><span class="nav-label">← prev</span><span class="nav-title">🌲 Trees</span></a>
+    <a href="graphs-shortest-paths.html" class="nav-btn nav-next"><span class="nav-label">next →</span><span class="nav-title">🛤️ Graphs: Shortest Paths</span></a>
+  </nav>
+</div>
+
+<div class="footer">
+  Algo Atlas · Graphs: Traversal
+</div>
+
+<script>
+const categoryMeta = {
+  "id": "graphs-traversal",
+  "name": "Graphs: Traversal",
+  "nameZh": "图：遍历",
+  "icon": "🕸️",
+  "description": "Exploring graph structure with DFS, BFS, and applications",
+  "descriptionZh": "用 DFS、BFS 探索图结构及其应用",
+  "dataFile": "graphs-traversal.json",
+  "outputFile": "graphs-traversal.html",
+  "status": "active",
+  "order": 6,
+  "algoCount": 7
+};
+
+const algorithms = [
+  {
+    "id": "dfs",
+    "name": "Depth-First Search (DFS)",
+    "nameZh": "深度优先搜索",
+    "difficulty": "medium",
+    "source": "algs4",
+    "sourceChapter": "4.1",
+    "oneLiner": "Explore as far as possible along each branch before backtracking",
+    "oneLinerZh": "沿每条分支尽可能深入探索，然后回溯",
+    "complexity": {
+      "time": {
+        "best": "O(V+E)",
+        "average": "O(V+E)",
+        "worst": "O(V+E)"
+      },
+      "space": "O(V)"
+    },
+    "problemDefinition": "Given an undirected graph G = (V, E) represented as an adjacency list, visit all vertices reachable from a source vertex s. DFS explores the graph by going deeper into unvisited neighbors before backtracking, producing a DFS tree that encodes reachability information.",
+    "problemDefinitionZh": "给定一个以邻接表表示的无向图 G = (V, E)，访问从源顶点 s 可达的所有顶点。DFS 通过优先深入未访问的邻居来探索图，回溯前尽可能走远，生成一棵编码可达性信息的 DFS 树。",
+    "whenToUse": [
+      "Exploring all vertices reachable from a source",
+      "Finding connected components in undirected graphs",
+      "Detecting cycles in graphs",
+      "Topological sorting of directed acyclic graphs",
+      "Solving maze and puzzle problems"
+    ],
+    "keyInsight": "DFS uses a stack (implicit via recursion or explicit) to remember which vertex to explore next. By marking vertices as visited before recursing, each vertex and edge is processed exactly once, giving O(V+E) time. The recursive structure naturally produces a spanning tree of the reachable subgraph.",
+    "keyInsightZh": "DFS 使用栈（通过递归隐式实现或显式使用）来记住下一个要探索的顶点。通过在递归前标记已访问顶点，每个顶点和边恰好处理一次，时间复杂度为 O(V+E)。递归结构自然产生可达子图的生成树。",
+    "implementation": "def dfs(graph: list[list[int]], s: int) -> list[bool]:\n    \"\"\"DFS from source s. graph[v] = list of neighbors.\n    Returns visited[] array indicating reachability from s.\"\"\"\n    n = len(graph)\n    visited = [False] * n\n    edge_to = [-1] * n  # edge_to[v] = previous vertex on path from s\n\n    def _dfs(v: int) -> None:\n        visited[v] = True\n        for w in graph[v]:\n            if not visited[w]:\n                edge_to[w] = v\n                _dfs(w)\n\n    _dfs(s)\n    return visited\n\n\ndef dfs_iterative(graph: list[list[int]], s: int) -> list[bool]:\n    \"\"\"Iterative DFS using an explicit stack.\"\"\"\n    n = len(graph)\n    visited = [False] * n\n    stack = [s]\n    while stack:\n        v = stack.pop()\n        if visited[v]:\n            continue\n        visited[v] = True\n        for w in graph[v]:\n            if not visited[w]:\n                stack.append(w)\n    return visited",
+    "deepDive": {
+      "explanation": "DFS starts at a source vertex and immediately dives into the first unvisited neighbor, then into that neighbor's first unvisited neighbor, and so on. When it reaches a vertex with no unvisited neighbors, it backtracks to the most recently visited vertex that still has unvisited neighbors. This last-in-first-out behavior is precisely a stack. The recursive version uses the call stack; the iterative version uses an explicit stack. DFS produces a spanning tree (the DFS tree) where tree edges connect parent to child, and non-tree edges (back edges) connect a vertex to an ancestor.",
+      "walkthrough": "Graph (adjacency list):\n0: [1, 2, 5]\n1: [0, 2]\n2: [0, 1, 3, 4]\n3: [2, 4, 5]\n4: [2, 3]\n5: [0, 3]\n\nDFS from vertex 0:\n  Visit 0 → neighbor 1\n  Visit 1 → neighbor 2 (0 already visited)\n  Visit 2 → neighbor 3 (0,1 already visited)\n  Visit 3 → neighbor 4 (2 already visited)\n  Visit 4 → no unvisited neighbors, backtrack\n  Back to 3 → neighbor 5\n  Visit 5 → no unvisited neighbors, backtrack\n  All done.\n\nVisit order: 0, 1, 2, 3, 4, 5\nedge_to: [-1, 0, 1, 2, 3, 3]\nPath 0→5: 0 → 1 → 2 → 3 → 5",
+      "variations": [
+        "DFS with pre/post numbering for edge classification (tree, back, forward, cross)",
+        "Iterative deepening DFS (IDDFS) — combines DFS space efficiency with BFS level-order",
+        "DFS on implicit graphs (e.g., game state spaces, puzzle solving)",
+        "Euler tour using DFS for tree flattening"
+      ],
+      "relatedProblems": [
+        "Number of Islands (LeetCode 200)",
+        "Clone Graph (LeetCode 133)",
+        "Path Sum (LeetCode 112)",
+        "All Paths From Source to Target (LeetCode 797)"
+      ],
+      "realWorldApps": [
+        "Web crawlers — follow links depth-first to discover pages",
+        "File system traversal — recursively listing directories",
+        "Garbage collection — mark phase uses DFS to find reachable objects",
+        "Solving mazes and puzzles (e.g., Sudoku with backtracking)"
+      ],
+      "vsAlternatives": "BFS explores level by level and finds shortest paths in unweighted graphs, while DFS dives deep first. DFS uses O(V) space (recursion stack), while BFS uses O(V) space (queue). DFS is simpler to implement recursively and is the foundation for many advanced algorithms (topological sort, SCC, cycle detection). BFS is preferred when shortest paths matter."
+    },
+    "complexityRank": 12,
+    "defaultOrder": 0
+  },
+  {
+    "id": "bfs",
+    "name": "Breadth-First Search (BFS)",
+    "nameZh": "广度优先搜索",
+    "difficulty": "medium",
+    "source": "algs4",
+    "sourceChapter": "4.1",
+    "oneLiner": "Explore all neighbors at the current depth before moving deeper — finds shortest paths in unweighted graphs",
+    "oneLinerZh": "先探索当前深度的所有邻居再深入下一层——在无权图中找到最短路径",
+    "complexity": {
+      "time": {
+        "best": "O(V+E)",
+        "average": "O(V+E)",
+        "worst": "O(V+E)"
+      },
+      "space": "O(V)"
+    },
+    "problemDefinition": "Given an undirected graph G = (V, E) as an adjacency list and a source vertex s, find the shortest path (fewest edges) from s to every other reachable vertex. BFS explores vertices in order of their distance from s, guaranteeing shortest paths in unweighted graphs.",
+    "problemDefinitionZh": "给定以邻接表表示的无向图 G = (V, E) 和源顶点 s，找到从 s 到每个可达顶点的最短路径（最少边数）。BFS 按顶点与 s 的距离顺序探索，保证在无权图中获得最短路径。",
+    "whenToUse": [
+      "Shortest path in unweighted graphs (fewest edges)",
+      "Level-order traversal of trees or graph layers",
+      "Finding all vertices within distance k from a source",
+      "Multi-source BFS (e.g., rotten oranges spreading simultaneously)",
+      "Checking bipartiteness of a graph"
+    ],
+    "keyInsight": "BFS uses a FIFO queue: all vertices at distance d from s are processed before any vertex at distance d+1. This level-by-level expansion guarantees that the first time a vertex is discovered, it is via a shortest path. Each vertex is enqueued and dequeued exactly once.",
+    "keyInsightZh": "BFS 使用 FIFO 队列：距 s 距离为 d 的所有顶点在距离 d+1 的任何顶点之前处理。这种逐层扩展保证了首次发现某顶点时就是通过最短路径。每个顶点恰好入队和出队一次。",
+    "implementation": "from collections import deque\n\ndef bfs(graph: list[list[int]], s: int) -> tuple[list[int], list[int]]:\n    \"\"\"BFS from source s. graph[v] = list of neighbors.\n    Returns (dist, edge_to) where dist[v] = shortest distance\n    from s to v (-1 if unreachable), edge_to[v] = previous vertex.\"\"\"\n    n = len(graph)\n    dist = [-1] * n\n    edge_to = [-1] * n\n    dist[s] = 0\n    queue = deque([s])\n    while queue:\n        v = queue.popleft()\n        for w in graph[v]:\n            if dist[w] == -1:\n                dist[w] = dist[v] + 1\n                edge_to[w] = v\n                queue.append(w)\n    return dist, edge_to\n\n\ndef shortest_path(graph: list[list[int]], s: int, t: int) -> list[int]:\n    \"\"\"Return shortest path from s to t as list of vertices, or [].\"\"\"\n    dist, edge_to = bfs(graph, s)\n    if dist[t] == -1:\n        return []\n    path = []\n    x = t\n    while x != s:\n        path.append(x)\n        x = edge_to[x]\n    path.append(s)\n    path.reverse()\n    return path",
+    "deepDive": {
+      "explanation": "BFS maintains a FIFO queue initialized with the source vertex. At each step, the front vertex v is dequeued, and all of v's unvisited neighbors are marked with distance dist[v] + 1 and enqueued. Because the queue processes vertices in order of discovery (FIFO), vertices at distance d are all processed before vertices at distance d+1. This wavefront expansion guarantees optimality: the first time we reach a vertex, we have found the shortest path to it. The edge_to[] array records the BFS tree, enabling path reconstruction by tracing back from the target.",
+      "walkthrough": "Graph (adjacency list):\n0: [1, 2, 5]\n1: [0, 2]\n2: [0, 1, 3, 4]\n3: [2, 4, 5]\n4: [2, 3]\n5: [0, 3]\n\nBFS from vertex 0:\n  Queue: [0]         dist[0]=0\n  Dequeue 0 → enqueue 1,2,5\n  Queue: [1,2,5]     dist[1]=1, dist[2]=1, dist[5]=1\n  Dequeue 1 → neighbors 0,2 already visited\n  Dequeue 2 → enqueue 3,4\n  Queue: [5,3,4]     dist[3]=2, dist[4]=2\n  Dequeue 5 → neighbor 3 already visited\n  Dequeue 3 → neighbors already visited\n  Dequeue 4 → neighbors already visited\n  Done.\n\ndist: [0, 1, 1, 2, 2, 1]\nShortest path 0→4: 0 → 2 → 4 (2 edges)",
+      "variations": [
+        "Multi-source BFS — initialize queue with multiple sources (distance 0 for all)",
+        "0-1 BFS — using deque for graphs with edge weights 0 or 1",
+        "Bidirectional BFS — search from both source and target, meet in the middle",
+        "BFS on implicit graphs (e.g., word ladder, state-space search)"
+      ],
+      "relatedProblems": [
+        "Shortest Path in Binary Matrix (LeetCode 1091)",
+        "Word Ladder (LeetCode 127)",
+        "Rotting Oranges (LeetCode 994)",
+        "Open the Lock (LeetCode 752)"
+      ],
+      "realWorldApps": [
+        "Social network — finding degrees of separation between people",
+        "GPS navigation — shortest route in unweighted road networks",
+        "Network broadcasting — packet flooding in computer networks",
+        "Web crawlers — discovering pages level by level from a seed URL"
+      ],
+      "vsAlternatives": "DFS does not guarantee shortest paths and may explore deep, irrelevant branches. BFS always finds shortest paths in unweighted graphs. For weighted graphs, Dijkstra's algorithm generalizes BFS using a priority queue. BFS uses O(V) space for the queue, same as DFS for its stack. BFS is optimal for unweighted shortest paths; Dijkstra for non-negative weights; Bellman-Ford for negative weights."
+    },
+    "complexityRank": 12,
+    "defaultOrder": 1
+  },
+  {
+    "id": "connected-components",
+    "name": "Connected Components",
+    "nameZh": "连通分量",
+    "difficulty": "medium",
+    "source": "algs4",
+    "sourceChapter": "4.1",
+    "oneLiner": "Identify all connected components in an undirected graph using DFS",
+    "oneLinerZh": "使用 DFS 识别无向图中的所有连通分量",
+    "complexity": {
+      "time": {
+        "best": "O(V+E)",
+        "average": "O(V+E)",
+        "worst": "O(V+E)"
+      },
+      "space": "O(V)"
+    },
+    "problemDefinition": "Given an undirected graph G = (V, E), partition its vertices into maximal sets such that every pair of vertices within a set is connected by a path. Two vertices u and v are in the same component if and only if there exists a path between them. Assign each vertex a component ID so that connected(u, v) can be answered in O(1).",
+    "problemDefinitionZh": "给定无向图 G = (V, E)，将其顶点划分为若干极大集合，使得每个集合内任意两个顶点之间都存在路径。顶点 u 和 v 在同一分量中当且仅当它们之间存在路径。为每个顶点分配分量 ID，从而可以在 O(1) 时间回答 connected(u, v) 查询。",
+    "whenToUse": [
+      "Determining if two vertices are connected in O(1) after preprocessing",
+      "Counting the number of connected components",
+      "Finding isolated subgraphs or clusters",
+      "Preprocessing step before applying per-component algorithms"
+    ],
+    "keyInsight": "Run DFS from each unvisited vertex, assigning a component ID. All vertices reached during one DFS call belong to the same component. After processing, connected(u, v) reduces to checking comp_id[u] == comp_id[v] in O(1). The total work is O(V+E) since every vertex and edge is examined exactly once across all DFS calls.",
+    "keyInsightZh": "从每个未访问顶点运行 DFS，分配分量 ID。一次 DFS 调用中到达的所有顶点属于同一分量。处理后，connected(u, v) 简化为检查 comp_id[u] == comp_id[v]，O(1) 时间。总工作量为 O(V+E)，因为每个顶点和边在所有 DFS 调用中恰好检查一次。",
+    "implementation": "def connected_components(graph: list[list[int]]) -> tuple[list[int], int]:\n    \"\"\"Find all connected components. graph[v] = list of neighbors.\n    Returns (comp_id, count) where comp_id[v] = component index\n    and count = total number of components.\"\"\"\n    n = len(graph)\n    comp_id = [-1] * n\n    count = 0\n\n    def _dfs(v: int, cid: int) -> None:\n        comp_id[v] = cid\n        for w in graph[v]:\n            if comp_id[w] == -1:\n                _dfs(w, cid)\n\n    for v in range(n):\n        if comp_id[v] == -1:\n            _dfs(v, count)\n            count += 1\n\n    return comp_id, count\n\n\ndef connected(comp_id: list[int], u: int, v: int) -> bool:\n    \"\"\"O(1) connectivity query after preprocessing.\"\"\"\n    return comp_id[u] == comp_id[v]",
+    "deepDive": {
+      "explanation": "The algorithm iterates through all vertices. For each unvisited vertex, it launches a DFS that marks every reachable vertex with the current component ID, then increments the ID counter. Since DFS visits all vertices reachable from the source, each connected component is fully discovered in one pass. The beauty is that after O(V+E) preprocessing, any connectivity query takes O(1) — just compare component IDs. This is an alternative to Union-Find for static graphs (no edge insertions).",
+      "walkthrough": "Graph with 7 vertices:\n0: [1, 2]    3: [4]    5: [6]\n1: [0, 2]    4: [3]    6: [5]\n2: [0, 1]\n\nIteration:\n  v=0: unvisited → DFS(0, cid=0)\n    Visit 0(cid=0) → 1(cid=0) → 2(cid=0)\n    count = 1\n  v=1: already visited (cid=0)\n  v=2: already visited (cid=0)\n  v=3: unvisited → DFS(3, cid=1)\n    Visit 3(cid=1) → 4(cid=1)\n    count = 2\n  v=4: already visited (cid=1)\n  v=5: unvisited → DFS(5, cid=2)\n    Visit 5(cid=2) → 6(cid=2)\n    count = 3\n\nResult: comp_id = [0, 0, 0, 1, 1, 2, 2], count = 3\nconnected(0, 2) = True, connected(0, 3) = False",
+      "variations": [
+        "BFS-based connected components — replace DFS with BFS, same complexity",
+        "Union-Find for dynamic connectivity (supports edge insertions)",
+        "Strongly connected components for directed graphs (Kosaraju or Tarjan)",
+        "Biconnected components — maximal subgraphs with no cut vertices"
+      ],
+      "relatedProblems": [
+        "Number of Connected Components in an Undirected Graph (LeetCode 323)",
+        "Number of Islands (LeetCode 200)",
+        "Graph Valid Tree (LeetCode 261)",
+        "Accounts Merge (LeetCode 721)"
+      ],
+      "realWorldApps": [
+        "Social network analysis — finding friend groups or communities",
+        "Image processing — labeling connected regions of pixels",
+        "Network reliability — identifying disconnected network segments",
+        "Compiler optimization — finding independent code blocks"
+      ],
+      "vsAlternatives": "Union-Find also solves connectivity but supports dynamic edge insertions in near-O(1) amortized time. For static graphs, DFS-based CC is simpler and has the same O(V+E) complexity. Union-Find is preferred when edges arrive online. For directed graphs, connected components are replaced by strongly connected components (Kosaraju or Tarjan)."
+    },
+    "complexityRank": 12,
+    "defaultOrder": 2
+  },
+  {
+    "id": "cycle-detection-undirected",
+    "name": "Cycle Detection (Undirected)",
+    "nameZh": "环检测（无向图）",
+    "difficulty": "medium",
+    "source": "algs4",
+    "sourceChapter": "4.1",
+    "oneLiner": "Detect if an undirected graph contains a cycle using DFS parent tracking",
+    "oneLinerZh": "使用 DFS 父节点追踪检测无向图中是否存在环",
+    "complexity": {
+      "time": {
+        "best": "O(V+E)",
+        "average": "O(V+E)",
+        "worst": "O(V+E)"
+      },
+      "space": "O(V)"
+    },
+    "problemDefinition": "Given an undirected graph G = (V, E) as an adjacency list, determine whether G contains a cycle. A cycle is a path that starts and ends at the same vertex, using at least three distinct vertices. In undirected graphs, an edge u-v creates a trivial round trip u→v→u, so we must track the parent of each vertex to avoid false positives.",
+    "problemDefinitionZh": "给定以邻接表表示的无向图 G = (V, E)，判断 G 中是否包含环。环是一条从某顶点出发并返回该顶点的路径，至少使用三个不同顶点。在无向图中，边 u-v 会产生 u→v→u 的平凡往返，因此必须追踪每个顶点的父节点以避免误判。",
+    "whenToUse": [
+      "Checking if a graph is a tree (connected and acyclic)",
+      "Validating that a graph has no redundant edges",
+      "Prerequisite check before applying tree-only algorithms",
+      "Detecting feedback edges in network topologies"
+    ],
+    "keyInsight": "During DFS, if we encounter a visited neighbor w that is NOT the parent of the current vertex v, then we have found a cycle: the path from w down the DFS tree to v, plus the edge v-w, forms a cycle. Tracking the parent prevents the trivial u→v→u false positive. A connected graph with V vertices and E edges has a cycle if and only if E >= V.",
+    "keyInsightZh": "在 DFS 中，如果遇到一个已访问的邻居 w，且 w 不是当前顶点 v 的父节点，则发现了环：从 w 沿 DFS 树到 v 的路径加上边 v-w 构成一个环。追踪父节点可避免 u→v→u 的平凡误判。一个连通图有 V 个顶点和 E 条边时，当且仅当 E >= V 时存在环。",
+    "implementation": "def has_cycle_undirected(graph: list[list[int]]) -> bool:\n    \"\"\"Detect cycle in undirected graph. graph[v] = list of neighbors.\"\"\"\n    n = len(graph)\n    visited = [False] * n\n\n    def _dfs(v: int, parent: int) -> bool:\n        visited[v] = True\n        for w in graph[v]:\n            if not visited[w]:\n                if _dfs(w, v):\n                    return True\n            elif w != parent:\n                return True  # back edge → cycle\n        return False\n\n    for v in range(n):\n        if not visited[v]:\n            if _dfs(v, -1):\n                return True\n    return False\n\n\ndef find_cycle_undirected(graph: list[list[int]]) -> list[int]:\n    \"\"\"Return one cycle as a list of vertices, or [] if acyclic.\"\"\"\n    n = len(graph)\n    visited = [False] * n\n    edge_to = [-1] * n\n\n    def _dfs(v: int, parent: int) -> list[int]:\n        visited[v] = True\n        for w in graph[v]:\n            if not visited[w]:\n                edge_to[w] = v\n                result = _dfs(w, v)\n                if result:\n                    return result\n            elif w != parent:\n                # Reconstruct cycle: w → ... → v → w\n                cycle = [w]\n                x = v\n                while x != w:\n                    cycle.append(x)\n                    x = edge_to[x]\n                cycle.append(w)\n                return cycle\n        return []\n\n    for v in range(n):\n        if not visited[v]:\n            result = _dfs(v, -1)\n            if result:\n                return result\n    return []",
+    "deepDive": {
+      "explanation": "In DFS on an undirected graph, every edge is explored twice (once from each endpoint). When we visit vertex v and examine neighbor w, there are three cases: (1) w is unvisited — recurse into w with parent=v. (2) w is visited and w == parent — this is just the edge we came from, skip it. (3) w is visited and w != parent — w is an ancestor of v in the DFS tree, forming a back edge. The path from w to v in the DFS tree plus the edge v→w creates a cycle. This distinction between parent and ancestor is the key to correctness.",
+      "walkthrough": "Graph:\n0: [1, 2]\n1: [0, 2]\n2: [0, 1]\n\nDFS from 0 (parent=-1):\n  Visit 0 → neighbor 1 (unvisited)\n  DFS(1, parent=0):\n    Visit 1 → neighbor 0 (visited, but parent → skip)\n    Visit 1 → neighbor 2 (unvisited)\n    DFS(2, parent=1):\n      Visit 2 → neighbor 0 (visited, 0 != parent 1 → CYCLE!)\n      Cycle found: 0 → 1 → 2 → 0\n\nAcyclic example (tree):\n0: [1, 2]   1: [0]   2: [0]\nDFS(0) → DFS(1): only neighbor 0 = parent → skip\n       → DFS(2): only neighbor 0 = parent → skip\nNo cycle detected ✓",
+      "variations": [
+        "Union-Find cycle detection — if an edge connects two vertices in the same set, cycle exists",
+        "Finding all cycles — DFS with back edge enumeration",
+        "Detecting self-loops and parallel edges as special cases",
+        "Minimum cycle basis using BFS from each vertex"
+      ],
+      "relatedProblems": [
+        "Graph Valid Tree (LeetCode 261)",
+        "Redundant Connection (LeetCode 684)",
+        "Detect Cycles in 2D Grid (LeetCode 1559)",
+        "Find Eventual Safe States (LeetCode 802)"
+      ],
+      "realWorldApps": [
+        "Deadlock detection in operating systems (wait-for graph)",
+        "Network topology validation — ensuring tree structure",
+        "Circuit analysis — detecting feedback loops",
+        "Dependency management — verifying acyclic dependency graphs"
+      ],
+      "vsAlternatives": "Union-Find can also detect cycles in undirected graphs: process edges one by one; if both endpoints are already in the same component, adding the edge creates a cycle. Union-Find is O(E * alpha(V)), nearly linear. DFS is O(V+E) and also finds the actual cycle path. For directed graphs, parent tracking does not work — on-stack tracking is needed instead."
+    },
+    "complexityRank": 12,
+    "defaultOrder": 3
+  },
+  {
+    "id": "cycle-detection-directed",
+    "name": "Cycle Detection (Directed)",
+    "nameZh": "环检测（有向图）",
+    "difficulty": "medium",
+    "source": "algs4",
+    "sourceChapter": "4.2",
+    "oneLiner": "Detect directed cycles using DFS with an on-stack marker to find back edges",
+    "oneLinerZh": "使用 DFS 配合栈上标记检测有向图中的环",
+    "complexity": {
+      "time": {
+        "best": "O(V+E)",
+        "average": "O(V+E)",
+        "worst": "O(V+E)"
+      },
+      "space": "O(V)"
+    },
+    "problemDefinition": "Given a directed graph (digraph) G = (V, E) as an adjacency list, determine whether G contains a directed cycle. A directed cycle is a path v0 → v1 → ... → vk → v0 where all edges follow their direction. This is critical for topological sorting, which is only possible for directed acyclic graphs (DAGs).",
+    "problemDefinitionZh": "给定以邻接表表示的有向图 G = (V, E)，判断 G 中是否包含有向环。有向环是路径 v0 → v1 → ... → vk → v0，其中所有边沿其方向行进。这对拓扑排序至关重要，因为拓扑排序仅适用于有向无环图（DAG）。",
+    "whenToUse": [
+      "Verifying a digraph is a DAG before topological sort",
+      "Detecting circular dependencies in build systems or imports",
+      "Deadlock detection in resource allocation graphs",
+      "Validating prerequisite structures (courses, tasks)"
+    ],
+    "keyInsight": "In a directed graph, the parent-tracking trick from undirected graphs does not work — a visited vertex might be in a different branch, not forming a cycle. Instead, maintain an on_stack[] array: vertices currently on the DFS recursion stack. If we encounter a neighbor that is on the stack, we have found a directed cycle. A visited vertex NOT on the stack is in a completed subtree and does not form a cycle.",
+    "keyInsightZh": "在有向图中，无向图的父节点追踪技巧不适用——已访问的顶点可能在不同分支上，不构成环。取而代之的是维护 on_stack[] 数组：当前在 DFS 递归栈上的顶点。如果遇到一个在栈上的邻居，就发现了有向环。已访问但不在栈上的顶点处于已完成的子树中，不构成环。",
+    "implementation": "def has_cycle_directed(graph: list[list[int]]) -> bool:\n    \"\"\"Detect directed cycle. graph[v] = list of successors.\"\"\"\n    n = len(graph)\n    visited = [False] * n\n    on_stack = [False] * n\n\n    def _dfs(v: int) -> bool:\n        visited[v] = True\n        on_stack[v] = True\n        for w in graph[v]:\n            if not visited[w]:\n                if _dfs(w):\n                    return True\n            elif on_stack[w]:\n                return True  # back edge in directed graph → cycle\n        on_stack[v] = False\n        return False\n\n    for v in range(n):\n        if not visited[v]:\n            if _dfs(v):\n                return True\n    return False\n\n\ndef find_cycle_directed(graph: list[list[int]]) -> list[int]:\n    \"\"\"Return one directed cycle as vertex list, or [] if DAG.\"\"\"\n    n = len(graph)\n    visited = [False] * n\n    on_stack = [False] * n\n    edge_to = [-1] * n\n\n    def _dfs(v: int) -> list[int]:\n        visited[v] = True\n        on_stack[v] = True\n        for w in graph[v]:\n            if not visited[w]:\n                edge_to[w] = v\n                result = _dfs(w)\n                if result:\n                    return result\n            elif on_stack[w]:\n                # Reconstruct cycle: w → ... → v → w\n                cycle = [w]\n                x = v\n                while x != w:\n                    cycle.append(x)\n                    x = edge_to[x]\n                cycle.append(w)\n                cycle.reverse()\n                return cycle\n        on_stack[v] = False\n        return []\n\n    for v in range(n):\n        if not visited[v]:\n            result = _dfs(v)\n            if result:\n                return result\n    return []",
+    "deepDive": {
+      "explanation": "DFS in a directed graph classifies edges into four types: tree edges (to unvisited vertices), back edges (to ancestors on the stack), forward edges (to descendants already finished), and cross edges (to vertices in other finished subtrees). Only back edges create cycles. The on_stack[] array distinguishes back edges from forward/cross edges: if w is visited AND on the stack, the edge v→w is a back edge forming the cycle w → ... → v → w. When DFS finishes processing v, it sets on_stack[v] = False, removing v from the active path.",
+      "walkthrough": "Digraph:\n0: [1, 2]\n1: [3]\n2: [3]\n3: [4]\n4: [2]    ← creates cycle 2 → 3 → 4 → 2\n\nDFS from 0:\n  Visit 0 (on_stack: {0})\n    → Visit 1 (on_stack: {0,1})\n      → Visit 3 (on_stack: {0,1,3})\n        → Visit 4 (on_stack: {0,1,3,4})\n          → neighbor 2: not visited\n          → Visit 2 (on_stack: {0,1,3,4,2})\n            → neighbor 3: visited AND on_stack → CYCLE!\n            Cycle: 3 → 4 → 2 → 3\n\nDAG example (remove edge 4→2, add 4→5):\nAll DFS paths complete without finding on-stack neighbor → no cycle ✓",
+      "variations": [
+        "Kahn's algorithm (BFS-based) — remove vertices with in-degree 0 iteratively; cycle exists if vertices remain",
+        "Three-color marking: WHITE (unvisited), GRAY (on stack), BLACK (finished)",
+        "Finding all cycles — enumerate all back edges and reconstruct",
+        "Cycle detection with edge weights for negative-cycle detection (Bellman-Ford)"
+      ],
+      "relatedProblems": [
+        "Course Schedule (LeetCode 207)",
+        "Course Schedule II (LeetCode 210)",
+        "Find Eventual Safe States (LeetCode 802)",
+        "Detect Cycles in 2D Grid (LeetCode 1559)"
+      ],
+      "realWorldApps": [
+        "Build systems (Make, Gradle) — detect circular dependencies",
+        "Package managers (npm, pip) — validate dependency DAGs",
+        "Spreadsheet engines — detect circular cell references",
+        "Task scheduling — verify that prerequisite orderings are acyclic"
+      ],
+      "vsAlternatives": "Undirected cycle detection uses simple parent tracking, but directed graphs require on-stack tracking because a visited vertex in another branch does not imply a cycle. Kahn's algorithm (BFS with in-degree counting) is an alternative: iteratively remove zero-in-degree vertices; if any remain, a cycle exists. Kahn's also produces a topological order as a byproduct. DFS is more natural for finding the actual cycle path."
+    },
+    "complexityRank": 12,
+    "defaultOrder": 4
+  },
+  {
+    "id": "topological-sort",
+    "name": "Topological Sort",
+    "nameZh": "拓扑排序",
+    "difficulty": "hard",
+    "source": "algs4",
+    "sourceChapter": "4.2",
+    "oneLiner": "Order vertices of a DAG so every edge u→v has u before v — reverse DFS postorder",
+    "oneLinerZh": "对 DAG 的顶点排序，使每条边 u→v 中 u 在 v 之前——DFS 后序的逆序",
+    "complexity": {
+      "time": {
+        "best": "O(V+E)",
+        "average": "O(V+E)",
+        "worst": "O(V+E)"
+      },
+      "space": "O(V)"
+    },
+    "problemDefinition": "Given a directed acyclic graph (DAG) G = (V, E), find a linear ordering of vertices such that for every directed edge u → v, vertex u appears before v in the ordering. This ordering is called a topological order. A topological order exists if and only if the graph has no directed cycles.",
+    "problemDefinitionZh": "给定有向无环图（DAG）G = (V, E)，找到顶点的线性排序，使得对于每条有向边 u → v，顶点 u 在排序中出现在 v 之前。这种排序称为拓扑序。拓扑序存在当且仅当图中没有有向环。",
+    "whenToUse": [
+      "Task scheduling with prerequisites (courses, jobs, builds)",
+      "Determining compilation order of source files",
+      "Resolving symbol dependencies in linkers",
+      "Evaluating spreadsheet cells in dependency order",
+      "Shortest/longest paths in DAGs"
+    ],
+    "keyInsight": "In DFS, when a vertex finishes (all descendants processed), it is added to the postorder. Reversing the postorder gives a topological order. Why? If edge u→v exists, DFS ensures v finishes before u (v is deeper), so u appears after v in postorder but before v in reverse postorder. This elegant connection between DFS and topological order is one of the deepest results in graph theory.",
+    "keyInsightZh": "在 DFS 中，当一个顶点完成处理（所有后代已处理完毕），将其加入后序。后序的逆序就是拓扑序。原因：若存在边 u→v，DFS 保证 v 在 u 之前完成（v 更深），因此 u 在后序中位于 v 之后，但在逆后序中位于 v 之前。DFS 与拓扑序之间的这种优雅联系是图论中最深刻的结果之一。",
+    "implementation": "def topological_sort(graph: list[list[int]]) -> list[int]:\n    \"\"\"Topological sort via reverse DFS postorder.\n    graph[v] = list of successors. Assumes graph is a DAG.\n    Returns vertices in topological order.\"\"\"\n    n = len(graph)\n    visited = [False] * n\n    postorder = []\n\n    def _dfs(v: int) -> None:\n        visited[v] = True\n        for w in graph[v]:\n            if not visited[w]:\n                _dfs(w)\n        postorder.append(v)  # add AFTER processing all descendants\n\n    for v in range(n):\n        if not visited[v]:\n            _dfs(v)\n\n    postorder.reverse()  # reverse postorder = topological order\n    return postorder\n\n\ndef topological_sort_kahn(graph: list[list[int]]) -> list[int]:\n    \"\"\"Kahn's algorithm: BFS-based topological sort.\n    Returns topological order, or [] if cycle exists.\"\"\"\n    from collections import deque\n    n = len(graph)\n    in_degree = [0] * n\n    for v in range(n):\n        for w in graph[v]:\n            in_degree[w] += 1\n\n    queue = deque(v for v in range(n) if in_degree[v] == 0)\n    order = []\n    while queue:\n        v = queue.popleft()\n        order.append(v)\n        for w in graph[v]:\n            in_degree[w] -= 1\n            if in_degree[w] == 0:\n                queue.append(w)\n\n    if len(order) != n:\n        return []  # cycle detected\n    return order",
+    "deepDive": {
+      "explanation": "There are two classic algorithms for topological sorting: (1) DFS-based (reverse postorder): Run DFS on the entire graph. Each time a vertex finishes (all its neighbors have been recursively explored), push it onto a stack or append to a list. The reverse of this postorder is a valid topological sort. Correctness: for any edge u→v, v finishes before u in DFS, so u comes before v in the reversed list. (2) Kahn's algorithm (BFS-based): Maintain a count of in-degree for each vertex. Start with all zero-in-degree vertices in a queue. Remove a vertex, add it to the result, and decrement the in-degree of its neighbors. When a neighbor reaches in-degree 0, add it to the queue. If the result contains fewer than V vertices, a cycle exists.",
+      "walkthrough": "DAG:\n0: [1, 2, 5]\n1: [4]\n2: [3]\n3: [4, 5]\n4: []\n5: []\n\nDFS-based topological sort:\n  DFS(0) → DFS(1) → DFS(4): finish 4\n         ← back to 1: finish 1\n         → DFS(2) → DFS(3) → 4 visited, DFS(5): finish 5\n                             ← finish 3\n                   ← finish 2\n         ← finish 0\n  Postorder: [4, 1, 5, 3, 2, 0]\n  Reverse:   [0, 2, 3, 5, 1, 4] ← topological order ✓\n\nVerify: 0→1 ✓, 0→2 ✓, 0→5 ✓, 1→4 ✓, 2→3 ✓, 3→4 ✓, 3→5 ✓\nEvery edge u→v has u before v in the ordering.",
+      "variations": [
+        "Kahn's algorithm — BFS-based, also detects cycles",
+        "All topological orderings — backtracking enumeration",
+        "Lexicographically smallest topological order — use min-heap instead of queue",
+        "Longest path in DAG — topological sort + DP"
+      ],
+      "relatedProblems": [
+        "Course Schedule II (LeetCode 210)",
+        "Alien Dictionary (LeetCode 269)",
+        "Parallel Courses (LeetCode 1136)",
+        "Longest Increasing Path in a Matrix (LeetCode 329)"
+      ],
+      "realWorldApps": [
+        "Build systems (Make, Bazel) — compile files in dependency order",
+        "Package managers — resolve and install dependencies bottom-up",
+        "Spreadsheet evaluation — compute cells in dependency order",
+        "University curriculum planning — order courses by prerequisites"
+      ],
+      "vsAlternatives": "DFS reverse postorder and Kahn's algorithm both run in O(V+E) and produce valid topological orders, but they may produce different orderings. Kahn's has the advantage of naturally detecting cycles (if the result has fewer than V vertices). DFS reverse postorder is more concise and is used as a building block in Kosaraju's SCC algorithm. For lexicographically smallest order, replace Kahn's queue with a min-heap (O(V log V + E))."
+    },
+    "complexityRank": 12,
+    "defaultOrder": 5
+  },
+  {
+    "id": "kosaraju-scc",
+    "name": "Kosaraju's Algorithm (Strong Components)",
+    "nameZh": "Kosaraju 算法（强连通分量）",
+    "difficulty": "hard",
+    "source": "algs4",
+    "sourceChapter": "4.2",
+    "oneLiner": "Find strongly connected components via two-pass DFS — first pass on reverse graph for ordering, second pass for labeling",
+    "oneLinerZh": "通过两遍 DFS 找强连通分量——第一遍在反向图上确定顺序，第二遍标记分量",
+    "complexity": {
+      "time": {
+        "best": "O(V+E)",
+        "average": "O(V+E)",
+        "worst": "O(V+E)"
+      },
+      "space": "O(V)"
+    },
+    "problemDefinition": "Given a directed graph G = (V, E), partition its vertices into strongly connected components (SCCs). An SCC is a maximal set of vertices such that for every pair u, v in the set, there is a directed path from u to v AND from v to u. Vertices u and v are strongly connected iff they are mutually reachable.",
+    "problemDefinitionZh": "给定有向图 G = (V, E)，将其顶点划分为强连通分量（SCC）。SCC 是一个极大顶点集合，其中任意一对顶点 u、v 之间既存在从 u 到 v 的有向路径，也存在从 v 到 u 的有向路径。顶点 u 和 v 强连通当且仅当它们互相可达。",
+    "whenToUse": [
+      "Determining mutual reachability in directed graphs",
+      "Simplifying a digraph by contracting each SCC to a single node (DAG of SCCs)",
+      "Solving 2-SAT problems via implication graph",
+      "Analyzing strongly connected clusters in web graphs or social networks"
+    ],
+    "keyInsight": "Kosaraju's insight: (1) compute reverse postorder of the reverse graph G^R, (2) run DFS on the original graph G in that order. Each DFS tree in pass 2 is exactly one SCC. Why? The reverse postorder of G^R ensures that when we start DFS at vertex v, all vertices reachable from v that can also reach v (i.e., in the same SCC) are visited before crossing into a different SCC.",
+    "keyInsightZh": "Kosaraju 的核心思想：(1) 计算反向图 G^R 的逆后序，(2) 按该顺序在原图 G 上运行 DFS。第二遍中的每棵 DFS 树恰好是一个 SCC。原因：G^R 的逆后序确保从顶点 v 开始 DFS 时，所有从 v 可达且也能到达 v 的顶点（即同一 SCC 中的顶点）在跨入不同 SCC 之前被访问。",
+    "implementation": "def kosaraju_scc(graph: list[list[int]]) -> tuple[list[int], int]:\n    \"\"\"Kosaraju's algorithm for strongly connected components.\n    graph[v] = list of successors (directed edges).\n    Returns (comp_id, count) where comp_id[v] = SCC index\n    and count = number of SCCs.\"\"\"\n    n = len(graph)\n\n    # Step 1: Build reverse graph\n    reverse_graph = [[] for _ in range(n)]\n    for v in range(n):\n        for w in graph[v]:\n            reverse_graph[w].append(v)\n\n    # Step 2: Compute reverse postorder on reverse graph\n    visited = [False] * n\n    postorder = []\n\n    def _dfs_reverse(v: int) -> None:\n        visited[v] = True\n        for w in reverse_graph[v]:\n            if not visited[w]:\n                _dfs_reverse(w)\n        postorder.append(v)\n\n    for v in range(n):\n        if not visited[v]:\n            _dfs_reverse(v)\n\n    # Step 3: DFS on original graph in reverse postorder\n    comp_id = [-1] * n\n    count = 0\n\n    def _dfs(v: int, cid: int) -> None:\n        comp_id[v] = cid\n        for w in graph[v]:\n            if comp_id[w] == -1:\n                _dfs(w, cid)\n\n    for v in reversed(postorder):  # reverse postorder\n        if comp_id[v] == -1:\n            _dfs(v, count)\n            count += 1\n\n    return comp_id, count\n\n\ndef strongly_connected(comp_id: list[int], u: int, v: int) -> bool:\n    \"\"\"O(1) strong connectivity query after preprocessing.\"\"\"\n    return comp_id[u] == comp_id[v]",
+    "deepDive": {
+      "explanation": "Kosaraju's algorithm is a two-pass DFS algorithm. Pass 1: Run DFS on the reverse graph G^R (all edges reversed) and record the finish order (postorder). Pass 2: Process vertices of the original graph G in reverse of that finish order. Each DFS tree discovered in pass 2 is a strongly connected component.\n\nThe key correctness argument: In the DAG of SCCs, if SCC A has an edge to SCC B, then in G^R, SCC B has an edge to SCC A. The reverse postorder from G^R ensures that SCC A's representative finishes after SCC B's in pass 1, so in pass 2, we process A before B. When DFS explores A in pass 2, it cannot escape into B (the edge goes A→B in G, but B has not been processed yet and is not reachable from A without going through B's unstarted DFS).",
+      "walkthrough": "Digraph:\n0: [1]     2: [0, 3]\n1: [2]     3: [4]\n4: [5]     5: [3]\n\nSCC structure:\n  SCC 0: {0, 1, 2} (0→1→2→0)\n  SCC 1: {3, 4, 5} (3→4→5→3)\n\nPass 1 (DFS on reverse graph):\n  Reverse edges: 0:[2], 1:[0], 2:[1], 3:[2,5], 4:[3], 5:[4]\n  DFS from 0: 0→2→1(finish 1)→(finish 2)→(finish 0)\n  DFS from 3: 3→5→4(finish 4)→(finish 5)→(finish 3)\n  Postorder: [1, 2, 0, 4, 5, 3]\n  Reverse postorder: [3, 5, 4, 0, 2, 1]\n\nPass 2 (DFS on original graph in reverse postorder):\n  v=3: DFS(3,cid=0) → 4(cid=0) → 5(cid=0) → 3 visited\n  v=5: already assigned\n  v=4: already assigned\n  v=0: DFS(0,cid=1) → 1(cid=1) → 2(cid=1) → 0 visited\n  v=2: already assigned\n  v=1: already assigned\n\nResult: comp_id=[1,1,1,0,0,0], count=2 ✓",
+      "variations": [
+        "Tarjan's algorithm — single-pass DFS using a stack and low-link values",
+        "Path-based SCC algorithm — uses two stacks",
+        "Condensation graph — contract each SCC to a single node, producing a DAG",
+        "2-SAT solver — build implication graph, find SCCs, check satisfiability"
+      ],
+      "relatedProblems": [
+        "Critical Connections in a Network (LeetCode 1192)",
+        "Minimum Number of Vertices to Reach All Nodes (LeetCode 1557)",
+        "Satisfiability of Equality Equations (LeetCode 990)",
+        "Strongly Connected Components in competitive programming"
+      ],
+      "realWorldApps": [
+        "Web graph analysis — identifying clusters of mutually linked pages",
+        "Social network analysis — finding tightly-knit communities",
+        "Compiler optimization — analyzing control flow for loop detection",
+        "Model checking — state-space reduction via SCC quotient"
+      ],
+      "vsAlternatives": "Tarjan's algorithm achieves the same O(V+E) complexity in a single DFS pass, using low-link values and a stack. Kosaraju's is conceptually simpler (just two DFS passes) and easier to implement correctly. Tarjan's uses less space (one pass) but is trickier to code. Both produce the same SCCs. For undirected graphs, the simpler connected-components algorithm suffices since strong and weak connectivity are equivalent."
+    },
+    "complexityRank": 12,
+    "defaultOrder": 6
+  }
+];
+
+const isComingSoon = false;
+
+const plannedAlgorithms = [];
+
+const comingSoonMessage = "";
+const comingSoonMessageZh = "";
+
+// ─── Python Syntax Highlighting (lightweight) ─────────────────────────────
+function highlightPython(code) {
+  // Escape HTML
+  let s = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Comments
+  s = s.replace(/(#.*?)$/gm, '<span class="code-comment">$1</span>');
+  // Triple-quoted strings
+  s = s.replace(/("""[\s\S]*?"""|'''[\s\S]*?''')/g, '<span class="code-string">$1</span>');
+  // Strings
+  s = s.replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, '<span class="code-string">$1</span>');
+  // Keywords
+  const kws = ['def','class','return','if','elif','else','for','while','in','not','and','or','is','None','True','False','import','from','as','with','try','except','finally','raise','yield','lambda','pass','break','continue','assert','global','nonlocal'];
+  const kwRe = new RegExp('\\b(' + kws.join('|') + ')\\b', 'g');
+  s = s.replace(kwRe, '<span class="code-keyword">$1</span>');
+  // Built-in functions
+  const builtins = ['len','range','print','int','float','str','list','dict','set','tuple','sorted','enumerate','zip','map','filter','isinstance','type','super','min','max','sum','abs','any','all','reversed','iter','next','hash','id','open','input'];
+  const biRe = new RegExp('\\b(' + builtins.join('|') + ')(?=\\()', 'g');
+  s = s.replace(biRe, '<span class="code-builtin">$1</span>');
+  // Function definitions
+  s = s.replace(/(?<=def\s+)(\w+)/g, '<span class="code-func">$1</span>');
+  // Numbers
+  s = s.replace(/\b(\d+\.?\d*)\b/g, '<span class="code-number">$1</span>');
+  return s;
+}
+
+// ─── Render ─────────────────────────────────────────────────────────────────
+const algoListEl = document.getElementById('algoList');
+const controlsEl = document.getElementById('controls');
+let allExpanded = false;
+
+if (isComingSoon) {
+  controlsEl.style.display = 'none';
+  algoListEl.innerHTML = `
+    <div class="coming-soon-container">
+      <div class="coming-soon-msg">${comingSoonMessage}</div>
+      <div class="coming-soon-msg-zh">${comingSoonMessageZh}</div>
+      <ul class="planned-list">
+        ${plannedAlgorithms.map(a => `<li><span class="planned-check"></span>${a}</li>`).join('')}
+      </ul>
+    </div>`;
+} else {
+  // Hero stats
+  const heroStatsEl = document.getElementById('heroStats');
+  const difficulties = [...new Set(algorithms.map(a => a.difficulty))];
+  heroStatsEl.innerHTML = `
+    <span class="badge badge--time">${algorithms.length} algorithms</span>
+    ${difficulties.map(d => `<span class="badge badge--${d}">${d}</span>`).join('')}`;
+
+  // Render algorithm cards
+  algorithms.forEach((algo, i) => {
+    const card = document.createElement('div');
+    card.className = 'algo-card fade-in';
+    card.dataset.id = algo.id;
+    card.dataset.difficulty = algo.difficulty;
+    card.dataset.complexityRank = algo.complexityRank;
+    card.dataset.defaultOrder = algo.defaultOrder;
+    card.id = algo.id;
+
+    const worstTime = algo.complexity?.time?.worst || '';
+    const codeHtml = highlightPython(algo.implementation || '');
+
+    const whenToUseHtml = (algo.whenToUse || []).map(w => `<li>${w}</li>`).join('');
+
+    // Complexity table
+    const tc = algo.complexity?.time || {};
+    const sc = algo.complexity?.space || '';
+    const complexityHtml = `
+      <table class="complexity-table">
+        <tr><th>Metric</th><th>Best</th><th>Average</th><th>Worst</th></tr>
+        <tr><td>Time</td><td>${tc.best || '—'}</td><td>${tc.average || '—'}</td><td>${tc.worst || '—'}</td></tr>
+        <tr><td colspan="3">Space</td><td>${sc}</td></tr>
+      </table>`;
+
+    // Deep dive
+    const dd = algo.deepDive || {};
+    const variationsHtml = (dd.variations || []).map(v => `<div class="variation-item">${v}</div>`).join('');
+    const relatedHtml = (dd.relatedProblems || []).map(r => `<div class="related-item">${r}</div>`).join('');
+    const appsHtml = (dd.realWorldApps || []).map(a => `<div class="app-item">${a}</div>`).join('');
+
+    card.innerHTML = `
+      <div class="algo-header" onclick="toggleL1(this)">
+        <div class="algo-title-group">
+          <div class="algo-name">${algo.name}</div>
+          <div class="algo-name-zh">${algo.nameZh}</div>
+        </div>
+        <div class="algo-oneliner">${algo.oneLiner || ''}</div>
+        <div class="algo-badges">
+          <span class="badge badge--time">${worstTime}</span>
+          <span class="badge badge--${algo.difficulty}">${algo.difficulty}</span>
+        </div>
+        <span class="algo-chevron">▾</span>
+      </div>
+      <div class="algo-detail">
+        <div class="algo-detail-inner">
+          <div class="detail-section">
+            <h3>Problem Definition</h3>
+            <p>${algo.problemDefinition || ''}</p>
+            ${algo.problemDefinitionZh ? `<p style="color:var(--text-dim);font-size:0.85rem;margin-top:0.3rem">${algo.problemDefinitionZh}</p>` : ''}
+          </div>
+          ${whenToUseHtml ? `<div class="detail-section"><h3>When to Use</h3><ul>${whenToUseHtml}</ul></div>` : ''}
+          <div class="detail-section">
+            <h3>Key Insight</h3>
+            <div class="insight-box">
+              ${algo.keyInsight || ''}
+              ${algo.keyInsightZh ? `<div class="insight-box-zh">${algo.keyInsightZh}</div>` : ''}
+            </div>
+          </div>
+          <div class="detail-section">
+            <h3>Implementation</h3>
+            <pre class="code-block">${codeHtml}</pre>
+          </div>
+          <div class="detail-section">
+            <h3>Complexity Analysis</h3>
+            ${complexityHtml}
+          </div>
+          ${dd.explanation ? `
+          <button class="deep-dive-btn" onclick="toggleL2(this)">Deep Dive ▾</button>
+          <div class="algo-deep-dive">
+            <div class="algo-deep-dive-inner">
+              <div class="detail-section">
+                <h3>Detailed Explanation</h3>
+                <p>${dd.explanation}</p>
+              </div>
+              ${dd.walkthrough ? `<div class="detail-section"><h3>Step-by-Step Walkthrough</h3><div class="walkthrough-block">${dd.walkthrough}</div></div>` : ''}
+              ${variationsHtml ? `<div class="detail-section"><h3>Variations & Optimizations</h3><div class="variation-list">${variationsHtml}</div></div>` : ''}
+              ${relatedHtml ? `<div class="detail-section"><h3>Related Problems</h3><div class="related-list">${relatedHtml}</div></div>` : ''}
+              ${appsHtml ? `<div class="detail-section"><h3>Real-World Applications</h3><div class="app-list">${appsHtml}</div></div>` : ''}
+              ${dd.vsAlternatives ? `<div class="detail-section"><h3>Comparison with Alternatives</h3><div class="vs-box">${dd.vsAlternatives}</div></div>` : ''}
+            </div>
+          </div>` : ''}
+        </div>
+      </div>`;
+
+    algoListEl.appendChild(card);
+  });
+}
+
+// ─── Expand / Collapse ────────────────────────────────────────────────────
+function toggleL1(headerEl) {
+  const card = headerEl.closest('.algo-card');
+  const detail = card.querySelector('.algo-detail');
+  const isOpen = card.classList.contains('expanded-l1');
+
+  if (isOpen) {
+    if (card.classList.contains('expanded-l2')) {
+      const btn = card.querySelector('.deep-dive-btn');
+      if (btn) toggleL2(btn);
+    }
+    detail.style.maxHeight = '0';
+    card.classList.remove('expanded-l1');
+  } else {
+    detail.style.maxHeight = detail.scrollHeight + 'px';
+    card.classList.add('expanded-l1');
+  }
+}
+
+function toggleL2(btnEl) {
+  const card = btnEl.closest('.algo-card');
+  const deepDive = card.querySelector('.algo-deep-dive');
+  const detail = card.querySelector('.algo-detail');
+  const isOpen = card.classList.contains('expanded-l2');
+
+  if (isOpen) {
+    deepDive.style.maxHeight = '0';
+    card.classList.remove('expanded-l2');
+    btnEl.textContent = 'Deep Dive ▾';
+  } else {
+    deepDive.style.maxHeight = deepDive.scrollHeight + 'px';
+    card.classList.add('expanded-l2');
+    btnEl.textContent = 'Deep Dive ▴';
+    // Recalculate parent
+    setTimeout(() => { detail.style.maxHeight = detail.scrollHeight + 'px'; }, 10);
+  }
+}
+
+function toggleExpandAll() {
+  const btn = document.getElementById('expandAllBtn');
+  const cards = document.querySelectorAll('.algo-card');
+  allExpanded = !allExpanded;
+
+  cards.forEach(card => {
+    if (card.style.display === 'none') return;
+    const detail = card.querySelector('.algo-detail');
+    if (allExpanded) {
+      detail.style.maxHeight = detail.scrollHeight + 'px';
+      card.classList.add('expanded-l1');
+    } else {
+      if (card.classList.contains('expanded-l2')) {
+        const ddBtn = card.querySelector('.deep-dive-btn');
+        if (ddBtn) toggleL2(ddBtn);
+      }
+      detail.style.maxHeight = '0';
+      card.classList.remove('expanded-l1');
+    }
+  });
+  btn.textContent = allExpanded ? 'Collapse All' : 'Expand All';
+}
+
+// ─── Sort / Filter ────────────────────────────────────────────────────────
+function sortBy(mode, btnEl) {
+  document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+
+  const list = document.getElementById('algoList');
+  const cards = Array.from(list.querySelectorAll('.algo-card'));
+  const diffOrder = { easy: 0, medium: 1, hard: 2 };
+
+  cards.sort((a, b) => {
+    if (mode === 'difficulty') return (diffOrder[a.dataset.difficulty] || 0) - (diffOrder[b.dataset.difficulty] || 0);
+    if (mode === 'complexity') return parseInt(a.dataset.complexityRank) - parseInt(b.dataset.complexityRank);
+    return parseInt(a.dataset.defaultOrder) - parseInt(b.dataset.defaultOrder);
+  });
+  cards.forEach(c => list.appendChild(c));
+}
+
+function filterBy(difficulty, btnEl) {
+  document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+
+  document.querySelectorAll('.algo-card').forEach(card => {
+    card.style.display = (difficulty === 'all' || card.dataset.difficulty === difficulty) ? '' : 'none';
+  });
+}
+
+// ─── Progress Bar ─────────────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+  document.getElementById('progressBar').style.width = Math.min(pct, 100) + '%';
+});
+
+// ─── Fade-in Observer ─────────────────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.05 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// ─── URL Hash Support ─────────────────────────────────────────────────────
+function handleHash() {
+  const hash = window.location.hash.slice(1);
+  if (!hash) return;
+  const card = document.getElementById(hash);
+  if (!card) return;
+  setTimeout(() => {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const header = card.querySelector('.algo-header');
+    if (header && !card.classList.contains('expanded-l1')) toggleL1(header);
+  }, 300);
+}
+window.addEventListener('hashchange', handleHash);
+handleHash();
+</script>
+</body>
+</html>

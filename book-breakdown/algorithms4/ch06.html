@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>初级排序 · Elementary Sorts | Chapter 6</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
+/* Block: code-evolution */
+.evolution-timeline { position: relative; padding-left: 50px; }
+.evolution-timeline::before { content: ''; position: absolute; left: 30px; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--accent), var(--accent3), var(--accent2)); border-radius: 2px; }
+.evo-step { position: relative; padding-left: 30px; margin-bottom: 2rem; }
+.evo-dot { position: absolute; left: -30px; top: 5px; width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--accent); background: var(--bg); z-index: 1; }
+.evo-step.active .evo-dot { background: var(--accent); box-shadow: 0 0 12px rgba(108,99,255,0.5); }
+.evo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all 0.3s; }
+.evo-card:hover { border-color: var(--accent); }
+.evo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+.evo-title { font-weight: 700; }
+.evo-speed { font-family: var(--font-mono); font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 1rem; }
+.evo-speed.success { background: rgba(52,211,153,0.15); color: var(--success); }
+.evo-speed.danger { background: rgba(248,113,113,0.15); color: var(--danger); }
+.evo-speed.neutral { background: rgba(136,136,160,0.15); color: var(--text-dim); }
+.evo-desc { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 10px; }
+.evo-code { background: #12141c; border: 1px solid #1e2030; border-radius: 0.5rem; padding: 1rem; font-family: var(--font-mono); font-size: 0.8rem; color: #a0a0c0; overflow-x: auto; white-space: pre; }
+
+
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* Block: bar-chart */
+.bar-chart { display: flex; flex-direction: column; gap: 12px; }
+.bar-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 1rem; }
+.bar-label { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; color: var(--text-dim); }
+.bar-track { height: 32px; background: rgba(255,255,255,0.03); border-radius: 0.5rem; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 0.5rem; display: flex; align-items: center; padding-left: 0.75rem; font-size: 0.75rem; font-family: var(--font-mono); color: #fff; transition: width 1.5s ease-out; }
+.bar-fill.success { background: linear-gradient(90deg, var(--accent3), #2dd4bf); }
+.bar-fill.danger { background: linear-gradient(90deg, var(--accent2), #ef4444); }
+.bar-fill.neutral { background: linear-gradient(90deg, var(--accent), #8b5cf6); }
+.bar-fill.warning { background: linear-gradient(90deg, var(--accent4), var(--warning)); }
+.bar-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; }
+
+
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 6 / 25 · Part II · Sorting 排序</div>
+        <div class="hero-icon">🃏</div>
+        <h1 class="hero-title">初级排序</h1>
+        <p class="hero-sub">洗牌的反面就是排序 -- 三种看似简单的算法，藏着算法设计中「以退为进」的深刻智慧</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">核心类比：排序就像整理扑克牌</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">🃏</div>
+            <div class="analogy-label">扑克牌整理</div>
+            <div class="analogy-desc">选择排序：把所有牌摊开，每次找最小的放到最左边
+插入排序：牌一张张摸上来，每张插到正确位置
+希尔排序：先按花色大致分组，再在每组内精排</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">💻</div>
+            <div class="analogy-label">数组排序</div>
+            <div class="analogy-desc">选择排序：每轮扫描未排序部分，找最小值交换到前面
+插入排序：维护左侧有序区，新元素逐个比较插入
+希尔排序：先以大步长 h 做插入排序，逐步缩小 h 到 1</div>
+        </div>
+    </div>
+    
+</section>
+
+<!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block2" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">📏 </div>
+        <div class="insight-content">排序算法的全部操作只依赖两个原语：less()（比较）和 exch()（交换）。Java 通过 Comparable 接口将「比较」抽象化 -- v.compareTo(w) 返回负数、零或正数，分别表示 v<w、v=w、v>w。
+
+compareTo() 必须满足全序关系的三条公理：自反性（v=v）、反对称性（v<w 则 w>v）、传递性（v<=w 且 w<=x 则 v<=x）。这三条看似显然，却是排序正确性的数学基石。</div>
+    </div>
+</section>
+
+<!-- Block: code-evolution — Step-by-step code transformation timeline -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">三种排序算法的代码演进</div>
+    <p class="section-intro" style="color:var(--text-dim);margin-bottom:2rem;">从最简单的选择排序出发，到感知输入的插入排序，再到突破二次复杂度壁垒的希尔排序。</p>
+    <div class="evolution-timeline" id="evoTimeline-block3"></div>
+</section>
+
+<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
+<section id="sec-block4" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">选择排序 vs 插入排序：对输入的敏感度</div>
+    <div class="comparison-grid">
+        <div class="comparison-side hard">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">选择排序</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">// 已排序数组 [1,2,3,4,5]
+// 选择排序仍需 N(N-1)/2 次比较
+// 因为它必须扫描整个未排序区
+// 才能「确认」最小值
+// 运行时间 ≈ N^2/2 (不变!)</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side smart">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">插入排序</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">// 已排序数组 [1,2,3,4,5]
+// 插入排序只需 N-1 次比较
+// 每个元素发现左邻 <= 自己
+// 立即停止，不再向左探索
+// 运行时间 ≈ N (线性!)</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">选择排序的优势在于「数据移动最少」-- 恰好 N 次交换，适合交换成本远高于比较成本的场景（比如搬运大型箱子）。插入排序的优势在于「适应性」-- 输入越有序，速度越快，适合数据「几乎有序」的场景。</div></div>
+</section>
+
+<!-- Block: bar-chart — Horizontal bar chart -->
+<section id="sec-block5" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">10万随机数排序性能对比</div>
+    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
+    <div class="bar-chart" id="barChart-block5"></div>
+</section>
+
+<!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block6" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">🚀 </div>
+        <div class="insight-content">希尔排序用一个看似微小的修改 -- 把步长从 1 变成递减序列 h -- 就打破了初级排序 O(N^2) 的壁垒。
+
+为什么有效？因为 h-排序有一个关键性质：一个 h-有序的数组在 k-排序后仍然保持 h-有序。这意味着每一轮排序都在前一轮的基础上「锦上添花」，而不是推倒重来。
+
+递增序列 1, 4, 13, 40, 121... (3x+1) 的最坏情况是 O(N^{3/2})，比 N^2 好得多。但至今没有人证明什么是最优递增序列 -- 这是一个超过 60 年的未解问题。</div>
+    </div>
+</section>
+
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block7" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">实战选择指南</div>
+    <div class="tips-grid" id="tipsGrid-block7"></div>
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "排序 = 把一组元素按照某种规则重新排列。初级排序用最朴素的方式解决这个问题：选最小的放前面，或者像整理扑克牌一样逐张插入。"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "想象你面前有一手乱七八糟的扑克牌。选择排序是每次从剩余的牌里找出最小的放到最左边；插入排序是每次拿起一张新牌，插到左手已排好的牌的正确位置。"
+  },
+  {
+    "step": 3,
+    "title": "发现盲点",
+    "desc": "选择排序不管输入是否有序，都要做 N^2/2 次比较 -- 它对输入「视而不见」！插入排序对几乎有序的数组接近线性，但对逆序数组退化为 N^2。希尔排序打破了这个困局。"
+  },
+  {
+    "step": 4,
+    "title": "简化与类比",
+    "desc": "选择排序像一个强迫症收藏家，必须扫描全部才放心选出最小的；插入排序像整理扑克牌的老手，手上有序时效率极高；希尔排序则是先「粗调」再「微调」，像调收音机先转大旋钮找到频段，再转小旋钮精确调频。"
+  }
+];
+const takeaways = [
+  {
+    "icon": "🃏",
+    "title": "排序的两个原语",
+    "text": "所有排序算法都建立在 less()（比较）和 exch()（交换）两个操作之上。通过 Comparable 接口，同一套排序代码可以处理任何可比较类型。"
+  },
+  {
+    "icon": "📉",
+    "title": "选择排序的「视而不见」",
+    "text": "选择排序不管输入是否有序，都做 N^2/2 次比较。这是缺点（浪费），也是特点（数据移动最少，恰好 N 次交换）。"
+  },
+  {
+    "icon": "📈",
+    "title": "插入排序的「适应性」",
+    "text": "插入排序的交换次数 = 数组中的逆序对数量。对于部分有序的数组，它可以是线性的；这让它成为高级排序算法的完美子程序。"
+  },
+  {
+    "icon": "🚀",
+    "title": "希尔排序破壁",
+    "text": "仅仅把插入排序的步长从 1 改为递减序列，就从 O(N^2) 突破到 O(N^{3/2})。简单的想法可以带来巨大的改进。"
+  },
+  {
+    "icon": "🔬",
+    "title": "科学方法对比算法",
+    "text": "实现 -> 分析 -> 假设 -> 实验验证 -- 这是本书贯穿始终的方法论，SortCompare 就是这套方法的工具化体现。"
+  },
+  {
+    "icon": "🧮",
+    "title": "逆序对是复杂度的本质",
+    "text": "插入排序的性能由逆序对数量决定，而非数组大小。理解「逆序对」这个概念，就理解了初级排序的灵魂。"
+  }
+];
+const quiz = [
+  {
+    "id": "q1",
+    "question": "选择排序对一个已经排好序的数组需要做多少次比较？和随机数组相比有什么不同？",
+    "answer": "仍然需要 N(N-1)/2 次比较，和随机数组完全相同！这是选择排序最大的特点之一：运行时间对输入顺序「视而不见」。因为每轮内层循环必须扫描整个未排序区来「确认」最小值，无论最小值是否就在当前位置。不过好处是：它只需要 N 次交换，是所有排序中数据移动最少的。"
+  },
+  {
+    "id": "q2",
+    "question": "什么是「逆序对」？它和插入排序的性能有什么关系？",
+    "answer": "逆序对（inversion）是指数组中 i<j 但 a[i]>a[j] 的一对元素。例如 [E,X,A,M,P,L,E] 有 11 个逆序对。插入排序的交换次数恰好等于逆序对的数量（命题 C），因为每次相邻交换消除一个逆序对。所以逆序对少（「部分有序」）的数组，插入排序就快；逆序对最多（完全逆序）的数组，插入排序最慢，达到 N^2/2。"
+  },
+  {
+    "id": "q3",
+    "question": "希尔排序为什么比插入排序快那么多？背后的核心思想是什么？",
+    "answer": "核心思想是「先大步粗调，再小步精调」。普通插入排序中，元素每次只能移动一个位置，所以如果最小元素在数组末尾，需要 N-1 次交换才能归位。希尔排序允许以大步长 h 交换远距离元素，快速消除大量逆序对。关键性质：h-排序后的数组在 k-排序后仍保持 h-有序。这意味着大步长的成果不会被小步长破坏，每一轮都在前一轮基础上改进。当最终 h=1 时，数组已经「几乎有序」，最后一轮插入排序几乎是线性的。"
+  },
+  {
+    "id": "q4",
+    "question": "如果你需要排序一批体积巨大、搬运成本极高的实物（比如仓库里的大箱子），应该选哪种排序方法？为什么？",
+    "answer": "应该选择排序。原因是选择排序的交换次数恰好是 N 次，是所有排序算法中数据移动最少的。虽然它需要 N^2/2 次比较（只是「看标签」，成本很低），但每个元素最多只被搬动一次就到达最终位置。相比之下，插入排序平均需要 N^2/4 次交换，每次交换都要搬两个箱子。当「搬运成本 >> 查看成本」时，选择排序是最优选择。"
+  },
+  {
+    "id": "q5",
+    "question": "用你自己的话解释：为什么 compareTo() 必须满足传递性？如果不满足会怎样？",
+    "answer": "传递性要求：如果 A<=B 且 B<=C，则 A<=C。如果违反传递性，可能出现 A<B、B<C、但 C<A 的循环情况（就像石头剪刀布）。这时不存在一个「正确」的排列顺序 -- 无论怎么排，总有相邻元素是「逆序」的。排序算法会陷入死循环或得到不确定的结果。传递性确保了「全序」的存在，即所有元素可以排成唯一的一条线，这是排序有解的前提。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "你平时是怎么整理一手乱序的扑克牌的？你能用语言描述出你的策略吗？",
+    "hint": "大多数人不自觉地使用了插入排序 -- 每次拿起一张牌插入到已排好的正确位置"
+  },
+  {
+    "question": "你认为一个排序算法对「已经有序」的输入和「完全随机」的输入，表现应该一样吗？",
+    "hint": "想想选择排序和插入排序在这两种输入下的差异"
+  },
+  {
+    "question": "如果让你排序100万个数，你觉得「每次移动一步」的方法够快吗？有没有可能让元素「跳跃」移动？",
+    "hint": "希尔排序的核心思想就是让元素大步跳跃"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "选择排序的「数据移动最少」(N 次交换) 使其在交换成本高时优于其他算法",
+    "evidence": "书中明确指出选择排序恰好 N 次交换，且每次交换将元素送到最终位置。其他排序算法做更多交换（插入排序平均 N^2/4 次）。",
+    "counterpoint": "现代硬件中内存访问模式（缓存命中率）可能比交换次数更影响性能。选择排序的内层循环随机访问模式对 CPU 缓存不友好，在实际硬件上可能不如插入排序的顺序访问模式。"
+  },
+  {
+    "claim": "希尔排序用 3x+1 递增序列的最坏情况是 O(N^{3/2})",
+    "evidence": "这是有数学证明的（虽然证明超出本书范围），且大量实验数据支持。SortCompare 显示希尔排序在 10 万元素上比插入排序快约 600 倍。",
+    "counterpoint": "O(N^{3/2}) 只是最坏情况的上界，平均情况至今没有精确的数学证明 -- 这在算法理论中极为罕见。存在其他递增序列（如 Sedgewick 序列）可以做到 O(N^{4/3})，但对于实际规模的 N，差异几乎不可测量。"
+  },
+  {
+    "claim": "插入排序是「几乎有序」数组的最佳选择",
+    "evidence": "命题 C 证明交换次数等于逆序对数量。当逆序对为 O(N) 时，运行时间为线性 O(N)。",
+    "counterpoint": "Timsort（Python/Java 默认排序）融合了插入排序对有序片段的敏感性与归并排序的 O(N log N) 保证，在实际应用中通常是更好的「几乎有序」数据排序选择，因为它不会在最坏情况下退化到 N^2。"
+  }
+];
+const application = [
+  {
+    "scenario": "在高级排序算法（如归并排序、快速排序）的小分区优化中",
+    "action": "当递归分区的大小降到阈值（通常 7-15 个元素）以下时，切换到插入排序。插入排序在小数组上的常数因子优势使得整体性能提升 10-15%，Java 标准库的 Arrays.sort() 就采用了这种策略。"
+  },
+  {
+    "scenario": "嵌入式系统或资源受限环境中的排序需求",
+    "action": "使用希尔排序。它只需要几十行代码、O(1) 额外内存、没有递归调用栈开销，但提供了远超 O(N^2) 的性能。在没有标准库可用的固件和嵌入式场景中，这是性价比最高的选择。"
+  },
+  {
+    "scenario": "数据库中新插入少量记录后需要重新排序",
+    "action": "使用插入排序。当大部分数据已经有序，只有少量新元素需要归位时，插入排序的运行时间接近 O(N)，远快于重新运行通用排序的 O(N log N)。这也是为什么许多数据库索引维护使用类似插入排序的策略。"
+  }
+];
+const chapterNav = {"prev": {"num": 5, "title": "案例研究：Union-Find", "href": "ch05.html"}, "next": {"num": 7, "title": "归并排序", "href": "ch07.html"}};
+window.evoData_block3 = [
+  {
+    "title": "选择排序：每轮找最小值",
+    "badge": "N^2/2 比较, N 次交换",
+    "desc": "外层循环 i 从 0 到 N-1，内层循环在 a[i+1..N) 中找最小元素的下标 min，然后交换 a[i] 和 a[min]。每次交换都把一个元素送到最终位置，因此恰好 N 次交换。",
+    "code": "public static void sort(Comparable[] a) {\n    int N = a.length;\n    for (int i = 0; i < N; i++) {\n        int min = i;\n        for (int j = i+1; j < N; j++)\n            if (less(a[j], a[min])) min = j;\n        exch(a, i, min);\n    }\n}"
+  },
+  {
+    "title": "插入排序：逐个插入有序区",
+    "badge": "平均 N^2/4, 最好 N-1",
+    "desc": "对于每个位置 i，将 a[i] 与左侧已排序的元素逐个比较，遇到更小的就交换，直到找到正确位置。关键优势：对「部分有序」数组，交换次数等于逆序对数量，可以远小于 N^2。",
+    "code": "public static void sort(Comparable[] a) {\n    int N = a.length;\n    for (int i = 1; i < N; i++) {\n        for (int j = i; j > 0 && less(a[j], a[j-1]); j--)\n            exch(a, j, j-1);\n    }\n}"
+  },
+  {
+    "title": "希尔排序：大步长到小步长的插入排序",
+    "badge": "最坏 O(N^{3/2})",
+    "desc": "先用大步长 h 将数组变为「h-有序」，再逐步缩小 h。每次 h-排序本质上是对 h 个交错子序列分别做插入排序。当 h=1 时就是普通插入排序，但此时数组已经「几乎有序」，插入排序跑得飞快。",
+    "code": "public static void sort(Comparable[] a) {\n    int N = a.length;\n    int h = 1;\n    while (h < N/3) h = 3*h + 1; // 1, 4, 13, 40, 121...\n    while (h >= 1) {\n        for (int i = h; i < N; i++) {\n            for (int j = i; j >= h && less(a[j], a[j-h]); j -= h)\n                exch(a, j, j-h);\n        }\n        h = h/3;\n    }\n}"
+  }
+];
+window.barData_block5 = [
+  {
+    "label": "选择排序",
+    "value": "基准",
+    "pct": 100,
+    "note": "N^2/2 比较 + N 交换"
+  },
+  {
+    "label": "插入排序",
+    "value": "~0.6x",
+    "pct": 59,
+    "note": "平均 N^2/4 比较+交换"
+  },
+  {
+    "label": "希尔排序",
+    "value": "~0.002x",
+    "pct": 2,
+    "note": "约 600 倍加速!",
+    "warning": false
+  }
+];
+window.tipsData_block7 = [
+  {
+    "icon": "📦",
+    "title": "交换成本很高时",
+    "text": "选择排序 -- 只做 N 次交换，是所有排序中最少的"
+  },
+  {
+    "icon": "📏",
+    "title": "小数组 (N<15)",
+    "text": "插入排序 -- 常数因子小，甚至比归并/快排更快"
+  },
+  {
+    "icon": "📊",
+    "title": "几乎有序的数据",
+    "text": "插入排序 -- 逆序对少时接近线性"
+  },
+  {
+    "icon": "🔧",
+    "title": "嵌入式/无库环境",
+    "text": "希尔排序 -- 代码短小，无需额外内存，性能合理"
+  },
+  {
+    "icon": "🧩",
+    "title": "高级排序的子程序",
+    "text": "插入排序 -- 归并排序和快排在小分区时切换到插入排序"
+  },
+  {
+    "icon": "🎯",
+    "title": "中等规模通用场景",
+    "text": "希尔排序 -- 比初级排序快几百倍，代码仅多几行"
+  }
+];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: bar-chart
+(function() {
+    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
+        const blockId = container.id.replace('barChart-', '');
+        const dataVar = window['barData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(bar => {
+            const div = document.createElement('div');
+            div.className = 'bar-row fade-in';
+            const colorClass = bar.warning ? 'danger' : 'success';
+            div.innerHTML = `
+                <div class="bar-label">${bar.label}</div>
+                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
+                <div class="bar-value">${bar.value || ''}</div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: tips-grid
+(function() {
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'tip-card fade-in';
+            div.innerHTML = `
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: code-evolution
+(function() {
+    document.querySelectorAll('[id^="evoTimeline-"]').forEach(container => {
+        const blockId = container.id.replace('evoTimeline-', '');
+        const dataVar = window['evoData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach((step, i) => {
+            const div = document.createElement('div');
+            div.className = 'evo-step' + (i === 0 ? ' active' : '') + ' fade-in';
+            const badge = step.badge || '';
+            const speedClass = badge.match(/O\(1\)|\u03B1|lg/) ? 'success' : badge.match(/O\(N\)/) ? 'danger' : 'neutral';
+            div.innerHTML = `
+                <div class="evo-dot"></div>
+                <div class="evo-card">
+                    <div class="evo-header">
+                        <span class="evo-title">${step.title}</span>
+                        <span class="evo-speed ${speedClass}">${badge}</span>
+                    </div>
+                    <div class="evo-desc">${step.desc || ''}</div>
+                    ${step.code ? '<pre class="evo-code">' + step.code + '</pre>' : ''}
+                </div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

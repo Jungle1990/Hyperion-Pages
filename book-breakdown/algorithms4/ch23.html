@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>正则表达式 · Regular Expressions | Chapter 23</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
+/* Block: pipeline */
+.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
+.pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(108,99,255,0.3); }
+.pipe-node.highlight { background: linear-gradient(135deg, var(--accent2), #ef4444); }
+.pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
+.pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
+@media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
+
+
+/* Block: code-evolution */
+.evolution-timeline { position: relative; padding-left: 50px; }
+.evolution-timeline::before { content: ''; position: absolute; left: 30px; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--accent), var(--accent3), var(--accent2)); border-radius: 2px; }
+.evo-step { position: relative; padding-left: 30px; margin-bottom: 2rem; }
+.evo-dot { position: absolute; left: -30px; top: 5px; width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--accent); background: var(--bg); z-index: 1; }
+.evo-step.active .evo-dot { background: var(--accent); box-shadow: 0 0 12px rgba(108,99,255,0.5); }
+.evo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all 0.3s; }
+.evo-card:hover { border-color: var(--accent); }
+.evo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+.evo-title { font-weight: 700; }
+.evo-speed { font-family: var(--font-mono); font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 1rem; }
+.evo-speed.success { background: rgba(52,211,153,0.15); color: var(--success); }
+.evo-speed.danger { background: rgba(248,113,113,0.15); color: var(--danger); }
+.evo-speed.neutral { background: rgba(136,136,160,0.15); color: var(--text-dim); }
+.evo-desc { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 10px; }
+.evo-code { background: #12141c; border: 1px solid #1e2030; border-radius: 0.5rem; padding: 1rem; font-family: var(--font-mono); font-size: 0.8rem; color: #a0a0c0; overflow-x: auto; white-space: pre; }
+
+
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 23 / 25 · Part V · Strings 字符串</div>
+        <div class="hero-icon">🎭</div>
+        <h1 class="hero-title">正则表达式</h1>
+        <p class="hero-sub">如同用一套模具就能描述无穷多种形状，正则表达式用三个简单操作（连接、或、闭包）就能描述无穷多种字符串模式</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">核心类比：从精确搜索到模糊搜索</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">🔍</div>
+            <div class="analogy-label">子串搜索（KMP）</div>
+            <div class="analogy-desc">精确匹配：只能找「NEEDLE」这个确切的词
+像在图书馆找一本确切的 ISBN 号
+确定性有限自动机（DFA）驱动
+每个状态只有唯一的下一步</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">🎭</div>
+            <div class="analogy-label">正则表达式（NFA）</div>
+            <div class="analogy-desc">模式匹配：能找「N 开头、E 结尾、中间任意」
+像在图书馆搜索「关于算法的、2020年后出版的」
+非确定性有限自动机（NFA）驱动
+一个状态可以有多条出路，同时探索</div>
+        </div>
+    </div>
+    
+</section>
+
+<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">正则表达式的三个基本操作</div>
+    <div class="comparison-grid">
+        <div class="comparison-side hard">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">操作定义</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">// 1. 连接 (Concatenation)
+AB        → {"AB"}        // A后面接B
+
+// 2. 或 (Or)
+A|B       → {"A", "B"}    // A或者B
+AB|BCD    → {"AB", "BCD"} // 连接优先级更高
+
+// 3. 闭包 (Closure)
+A*        → {"", "A", "AA", "AAA", ...}
+           // 重复0次或任意次
+(AB)*     → {"", "AB", "ABAB", ...}</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side smart">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">优先级 (高→低)</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">// 优先级从高到低：
+// 1. 闭包 *    (最高)
+// 2. 连接      (中间)
+// 3. 或 |      (最低)
+
+// 例子：
+AB*   → A后面接0或多个B
+       {"A", "AB", "ABB", ...}
+
+(AB)* → 0或多个"AB"整体
+       {"", "AB", "ABAB", ...}
+
+// 括号可以覆盖默认优先级</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">和算术表达式类似：* 像乘法优先于 + 一样，闭包优先于连接优先于或</div></div>
+</section>
+
+<!-- Block: pipeline — Flow diagram with connected nodes -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">正则表达式匹配的完整流水线</div>
+    <div class="pipeline-flow" id="pipeline-block3"></div>
+    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;">从正则表达式到匹配结果的两步走</div>
+</section>
+
+<!-- Block: code-evolution — Step-by-step code transformation timeline -->
+<section id="sec-block4" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">NFA 模拟：从概念到代码</div>
+    <p class="section-intro" style="color:var(--text-dim);margin-bottom:2rem;">NFA 模拟的核心是维护一个「可能状态集合」，每读一个字符就更新这个集合。</p>
+    <div class="evolution-timeline" id="evoTimeline-block4"></div>
+</section>
+
+<!-- Block: code-evolution — Step-by-step code transformation timeline -->
+<section id="sec-block5" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">NFA 构造：用栈翻译正则表达式</div>
+    <p class="section-intro" style="color:var(--text-dim);margin-bottom:2rem;">NFA 构造器像 Dijkstra 的双栈算法一样，用一个栈跟踪左括号和 | 的位置，逐字符构建 ε-转换有向图。</p>
+    <div class="evolution-timeline" id="evoTimeline-block5"></div>
+</section>
+
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block6" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">正则表达式实战速查</div>
+    <div class="tips-grid" id="tipsGrid-block6"></div>
+</section>
+
+<!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block7" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">💡 </div>
+        <div class="insight-content">Kleene 定理证明了正则表达式和 NFA 的等价性：每个 RE 都有对应的 NFA，反之亦然。这意味着一种「描述语言」和一种「计算机器」在表达能力上完全等价 —— 这是理论计算机科学最优美的结果之一。我们的算法正是这个定理的构造性证明：给定任意 RE，我们确实能构造出对应的 NFA。</div>
+    </div>
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "正则表达式 = 一种用三个基本操作（连接、或、闭包）描述字符串集合的微型语言，NFA 是执行它的「虚拟机器」"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "想象你在找一本书：你可以说「书名包含'算法'，作者姓'张'或'李'，出版年份是 2020 到 2025 之间」—— 正则表达式就是让计算机理解这类模糊条件的语言"
+  },
+  {
+    "step": 3,
+    "title": "发现盲点",
+    "desc": "NFA 并非真的在「猜」正确路径 —— 它同时追踪所有可能的状态集合，本质是广度优先搜索。理解「非确定性」不等于随机性，而是「并行探索所有可能」"
+  },
+  {
+    "step": 4,
+    "title": "简化与类比",
+    "desc": "NFA 模拟就像一滴墨水在迷宫里扩散 —— 每到一个岔路口就同时走所有分支，只要有一条路径到达出口，就说明迷宫可通"
+  }
+];
+const takeaways = [
+  {
+    "icon": "🎭",
+    "title": "三操作足矣",
+    "text": "连接、或、闭包三个操作就能描述所有正则语言。看似简单的规则组合出无限的表达能力，如同有限的积木搭出无穷的形状。"
+  },
+  {
+    "icon": "🔀",
+    "title": "非确定性 ≠ 随机性",
+    "text": "NFA 的「非确定性」不是随机猜测，而是同时追踪所有可能路径。模拟时用状态集合 + 多源可达性搜索来实现「并行」探索。"
+  },
+  {
+    "icon": "⚙️",
+    "title": "构造 + 模拟的两步范式",
+    "text": "先把 RE 编译成 NFA（O(M)），再用 NFA 扫描文本（O(NM)）。这种「编译然后执行」的模式和 Java 编译器的工作方式如出一辙。"
+  },
+  {
+    "icon": "📐",
+    "title": "RE 有明确的能力边界",
+    "text": "正则表达式无法匹配括号配对、无法计数 —— 这不是实现的限制，而是理论上的根本不可能。识别工具的边界和掌握工具本身同样重要。"
+  },
+  {
+    "icon": "🧰",
+    "title": "GREP 的优雅实现",
+    "text": "经典的 GREP 程序只有不到 10 行：构造 NFA，逐行检查，输出匹配行。简洁的接口背后是精巧的 NFA 构造和模拟算法。"
+  }
+];
+const quiz = [
+  {
+    "id": "q1",
+    "question": "NFA 在遇到多条出边时是如何「选择」正确路径的？它真的在猜吗？",
+    "answer": "NFA 并不是在猜测。实际的模拟算法维护一个「当前可能状态的集合」，每读入一个字符就同时更新所有可能的状态。这本质上是一个多源可达性搜索（类似 BFS）。只要集合中「任何一个」状态到达接受状态，就算匹配成功。所以 NFA 不是猜对一条路径，而是同时走了所有路径。"
+  },
+  {
+    "id": "q2",
+    "question": "为什么正则表达式无法描述「括号配对」这样的语言？",
+    "answer": "正则表达式对应的 NFA 只有有限个状态，无法「记住」已经看到了多少个左括号。要匹配括号配对，需要一个计数器（或栈）来跟踪嵌套深度，但有限自动机没有这样的存储能力。这是正则语言在 Chomsky 层级中的根本限制 —— 需要上下文无关文法（用下推自动机）才能处理。"
+  },
+  {
+    "id": "q3",
+    "question": "NFA 构造中，闭包操作 A* 需要添加哪些 ε-转换？为什么需要双向边？",
+    "answer": "闭包 A* 需要两条 ε-转换：一条从 A 前面指向 * 后面（实现「跳过，匹配零次」），一条从 * 后面指回 A 前面（实现「回去，再匹配一次」）。双向边的作用是：正向边允许不匹配直接跳过（处理零次的情况），反向边允许匹配后回到起点再匹配（处理多次的情况）。两者缺一不可。"
+  },
+  {
+    "id": "q4",
+    "question": "用你自己的话，向不懂编程的人解释 NFA 模拟是怎么工作的。（费曼检验）",
+    "answer": "参考答案：想象你在一个有很多岔路的迷宫里找出口。普通走法是每次选一条路，走错了再回头 —— 很慢。NFA 模拟的方法是：你有无限多个分身！每到一个岔路口，你就分裂成多个分身，每个分身走不同的路。只要有一个分身找到了出口，就算成功。每走一步（读一个字符），你数一下现在有哪些分身还「活着」（没有走进死胡同）。文本读完时，如果有任何分身站在出口处，就说明这个文本匹配这个模式。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "你用过命令行的 grep 或者编程语言中的正则表达式吗？你觉得它们背后是什么算法在驱动？",
+    "hint": "想想正则表达式为什么能处理「或」和「重复」，而普通的子串搜索不行"
+  },
+  {
+    "question": "「非确定性」听起来像是随机或者不可预测的，你觉得一个「非确定性」的算法如何保证正确性？",
+    "hint": "想想如果你能同时尝试所有可能的选择，结果还会不确定吗"
+  },
+  {
+    "question": "正则表达式能描述所有可能的字符串模式吗？你能想到一种模式是正则表达式无法表达的吗？",
+    "hint": "试试描述「所有括号正确配对的字符串」"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "NFA 模拟的最坏时间复杂度为 O(NM)，和暴力子串搜索相同",
+    "evidence": "对于 N 个文本字符，每个字符需要遍历最多 M 个状态并在最多 2M 条边的有向图上做 DFS，所以每步是 O(M)，总共 O(NM)",
+    "counterpoint": "O(NM) 是最坏情况，实际应用中大多数 RE 的状态集合远小于 M，平均性能通常接近 O(N)。但某些恶意构造的 RE（如 (a*)* ）在回溯型引擎中会导致指数级时间 —— 这正是 NFA 模拟方法的优势所在，它保证了最坏情况多项式时间"
+  },
+  {
+    "claim": "正则表达式和 NFA 在表达能力上完全等价（Kleene 定理）",
+    "evidence": "本章给出了从 RE 到 NFA 的构造性证明：每个 RE 操作（连接、或、闭包）都有对应的 NFA 构造规则。反方向的证明（NFA 到 RE）虽然更复杂，但也是成立的",
+    "counterpoint": "实际编程语言中的「正则表达式」（如 Perl、Python 的 regex）包含了反向引用等扩展特性，其表达能力已经超出了理论上的正则语言，甚至可以是 NP 完全的。书中讨论的是纯粹的理论正则表达式"
+  }
+];
+const application = [
+  {
+    "scenario": "构建一个日志分析工具，需要从海量日志中提取特定模式的错误信息",
+    "action": "使用 NFA 方式的正则匹配引擎（如 RE2、Go 的 regexp 包），它保证 O(NM) 的最坏时间，不会因为恶意模式导致性能崩溃。避免使用回溯型引擎处理不可信的正则表达式输入（ReDoS 防护）。"
+  },
+  {
+    "scenario": "实现一个表单验证系统，检验用户输入的邮箱、电话号码、身份证号等格式",
+    "action": "用正则表达式定义合法输入的模式（如邮箱 [a-z]+@([a-z]+\\.)+(edu|com)），比手写 if-else 链更简洁、更不容易出错、更容易维护。但要注意 RE 只能检查格式，不能验证语义（如邮箱是否真实存在）。"
+  },
+  {
+    "scenario": "在编译器前端实现词法分析器（Lexer），将源代码分解为 token 流",
+    "action": "为每种 token（标识符、数字、关键字、运算符）写一个正则表达式，然后将它们合并成一个大的 NFA。这正是 lex/flex 等工具的工作原理 —— 它们将多个 RE 编译成一个 DFA 来实现高效的词法分析。"
+  }
+];
+const chapterNav = {"prev": {"num": 22, "title": "子字符串查找", "href": "ch22.html"}, "next": {"num": 24, "title": "数据压缩", "href": "ch24.html"}};
+window.pipeData_block3 = [
+  {
+    "cmd": "正则表达式字符串",
+    "annotation": "((A*B|AC)D)"
+  },
+  {
+    "cmd": "NFA 构造器",
+    "annotation": "用栈处理括号和 |",
+    "cpuPct": 30
+  },
+  {
+    "cmd": "ε-转换有向图",
+    "annotation": "红色边：无需匹配的跳转"
+  },
+  {
+    "cmd": "+ 匹配转换",
+    "annotation": "黑色边：字符匹配后跳转"
+  },
+  {
+    "cmd": "NFA 模拟器",
+    "annotation": "多源可达性搜索",
+    "cpuPct": 70,
+    "bottleneck": true
+  },
+  {
+    "cmd": "匹配 / 不匹配",
+    "annotation": "接受状态是否可达"
+  }
+];
+window.evoData_block4 = [
+  {
+    "title": "第1步：初始化 — 从状态 0 出发，找所有 ε 可达状态",
+    "badge": "起点",
+    "desc": "以 ((A*B|AC)D) 为例，从状态 0 出发，沿 ε-转换可达的状态集合是 {0, 1, 2, 3, 4, 6}",
+    "code": "// 初始化：找从状态0通过 ε-转换可达的所有状态\nBag<Integer> pc = new Bag<Integer>();\nDirectedDFS dfs = new DirectedDFS(G, 0);\nfor (int v = 0; v < G.V(); v++)\n    if (dfs.marked(v)) pc.add(v);\n// pc = {0, 1, 2, 3, 4, 6}"
+  },
+  {
+    "title": "第2步：匹配转换 — 读入字符，筛选能匹配的状态",
+    "badge": "核心循环",
+    "desc": "对于状态集合中的每个状态，如果它对应的字符与当前输入字符匹配，就跳到下一个状态",
+    "code": "// 读入字符 'A'，检查哪些状态能匹配\nBag<Integer> match = new Bag<Integer>();\nfor (int v : pc)\n    if (v < M)\n        if (re[v] == txt.charAt(i) || re[v] == '.')\n            match.add(v+1);\n// 状态2(A)和状态6(A)能匹配 → match = {3, 7}"
+  },
+  {
+    "title": "第3步：ε-转换 — 从匹配后的状态扩展",
+    "badge": "扩展",
+    "desc": "从匹配后的新状态出发，再次通过 ε-转换扩展，得到完整的可能状态集合",
+    "code": "// 从 match 集合出发，做 ε-转换扩展\npc = new Bag<Integer>();\ndfs = new DirectedDFS(G, match);\nfor (int v = 0; v < G.V(); v++)\n    if (dfs.marked(v)) pc.add(v);\n// 从 {3,7} 经 ε-转换 → pc = {2, 3, 4, 7}"
+  },
+  {
+    "title": "第4步：终止判断 — 文本读完后检查接受状态",
+    "badge": "判决",
+    "desc": "所有文本字符读完后，检查当前状态集合是否包含接受状态 M。包含则匹配成功。",
+    "code": "// 所有字符读完后，检查是否到达接受状态\nfor (int v : pc)\n    if (v == M) return true;  // 匹配成功!\nreturn false;                  // 不匹配"
+  }
+];
+window.evoData_block5 = [
+  {
+    "title": "连接：最简单的操作",
+    "badge": "默认行为",
+    "desc": "字母字符的匹配转换天然实现了连接 —— 状态 i 匹配字符后自动跳到状态 i+1",
+    "code": "// 连接不需要额外的 ε-转换\n// 匹配转换 re[i] 自动连到 i+1\n// 例如: AB → 状态0(A)→匹配→状态1(B)→匹配→状态2"
+  },
+  {
+    "title": "闭包 *：双向 ε-转换",
+    "badge": "重复",
+    "desc": "检测到下一个字符是 * 时，在当前字符（或对应的左括号）和 * 之间加双向 ε-转换",
+    "code": "// 闭包处理（向前看一个字符）\nif (i < M-1 && re[i+1] == '*') {\n    G.addEdge(lp, i+1);  // 跳过：可以不匹配\n    G.addEdge(i+1, lp);  // 回退：可以再匹配一次\n}\n// lp 是对应的左括号位置（单字符时就是 i 本身）"
+  },
+  {
+    "title": "或 |：两条跳转边",
+    "badge": "分支",
+    "desc": "遇到右括号时，如果栈顶是 | 的位置，就添加两条 ε-转换实现分支选择",
+    "code": "// 处理 (A|B) 形式的或表达式\nif (re[i] == ')') {\n    int or = ops.pop();     // 弹出 | 的位置\n    if (re[or] == '|') {\n        lp = ops.pop();     // 弹出 ( 的位置\n        G.addEdge(lp, or+1); // ( → B 的第一个字符\n        G.addEdge(or, i);    // | → )\n    }\n}"
+  },
+  {
+    "title": "括号和元字符：统一处理",
+    "badge": "收尾",
+    "desc": "左括号、*、右括号都需要 ε-转换到下一个状态，确保 NFA 能「流过」这些元字符",
+    "code": "// 元字符的 ε-转换\nif (re[i] == '(' || re[i] == '*' || re[i] == ')')\n    G.addEdge(i, i+1);  // 直接跳到下一个状态\n\n// 左括号和 | 要入栈\nif (re[i] == '(' || re[i] == '|')\n    ops.push(i);"
+  }
+];
+window.tipsData_block6 = [
+  {
+    "title": "子串搜索",
+    "text": "grep 把模式包装成 (.*pattern.*)，将子串搜索转化为正则匹配"
+  },
+  {
+    "title": "输入验证",
+    "text": "电话号码 \\([0-9]{3}\\) [0-9]{3}-[0-9]{4}，用 RE 比写一堆 if-else 更精确简洁"
+  },
+  {
+    "title": "基因组分析",
+    "text": "gcg(cgg)*ctg 描述人类基因片段，重复次数过多关联特定遗传疾病"
+  },
+  {
+    "title": "快捷语法",
+    "text": ". 通配符、[A-Z] 字符范围、+ 至少一次、? 零或一次、{3} 恰好3次"
+  },
+  {
+    "title": "RE 的局限",
+    "text": "不能匹配括号配对、不能检查 A 和 B 数量相等 —— 这些需要更强大的文法"
+  },
+  {
+    "title": "性能保证",
+    "text": "NFA 模拟最坏情况 O(NM)，和暴力子串搜索一样，但能处理复杂模式"
+  }
+];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: tips-grid
+(function() {
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'tip-card fade-in';
+            div.innerHTML = `
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: pipeline
+(function() {
+    document.querySelectorAll('[id^="pipeline-"]').forEach(container => {
+        const blockId = container.id.replace('pipeline-', '');
+        const dataVar = window['pipeData_' + blockId];
+        if (!dataVar) return;
+        const pipeData = dataVar;
+        pipeData.forEach((node, i) => {
+            if (i > 0) {
+                const arrow = document.createElement('div');
+                arrow.className = 'pipe-arrow';
+                arrow.textContent = '→';
+                container.appendChild(arrow);
+            }
+            const wrapper = document.createElement('div');
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'pipe-node' + (node.bottleneck ? ' highlight' : '');
+            nodeDiv.textContent = node.cmd || node.name || '';
+            wrapper.appendChild(nodeDiv);
+            if (node.annotation || node.data) {
+                const dataDiv = document.createElement('div');
+                dataDiv.className = 'pipe-data';
+                dataDiv.textContent = node.annotation || node.data;
+                wrapper.appendChild(dataDiv);
+            }
+            container.appendChild(wrapper);
+        });
+    });
+})();
+
+
+// Block: code-evolution
+(function() {
+    document.querySelectorAll('[id^="evoTimeline-"]').forEach(container => {
+        const blockId = container.id.replace('evoTimeline-', '');
+        const dataVar = window['evoData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach((step, i) => {
+            const div = document.createElement('div');
+            div.className = 'evo-step' + (i === 0 ? ' active' : '') + ' fade-in';
+            const badge = step.badge || '';
+            const speedClass = badge.match(/O\(1\)|\u03B1|lg/) ? 'success' : badge.match(/O\(N\)/) ? 'danger' : 'neutral';
+            div.innerHTML = `
+                <div class="evo-dot"></div>
+                <div class="evo-card">
+                    <div class="evo-header">
+                        <span class="evo-title">${step.title}</span>
+                        <span class="evo-speed ${speedClass}">${badge}</span>
+                    </div>
+                    <div class="evo-desc">${step.desc || ''}</div>
+                    ${step.code ? '<pre class="evo-code">' + step.code + '</pre>' : ''}
+                </div>`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

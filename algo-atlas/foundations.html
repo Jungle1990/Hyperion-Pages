@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foundations · 基础技巧 | Algo Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(108, 99, 255, 0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+  --success: #34d399;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ─── Progress Bar ─── */
+#progressBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  width: 0%;
+  z-index: 100;
+  transition: width 0.1s linear;
+}
+
+/* ─── Hero (compact) ─── */
+.hero {
+  padding: 6rem 2rem 3rem;
+  text-align: center;
+  position: relative;
+}
+.hero-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px var(--glow));
+}
+.hero h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.2rem;
+}
+.hero-zh {
+  font-size: 1.2rem;
+  color: var(--text-dim);
+  font-weight: 300;
+  margin-bottom: 0.8rem;
+}
+.hero-desc {
+  font-size: 1rem;
+  color: var(--accent3);
+  font-family: var(--font-mono);
+  margin-bottom: 1.5rem;
+}
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.back-link {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  transition: color 0.3s ease;
+}
+.back-link:hover { color: var(--accent); }
+
+/* ─── Container ─── */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+}
+
+/* ─── Controls ─── */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.control-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.ctrl-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.ctrl-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.ctrl-btn.active {
+  background: rgba(108, 99, 255, 0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.expand-all-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.expand-all-btn:hover {
+  border-color: var(--accent3);
+  color: var(--accent3);
+}
+
+/* ─── Badge System ─── */
+.badge {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 1rem;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.badge--time {
+  background: rgba(108, 99, 255, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(108, 99, 255, 0.3);
+}
+.badge--space {
+  background: rgba(78, 205, 196, 0.1);
+  color: var(--accent3);
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+.badge--easy {
+  background: rgba(78, 205, 196, 0.15);
+  color: var(--accent3);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+}
+.badge--medium {
+  background: rgba(255, 230, 109, 0.15);
+  color: var(--accent4);
+  border: 1px solid rgba(255, 230, 109, 0.3);
+}
+.badge--hard {
+  background: rgba(255, 107, 107, 0.15);
+  color: var(--accent2);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+}
+.badge--source {
+  background: rgba(136, 136, 160, 0.1);
+  color: var(--text-dim);
+  border: 1px solid rgba(136, 136, 160, 0.2);
+}
+
+/* ─── Algorithm Card ─── */
+.algo-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 0.75rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+.algo-card:hover {
+  border-color: rgba(108, 99, 255, 0.3);
+}
+.algo-card.expanded-l1 {
+  border-color: var(--accent);
+  box-shadow: 0 4px 20px var(--glow);
+}
+
+/* ─── Algo Header (Level 0 — always visible) ─── */
+.algo-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease;
+}
+.algo-header:hover {
+  background: var(--card-hover);
+}
+.algo-title-group {
+  flex-shrink: 0;
+  min-width: 0;
+}
+.algo-name {
+  font-size: 1rem;
+  font-weight: 700;
+}
+.algo-name-zh {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+.algo-oneliner {
+  flex: 1;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.algo-badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+.algo-chevron {
+  font-size: 1rem;
+  color: var(--text-dim);
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+.algo-card.expanded-l1 .algo-chevron {
+  transform: rotate(180deg);
+}
+
+/* ─── Algo Detail (Level 1 — expand on click) ─── */
+.algo-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.algo-detail-inner {
+  padding: 0 1.25rem 1.25rem;
+}
+.detail-section {
+  margin-bottom: 1.25rem;
+}
+.detail-section:last-child { margin-bottom: 0; }
+.detail-section h3 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-mono);
+}
+.detail-section p {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--text);
+}
+.detail-section ul {
+  list-style: none;
+  padding: 0;
+}
+.detail-section ul li {
+  font-size: 0.85rem;
+  color: var(--text);
+  padding: 0.25rem 0;
+  padding-left: 1.2rem;
+  position: relative;
+}
+.detail-section ul li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+.insight-box {
+  background: rgba(108, 99, 255, 0.08);
+  border-left: 3px solid var(--accent);
+  padding: 0.8rem 1rem;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.insight-box-zh {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+}
+
+/* ─── Code Block ─── */
+.code-block {
+  background: #12141c;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #c0c0d8;
+  overflow-x: auto;
+  white-space: pre;
+  line-height: 1.7;
+  position: relative;
+}
+.code-block::before {
+  content: 'Python';
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.code-keyword { color: var(--accent); }
+.code-string { color: var(--accent3); }
+.code-comment { color: #5a5a7a; font-style: italic; }
+.code-number { color: var(--accent4); }
+.code-func { color: var(--accent2); }
+.code-builtin { color: #c792ea; }
+
+/* ─── Complexity Table ─── */
+.complexity-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+}
+.complexity-table th {
+  color: var(--text-dim);
+  font-weight: 400;
+  text-align: left;
+  padding: 0.4rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.7rem;
+}
+.complexity-table td {
+  padding: 0.4rem 0.8rem;
+  border-bottom: 1px solid rgba(42, 45, 58, 0.5);
+}
+.complexity-table tr:last-child td { border-bottom: none; }
+
+/* ─── Deep Dive Button ─── */
+.deep-dive-btn {
+  display: block;
+  width: 100%;
+  background: rgba(108, 99, 255, 0.06);
+  border: 1px dashed rgba(108, 99, 255, 0.3);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  padding: 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 1rem;
+}
+.deep-dive-btn:hover {
+  background: rgba(108, 99, 255, 0.12);
+  border-color: var(--accent);
+}
+
+/* ─── Deep Dive (Level 2) ─── */
+.algo-deep-dive {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.algo-deep-dive-inner {
+  padding-top: 1rem;
+}
+.variation-list, .related-list, .app-list {
+  display: grid;
+  gap: 0.4rem;
+}
+.variation-item, .related-item, .app-item {
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  background: rgba(108, 99, 255, 0.04);
+  border-radius: 6px;
+  border-left: 2px solid var(--accent);
+}
+.related-item { border-left-color: var(--accent3); }
+.app-item { border-left-color: var(--accent4); }
+.vs-box {
+  background: rgba(255, 107, 107, 0.06);
+  border-left: 3px solid var(--accent2);
+  padding: 0.8rem 1rem;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+.walkthrough-block {
+  background: #12141c;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: #c0c0d8;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+/* ─── Navigation ─── */
+.nav-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+.nav-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  text-decoration: none;
+  color: var(--text);
+  padding: 0.8rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: all 0.3s ease;
+  min-width: 0;
+}
+.nav-btn:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 15px var(--glow);
+}
+.nav-prev { align-items: flex-start; }
+.nav-next { align-items: flex-end; }
+.nav-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+.nav-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.nav-placeholder { flex: 1; }
+
+/* ─── Coming Soon (category page) ─── */
+.coming-soon-container {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+.coming-soon-msg {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+}
+.coming-soon-msg-zh {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  margin-bottom: 2rem;
+}
+.planned-list {
+  list-style: none;
+  padding: 0;
+  max-width: 400px;
+  margin: 0 auto;
+}
+.planned-list li {
+  padding: 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  border-bottom: 1px dashed var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.planned-check {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* ─── Footer ─── */
+.footer {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ─── Fade-in ─── */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .hero { padding: 4rem 1.5rem 2rem; }
+  .hero h1 { font-size: 1.8rem; }
+  .algo-header { flex-wrap: wrap; gap: 0.5rem; }
+  .algo-oneliner { display: none; }
+  .controls { flex-direction: column; align-items: flex-start; }
+  .nav-footer { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<section class="hero">
+  <div class="hero-icon">🧱</div>
+  <h1>Foundations</h1>
+  <div class="hero-zh">基础技巧</div>
+  <div class="hero-desc">Core algorithmic patterns that appear everywhere</div>
+  <div class="hero-stats" id="heroStats"></div>
+  <a href="index.html" class="back-link">← Back to Atlas</a>
+</section>
+
+<div class="container">
+  <div class="controls" id="controls">
+    <div class="control-group">
+      <span class="control-label">Sort</span>
+      <button class="ctrl-btn active" data-sort="default" onclick="sortBy('default', this)">Default</button>
+      <button class="ctrl-btn" data-sort="difficulty" onclick="sortBy('difficulty', this)">Difficulty</button>
+      <button class="ctrl-btn" data-sort="complexity" onclick="sortBy('complexity', this)">Complexity</button>
+    </div>
+    <div class="control-group">
+      <span class="control-label">Filter</span>
+      <button class="ctrl-btn active" data-filter="all" onclick="filterBy('all', this)">All</button>
+      <button class="ctrl-btn" data-filter="easy" onclick="filterBy('easy', this)">Easy</button>
+      <button class="ctrl-btn" data-filter="medium" onclick="filterBy('medium', this)">Medium</button>
+      <button class="ctrl-btn" data-filter="hard" onclick="filterBy('hard', this)">Hard</button>
+    </div>
+    <button class="expand-all-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand All</button>
+  </div>
+
+  <div class="algo-list" id="algoList"></div>
+
+  <nav class="nav-footer">
+    <div class="nav-placeholder"></div>
+    <a href="sorting.html" class="nav-btn nav-next"><span class="nav-label">next →</span><span class="nav-title">🔀 Sorting</span></a>
+  </nav>
+</div>
+
+<div class="footer">
+  Algo Atlas · Foundations
+</div>
+
+<script>
+const categoryMeta = {
+  "id": "foundations",
+  "name": "Foundations",
+  "nameZh": "基础技巧",
+  "icon": "🧱",
+  "description": "Core algorithmic patterns that appear everywhere",
+  "descriptionZh": "无处不在的核心算法模式",
+  "dataFile": "foundations.json",
+  "outputFile": "foundations.html",
+  "status": "active",
+  "order": 1,
+  "algoCount": 3
+};
+
+const algorithms = [
+  {
+    "id": "binary-search",
+    "name": "Binary Search",
+    "nameZh": "二分查找",
+    "difficulty": "easy",
+    "source": "algs4",
+    "sourceChapter": "1.1",
+    "oneLiner": "Find a target in a sorted array in O(log N) time",
+    "oneLinerZh": "在有序数组中以 O(log N) 时间查找目标",
+    "complexity": {
+      "time": {
+        "best": "O(1)",
+        "average": "O(log N)",
+        "worst": "O(log N)"
+      },
+      "space": "O(1)"
+    },
+    "problemDefinition": "Given a sorted array a[] of N comparable elements and a target value key, determine whether key exists in the array and return its index, or -1 if not found.",
+    "problemDefinitionZh": "给定一个已排序的 N 个可比较元素数组 a[] 和目标值 key，判断 key 是否存在于数组中，若存在则返回其索引，否则返回 -1。",
+    "whenToUse": [
+      "Input is sorted (or can be sorted as a preprocessing step)",
+      "Search space can be halved at each step",
+      "Monotonic predicate — a yes/no boundary in sorted order"
+    ],
+    "keyInsight": "Each comparison eliminates half the remaining elements. After k comparisons, only N/2^k elements remain. For N = 1,000,000 elements, at most 20 comparisons are needed.",
+    "keyInsightZh": "每次比较都消除一半剩余元素。经过 k 次比较后，仅剩 N/2^k 个元素。对于 N = 1,000,000 个元素，最多只需 20 次比较。",
+    "implementation": "def binary_search(a: list, key) -> int:\n    \"\"\"Return index of key in sorted array a, or -1 if not found.\"\"\"\n    lo, hi = 0, len(a) - 1\n    while lo <= hi:\n        mid = lo + (hi - lo) // 2\n        if a[mid] < key:\n            lo = mid + 1\n        elif a[mid] > key:\n            hi = mid - 1\n        else:\n            return mid\n    return -1",
+    "deepDive": {
+      "explanation": "Binary search maintains a contiguous subarray a[lo..hi] that may contain the target. At each step it examines the midpoint mid = lo + (hi - lo) // 2. If a[mid] equals the target, the search is done. If a[mid] < target, the target must be in a[mid+1..hi], so lo = mid + 1. If a[mid] > target, the target must be in a[lo..mid-1], so hi = mid - 1. The loop terminates when lo > hi, meaning the target is absent.",
+      "walkthrough": "a = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91], key = 23\n\nStep 1: lo=0, hi=9, mid=4 → a[4]=16 < 23 → lo=5\nStep 2: lo=5, hi=9, mid=7 → a[7]=56 > 23 → hi=6\nStep 3: lo=5, hi=6, mid=5 → a[5]=23 = 23 → return 5 ✓\n\n3 comparisons for 10 elements (⌈log₂ 10⌉ = 4 max)",
+      "variations": [
+        "Lower bound (bisect_left) — find first element >= key",
+        "Upper bound (bisect_right) — find first element > key",
+        "Search in rotated sorted array — find pivot first, then binary search",
+        "Binary search on answer (parametric search) — search over solution space"
+      ],
+      "relatedProblems": [
+        "Two Sum in sorted array (LeetCode 167)",
+        "Search Insert Position (LeetCode 35)",
+        "Find First and Last Position of Element (LeetCode 34)",
+        "Search in Rotated Sorted Array (LeetCode 33)"
+      ],
+      "realWorldApps": [
+        "Database index lookup (B-tree nodes use binary search internally)",
+        "git bisect — find the commit that introduced a bug",
+        "IP address geolocation lookup tables",
+        "Python's bisect module for sorted container operations"
+      ],
+      "vsAlternatives": "Linear search scans every element: O(N). Binary search requires sorted input but reduces to O(log N). For N = 1,000,000: linear search averages 500,000 comparisons; binary search needs at most 20. The trade-off: binary search needs random access (arrays), while linear search works on any iterable."
+    },
+    "complexityRank": 3,
+    "defaultOrder": 0
+  },
+  {
+    "id": "two-pointers",
+    "name": "Two Pointers",
+    "nameZh": "双指针",
+    "difficulty": "medium",
+    "source": "pattern",
+    "sourceChapter": "",
+    "oneLiner": "Traverse a sorted/structured sequence from both ends or two positions",
+    "oneLinerZh": "从两端或两个位置遍历有序/结构化序列",
+    "complexity": {
+      "time": {
+        "best": "O(N)",
+        "average": "O(N)",
+        "worst": "O(N)"
+      },
+      "space": "O(1)"
+    },
+    "problemDefinition": "Given a sorted array or linked list, use two pointer variables to traverse the structure, reducing what would be an O(N²) brute-force to O(N). Common patterns: converging pointers (start + end), fast/slow pointers, or two sequences.",
+    "problemDefinitionZh": "给定有序数组或链表，使用两个指针变量遍历结构，将 O(N²) 暴力搜索降至 O(N)。常见模式：收敛指针（头 + 尾）、快慢指针、双序列指针。",
+    "whenToUse": [
+      "Sorted array and you need pairs/triplets satisfying a condition",
+      "Linked list cycle detection or finding the middle node",
+      "Merging two sorted sequences",
+      "Removing duplicates in-place from sorted data"
+    ],
+    "keyInsight": "Instead of checking all O(N²) pairs, two pointers move through the array in a coordinated way, each element visited at most once. The invariant that guides pointer movement (e.g., 'sum too small → move left pointer right') guarantees no valid pair is skipped.",
+    "keyInsightZh": "不检查所有 O(N²) 个配对，而是让两个指针协调移动，每个元素最多访问一次。指导指针移动的不变量（如「和太小→左指针右移」）保证不会遗漏有效配对。",
+    "implementation": "def two_sum_sorted(a: list, target: int) -> tuple:\n    \"\"\"Find two indices in sorted array a that sum to target.\"\"\"\n    lo, hi = 0, len(a) - 1\n    while lo < hi:\n        s = a[lo] + a[hi]\n        if s < target:\n            lo += 1\n        elif s > target:\n            hi -= 1\n        else:\n            return (lo, hi)\n    return (-1, -1)\n\n\ndef has_cycle(head) -> bool:\n    \"\"\"Floyd's cycle detection: slow moves 1 step, fast moves 2.\"\"\"\n    slow = fast = head\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n        if slow is fast:\n            return True\n    return False",
+    "deepDive": {
+      "explanation": "The two-pointer technique exploits the structure of the input (usually sorted order) to prune the search space. For the converging pattern: if a[lo] + a[hi] < target, increasing lo is guaranteed to increase the sum (since the array is sorted). If the sum is too large, decreasing hi reduces it. This means each comparison eliminates an entire row or column of the N×N pair matrix.",
+      "walkthrough": "Two Sum: a = [1, 3, 5, 7, 11, 13], target = 12\n\nlo=0, hi=5: 1+13=14 > 12 → hi=4\nlo=0, hi=4: 1+11=12 = 12 → return (0, 4) ✓\n\nCycle detection: 1 → 2 → 3 → 4 → 2 (cycle)\nslow: 1→2→3→4    fast: 1→3→4→3\nStep 4: slow=4, fast=4 → cycle detected ✓",
+      "variations": [
+        "3Sum — sort + fix one element + two-pointer on remainder: O(N²)",
+        "Container With Most Water — maximize area between two vertical lines",
+        "Remove duplicates from sorted array in-place",
+        "Linked list: find the kth node from the end (fast pointer leads by k)"
+      ],
+      "relatedProblems": [
+        "Two Sum II - Input Array Is Sorted (LeetCode 167)",
+        "3Sum (LeetCode 15)",
+        "Container With Most Water (LeetCode 11)",
+        "Linked List Cycle (LeetCode 141)"
+      ],
+      "realWorldApps": [
+        "Merge phase of mergesort (two pointers on two sorted halves)",
+        "Database merge-join on sorted relations",
+        "Network packet reassembly (sliding receive window)",
+        "Diff algorithms — comparing two sorted sequences"
+      ],
+      "vsAlternatives": "Brute-force checks all O(N²) pairs. Hash map gives O(N) with O(N) space. Two pointers achieves O(N) with O(1) space, but requires sorted input. For problems where sorting is acceptable (O(N log N) preprocessing), two pointers is the most space-efficient approach."
+    },
+    "complexityRank": 6,
+    "defaultOrder": 1
+  },
+  {
+    "id": "sliding-window",
+    "name": "Sliding Window",
+    "nameZh": "滑动窗口",
+    "difficulty": "medium",
+    "source": "pattern",
+    "sourceChapter": "",
+    "oneLiner": "Maintain a window over a contiguous subarray to compute aggregate properties",
+    "oneLinerZh": "在连续子数组上维护一个窗口以计算聚合属性",
+    "complexity": {
+      "time": {
+        "best": "O(N)",
+        "average": "O(N)",
+        "worst": "O(N)"
+      },
+      "space": "O(1)"
+    },
+    "problemDefinition": "Given a sequence, find a contiguous subarray/substring that satisfies some constraint (e.g., max sum of length k, smallest window containing all characters). Maintain two pointers (left, right) defining a 'window' that expands or shrinks to explore all valid subarrays in O(N).",
+    "problemDefinitionZh": "给定序列，找到满足某些约束的连续子数组/子串（如长度 k 的最大和、包含所有字符的最小窗口）。维护两个指针（left, right）定义一个「窗口」，通过扩展或收缩在 O(N) 内探索所有有效子数组。",
+    "whenToUse": [
+      "Finding max/min sum subarray of fixed length k",
+      "Smallest/longest substring satisfying a condition",
+      "Counting subarrays with a property (e.g., sum <= target)",
+      "Any problem involving contiguous sequences and aggregate properties"
+    ],
+    "keyInsight": "When the right pointer advances, the window gains one element. When the left pointer advances, it loses one element. By updating the window state incrementally (add/remove one element), each element is processed at most twice (once on entry, once on exit), giving O(N) overall.",
+    "keyInsightZh": "右指针前进时窗口增加一个元素，左指针前进时失去一个元素。通过增量更新窗口状态（添加/移除一个元素），每个元素最多处理两次（进入和退出各一次），总体 O(N)。",
+    "implementation": "def max_sum_subarray(a: list, k: int) -> int:\n    \"\"\"Max sum of any contiguous subarray of length k.\"\"\"\n    n = len(a)\n    window_sum = sum(a[:k])\n    max_sum = window_sum\n    for i in range(k, n):\n        window_sum += a[i] - a[i - k]\n        max_sum = max(max_sum, window_sum)\n    return max_sum\n\n\ndef min_window_substring(s: str, t: str) -> str:\n    \"\"\"Smallest window in s containing all chars of t.\"\"\"\n    from collections import Counter\n    need = Counter(t)\n    missing = len(t)\n    left = start = 0\n    min_len = float('inf')\n    for right, ch in enumerate(s):\n        if need[ch] > 0:\n            missing -= 1\n        need[ch] -= 1\n        while missing == 0:\n            if right - left + 1 < min_len:\n                min_len = right - left + 1\n                start = left\n            need[s[left]] += 1\n            if need[s[left]] > 0:\n                missing += 1\n            left += 1\n    return '' if min_len == float('inf') else s[start:start + min_len]",
+    "deepDive": {
+      "explanation": "The sliding window pattern comes in two flavors: (1) Fixed-size window — slide a window of exactly k elements across the array, maintaining a running aggregate. (2) Variable-size window — expand the right boundary until a condition is met, then shrink from the left to find the optimal (minimum/maximum) window. The key correctness argument: when we shrink from the left, we know that any window starting before 'left' and ending at 'right' has already been considered or is suboptimal.",
+      "walkthrough": "Fixed window: a = [2, 1, 5, 1, 3, 2], k = 3\nWindow [2,1,5] sum=8 → max=8\nSlide: [1,5,1] sum=7 → max=8\nSlide: [5,1,3] sum=9 → max=9\nSlide: [1,3,2] sum=6 → max=9\nAnswer: 9\n\nVariable window: s='ADOBECODEBANC', t='ABC'\nExpand right until window has A,B,C → 'ADOBEC' (len 6)\nShrink left → 'DOBEC' missing A → expand\nContinue → find 'BANC' (len 4) → answer",
+      "variations": [
+        "Fixed-size window with deque for sliding minimum/maximum: O(N)",
+        "Variable-size with at most K distinct characters",
+        "Sliding window + hash map for anagram detection",
+        "Rabin-Karp: sliding window with rolling hash for string matching"
+      ],
+      "relatedProblems": [
+        "Maximum Sum Subarray of Size K",
+        "Minimum Window Substring (LeetCode 76)",
+        "Longest Substring Without Repeating Characters (LeetCode 3)",
+        "Sliding Window Maximum (LeetCode 239)"
+      ],
+      "realWorldApps": [
+        "Network traffic monitoring — compute throughput over a rolling time window",
+        "Stock price analysis — moving average calculations",
+        "Streaming data processing — aggregate metrics over recent data",
+        "Rate limiting — count requests within a sliding time window"
+      ],
+      "vsAlternatives": "Brute-force examines all O(N²) subarrays. Prefix sums can answer fixed-window queries in O(1) each after O(N) preprocessing but need O(N) space. Sliding window achieves O(N) time with O(1) space for most problems, making it the optimal approach for contiguous subarray questions."
+    },
+    "complexityRank": 6,
+    "defaultOrder": 2
+  }
+];
+
+const isComingSoon = false;
+
+const plannedAlgorithms = [];
+
+const comingSoonMessage = "";
+const comingSoonMessageZh = "";
+
+// ─── Python Syntax Highlighting (lightweight) ─────────────────────────────
+function highlightPython(code) {
+  // Escape HTML
+  let s = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Comments
+  s = s.replace(/(#.*?)$/gm, '<span class="code-comment">$1</span>');
+  // Triple-quoted strings
+  s = s.replace(/("""[\s\S]*?"""|'''[\s\S]*?''')/g, '<span class="code-string">$1</span>');
+  // Strings
+  s = s.replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, '<span class="code-string">$1</span>');
+  // Keywords
+  const kws = ['def','class','return','if','elif','else','for','while','in','not','and','or','is','None','True','False','import','from','as','with','try','except','finally','raise','yield','lambda','pass','break','continue','assert','global','nonlocal'];
+  const kwRe = new RegExp('\\b(' + kws.join('|') + ')\\b', 'g');
+  s = s.replace(kwRe, '<span class="code-keyword">$1</span>');
+  // Built-in functions
+  const builtins = ['len','range','print','int','float','str','list','dict','set','tuple','sorted','enumerate','zip','map','filter','isinstance','type','super','min','max','sum','abs','any','all','reversed','iter','next','hash','id','open','input'];
+  const biRe = new RegExp('\\b(' + builtins.join('|') + ')(?=\\()', 'g');
+  s = s.replace(biRe, '<span class="code-builtin">$1</span>');
+  // Function definitions
+  s = s.replace(/(?<=def\s+)(\w+)/g, '<span class="code-func">$1</span>');
+  // Numbers
+  s = s.replace(/\b(\d+\.?\d*)\b/g, '<span class="code-number">$1</span>');
+  return s;
+}
+
+// ─── Render ─────────────────────────────────────────────────────────────────
+const algoListEl = document.getElementById('algoList');
+const controlsEl = document.getElementById('controls');
+let allExpanded = false;
+
+if (isComingSoon) {
+  controlsEl.style.display = 'none';
+  algoListEl.innerHTML = `
+    <div class="coming-soon-container">
+      <div class="coming-soon-msg">${comingSoonMessage}</div>
+      <div class="coming-soon-msg-zh">${comingSoonMessageZh}</div>
+      <ul class="planned-list">
+        ${plannedAlgorithms.map(a => `<li><span class="planned-check"></span>${a}</li>`).join('')}
+      </ul>
+    </div>`;
+} else {
+  // Hero stats
+  const heroStatsEl = document.getElementById('heroStats');
+  const difficulties = [...new Set(algorithms.map(a => a.difficulty))];
+  heroStatsEl.innerHTML = `
+    <span class="badge badge--time">${algorithms.length} algorithms</span>
+    ${difficulties.map(d => `<span class="badge badge--${d}">${d}</span>`).join('')}`;
+
+  // Render algorithm cards
+  algorithms.forEach((algo, i) => {
+    const card = document.createElement('div');
+    card.className = 'algo-card fade-in';
+    card.dataset.id = algo.id;
+    card.dataset.difficulty = algo.difficulty;
+    card.dataset.complexityRank = algo.complexityRank;
+    card.dataset.defaultOrder = algo.defaultOrder;
+    card.id = algo.id;
+
+    const worstTime = algo.complexity?.time?.worst || '';
+    const codeHtml = highlightPython(algo.implementation || '');
+
+    const whenToUseHtml = (algo.whenToUse || []).map(w => `<li>${w}</li>`).join('');
+
+    // Complexity table
+    const tc = algo.complexity?.time || {};
+    const sc = algo.complexity?.space || '';
+    const complexityHtml = `
+      <table class="complexity-table">
+        <tr><th>Metric</th><th>Best</th><th>Average</th><th>Worst</th></tr>
+        <tr><td>Time</td><td>${tc.best || '—'}</td><td>${tc.average || '—'}</td><td>${tc.worst || '—'}</td></tr>
+        <tr><td colspan="3">Space</td><td>${sc}</td></tr>
+      </table>`;
+
+    // Deep dive
+    const dd = algo.deepDive || {};
+    const variationsHtml = (dd.variations || []).map(v => `<div class="variation-item">${v}</div>`).join('');
+    const relatedHtml = (dd.relatedProblems || []).map(r => `<div class="related-item">${r}</div>`).join('');
+    const appsHtml = (dd.realWorldApps || []).map(a => `<div class="app-item">${a}</div>`).join('');
+
+    card.innerHTML = `
+      <div class="algo-header" onclick="toggleL1(this)">
+        <div class="algo-title-group">
+          <div class="algo-name">${algo.name}</div>
+          <div class="algo-name-zh">${algo.nameZh}</div>
+        </div>
+        <div class="algo-oneliner">${algo.oneLiner || ''}</div>
+        <div class="algo-badges">
+          <span class="badge badge--time">${worstTime}</span>
+          <span class="badge badge--${algo.difficulty}">${algo.difficulty}</span>
+        </div>
+        <span class="algo-chevron">▾</span>
+      </div>
+      <div class="algo-detail">
+        <div class="algo-detail-inner">
+          <div class="detail-section">
+            <h3>Problem Definition</h3>
+            <p>${algo.problemDefinition || ''}</p>
+            ${algo.problemDefinitionZh ? `<p style="color:var(--text-dim);font-size:0.85rem;margin-top:0.3rem">${algo.problemDefinitionZh}</p>` : ''}
+          </div>
+          ${whenToUseHtml ? `<div class="detail-section"><h3>When to Use</h3><ul>${whenToUseHtml}</ul></div>` : ''}
+          <div class="detail-section">
+            <h3>Key Insight</h3>
+            <div class="insight-box">
+              ${algo.keyInsight || ''}
+              ${algo.keyInsightZh ? `<div class="insight-box-zh">${algo.keyInsightZh}</div>` : ''}
+            </div>
+          </div>
+          <div class="detail-section">
+            <h3>Implementation</h3>
+            <pre class="code-block">${codeHtml}</pre>
+          </div>
+          <div class="detail-section">
+            <h3>Complexity Analysis</h3>
+            ${complexityHtml}
+          </div>
+          ${dd.explanation ? `
+          <button class="deep-dive-btn" onclick="toggleL2(this)">Deep Dive ▾</button>
+          <div class="algo-deep-dive">
+            <div class="algo-deep-dive-inner">
+              <div class="detail-section">
+                <h3>Detailed Explanation</h3>
+                <p>${dd.explanation}</p>
+              </div>
+              ${dd.walkthrough ? `<div class="detail-section"><h3>Step-by-Step Walkthrough</h3><div class="walkthrough-block">${dd.walkthrough}</div></div>` : ''}
+              ${variationsHtml ? `<div class="detail-section"><h3>Variations & Optimizations</h3><div class="variation-list">${variationsHtml}</div></div>` : ''}
+              ${relatedHtml ? `<div class="detail-section"><h3>Related Problems</h3><div class="related-list">${relatedHtml}</div></div>` : ''}
+              ${appsHtml ? `<div class="detail-section"><h3>Real-World Applications</h3><div class="app-list">${appsHtml}</div></div>` : ''}
+              ${dd.vsAlternatives ? `<div class="detail-section"><h3>Comparison with Alternatives</h3><div class="vs-box">${dd.vsAlternatives}</div></div>` : ''}
+            </div>
+          </div>` : ''}
+        </div>
+      </div>`;
+
+    algoListEl.appendChild(card);
+  });
+}
+
+// ─── Expand / Collapse ────────────────────────────────────────────────────
+function toggleL1(headerEl) {
+  const card = headerEl.closest('.algo-card');
+  const detail = card.querySelector('.algo-detail');
+  const isOpen = card.classList.contains('expanded-l1');
+
+  if (isOpen) {
+    if (card.classList.contains('expanded-l2')) {
+      const btn = card.querySelector('.deep-dive-btn');
+      if (btn) toggleL2(btn);
+    }
+    detail.style.maxHeight = '0';
+    card.classList.remove('expanded-l1');
+  } else {
+    detail.style.maxHeight = detail.scrollHeight + 'px';
+    card.classList.add('expanded-l1');
+  }
+}
+
+function toggleL2(btnEl) {
+  const card = btnEl.closest('.algo-card');
+  const deepDive = card.querySelector('.algo-deep-dive');
+  const detail = card.querySelector('.algo-detail');
+  const isOpen = card.classList.contains('expanded-l2');
+
+  if (isOpen) {
+    deepDive.style.maxHeight = '0';
+    card.classList.remove('expanded-l2');
+    btnEl.textContent = 'Deep Dive ▾';
+  } else {
+    deepDive.style.maxHeight = deepDive.scrollHeight + 'px';
+    card.classList.add('expanded-l2');
+    btnEl.textContent = 'Deep Dive ▴';
+    // Recalculate parent
+    setTimeout(() => { detail.style.maxHeight = detail.scrollHeight + 'px'; }, 10);
+  }
+}
+
+function toggleExpandAll() {
+  const btn = document.getElementById('expandAllBtn');
+  const cards = document.querySelectorAll('.algo-card');
+  allExpanded = !allExpanded;
+
+  cards.forEach(card => {
+    if (card.style.display === 'none') return;
+    const detail = card.querySelector('.algo-detail');
+    if (allExpanded) {
+      detail.style.maxHeight = detail.scrollHeight + 'px';
+      card.classList.add('expanded-l1');
+    } else {
+      if (card.classList.contains('expanded-l2')) {
+        const ddBtn = card.querySelector('.deep-dive-btn');
+        if (ddBtn) toggleL2(ddBtn);
+      }
+      detail.style.maxHeight = '0';
+      card.classList.remove('expanded-l1');
+    }
+  });
+  btn.textContent = allExpanded ? 'Collapse All' : 'Expand All';
+}
+
+// ─── Sort / Filter ────────────────────────────────────────────────────────
+function sortBy(mode, btnEl) {
+  document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+
+  const list = document.getElementById('algoList');
+  const cards = Array.from(list.querySelectorAll('.algo-card'));
+  const diffOrder = { easy: 0, medium: 1, hard: 2 };
+
+  cards.sort((a, b) => {
+    if (mode === 'difficulty') return (diffOrder[a.dataset.difficulty] || 0) - (diffOrder[b.dataset.difficulty] || 0);
+    if (mode === 'complexity') return parseInt(a.dataset.complexityRank) - parseInt(b.dataset.complexityRank);
+    return parseInt(a.dataset.defaultOrder) - parseInt(b.dataset.defaultOrder);
+  });
+  cards.forEach(c => list.appendChild(c));
+}
+
+function filterBy(difficulty, btnEl) {
+  document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+
+  document.querySelectorAll('.algo-card').forEach(card => {
+    card.style.display = (difficulty === 'all' || card.dataset.difficulty === difficulty) ? '' : 'none';
+  });
+}
+
+// ─── Progress Bar ─────────────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+  document.getElementById('progressBar').style.width = Math.min(pct, 100) + '%';
+});
+
+// ─── Fade-in Observer ─────────────────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.05 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// ─── URL Hash Support ─────────────────────────────────────────────────────
+function handleHash() {
+  const hash = window.location.hash.slice(1);
+  if (!hash) return;
+  const card = document.getElementById(hash);
+  if (!card) return;
+  setTimeout(() => {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const header = card.querySelector('.algo-header');
+    if (header && !card.classList.contains('expanded-l1')) toggleL1(header);
+  }, 300);
+}
+window.addEventListener('hashchange', handleHash);
+handleHash();
+</script>
+</body>
+</html>

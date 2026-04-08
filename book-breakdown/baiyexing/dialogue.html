@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>白夜行 · 对话网络 | Dialogue Network</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108,99,255,0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ── Hero ── */
+.hero {
+    height: 25vh; min-height: 160px;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    text-align: center; padding: 1rem;
+    position: relative; overflow: hidden;
+}
+.hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 40% 50%, rgba(108,99,255,0.06) 0%, transparent 60%);
+    pointer-events: none;
+}
+.hero h1 { font-size: clamp(1.5rem, 4vw, 2.4rem); font-weight: 700; }
+.hero .sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem; color: var(--accent3); opacity: 0.7;
+}
+.back-link {
+    position: absolute; top: 1rem; left: 1.5rem;
+    color: var(--text-dim); text-decoration: none; font-size: 0.85rem;
+    transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent); }
+
+/* ── Controls ── */
+.controls {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--card); border-bottom: 1px solid var(--border);
+    padding: 0.6rem 1.5rem; display: flex; align-items: center;
+    gap: 1.2rem; flex-wrap: wrap;
+}
+.ctrl-label {
+    font-size: 0.75rem; color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+}
+.ctrl-group { display: flex; align-items: center; gap: 0.5rem; }
+.range-wrap { display: flex; align-items: center; gap: 0.4rem; }
+.range-wrap input[type="range"] {
+    width: 100px; accent-color: var(--accent);
+}
+.range-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem; color: var(--accent4); min-width: 2ch;
+}
+.ch-range { display: flex; align-items: center; gap: 0.3rem; }
+.ch-range input[type="range"] { width: 80px; accent-color: var(--accent3); }
+
+/* ── Layout ── */
+.main-layout {
+    display: flex; height: calc(75vh - 45px);
+    min-height: 400px;
+}
+.canvas-wrap {
+    flex: 1; position: relative; overflow: hidden;
+}
+.canvas-wrap canvas { display: block; }
+
+/* ── Side Panel ── */
+.side-panel {
+    width: 280px; background: var(--card);
+    border-left: 1px solid var(--border);
+    overflow-y: auto; padding: 1rem;
+    font-size: 0.82rem;
+}
+.side-panel h3 {
+    font-size: 0.9rem; margin-bottom: 0.8rem;
+    color: var(--accent3);
+}
+.rank-list { list-style: none; }
+.rank-item {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.35rem 0; border-bottom: 1px solid var(--border);
+}
+.rank-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--text-dim);
+    width: 1.5rem; text-align: right;
+}
+.rank-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.rank-name { flex: 1; }
+.rank-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem; color: var(--accent4);
+}
+.pair-section { margin-top: 1.5rem; }
+.pair-item {
+    padding: 0.35rem 0; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+}
+.pair-names { font-size: 0.8rem; }
+.pair-arrow { color: var(--text-dim); margin: 0 0.3rem; }
+
+/* ── Tooltip ── */
+.tooltip {
+    position: fixed; z-index: 100;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.7rem 1rem;
+    pointer-events: none; opacity: 0;
+    transition: opacity 0.15s; max-width: 260px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+.tooltip.show { opacity: 1; }
+.tooltip .tt-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.3rem; }
+.tooltip .tt-sub { font-size: 0.75rem; color: var(--text-dim); }
+.tooltip .tt-val {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent4); font-size: 0.85rem;
+}
+
+/* ── Detail Panel ── */
+.detail-overlay {
+    display: none; position: fixed; inset: 0; z-index: 50;
+    background: rgba(0,0,0,0.5);
+}
+.detail-overlay.show { display: flex; justify-content: center; align-items: center; }
+.detail-box {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.8rem; max-width: 420px;
+    width: 90%; max-height: 70vh; overflow-y: auto;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+.detail-box h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+.detail-box .detail-sub {
+    font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1rem;
+}
+.detail-chapters {
+    display: flex; flex-wrap: wrap; gap: 0.3rem;
+}
+.ch-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; padding: 0.15rem 0.5rem;
+    border-radius: 10px; background: var(--bg);
+    border: 1px solid var(--border); color: var(--text-dim);
+}
+.detail-close {
+    float: right; background: none; border: none;
+    color: var(--text-dim); font-size: 1.2rem; cursor: pointer;
+}
+.detail-close:hover { color: var(--text); }
+
+@media (max-width: 768px) {
+    .main-layout { flex-direction: column; height: auto; }
+    .canvas-wrap { height: 50vh; }
+    .side-panel { width: 100%; height: auto; max-height: 40vh; border-left: none; border-top: 1px solid var(--border); }
+    .controls { gap: 0.6rem; }
+}
+</style>
+</head>
+<body>
+
+<section class="hero">
+    <a href="index.html" class="back-link">&larr; 返回首页</a>
+    <h1>💬 对话网络</h1>
+    <div class="sub">Dialogue Network &mdash; 白夜行</div>
+</section>
+
+<div class="controls" id="controls">
+    <div class="ctrl-group">
+        <span class="ctrl-label">Min对话</span>
+        <div class="range-wrap">
+            <input type="range" id="thresholdSlider" min="1" max="50" value="1">
+            <span class="range-val" id="thresholdVal">1</span>
+        </div>
+    </div>
+    <div class="ctrl-group">
+        <span class="ctrl-label">章节</span>
+        <div class="ch-range">
+            <input type="range" id="chStartSlider" min="1" max="100" value="1">
+            <span class="range-val" id="chStartVal">1</span>
+            <span class="ctrl-label">~</span>
+            <input type="range" id="chEndSlider" min="1" max="100" value="100">
+            <span class="range-val" id="chEndVal">100</span>
+        </div>
+    </div>
+</div>
+
+<div class="main-layout">
+    <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="chordCanvas"></canvas>
+    </div>
+    <div class="side-panel" id="sidePanel">
+        <h3>话多排行 Top Speakers</h3>
+        <ul class="rank-list" id="speakerRank"></ul>
+        <div class="pair-section">
+            <h3>最频繁对话 Top Pairs</h3>
+            <ul class="rank-list" id="pairRank"></ul>
+        </div>
+    </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<div class="detail-overlay" id="detailOverlay">
+    <div class="detail-box" id="detailBox"></div>
+</div>
+
+<script>
+const dialogue = {
+  "pairs": [
+    {
+      "char1": "sasagaki",
+      "char2": "yaeko",
+      "count": 18,
+      "chapters": [
+        1,
+        13
+      ],
+      "note": "Detective interrogating victim's wife about the murder and her alibi"
+    },
+    {
+      "char1": "sasagaki",
+      "char2": "matsuura",
+      "count": 12,
+      "chapters": [
+        1,
+        13
+      ],
+      "note": "Detective questioning the suspect connected to Yaeko"
+    },
+    {
+      "char1": "sasagaki",
+      "char2": "yukiho",
+      "count": 8,
+      "chapters": [
+        1,
+        13
+      ],
+      "note": "Detective interviewing young Yukiho early on and confronting her at the end"
+    },
+    {
+      "char1": "ryoji",
+      "char2": "tomohiko",
+      "count": 52,
+      "chapters": [
+        3,
+        6,
+        8
+      ],
+      "note": "Criminal partners in escalating schemes from fraud to software piracy"
+    },
+    {
+      "char1": "eriko",
+      "char2": "yukiho",
+      "count": 35,
+      "chapters": [
+        2,
+        5,
+        7
+      ],
+      "note": "Close friends from middle school through college; Eriko is Yukiho's confidante"
+    },
+    {
+      "char1": "nakamichi",
+      "char2": "yukiho",
+      "count": 22,
+      "chapters": [
+        4
+      ],
+      "note": "Tutor investigating Yukiho's mysterious background and her mother's death"
+    },
+    {
+      "char1": "nakamichi",
+      "char2": "reiko",
+      "count": 28,
+      "chapters": [
+        4
+      ],
+      "note": "Tutor and Yukiho's adoptive mother discussing Yukiho's upbringing"
+    },
+    {
+      "char1": "takamiya",
+      "char2": "yukiho",
+      "count": 20,
+      "chapters": [
+        9,
+        10,
+        11
+      ],
+      "note": "Husband and wife; strained marriage with underlying secrets"
+    },
+    {
+      "char1": "takamiya",
+      "char2": "misawa",
+      "count": 16,
+      "chapters": [
+        7,
+        9
+      ],
+      "note": "Workplace colleague relationship that develops into emotional affair"
+    },
+    {
+      "char1": "imaeda",
+      "char2": "shinozuka_k",
+      "count": 24,
+      "chapters": [
+        10,
+        11
+      ],
+      "note": "Private detective reporting investigation findings about Yukiho to client"
+    },
+    {
+      "char1": "ryoji",
+      "char2": "noriko",
+      "count": 30,
+      "chapters": [
+        12,
+        13
+      ],
+      "note": "Ryoji's relationship with Noriko under his alias Akiyoshi Yuichi"
+    },
+    {
+      "char1": "shinozuka_k",
+      "char2": "yukiho",
+      "count": 14,
+      "chapters": [
+        5,
+        9,
+        11
+      ],
+      "note": "Social dance club acquaintance who later investigates Yukiho"
+    },
+    {
+      "char1": "tomohiko",
+      "char2": "hiroe",
+      "count": 15,
+      "chapters": [
+        8
+      ],
+      "note": "Tomohiko's girlfriend/wife during his computer business period"
+    },
+    {
+      "char1": "ryoji",
+      "char2": "namie",
+      "count": 10,
+      "chapters": [
+        3,
+        6
+      ],
+      "note": "Namie drawn into Ryoji's criminal schemes through the escort service"
+    },
+    {
+      "char1": "tomohiko",
+      "char2": "yuko",
+      "count": 8,
+      "chapters": [
+        3
+      ],
+      "note": "Tomohiko's affair with married woman that leads to her death"
+    },
+    {
+      "char1": "sasagaki",
+      "char2": "eri",
+      "count": 12,
+      "chapters": [
+        13
+      ],
+      "note": "Detective contacting Imaeda's former colleague to piece together the case"
+    },
+    {
+      "char1": "shinozuka_k",
+      "char2": "eriko",
+      "count": 10,
+      "chapters": [
+        5,
+        7
+      ],
+      "note": "College social circle; Shinozuka recruited them for dance club"
+    },
+    {
+      "char1": "sasagaki",
+      "char2": "imaeda",
+      "count": 6,
+      "chapters": [
+        10,
+        13
+      ],
+      "note": "Two investigators comparing notes on the connected cold cases"
+    },
+    {
+      "char1": "tomohiko",
+      "char2": "namie",
+      "count": 12,
+      "chapters": [
+        3,
+        6
+      ],
+      "note": "Business and criminal partnership; Namie explains Ryoji's schemes"
+    },
+    {
+      "char1": "imaeda",
+      "char2": "takamiya",
+      "count": 8,
+      "chapters": [
+        10
+      ],
+      "note": "Detective encountering the husband during investigation"
+    },
+    {
+      "char1": "ryoji",
+      "char2": "yukiho",
+      "count": 1,
+      "chapters": [
+        13
+      ],
+      "note": "The two protagonists almost never speak directly — the novel's central device"
+    },
+    {
+      "char1": "shinozuka_k",
+      "char2": "shinozuka_y",
+      "count": 6,
+      "chapters": [
+        5,
+        11
+      ],
+      "note": "Brothers discussing family and social matters"
+    },
+    {
+      "char1": "sasagaki",
+      "char2": "fumiyo",
+      "count": 4,
+      "chapters": [
+        1
+      ],
+      "note": "Detective visiting Fumiyo's home during initial investigation"
+    },
+    {
+      "char1": "takamiya",
+      "char2": "shinozuka_k",
+      "count": 5,
+      "chapters": [
+        9,
+        11
+      ],
+      "note": "Connected through Yukiho; Shinozuka shares investigation findings"
+    },
+    {
+      "char1": "eriko",
+      "char2": "miyako",
+      "count": 4,
+      "chapters": [
+        2
+      ],
+      "note": "Eriko visiting Miyako's mother after the assault incident"
+    },
+    {
+      "char1": "imaeda",
+      "char2": "noriko",
+      "count": 6,
+      "chapters": [
+        12,
+        13
+      ],
+      "note": "Detective interviewing Noriko about her relationship with Ryoji"
+    },
+    {
+      "char1": "ryoji",
+      "char2": "matsuura",
+      "count": 3,
+      "chapters": [
+        1,
+        8
+      ],
+      "note": "Ryoji connected to Matsuura through Yaeko's world"
+    }
+  ],
+  "chapterBreakdown": [
+    {
+      "chapter": 1,
+      "speakers": {
+        "sasagaki": 85,
+        "yaeko": 25,
+        "matsuura": 15,
+        "yukiho": 8,
+        "fumiyo": 5,
+        "ryoji": 3
+      }
+    },
+    {
+      "chapter": 2,
+      "speakers": {
+        "eriko": 40,
+        "yukiho": 30,
+        "sasagaki": 15,
+        "miyako": 8,
+        "nakamichi": 5
+      }
+    },
+    {
+      "chapter": 3,
+      "speakers": {
+        "ryoji": 55,
+        "tomohiko": 50,
+        "namie": 18,
+        "yuko": 12,
+        "yosuke": 5
+      }
+    },
+    {
+      "chapter": 4,
+      "speakers": {
+        "nakamichi": 55,
+        "reiko": 40,
+        "yukiho": 25
+      }
+    },
+    {
+      "chapter": 5,
+      "speakers": {
+        "eriko": 35,
+        "yukiho": 25,
+        "shinozuka_k": 20,
+        "shinozuka_y": 8
+      }
+    },
+    {
+      "chapter": 6,
+      "speakers": {
+        "ryoji": 45,
+        "tomohiko": 40,
+        "namie": 10
+      }
+    },
+    {
+      "chapter": 7,
+      "speakers": {
+        "takamiya": 30,
+        "misawa": 25,
+        "eriko": 12,
+        "shinozuka_k": 8
+      }
+    },
+    {
+      "chapter": 8,
+      "speakers": {
+        "tomohiko": 35,
+        "ryoji": 30,
+        "hiroe": 20,
+        "namie": 5
+      }
+    },
+    {
+      "chapter": 9,
+      "speakers": {
+        "takamiya": 35,
+        "yukiho": 22,
+        "misawa": 12,
+        "shinozuka_k": 8
+      }
+    },
+    {
+      "chapter": 10,
+      "speakers": {
+        "imaeda": 45,
+        "shinozuka_k": 20,
+        "takamiya": 10,
+        "sasagaki": 8
+      }
+    },
+    {
+      "chapter": 11,
+      "speakers": {
+        "imaeda": 50,
+        "shinozuka_k": 30,
+        "yukiho": 10,
+        "takamiya": 8
+      }
+    },
+    {
+      "chapter": 12,
+      "speakers": {
+        "noriko": 45,
+        "ryoji": 40,
+        "imaeda": 10
+      }
+    },
+    {
+      "chapter": 13,
+      "speakers": {
+        "sasagaki": 60,
+        "eri": 20,
+        "noriko": 15,
+        "yukiho": 10,
+        "ryoji": 5,
+        "matsuura": 5,
+        "eriko": 5
+      }
+    }
+  ]
+};
+
+const characters = [
+  {
+    "id": "ryoji",
+    "name": "桐原亮司",
+    "en": "Ryoji Kirihara",
+    "group": "core",
+    "desc": "桐原洋介之子。故事的「影」，在暗中为雪穗扫除一切障碍。使用多个假身份（秋吉雄一等）",
+    "radius": 28
+  },
+  {
+    "id": "yukiho",
+    "name": "唐泽雪穗",
+    "en": "Yukiho Karasawa",
+    "group": "core",
+    "desc": "西本文代之女，被唐泽礼子收养。故事的「光」，外表优雅完美，暗中操控一切",
+    "radius": 28
+  },
+  {
+    "id": "sasagaki",
+    "name": "笹垣润三",
+    "en": "Junzo Sasagaki",
+    "group": "police",
+    "desc": "刑警，从1973年起追查桐原洋介被杀案，退休后仍不放弃",
+    "radius": 22
+  },
+  {
+    "id": "imaeda",
+    "name": "今枝直巳",
+    "en": "Naomi Imaeda",
+    "group": "police",
+    "desc": "私家侦探，受雇调查雪穗，发现诸多疑点后失踪",
+    "radius": 18
+  },
+  {
+    "id": "reiko",
+    "name": "唐泽礼子",
+    "en": "Reiko Karasawa",
+    "group": "yukiho",
+    "desc": "雪穗的养母，出身名门",
+    "radius": 16
+  },
+  {
+    "id": "takamiya",
+    "name": "高宫诚",
+    "en": "Makoto Takamiya",
+    "group": "yukiho",
+    "desc": "雪穗的第一任丈夫，在专利事务所工作",
+    "radius": 16
+  },
+  {
+    "id": "misawa",
+    "name": "三泽千都留",
+    "en": "Chizuru Misawa",
+    "group": "yukiho",
+    "desc": "高宫诚的心上人，婚礼当天在酒店遭遇意外",
+    "radius": 15
+  },
+  {
+    "id": "nakamichi",
+    "name": "中道正晴",
+    "en": "Masaharu Nakamichi",
+    "group": "yukiho",
+    "desc": "雪穗的大学家教，追求雪穗",
+    "radius": 15
+  },
+  {
+    "id": "shinozuka_k",
+    "name": "筱冢一成",
+    "en": "Kazunari Shinozuka",
+    "group": "yukiho",
+    "desc": "筱冢药业继承人，怀疑雪穗的真面目",
+    "radius": 18
+  },
+  {
+    "id": "shinozuka_y",
+    "name": "筱冢康晴",
+    "en": "Yasuharu Shinozuka",
+    "group": "yukiho",
+    "desc": "一成的堂兄，被雪穗利用",
+    "radius": 16
+  },
+  {
+    "id": "mika",
+    "name": "筱冢美佳",
+    "en": "Mika Shinozuka",
+    "group": "yukiho",
+    "desc": "康晴的女儿，被性侵的受害者",
+    "radius": 15
+  },
+  {
+    "id": "eriko",
+    "name": "川岛江利子",
+    "en": "Eriko Kawashima",
+    "group": "yukiho",
+    "desc": "雪穗的初中好友，后来看清雪穗真面目",
+    "radius": 16
+  },
+  {
+    "id": "tomohiko",
+    "name": "园村友彦",
+    "en": "Tomohiko Sonomura",
+    "group": "ryoji",
+    "desc": "亮司的高中同学和帮手，经营电脑店MUGEN",
+    "radius": 18
+  },
+  {
+    "id": "hiroe",
+    "name": "中岛弘惠",
+    "en": "Hiroe Nakajima",
+    "group": "ryoji",
+    "desc": "友彦的女友，在MUGEN工作",
+    "radius": 15
+  },
+  {
+    "id": "matsuura",
+    "name": "松浦",
+    "en": "Matsuura",
+    "group": "ryoji",
+    "desc": "与桐原有旧交，涉足地下生意",
+    "radius": 15
+  },
+  {
+    "id": "noriko",
+    "name": "栗原典子",
+    "en": "Noriko Kurihara",
+    "group": "ryoji",
+    "desc": "亮司晚年的女友（以「秋吉雄一」身份交往），药剂师",
+    "radius": 16
+  },
+  {
+    "id": "eri",
+    "name": "菅原绘里",
+    "en": "Eri Sugawara",
+    "group": "ryoji",
+    "desc": "今枝的线人/女友，被利用接近雪穗",
+    "radius": 15
+  },
+  {
+    "id": "yosuke",
+    "name": "桐原洋介",
+    "en": "Yosuke Kirihara",
+    "group": "victim",
+    "desc": "亮司的父亲，当铺老板，被杀害",
+    "radius": 16
+  },
+  {
+    "id": "yaeko",
+    "name": "桐原弥生子",
+    "en": "Yaeko Kirihara",
+    "group": "victim",
+    "desc": "亮司的母亲",
+    "radius": 15
+  },
+  {
+    "id": "fumiyo",
+    "name": "西本文代",
+    "en": "Fumiyo Nishimoto",
+    "group": "victim",
+    "desc": "雪穗的生母，煤气中毒死亡",
+    "radius": 16
+  },
+  {
+    "id": "yuko",
+    "name": "花冈夕子",
+    "en": "Yuko Hanaoka",
+    "group": "victim",
+    "desc": "有夫之妇，因友彦而死",
+    "radius": 15
+  },
+  {
+    "id": "miyako",
+    "name": "藤村都子",
+    "en": "Miyako Fujimura",
+    "group": "victim",
+    "desc": "初中生，遇袭受害者",
+    "radius": 14
+  },
+  {
+    "id": "namie",
+    "name": "西口奈美江",
+    "en": "Namie Nishiguchi",
+    "group": "victim",
+    "desc": "被亮司利用的女性",
+    "radius": 14
+  }
+];
+
+const groupConfig = {
+  "core": {
+    "color": "#ffe66d",
+    "label": "核心"
+  },
+  "police": {
+    "color": "#6c63ff",
+    "label": "警方"
+  },
+  "yukiho": {
+    "color": "#4ecdc4",
+    "label": "雪穗圈"
+  },
+  "ryoji": {
+    "color": "#ff6b6b",
+    "label": "亮司圈"
+  },
+  "victim": {
+    "color": "#cc7777",
+    "label": "受害者"
+  }
+};
+
+
+// ── Derived lookups ──
+const charMap = {};
+characters.forEach(c => { charMap[c.id] = c; });
+
+const groupColors = {};
+if (typeof groupConfig !== 'undefined') {
+    Object.keys(groupConfig).forEach(g => { groupColors[g] = groupConfig[g].color; });
+}
+
+function charColor(id) {
+    const c = charMap[id];
+    if (!c) return '#8888a0';
+    return groupColors[c.group] || '#8888a0';
+}
+
+// ── State ──
+const canvas = document.getElementById('chordCanvas');
+const ctx = canvas.getContext('2d');
+let W, H, cx, cy, R;
+let dpr = window.devicePixelRatio || 1;
+let threshold = 1;
+let chStart = 1, chEnd = 999;
+let hoveredArc = -1;  // index into filteredChars
+let hoveredChord = -1; // index into filteredPairs
+let arcAngles = [];     // [{startAngle, endAngle, charId}]
+let filteredChars = []; // char ids with at least one visible chord
+let filteredPairs = []; // pairs passing filters
+
+// ── Canvas sizing ──
+function sizeCanvas() {
+    const wrap = document.getElementById('canvasWrap');
+    W = wrap.clientWidth;
+    H = wrap.clientHeight;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cx = W / 2;
+    cy = H / 2;
+    R = Math.min(W, H) * 0.36;
+}
+
+// ── Filter data ──
+function filterData() {
+    const maxCh = dialogue.chapterBreakdown
+        ? Math.max(...dialogue.chapterBreakdown.map(c => c.chapter))
+        : (dialogue.pairs.length > 0
+            ? Math.max(...dialogue.pairs.flatMap(p => p.chapters || []))
+            : 20);
+
+    // Set slider max
+    const chStartSlider = document.getElementById('chStartSlider');
+    const chEndSlider = document.getElementById('chEndSlider');
+    chStartSlider.max = maxCh;
+    chEndSlider.max = maxCh;
+    if (chEnd > maxCh) { chEnd = maxCh; chEndSlider.value = maxCh; }
+    document.getElementById('chEndVal').textContent = chEnd;
+
+    // Filter pairs by chapter range and threshold
+    filteredPairs = [];
+    dialogue.pairs.forEach(p => {
+        let count = p.count;
+        if (p.chapters && p.chapters.length > 0) {
+            const inRange = p.chapters.filter(ch => ch >= chStart && ch <= chEnd);
+            count = inRange.length > 0 ? Math.round(p.count * inRange.length / p.chapters.length) : 0;
+        }
+        if (count >= threshold) {
+            filteredPairs.push({ a: p.a, b: p.b, count: count, chapters: p.chapters || [] });
+        }
+    });
+
+    // Unique chars that appear in filtered pairs
+    const charSet = new Set();
+    filteredPairs.forEach(p => { charSet.add(p.a); charSet.add(p.b); });
+    filteredChars = Array.from(charSet);
+
+    // Sort by total dialogue count
+    const totals = {};
+    filteredPairs.forEach(p => {
+        totals[p.a] = (totals[p.a] || 0) + p.count;
+        totals[p.b] = (totals[p.b] || 0) + p.count;
+    });
+    filteredChars.sort((a, b) => (totals[b] || 0) - (totals[a] || 0));
+
+    // Compute arc angles (proportional to total dialogue count)
+    const totalAll = filteredChars.reduce((s, id) => s + (totals[id] || 0), 0) || 1;
+    const gap = 0.02; // radians gap between arcs
+    const totalGap = gap * filteredChars.length;
+    const available = Math.PI * 2 - totalGap;
+    let angle = -Math.PI / 2;
+    arcAngles = [];
+    filteredChars.forEach(id => {
+        const frac = (totals[id] || 0) / totalAll;
+        const sweep = frac * available;
+        arcAngles.push({ startAngle: angle, endAngle: angle + sweep, charId: id, total: totals[id] || 0 });
+        angle += sweep + gap;
+    });
+
+    // Update threshold slider max
+    const maxCount = dialogue.pairs.length > 0
+        ? Math.max(...dialogue.pairs.map(p => p.count))
+        : 50;
+    document.getElementById('thresholdSlider').max = Math.max(maxCount, 2);
+
+    updateSidePanel(totals);
+}
+
+// ── Side Panel ──
+function updateSidePanel(totals) {
+    // Top speakers
+    const ranked = filteredChars.slice(0, 15);
+    const speakerList = document.getElementById('speakerRank');
+    speakerList.innerHTML = '';
+    ranked.forEach((id, i) => {
+        const c = charMap[id];
+        const name = c ? c.name : id;
+        const li = document.createElement('li');
+        li.className = 'rank-item';
+        li.innerHTML =
+            '<span class="rank-num">' + (i + 1) + '</span>' +
+            '<span class="rank-dot" style="background:' + charColor(id) + '"></span>' +
+            '<span class="rank-name">' + name + '</span>' +
+            '<span class="rank-val">' + (totals[id] || 0) + '</span>';
+        speakerList.appendChild(li);
+    });
+
+    // Top pairs
+    const sortedPairs = filteredPairs.slice().sort((a, b) => b.count - a.count).slice(0, 15);
+    const pairList = document.getElementById('pairRank');
+    pairList.innerHTML = '';
+    sortedPairs.forEach((p, i) => {
+        const nameA = charMap[p.a] ? charMap[p.a].name : p.a;
+        const nameB = charMap[p.b] ? charMap[p.b].name : p.b;
+        const li = document.createElement('li');
+        li.className = 'rank-item pair-item';
+        li.innerHTML =
+            '<span class="rank-num">' + (i + 1) + '</span>' +
+            '<span class="pair-names">' + nameA + '<span class="pair-arrow">⇄</span>' + nameB + '</span>' +
+            '<span class="rank-val">' + p.count + '</span>';
+        li.style.cursor = 'pointer';
+        li.onclick = function() { showDetail(p); };
+        pairList.appendChild(li);
+    });
+}
+
+// ── Drawing ──
+function hexToRGBA(hex, a) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+}
+
+function midAngle(arc) { return (arc.startAngle + arc.endAngle) / 2; }
+
+function arcIndex(charId) { return filteredChars.indexOf(charId); }
+
+function draw() {
+    ctx.clearRect(0, 0, W, H);
+    if (filteredChars.length === 0) {
+        ctx.fillStyle = '#8888a0';
+        ctx.font = '14px "Noto Sans SC"';
+        ctx.textAlign = 'center';
+        ctx.fillText('无符合条件的对话数据', cx, cy);
+        return;
+    }
+
+    const arcWidth = 18;
+    const innerR = R - arcWidth;
+    const maxCount = filteredPairs.length > 0 ? Math.max(...filteredPairs.map(p => p.count)) : 1;
+
+    // ── Draw chords ──
+    filteredPairs.forEach((p, pi) => {
+        const ai = arcIndex(p.a);
+        const bi = arcIndex(p.b);
+        if (ai < 0 || bi < 0) return;
+
+        const arcA = arcAngles[ai];
+        const arcB = arcAngles[bi];
+        const angA = midAngle(arcA);
+        const angB = midAngle(arcB);
+
+        const x1 = cx + Math.cos(angA) * innerR;
+        const y1 = cy + Math.sin(angA) * innerR;
+        const x2 = cx + Math.cos(angB) * innerR;
+        const y2 = cy + Math.sin(angB) * innerR;
+
+        const thickness = 1 + (p.count / maxCount) * 8;
+        let alpha = 0.25 + (p.count / maxCount) * 0.35;
+
+        // Highlight logic
+        if (hoveredArc >= 0) {
+            if (ai === hoveredArc || bi === hoveredArc) {
+                alpha = 0.7;
+            } else {
+                alpha = 0.05;
+            }
+        }
+        if (hoveredChord >= 0) {
+            if (pi === hoveredChord) {
+                alpha = 0.85;
+            } else if (hoveredArc < 0) {
+                alpha = 0.08;
+            }
+        }
+
+        const color = charColor(p.a);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.quadraticCurveTo(cx, cy, x2, y2);
+        ctx.strokeStyle = hexToRGBA(color, alpha);
+        ctx.lineWidth = thickness;
+        ctx.stroke();
+    });
+
+    // ── Draw arcs ──
+    arcAngles.forEach((arc, i) => {
+        const color = charColor(arc.charId);
+        let alpha = hoveredArc >= 0 ? (i === hoveredArc ? 1 : 0.25) : 0.85;
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, R - arcWidth / 2, arc.startAngle, arc.endAngle);
+        ctx.strokeStyle = hexToRGBA(color, alpha);
+        ctx.lineWidth = arcWidth;
+        ctx.lineCap = 'butt';
+        ctx.stroke();
+
+        // Glow on hover
+        if (i === hoveredArc) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, R - arcWidth / 2, arc.startAngle, arc.endAngle);
+            ctx.strokeStyle = hexToRGBA(color, 0.15);
+            ctx.lineWidth = arcWidth + 12;
+            ctx.stroke();
+        }
+    });
+
+    // ── Draw labels ──
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '500 12px "Noto Sans SC"';
+
+    arcAngles.forEach((arc, i) => {
+        const ang = midAngle(arc);
+        const labelR = R + 14;
+        const lx = cx + Math.cos(ang) * labelR;
+        const ly = cy + Math.sin(ang) * labelR;
+
+        const c = charMap[arc.charId];
+        const name = c ? c.name : arc.charId;
+
+        ctx.save();
+        ctx.translate(lx, ly);
+        let rot = ang;
+        if (rot > Math.PI / 2 && rot < Math.PI * 1.5) {
+            rot += Math.PI;
+        }
+        if (rot < -Math.PI / 2 && rot > -Math.PI * 1.5) {
+            rot += Math.PI;
+        }
+        ctx.rotate(rot);
+
+        const alpha = hoveredArc >= 0 ? (i === hoveredArc ? 1 : 0.3) : 0.9;
+        ctx.fillStyle = hexToRGBA('#e8e8f0', alpha);
+        ctx.fillText(name, 0, 0);
+        ctx.restore();
+    });
+}
+
+// ── Hit testing ──
+function hitTest(mx, my) {
+    const dx = mx - cx, dy = my - cy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const angle = Math.atan2(dy, dx);
+
+    // Test arc hit (outer ring)
+    const arcWidth = 18;
+    if (dist >= R - arcWidth - 5 && dist <= R + 5) {
+        for (let i = 0; i < arcAngles.length; i++) {
+            const arc = arcAngles[i];
+            let a = angle;
+            // Normalize angles for comparison
+            let start = arc.startAngle, end = arc.endAngle;
+            while (a < start - Math.PI) a += Math.PI * 2;
+            while (a > start + Math.PI) a -= Math.PI * 2;
+            if (a >= start && a <= end) {
+                return { type: 'arc', index: i };
+            }
+        }
+    }
+
+    // Test chord hit (center area)
+    if (dist < R - arcWidth) {
+        const innerR2 = R - arcWidth;
+        let closest = -1, closestDist = 20;
+        filteredPairs.forEach((p, pi) => {
+            const ai = arcIndex(p.a), bi = arcIndex(p.b);
+            if (ai < 0 || bi < 0) return;
+            const angA = midAngle(arcAngles[ai]);
+            const angB = midAngle(arcAngles[bi]);
+            const x1 = cx + Math.cos(angA) * innerR2;
+            const y1 = cy + Math.sin(angA) * innerR2;
+            const x2 = cx + Math.cos(angB) * innerR2;
+            const y2 = cy + Math.sin(angB) * innerR2;
+
+            // Sample points along quadratic bezier and find min distance
+            for (let t = 0; t <= 1; t += 0.05) {
+                const bx = (1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * cx + t * t * x2;
+                const by = (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * cy + t * t * y2;
+                const d = Math.sqrt((mx - bx) ** 2 + (my - by) ** 2);
+                if (d < closestDist) {
+                    closestDist = d;
+                    closest = pi;
+                }
+            }
+        });
+        if (closest >= 0) return { type: 'chord', index: closest };
+    }
+
+    return null;
+}
+
+// ── Tooltip ──
+const tooltipEl = document.getElementById('tooltip');
+
+function showTooltip(x, y, html) {
+    tooltipEl.innerHTML = html;
+    tooltipEl.classList.add('show');
+    const rect = tooltipEl.getBoundingClientRect();
+    let tx = x + 15, ty = y - 10;
+    if (tx + rect.width > window.innerWidth - 10) tx = x - rect.width - 15;
+    if (ty + rect.height > window.innerHeight - 10) ty = y - rect.height - 10;
+    if (ty < 5) ty = 5;
+    tooltipEl.style.left = tx + 'px';
+    tooltipEl.style.top = ty + 'px';
+}
+
+function hideTooltip() {
+    tooltipEl.classList.remove('show');
+}
+
+// ── Detail Panel ──
+function showDetail(pair) {
+    const nameA = charMap[pair.a] ? charMap[pair.a].name : pair.a;
+    const nameB = charMap[pair.b] ? charMap[pair.b].name : pair.b;
+    const overlay = document.getElementById('detailOverlay');
+    const box = document.getElementById('detailBox');
+
+    let chapHtml = '';
+    if (pair.chapters && pair.chapters.length > 0) {
+        const filtered = pair.chapters.filter(ch => ch >= chStart && ch <= chEnd);
+        chapHtml = '<div class="detail-chapters">' +
+            filtered.map(ch => '<span class="ch-pill">Ch.' + ch + '</span>').join('') +
+            '</div>';
+    }
+
+    box.innerHTML =
+        '<button class="detail-close" onclick="closeDetail()">&times;</button>' +
+        '<h3>' + nameA + ' ⇄ ' + nameB + '</h3>' +
+        '<div class="detail-sub">' + pair.count + ' 次对话交互</div>' +
+        (chapHtml ? '<p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:0.5rem;">出现章节：</p>' + chapHtml : '');
+
+    overlay.classList.add('show');
+}
+
+function closeDetail() {
+    document.getElementById('detailOverlay').classList.remove('show');
+}
+
+// ── Event handlers ──
+function getCanvasPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+
+canvas.addEventListener('mousemove', function(e) {
+    const pos = getCanvasPos(e);
+    const hit = hitTest(pos.x, pos.y);
+
+    if (hit && hit.type === 'arc') {
+        hoveredArc = hit.index;
+        hoveredChord = -1;
+        canvas.style.cursor = 'pointer';
+        const arc = arcAngles[hit.index];
+        const c = charMap[arc.charId];
+        const name = c ? c.name : arc.charId;
+        const en = c && c.en ? c.en : '';
+        showTooltip(e.clientX, e.clientY,
+            '<div class="tt-title">' + name + '</div>' +
+            (en ? '<div class="tt-sub">' + en + '</div>' : '') +
+            '<div class="tt-val">' + arc.total + ' 次对话</div>');
+    } else if (hit && hit.type === 'chord') {
+        hoveredChord = hit.index;
+        hoveredArc = -1;
+        canvas.style.cursor = 'pointer';
+        const p = filteredPairs[hit.index];
+        const nameA = charMap[p.a] ? charMap[p.a].name : p.a;
+        const nameB = charMap[p.b] ? charMap[p.b].name : p.b;
+        showTooltip(e.clientX, e.clientY,
+            '<div class="tt-title">' + nameA + ' ⇄ ' + nameB + '</div>' +
+            '<div class="tt-val">' + p.count + ' 次对话</div>');
+    } else {
+        hoveredArc = -1;
+        hoveredChord = -1;
+        canvas.style.cursor = 'default';
+        hideTooltip();
+    }
+    draw();
+});
+
+canvas.addEventListener('click', function(e) {
+    const pos = getCanvasPos(e);
+    const hit = hitTest(pos.x, pos.y);
+    if (hit && hit.type === 'chord') {
+        showDetail(filteredPairs[hit.index]);
+    } else if (hit && hit.type === 'arc') {
+        // Highlight this character's connections
+        hoveredArc = hit.index;
+        draw();
+    }
+});
+
+canvas.addEventListener('mouseleave', function() {
+    hoveredArc = -1;
+    hoveredChord = -1;
+    hideTooltip();
+    draw();
+});
+
+// Touch support
+canvas.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    const t = e.touches[0];
+    const pos = getCanvasPos(t);
+    const hit = hitTest(pos.x, pos.y);
+    if (hit && hit.type === 'arc') {
+        hoveredArc = hit.index;
+        hoveredChord = -1;
+    } else if (hit && hit.type === 'chord') {
+        hoveredChord = hit.index;
+        hoveredArc = -1;
+        showDetail(filteredPairs[hit.index]);
+    }
+    draw();
+}, { passive: false });
+
+// Detail overlay close on backdrop click
+document.getElementById('detailOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeDetail();
+});
+
+// Controls
+document.getElementById('thresholdSlider').addEventListener('input', function() {
+    threshold = parseInt(this.value);
+    document.getElementById('thresholdVal').textContent = threshold;
+    filterData();
+    draw();
+});
+
+document.getElementById('chStartSlider').addEventListener('input', function() {
+    chStart = parseInt(this.value);
+    document.getElementById('chStartVal').textContent = chStart;
+    if (chStart > chEnd) {
+        chEnd = chStart;
+        document.getElementById('chEndSlider').value = chEnd;
+        document.getElementById('chEndVal').textContent = chEnd;
+    }
+    filterData();
+    draw();
+});
+
+document.getElementById('chEndSlider').addEventListener('input', function() {
+    chEnd = parseInt(this.value);
+    document.getElementById('chEndVal').textContent = chEnd;
+    if (chEnd < chStart) {
+        chStart = chEnd;
+        document.getElementById('chStartSlider').value = chStart;
+        document.getElementById('chStartVal').textContent = chStart;
+    }
+    filterData();
+    draw();
+});
+
+// Resize
+let resizeTimer;
+window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function() {
+        dpr = window.devicePixelRatio || 1;
+        sizeCanvas();
+        draw();
+    }, 150);
+});
+
+// ── Init ──
+document.fonts.ready.then(function() {
+    sizeCanvas();
+    filterData();
+    draw();
+});
+</script>
+</body>
+</html>

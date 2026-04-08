@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X-Ray · 如何学习 | Book Breakdown</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+
+/* ── Compact Hero ── */
+.hero { padding: 3rem 2rem 2rem; text-align: center; position: relative; }
+.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(255,107,107,0.06) 0%, transparent 50%); pointer-events: none; }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px rgba(108,99,255,0.3)); }
+.hero h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 900; margin-bottom: 0.3rem; }
+.hero-en { font-size: 1rem; color: var(--text-dim); font-weight: 300; margin-bottom: 0.5rem; }
+.hero-badge { display: inline-block; padding: 0.4rem 1.2rem; border: 1px solid var(--accent3); border-radius: 2rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent3); letter-spacing: 2px; }
+.back-link { position: absolute; top: 1.5rem; left: 1.5rem; text-decoration: none; color: var(--text-dim); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; transition: color 0.3s; }
+.back-link:hover { color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Section Header ── */
+.section-header { margin: 3rem 0 1.5rem; }
+.section-badge { display: inline-block; font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.4rem; font-weight: 700; }
+
+/* ── Unity Statement ── */
+.unity-card { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.08)); border: 1px solid var(--accent); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.unity-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; margin-bottom: 1rem; }
+.unity-text { font-size: 1.2rem; font-weight: 500; line-height: 1.9; }
+
+/* ── Core Questions ── */
+.question-list { list-style: none; counter-reset: q; margin-bottom: 2rem; }
+.question-item { counter-increment: q; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px 20px 60px; margin-bottom: 12px; position: relative; transition: all 0.3s; }
+.question-item:hover { border-color: var(--accent4); transform: translateX(4px); }
+.question-item::before { content: counter(q, decimal-leading-zero); position: absolute; left: 20px; top: 20px; font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent4); font-weight: 700; }
+.question-text { font-weight: 500; }
+.question-context { font-size: 0.85rem; color: var(--text-dim); margin-top: 6px; }
+
+/* ── Logical Outline ── */
+.outline-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; position: relative; padding-left: 60px; transition: all 0.3s; }
+.outline-card:hover { border-color: var(--accent); }
+.outline-num { position: absolute; left: 20px; top: 24px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 1px; }
+.outline-title { font-weight: 600; font-size: 1.05rem; margin-bottom: 4px; }
+.outline-desc { font-size: 0.9rem; color: var(--text-dim); }
+.outline-chapters { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent3); margin-top: 8px; }
+.outline-connector { width: 2px; height: 16px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 0 0 33px; }
+
+/* ── Key Terms ── */
+.terms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 2rem; }
+.term-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all 0.3s; }
+.term-card:hover { border-color: var(--accent3); transform: translateY(-3px); box-shadow: 0 8px 30px var(--glow); }
+.term-name { font-weight: 700; font-size: 1.05rem; color: var(--accent3); margin-bottom: 6px; }
+.term-name-en { font-size: 0.8rem; color: var(--text-dim); font-weight: 400; margin-left: 8px; }
+.term-def { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; }
+.term-chapter { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); margin-top: 8px; }
+.term-chapter a { color: var(--accent); text-decoration: none; }
+.term-chapter a:hover { text-decoration: underline; }
+
+/* ── Footer ── */
+.footer { text-align: center; padding: 4rem 0; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Empty State ── */
+.empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-dim); }
+.empty-state-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+.empty-state-text { font-size: 1rem; }
+
+@media (max-width: 768px) {
+    .terms-grid { grid-template-columns: 1fr; }
+    .question-item { padding-left: 50px; }
+    .outline-card { padding-left: 50px; }
+}
+</style>
+</head>
+<body>
+
+<section class="hero">
+    <a href="index.html" class="back-link">← 返回目录</a>
+    <div class="hero-icon">🩻</div>
+    <h1>X-Ray · 透视这本书</h1>
+    <div class="hero-en">How We Learn</div>
+    <div class="hero-badge">INSPECTIONAL READING</div>
+</section>
+
+<div class="container" id="content"></div>
+
+<div class="footer">
+    Book Breakdown · X-Ray View · 如何学习
+</div>
+
+<script>
+const meta = {
+  "title": "如何学习",
+  "titleEn": "How We Learn",
+  "author": "本尼迪克特·凯里 (Benedict Carey)",
+  "icon": "🧠",
+  "slug": "ruhe-xuexi",
+  "methodLabel": "FEYNMAN METHOD",
+  "stats": [
+    {
+      "num": "10",
+      "label": "Chapters"
+    },
+    {
+      "num": "4",
+      "label": "Parts"
+    },
+    {
+      "num": "∞",
+      "label": "Insights"
+    }
+  ]
+};
+
+const xray = {
+  "unity": "遗忘不是学习的敌人而是盟友——通过理解大脑的记忆机制并善用间隔、检索、交替、孵化和睡眠等策略，我们可以用更少的努力学得更多、记得更久。",
+  "coreQuestions": [
+    "大脑是如何形成、储存和提取记忆的？为什么说大脑像一个「电影摄制组」而不是录像机？",
+    "遗忘真的是学习的敌人吗？遗忘在学习过程中扮演了什么积极角色？",
+    "为什么换地方学习、拉开复习间隔、先考后学这些「反直觉」策略反而更有效？",
+    "面对复杂难题时，分心、中断和交替练习为什么能帮助我们找到突破口？",
+    "睡眠和知觉学习这些「不费力」的方式，如何在潜意识层面巩固和提升学习效果？"
+  ],
+  "outline": [
+    {
+      "group": "大脑的记忆基础设施",
+      "chapters": [
+        1,
+        2
+      ],
+      "why": "先理解硬件——海马、新皮层、左脑解释器如何协作形成记忆，以及遗忘作为「过滤器」和「激活器」的双重角色，才能明白后续所有策略为什么有效。"
+    },
+    {
+      "group": "记忆增强三板斧",
+      "chapters": [
+        3,
+        4,
+        5
+      ],
+      "why": "三种可立即实践的记忆策略：变换学习环境打破上下文依赖、利用间隔效应分散复习、用检索练习（先考后学）替代被动重读——每一种都利用了「必要难度」原理。"
+    },
+    {
+      "group": "创造性解题的隐形引擎",
+      "chapters": [
+        6,
+        7,
+        8
+      ],
+      "why": "从短期孵化（散步时灵光乍现）到长期渗滤（蔡加尼克效应驱动的后台加工），再到交替练习提升辨别力——三种策略共同揭示：适度的「放手」比一味苦练更能推动复杂问题的解决。"
+    },
+    {
+      "group": "潜意识层的终极武器",
+      "chapters": [
+        9,
+        10
+      ],
+      "why": "知觉学习模块让专家级的模式识别「不加思考」地习得，睡眠的不同阶段则分别巩固不同类型的记忆——学习的最后一公里，靠的是让潜意识替你工作。"
+    }
+  ],
+  "keyTerms": [
+    {
+      "term": "记忆失用理论",
+      "termEn": "New Theory of Disuse",
+      "def": "比约克夫妇提出的遗忘理论：每条记忆都有「储存能力」和「提取能力」两个独立维度。储存能力只增不减，提取能力会衰退但可通过检索重新激活，且提取越困难、重新激活后的增益越大。"
+    },
+    {
+      "term": "必要难度",
+      "termEn": "Desirable Difficulty",
+      "def": "学习时适度增加提取难度（如间隔复习、变换环境、先考后学）反而能增强长期记忆效果。难度是「必要的」，因为它迫使大脑付出更多加工努力，从而加固记忆痕迹。"
+    },
+    {
+      "term": "间隔效应",
+      "termEn": "Spacing Effect",
+      "def": "将同一内容的学习分散到多个时间段，比集中在一次长时段内学习的记忆效果更好。最佳复习间隔取决于考试时间：考试在一周后则间隔一两天，考试在一个月后则间隔一周。"
+    },
+    {
+      "term": "检索练习",
+      "termEn": "Retrieval Practice",
+      "def": "主动从记忆中提取信息（如自我测试、闭卷回忆）比被动重读教材的学习效果更好。盖茨1917年的实验表明，将60%的时间用于背诵、40%用于阅读是最优比例。"
+    },
+    {
+      "term": "熟练度错觉",
+      "termEn": "Fluency Illusion",
+      "def": "反复阅读材料会产生「我已经掌握了」的虚假自信，因为再认的流畅感被误判为真正的理解。这是被动重读效果差的核心原因。"
+    },
+    {
+      "term": "孵化",
+      "termEn": "Incubation",
+      "def": "遇到瓶颈时暂时放下问题，让潜意识继续后台加工。沃拉斯将创造性思维分为四个阶段：准备、孵化、顿悟、验证。分心活动（散步、淋浴）往往比继续苦想更能促成突破。"
+    },
+    {
+      "term": "渗滤",
+      "termEn": "Percolation",
+      "def": "针对长期复杂项目的策略：尽早开始、适度中断、让未完成的任务在潜意识中持续「渗滤」。蔡加尼克效应表明，未完成的任务会留在工作记忆中，驱动大脑在日常生活中自动搜集相关素材。"
+    },
+    {
+      "term": "蔡加尼克效应",
+      "termEn": "Zeigarnik Effect",
+      "def": "人们对未完成的任务比已完成的任务记忆更深刻。这是渗滤策略的心理学基础——主动中断工作反而让大脑持续关注该任务。"
+    },
+    {
+      "term": "交替学习",
+      "termEn": "Interleaving",
+      "def": "将不同类型的题目或技能混合练习，而不是一次只练一种。虽然练习时感觉更困难、进步更慢，但长期效果显著优于集中练习，因为它迫使大脑不断进行辨别和策略选择。"
+    },
+    {
+      "term": "知觉学习",
+      "termEn": "Perceptual Learning",
+      "def": "通过大量快速的辨别练习，让大脑自动习得专家级的模式识别能力。凯尔曼的知觉学习模块（PLM）证明：不需要理解原理，只需反复判断就能「不加思考」地掌握复杂的视觉辨别技能。"
+    },
+    {
+      "term": "睡眠巩固",
+      "termEn": "Sleep Consolidation",
+      "def": "睡眠的不同阶段巩固不同类型的记忆：深度睡眠（集中在前半夜）巩固事实和数据类记忆，REM睡眠（集中在后半夜）巩固模式识别和创造性联想，动作技能记忆则在第二阶段睡眠中巩固。"
+    },
+    {
+      "term": "遗忘曲线",
+      "termEn": "Forgetting Curve",
+      "def": "艾宾浩斯1885年发现的规律：新学内容在最初几小时内遗忘速度最快，之后逐渐趋缓。这条曲线是间隔效应和检索练习等策略的实验起点。"
+    }
+  ]
+};
+
+const chapterManifest = [
+  {
+    "num": 1,
+    "slug": "ch01",
+    "title": "编故事的能手：大脑学习的机制",
+    "titleEn": "The Storyteller: How the Brain Learns",
+    "icon": "🎬"
+  },
+  {
+    "num": 2,
+    "slug": "ch02",
+    "title": "遗忘的威力：过滤干扰，激活宝藏",
+    "titleEn": "The Power of Forgetting",
+    "icon": "🧹"
+  },
+  {
+    "num": 3,
+    "slug": "ch03",
+    "title": "打破学习的好习惯：环境的影响",
+    "titleEn": "Breaking Good Habits: Context Effects",
+    "icon": "🔄"
+  },
+  {
+    "num": 4,
+    "slug": "ch04",
+    "title": "拉开时间间隔：化整为零记得久",
+    "titleEn": "Spacing Effect: Distribute to Remember",
+    "icon": "⏱️"
+  },
+  {
+    "num": 5,
+    "slug": "ch05",
+    "title": "先考试后学习：无知的潜在价值",
+    "titleEn": "Test First, Study Later",
+    "icon": "📝"
+  },
+  {
+    "num": 6,
+    "slug": "ch06",
+    "title": "孵化：沉淀思维离不开分心",
+    "titleEn": "Incubation: The Role of Distraction",
+    "icon": "🥚"
+  },
+  {
+    "num": 7,
+    "slug": "ch07",
+    "title": "渗滤：适度中断，先退一退",
+    "titleEn": "Percolation: The Value of Interruption",
+    "icon": "☕"
+  },
+  {
+    "num": 8,
+    "slug": "ch08",
+    "title": "交替：混杂在一起印象更深",
+    "titleEn": "Interleaving: Mix It Up",
+    "icon": "🔀"
+  },
+  {
+    "num": 9,
+    "slug": "ch09",
+    "title": "不加思考地习得：感知的力量",
+    "titleEn": "Perceptual Learning: Effortless Mastery",
+    "icon": "👁️"
+  },
+  {
+    "num": 10,
+    "slug": "ch10",
+    "title": "打个盹儿就能赢：睡眠巩固学习",
+    "titleEn": "Sleep on It: Memory Consolidation",
+    "icon": "😴"
+  }
+];
+
+
+(function() {
+    const container = document.getElementById('content');
+    if (typeof xray === 'undefined' || !xray) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🩻</div><div class="empty-state-text">X-Ray data not yet available for this book.<br>Add an <code>xray</code> section to book.json to populate this page.</div></div>';
+        return;
+    }
+
+    let html = '';
+
+    // Unity Statement
+    if (xray.unity) {
+        html += `
+        <div class="section-header fade-in">
+            <div class="section-badge">01 — UNITY STATEMENT</div>
+            <div class="section-title">这本书的核心命题</div>
+        </div>
+        <div class="unity-card fade-in">
+            <div class="unity-label">THE BOOK IN ONE SENTENCE</div>
+            <div class="unity-text">${xray.unity}</div>
+        </div>`;
+    }
+
+    // Core Questions
+    if (xray.coreQuestions && xray.coreQuestions.length) {
+        html += `
+        <div class="section-header fade-in">
+            <div class="section-badge">02 — CORE QUESTIONS</div>
+            <div class="section-title">这本书回答的核心问题</div>
+        </div>
+        <ol class="question-list">`;
+        xray.coreQuestions.forEach(q => {
+            html += `
+            <li class="question-item fade-in">
+                <div class="question-text">${q.question || q}</div>
+                ${q.context ? `<div class="question-context">${q.context}</div>` : ''}
+            </li>`;
+        });
+        html += '</ol>';
+    }
+
+    // Logical Outline
+    if (xray.outline && xray.outline.length) {
+        html += `
+        <div class="section-header fade-in">
+            <div class="section-badge">03 — LOGICAL OUTLINE</div>
+            <div class="section-title">逻辑结构（可能不同于目录顺序）</div>
+        </div>`;
+        xray.outline.forEach((group, i) => {
+            if (i > 0) html += '<div class="outline-connector"></div>';
+            html += `
+            <div class="outline-card fade-in">
+                <div class="outline-num">${String(i + 1).padStart(2, '0')}</div>
+                <div class="outline-title">${group.title}</div>
+                <div class="outline-desc">${group.desc || ''}</div>
+                ${group.chapters ? `<div class="outline-chapters">Chapters: ${group.chapters.join(', ')}</div>` : ''}
+            </div>`;
+        });
+    }
+
+    // Key Terms
+    if (xray.keyTerms && xray.keyTerms.length) {
+        html += `
+        <div class="section-header fade-in">
+            <div class="section-badge">04 — KEY TERMS</div>
+            <div class="section-title">关键术语词汇表</div>
+        </div>
+        <div class="terms-grid">`;
+        xray.keyTerms.forEach(t => {
+            const chLink = t.firstChapter ? `<a href="ch${String(t.firstChapter).padStart(2, '0')}.html">Ch.${t.firstChapter}</a>` : '';
+            html += `
+            <div class="term-card fade-in">
+                <div class="term-name">${t.term}${t.termEn ? `<span class="term-name-en">${t.termEn}</span>` : ''}</div>
+                <div class="term-def">${t.definition}</div>
+                ${chLink ? `<div class="term-chapter">First appears: ${chLink}</div>` : ''}
+            </div>`;
+        });
+        html += '</div>';
+    }
+
+    container.innerHTML = html;
+
+    // Observe fade-ins
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    container.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+})();
+</script>
+</body>
+</html>

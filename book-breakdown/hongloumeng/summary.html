@@ -1,0 +1,5537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>红楼梦 章回概览 / Chapter Summary</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* ========== CSS Variables ========== */
+        :root {
+            --bg: #0f1117;
+            --card: #1a1d27;
+            --card-hover: #222636;
+            --accent: #6c63ff;
+            --accent2: #ff6b6b;
+            --accent3: #4ecdc4;
+            --accent4: #ffe66d;
+            --text: #e8e8f0;
+            --text-dim: #8888a0;
+            --border: #2a2d3a;
+            --glow: rgba(108,99,255,0.15);
+        }
+
+        /* ========== Reset & Base ========== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* ========== Scroll Progress Bar ========== */
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--accent3));
+            z-index: 9999;
+            transition: width 0.1s linear;
+        }
+
+        /* ========== Hero Section ========== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            padding: 2rem;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .hero-bg canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            animation: floatIcon 4s ease-in-out infinite;
+        }
+
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-15px) rotate(3deg); }
+            50% { transform: translateY(-5px) rotate(-2deg); }
+            75% { transform: translateY(-20px) rotate(1deg); }
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--text), var(--accent4));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: 1.3rem;
+            color: var(--text-dim);
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero .author {
+            font-size: 1rem;
+            color: var(--accent3);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 2rem;
+            letter-spacing: 0.05em;
+        }
+
+        .hero .tagline {
+            font-size: 1.05rem;
+            color: var(--text-dim);
+            font-weight: 300;
+            max-width: 500px;
+            margin: 0 auto 3rem;
+            line-height: 1.9;
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            animation: pulseHint 2.5s ease-in-out infinite;
+        }
+
+        .scroll-hint .arrow {
+            width: 20px;
+            height: 20px;
+            border-right: 2px solid var(--accent);
+            border-bottom: 2px solid var(--accent);
+            transform: rotate(45deg);
+        }
+
+        @keyframes pulseHint {
+            0%, 100% { opacity: 0.4; transform: translateX(-50%) translateY(0); }
+            50% { opacity: 1; transform: translateX(-50%) translateY(8px); }
+        }
+
+        /* ========== Container ========== */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* ========== Section Titles ========== */
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            margin-bottom: 3rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ========== Overview Stats ========== */
+        .overview-section {
+            padding: 5rem 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .stat-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 8px 30px var(--glow);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 2.2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent4);
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.95rem;
+            color: var(--text-dim);
+        }
+
+        .stat-card .stat-sub {
+            font-size: 0.8rem;
+            color: var(--accent3);
+            font-family: 'JetBrains Mono', monospace;
+            margin-top: 0.3rem;
+        }
+
+        /* ========== Chapter Cards ========== */
+        .chapters-section {
+            padding: 5rem 0;
+        }
+
+        .arc-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2.5rem 0 1.5rem;
+        }
+
+        .arc-header:first-child {
+            margin-top: 0;
+        }
+
+        .arc-badge {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--bg);
+            flex-shrink: 0;
+        }
+
+        .arc-badge.g1 { background: linear-gradient(135deg, var(--accent), #8b83ff); }
+        .arc-badge.g2 { background: linear-gradient(135deg, var(--accent2), #ff9a9a); }
+        .arc-badge.g3 { background: linear-gradient(135deg, var(--accent3), #7de8d9); }
+        .arc-badge.g4 { background: linear-gradient(135deg, var(--accent4), #fff099); }
+
+        .arc-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .arc-title-en {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            font-family: 'JetBrains Mono', monospace;
+            margin-left: 0.3rem;
+        }
+
+        .chapter-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 1.2rem;
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .chapter-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .chapter-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 4px 20px var(--glow);
+        }
+
+        .chapter-header {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            padding: 1.5rem 2rem;
+            user-select: none;
+        }
+
+        .chapter-badge {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--bg);
+            flex-shrink: 0;
+        }
+
+        .chapter-badge.g1 { background: linear-gradient(135deg, var(--accent), #8b83ff); }
+        .chapter-badge.g2 { background: linear-gradient(135deg, var(--accent2), #ff9a9a); }
+        .chapter-badge.g3 { background: linear-gradient(135deg, var(--accent3), #7de8d9); }
+        .chapter-badge.g4 { background: linear-gradient(135deg, var(--accent4), #fff099); }
+
+        .chapter-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chapter-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent3);
+            margin-bottom: 0.2rem;
+        }
+
+        .chapter-title {
+            font-size: 1.05rem;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .chapter-expand-icon {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            transition: transform 0.3s;
+            flex-shrink: 0;
+        }
+
+        .chapter-card.expanded .chapter-expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .chapter-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.3s;
+            padding: 0 2rem;
+        }
+
+        .chapter-card.expanded .chapter-details {
+            max-height: 800px;
+            padding: 0 2rem 1.8rem;
+            transition: max-height 0.5s ease-in, padding 0.3s;
+        }
+
+        .chapter-details .divider {
+            height: 1px;
+            background: var(--border);
+            margin-bottom: 1.2rem;
+        }
+
+        .chapter-details h4 {
+            font-size: 0.85rem;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .chapter-events {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .chapter-events li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.6rem;
+            font-size: 0.95rem;
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        .chapter-events li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.65em;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .character-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .char-pill {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .char-pill.core {
+            background: rgba(255,230,109,0.15);
+            color: var(--accent4);
+            border: 1px solid rgba(255,230,109,0.3);
+        }
+
+        .char-pill.police {
+            background: rgba(108,99,255,0.15);
+            color: var(--accent);
+            border: 1px solid rgba(108,99,255,0.3);
+        }
+
+        .char-pill.victim {
+            background: rgba(255,107,107,0.15);
+            color: var(--accent2);
+            border: 1px solid rgba(255,107,107,0.3);
+        }
+
+        .char-pill.other {
+            background: rgba(78,205,196,0.12);
+            color: var(--accent3);
+            border: 1px solid rgba(78,205,196,0.25);
+        }
+
+        /* ========== Timeline Section ========== */
+        .timeline-section {
+            padding: 5rem 0;
+        }
+
+        .timeline-wrapper {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(
+                to bottom,
+                transparent,
+                var(--accent) 10%,
+                var(--accent3) 50%,
+                var(--accent2) 90%,
+                transparent
+            );
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            width: 44%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            transition: border-color 0.3s;
+        }
+
+        .timeline-content:hover {
+            border-color: var(--accent);
+        }
+
+        .timeline-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 3px solid var(--bg);
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+            box-shadow: 0 0 12px var(--glow);
+        }
+
+        .timeline-year {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent4);
+            margin-bottom: 0.2rem;
+        }
+
+        .timeline-label {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .timeline-spacer {
+            width: 44%;
+        }
+
+        @media (max-width: 768px) {
+            .timeline-line {
+                left: 20px;
+            }
+
+            .timeline-item,
+            .timeline-item:nth-child(odd),
+            .timeline-item:nth-child(even) {
+                flex-direction: row;
+                padding-left: 45px;
+            }
+
+            .timeline-dot {
+                left: 20px;
+            }
+
+            .timeline-content {
+                width: 100%;
+            }
+
+            .timeline-spacer {
+                display: none;
+            }
+        }
+
+        /* ========== Themes Section ========== */
+        .themes-section {
+            padding: 5rem 0;
+        }
+
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .theme-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .theme-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .theme-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent3);
+            box-shadow: 0 8px 30px rgba(78,205,196,0.1);
+        }
+
+        .theme-card .theme-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .theme-card .theme-title-zh {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .theme-card .theme-title-en {
+            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent3);
+            margin-bottom: 0.8rem;
+        }
+
+        .theme-card .theme-desc {
+            font-size: 0.92rem;
+            color: var(--text-dim);
+            line-height: 1.8;
+        }
+
+        /* ========== Character Legend ========== */
+        .legend-section {
+            padding: 3rem 0 5rem;
+        }
+
+        .legend-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 2.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: flex-start;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .legend-box.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .legend-group {
+            flex: 1 1 200px;
+        }
+
+        .legend-group-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.6rem;
+        }
+
+        .legend-group-title.core-label { color: var(--accent4); }
+        .legend-group-title.police-label { color: var(--accent); }
+        .legend-group-title.victim-label { color: var(--accent2); }
+        .legend-group-title.other-label { color: var(--accent3); }
+
+        .legend-group .legend-names {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            line-height: 1.8;
+        }
+
+        /* ========== Ending Quote ========== */
+        .ending-quote {
+            padding: 4rem 0 2rem;
+            text-align: center;
+        }
+
+        .ending-quote blockquote {
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+            font-weight: 300;
+            color: var(--text-dim);
+            line-height: 2;
+            padding: 2rem;
+            border-left: 3px solid var(--accent);
+            text-align: left;
+            background: var(--card);
+            border-radius: 0 12px 12px 0;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .ending-quote blockquote.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .ending-quote .quote-source {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent3);
+            margin-top: 1rem;
+            display: block;
+        }
+
+        /* ========== Back Navigation ========== */
+        .back-nav {
+            padding: 3rem 0 5rem;
+            text-align: center;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            padding: 0.8rem 2rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: border-color 0.3s, background 0.3s;
+        }
+
+        .back-link:hover {
+            border-color: var(--accent);
+            background: var(--glow);
+        }
+
+        /* ========== Responsive ========== */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+            .hero .subtitle {
+                font-size: 1.05rem;
+            }
+            .chapter-header {
+                padding: 1.2rem 1.2rem;
+                gap: 0.8rem;
+            }
+            .chapter-details {
+                padding: 0 1.2rem;
+            }
+            .chapter-card.expanded .chapter-details {
+                padding: 0 1.2rem 1.5rem;
+            }
+            .chapter-badge {
+                width: 44px;
+                height: 44px;
+                font-size: 0.95rem;
+                border-radius: 12px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .themes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2.4rem;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Scroll Progress Bar -->
+<div id="progress-bar"></div>
+
+<!-- ==================== HERO SECTION ==================== -->
+<section class="hero">
+    <div class="hero-bg">
+        <canvas id="hero-canvas"></canvas>
+    </div>
+    <div class="hero-content">
+        <div class="hero-icon">🏮</div>
+        <h1>红楼梦</h1>
+        <p class="subtitle">Dream of the Red Chamber</p>
+        <p class="author">曹雪芹 / 高鹗(续)</p>
+        <p class="tagline">A grand epic of love, fate, and the decline of a noble house</p>
+    </div>
+    <div class="scroll-hint">
+        <span>向下滚动</span>
+        <div class="arrow"></div>
+    </div>
+</section>
+
+<!-- ==================== OVERVIEW SECTION ==================== -->
+<section class="overview-section">
+    <div class="container">
+        <h2 class="section-title">作品概览</h2>
+        <p class="section-subtitle">Overview</p>
+
+        <div class="stats-grid">
+            <div class="stat-card" data-animate>
+                <div class="stat-icon">📖</div>
+                <div class="stat-value">120</div>
+                <div class="stat-label">回</div>
+                <div class="stat-sub">chapters</div>
+            </div>
+            <div class="stat-card" data-animate>
+                <div class="stat-icon">⏳</div>
+                <div class="stat-value">~15</div>
+                <div class="stat-label">年叙事</div>
+                <div class="stat-sub">years of narrative</div>
+            </div>
+            <div class="stat-card" data-animate>
+                <div class="stat-icon">👥</div>
+                <div class="stat-value">40+</div>
+                <div class="stat-label">核心人物</div>
+                <div class="stat-sub">key characters</div>
+            </div>
+            <div class="stat-card" data-animate>
+                <div class="stat-icon">🏛️</div>
+                <div class="stat-value">4</div>
+                <div class="stat-label">大家族</div>
+                <div class="stat-sub">noble families</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== TIMELINE SECTION ==================== -->
+<section class="timeline-section">
+    <div class="container">
+        <h2 class="section-title">时间线</h2>
+        <p class="section-subtitle"></p>
+
+        <div class="timeline-wrapper" id="timeline-container">
+            <div class="timeline-line"></div>
+            <!-- Timeline items rendered dynamically from JS data -->
+        </div>
+    </div>
+</section>
+
+<!-- ==================== CHAPTERS SECTION ==================== -->
+<section class="chapters-section">
+    <div class="container">
+        <h2 class="section-title">章节详解</h2>
+        <p class="section-subtitle">Chapter Breakdown</p>
+
+        <div id="chapters-container"></div>
+    </div>
+</section>
+
+<!-- ==================== THEMES SECTION ==================== -->
+<section class="themes-section">
+    <div class="container">
+        <h2 class="section-title">核心主题</h2>
+        <p class="section-subtitle">Themes</p>
+
+        <div id="themes-container" class="themes-grid"></div>
+    </div>
+</section>
+
+<!-- ==================== CHARACTER LEGEND ==================== -->
+<section class="legend-section">
+    <div class="container">
+        <h2 class="section-title">人物图例</h2>
+        <p class="section-subtitle">Character color legend</p>
+
+        <div id="legend-container" class="legend-box" data-animate></div>
+    </div>
+</section>
+
+<!-- ==================== ENDING QUOTE ==================== -->
+<section class="ending-quote">
+    <div class="container">
+        <blockquote data-animate>
+            满纸荒唐言，一把辛酸泪。都云作者痴，谁解其中味。
+            <span class="quote-source">——曹雪芹</span>
+        </blockquote>
+    </div>
+</section>
+
+<!-- ==================== BACK NAVIGATION ==================== -->
+<div class="back-nav">
+    <a href="index.html" class="back-link">
+        <span>&larr;</span>
+        <span>返回目录 / Back to Index</span>
+    </a>
+</div>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+const arcs = [
+  {
+    "id": "prologue",
+    "title": "太虚幻境 · 神话序曲",
+    "titleEn": "Prologue — The Realm of Illusion",
+    "chapters": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "yearRange": "年0"
+  },
+  {
+    "id": "entering",
+    "title": "黛玉进府 · 少年初会",
+    "titleEn": "Daiyu Enters the Mansion — Childhood Encounters",
+    "chapters": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18
+    ],
+    "yearRange": "年1–年3"
+  },
+  {
+    "id": "garden",
+    "title": "大观园 · 儿女情长",
+    "titleEn": "Grand View Garden — Love Blossoms",
+    "chapters": [
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36
+    ],
+    "yearRange": "年3–年5"
+  },
+  {
+    "id": "golden-age",
+    "title": "海棠诗社 · 鼎盛时光",
+    "titleEn": "Begonia Poetry Society — The Golden Age",
+    "chapters": [
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54
+    ],
+    "yearRange": "年5–年7"
+  },
+  {
+    "id": "undercurrent",
+    "title": "暗流涌动 · 盛极而衰",
+    "titleEn": "Hidden Decline — Cracks Beneath the Surface",
+    "chapters": [
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70
+    ],
+    "yearRange": "年7–年9"
+  },
+  {
+    "id": "storm-approaching",
+    "title": "风雨欲来 · 众芳凋零",
+    "titleEn": "Storm Approaching — Flowers Begin to Fall",
+    "chapters": [
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85
+    ],
+    "yearRange": "年9–年11"
+  },
+  {
+    "id": "raid",
+    "title": "抄家 · 黛死钗嫁",
+    "titleEn": "The Raid — Daiyu Dies, Baochai Weds",
+    "chapters": [
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100
+    ],
+    "yearRange": "年11–年13"
+  },
+  {
+    "id": "finale",
+    "title": "飞鸟各投林 · 梦醒归去",
+    "titleEn": "Birds Scatter to the Woods — Awakening from the Dream",
+    "chapters": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120
+    ],
+    "yearRange": "年13–年15"
+  }
+];
+
+const chapters = [
+  {
+    "number": 1,
+    "arcId": 1,
+    "timePeriod": "远古—元宵节后",
+    "title": "甄士隐梦幻识通灵 贾雨村风尘怀闺秀",
+    "events": [
+      "女娲补天遗石被茫茫大士、渺渺真人携入红尘历劫",
+      "甄士隐梦中见僧道携通灵宝玉入世，闻「木石前盟」之说",
+      "甄士隐资助贾雨村上京赶考",
+      "元宵夜英莲被拐，甄家遭火败落",
+      "甄士隐悟「好了歌」，随跛足道人出家"
+    ],
+    "characters": [
+      {
+        "name": "甄士隐",
+        "group": "other"
+      },
+      {
+        "name": "贾雨村",
+        "group": "other"
+      },
+      {
+        "name": "英莲",
+        "group": "other"
+      },
+      {
+        "name": "娇杏",
+        "group": "servant"
+      },
+      {
+        "name": "茫茫大士",
+        "group": "other"
+      },
+      {
+        "name": "渺渺真人",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 2,
+    "arcId": 1,
+    "timePeriod": "贾雨村任官至罢官期间",
+    "title": "贾夫人仙逝扬州城 冷子兴演说荣国府",
+    "events": [
+      "贾雨村中进士做官后被革职，游历至扬州",
+      "贾雨村受聘为林黛玉西席，教其读书",
+      "贾敏病逝于扬州",
+      "冷子兴于酒馆向贾雨村详述荣宁二府世系与现状",
+      "介绍贾宝玉衔玉而生及「女儿是水作的骨肉」之说"
+    ],
+    "characters": [
+      {
+        "name": "贾雨村",
+        "group": "other"
+      },
+      {
+        "name": "冷子兴",
+        "group": "other"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "贾敏",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 3,
+    "arcId": 1,
+    "timePeriod": "黛玉入府之日",
+    "title": "贾雨村夤缘复旧职 林黛玉抛父进京都",
+    "events": [
+      "贾雨村经林如海举荐，攀附贾政谋求复职",
+      "林黛玉辞父进京，初入荣国府拜见贾母",
+      "王熙凤盛装登场，「未见其人先闻其声」",
+      "宝黛初见，宝玉觉黛玉「好生眼熟」如旧识",
+      "宝玉得知黛玉无玉，怒摔通灵宝玉"
+    ],
+    "characters": [
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "贾雨村",
+        "group": "other"
+      },
+      {
+        "name": "王夫人",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 4,
+    "arcId": 1,
+    "timePeriod": "黛玉入府后不久",
+    "title": "薄命女偏逢薄命郎 葫芦僧乱判葫芦案",
+    "events": [
+      "贾雨村复任应天府尹，审理薛蟠打死冯渊抢夺英莲案",
+      "门子出示「护官符」，揭示贾史王薛四大家族势力",
+      "贾雨村徇私枉法，胡乱判案放过薛蟠",
+      "薛家举家入京，薛宝钗首次被介绍",
+      "薛家暂住荣国府梨香院"
+    ],
+    "characters": [
+      {
+        "name": "贾雨村",
+        "group": "other"
+      },
+      {
+        "name": "薛蟠",
+        "group": "other"
+      },
+      {
+        "name": "英莲",
+        "group": "other"
+      },
+      {
+        "name": "薛宝钗",
+        "group": "core"
+      },
+      {
+        "name": "薛姨妈",
+        "group": "other"
+      },
+      {
+        "name": "冯渊",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 5,
+    "arcId": 1,
+    "timePeriod": "宝玉游太虚幻境（梦中）",
+    "title": "游幻境指迷十二钗 饮仙醪曲演红楼梦",
+    "events": [
+      "宝玉在秦可卿卧房午睡，梦入太虚幻境",
+      "警幻仙姑引宝玉阅「金陵十二钗」正册、副册、又副册",
+      "宝玉听闻「红楼梦」十二支曲，暗示众女子命运",
+      "警幻仙姑令可卿与宝玉云雨，望其悟情归正",
+      "宝玉梦中坠入迷津，被夜叉海鬼拖拽惊醒"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "警幻仙姑",
+        "group": "other"
+      },
+      {
+        "name": "秦可卿",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 6,
+    "arcId": 2,
+    "timePeriod": "深冬时节",
+    "title": "贾宝玉初试云雨情 刘姥姥一进荣国府",
+    "events": [
+      "宝玉梦醒后与袭人初试云雨",
+      "刘姥姥带板儿第一次进荣国府求助",
+      "刘姥姥经周瑞家的引荐见到王熙凤",
+      "王熙凤赠银二十两打发刘姥姥"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "袭人",
+        "group": "servant"
+      },
+      {
+        "name": "刘姥姥",
+        "group": "other"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "周瑞家的",
+        "group": "servant"
+      },
+      {
+        "name": "板儿",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 7,
+    "arcId": 2,
+    "timePeriod": "入冬之后",
+    "title": "送宫花贾琏戏熙凤 宴宁府宝玉会秦钟",
+    "events": [
+      "周瑞家的奉薛姨妈之命各处送宫花",
+      "送花至黛玉处，黛玉冷语讽刺「别人不挑剩的也不给我」",
+      "宝钗提及冷香丸配方",
+      "宝玉在宁府初会秦钟，二人一见如故",
+      "焦大醉骂贾府子弟，揭露「爬灰的爬灰」丑事"
+    ],
+    "characters": [
+      {
+        "name": "周瑞家的",
+        "group": "servant"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "薛宝钗",
+        "group": "core"
+      },
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "秦钟",
+        "group": "other"
+      },
+      {
+        "name": "焦大",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 8,
+    "arcId": 2,
+    "timePeriod": "冬日",
+    "title": "比通灵金莺微露意 探宝钗黛玉半含酸",
+    "events": [
+      "宝玉探望宝钗，二人互看通灵玉与金锁",
+      "莺儿提及金锁与宝玉的玉是一对，暗示「金玉良缘」",
+      "黛玉赶来，见宝玉先至宝钗处，言语含酸吃醋",
+      "众人在薛姨妈处饮酒说笑"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "薛宝钗",
+        "group": "core"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "莺儿",
+        "group": "servant"
+      },
+      {
+        "name": "薛姨妈",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 9,
+    "arcId": 2,
+    "timePeriod": "入学之初",
+    "title": "恋风流情友入家塾 起嫌疑顽童闹学堂",
+    "events": [
+      "宝玉与秦钟一同进入贾家家塾读书",
+      "学堂中香怜、玉爱等人暧昧纠葛",
+      "金荣因嫉妒挑事，茗烟带头闹学堂",
+      "李贵等人弹压方平息学堂骚乱"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "秦钟",
+        "group": "other"
+      },
+      {
+        "name": "金荣",
+        "group": "other"
+      },
+      {
+        "name": "茗烟",
+        "group": "servant"
+      },
+      {
+        "name": "李贵",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 10,
+    "arcId": 2,
+    "timePeriod": "学堂风波之后",
+    "title": "金寡妇贪利权受辱 张太医论病细穷源",
+    "events": [
+      "金荣母亲金寡妇欲找秦钟理论，被劝阻",
+      "璜大奶奶到宁府兴师问罪，反被尤氏数落",
+      "秦可卿病重，经多位大夫诊治无效",
+      "张太医细诊秦可卿之症，开方调治"
+    ],
+    "characters": [
+      {
+        "name": "金荣",
+        "group": "other"
+      },
+      {
+        "name": "秦可卿",
+        "group": "jia"
+      },
+      {
+        "name": "尤氏",
+        "group": "jia"
+      },
+      {
+        "name": "张太医",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 11,
+    "arcId": 2,
+    "timePeriod": "九月中——贾敬寿辰",
+    "title": "庆寿辰宁府排家宴 见熙凤贾瑞起淫心",
+    "events": [
+      "宁国府为贾敬庆寿排家宴，贾敬本人在道观不来",
+      "王熙凤探望病中秦可卿，二人情深话别",
+      "秦可卿自言恐「未必熬的过年去」",
+      "贾瑞在宴上见凤姐，心生淫念，开始纠缠"
+    ],
+    "characters": [
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "秦可卿",
+        "group": "jia"
+      },
+      {
+        "name": "贾瑞",
+        "group": "jia"
+      },
+      {
+        "name": "贾珍",
+        "group": "jia"
+      },
+      {
+        "name": "尤氏",
+        "group": "jia"
+      },
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      }
+    ]
+  },
+  {
+    "number": 12,
+    "arcId": 2,
+    "timePeriod": "腊月前后",
+    "title": "王熙凤毒设相思局 贾天祥正照风月鉴",
+    "events": [
+      "贾瑞向凤姐表白，凤姐将计就计设下圈套",
+      "贾瑞两度赴约均遭捉弄，冻病交加又被贾蓉贾蔷勒索",
+      "贾瑞相思成病，缠绵床榻一年有余",
+      "跛足道人送来「风月宝鉴」，嘱只照反面",
+      "贾瑞不听劝告反复照正面，精竭而亡"
+    ],
+    "characters": [
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "贾瑞",
+        "group": "jia"
+      },
+      {
+        "name": "贾蓉",
+        "group": "jia"
+      },
+      {
+        "name": "贾蔷",
+        "group": "jia"
+      },
+      {
+        "name": "跛足道人",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 13,
+    "arcId": 2,
+    "timePeriod": "秦可卿去世前后",
+    "title": "秦可卿死封龙禁尉 王熙凤协理宁国府",
+    "events": [
+      "秦可卿托梦凤姐，警告「月满则亏」「盛筵必散」",
+      "秦可卿病逝，宝玉闻讯吐血悲痛",
+      "贾珍极尽奢华操办丧事，用义忠亲王之棺木殓葬",
+      "贾珍为贾蓉捐纳龙禁尉，以壮丧仪",
+      "凤姐受托协理宁国府丧事，大展才干"
+    ],
+    "characters": [
+      {
+        "name": "秦可卿",
+        "group": "jia"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "贾珍",
+        "group": "jia"
+      },
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "贾蓉",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 14,
+    "arcId": 2,
+    "timePeriod": "秦氏出殡——五七期间",
+    "title": "林如海捐馆扬州城 贾宝玉路谒北静王",
+    "events": [
+      "凤姐协理宁府，令行禁止，杀一儆百",
+      "凤姐分派工作井井有条，惩处迟到者以立威",
+      "林如海病逝扬州，贾琏护送黛玉前往奔丧",
+      "秦氏出殡路上，宝玉拜谒北静王水溶",
+      "北静王赠宝玉鹡鸰香串念珠"
+    ],
+    "characters": [
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "北静王水溶",
+        "group": "other"
+      },
+      {
+        "name": "林如海",
+        "group": "other"
+      },
+      {
+        "name": "贾琏",
+        "group": "jia"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      }
+    ]
+  },
+  {
+    "number": 15,
+    "arcId": 2,
+    "timePeriod": "送殡铁槛寺期间",
+    "title": "王凤姐弄权铁槛寺 秦鲸卿得趣馒头庵",
+    "events": [
+      "送殡途中宝玉偶遇村姑二丫头，颇为留心",
+      "众人至铁槛寺安灵，凤姐宝玉寄宿馒头庵（水月庵）",
+      "净虚老尼求凤姐插手张金哥退婚事",
+      "凤姐弄权收取三千两，暗中操纵",
+      "秦钟与智能儿在馒头庵偷情"
+    ],
+    "characters": [
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "秦钟",
+        "group": "other"
+      },
+      {
+        "name": "智能儿",
+        "group": "other"
+      },
+      {
+        "name": "净虚",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 16,
+    "arcId": 2,
+    "timePeriod": "元春封妃前后",
+    "title": "贾元春才选凤藻宫 秦鲸卿夭逝黄泉路",
+    "events": [
+      "张金哥与守备之子双双殉情，凤姐坐收三千两",
+      "贾元春晋封凤藻宫尚书加封贤德妃，全家大喜",
+      "智能私逃进城找秦钟，秦业大怒病亡",
+      "秦钟病重追悔，不久亡故",
+      "贾琏与黛玉从扬州归来，宝玉赠黛玉北静王念珠被拒"
+    ],
+    "characters": [
+      {
+        "name": "贾元春",
+        "group": "jia"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "秦钟",
+        "group": "other"
+      },
+      {
+        "name": "贾琏",
+        "group": "jia"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      }
+    ]
+  },
+  {
+    "number": 17,
+    "arcId": 2,
+    "timePeriod": "大观园落成之际",
+    "title": "大观园试才题对额 荣国府归省庆元宵",
+    "events": [
+      "大观园工程竣工，贾政率众清客与宝玉游园题匾",
+      "宝玉题「曲径通幽处」「沁芳」「有凤来仪」「稻香村」等名",
+      "贾政一路考较宝玉才学，外冷内热",
+      "贾珍指挥园中最后装饰陈设准备省亲"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "贾政",
+        "group": "jia"
+      },
+      {
+        "name": "贾珍",
+        "group": "jia"
+      },
+      {
+        "name": "贾琏",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 18,
+    "arcId": 2,
+    "timePeriod": "正月十五元宵节",
+    "title": "大观园试才题对额 荣国府归省庆元宵",
+    "events": [
+      "元妃省亲，贾府张灯结彩盛况空前",
+      "元妃游幸大观园，赐名「大观园」及各处匾额",
+      "元妃命宝玉及众姐妹各作诗题咏，宝钗、黛玉才华出众",
+      "元妃与贾母、王夫人相见哭泣，感叹「终无意趣」",
+      "省亲结束后元妃回宫，贾府上下一番繁华落幕"
+    ],
+    "characters": [
+      {
+        "name": "贾元春",
+        "group": "jia"
+      },
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "薛宝钗",
+        "group": "core"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "王夫人",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 19,
+    "arcId": 3,
+    "timePeriod": "省亲之后",
+    "title": "情切切良宵花解语 意绵绵静日玉生香",
+    "events": [
+      "元妃降谕命宝玉及众姐妹入住大观园",
+      "宝玉入住怡红院，黛玉住潇湘馆，宝钗住蘅芜苑",
+      "袭人以退为进规劝宝玉，提出三个约法",
+      "宝玉至潇湘馆与黛玉闲话「香玉」典故，亲昵嬉闹"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "袭人",
+        "group": "servant"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "贾元春",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 20,
+    "arcId": 3,
+    "timePeriod": "入住大观园初期",
+    "title": "王熙凤正言弹妒意 林黛玉俏语谑娇音",
+    "events": [
+      "李嬷嬷骂袭人，宝玉与之冲突，凤姐出面平息",
+      "凤姐训诫李嬷嬷「正言弹妒意」",
+      "黛玉打趣湘云说话咬舌，取笑「二」「爱」不分",
+      "宝玉两面维护黛玉与湘云，反惹两人不快"
+    ],
+    "characters": [
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "史湘云",
+        "group": "jia"
+      },
+      {
+        "name": "袭人",
+        "group": "servant"
+      },
+      {
+        "name": "李嬷嬷",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 21,
+    "arcId": 3,
+    "timePeriod": "入住大观园初期",
+    "title": "贤袭人娇嗔箴宝玉 俏平儿软语救贾琏",
+    "events": [
+      "湘云来住，宝玉清晨跑去与黛玉湘云一处梳洗",
+      "袭人生气冷淡宝玉，宝玉续写「箴」文自省后又放弃",
+      "贾琏趁凤姐生日与鲍二家的偷情",
+      "凤姐撞破后大闹，平儿从中斡旋化解",
+      "贾母出面料理此事，贾琏赔礼"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "袭人",
+        "group": "servant"
+      },
+      {
+        "name": "史湘云",
+        "group": "jia"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "贾琏",
+        "group": "jia"
+      },
+      {
+        "name": "平儿",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 22,
+    "arcId": 3,
+    "timePeriod": "正月——宝钗生日",
+    "title": "听曲文宝玉悟禅机 制灯谜贾政悲谶语",
+    "events": [
+      "贾母出资为宝钗过十五岁生日，请戏班演出",
+      "宝钗点戏《鲁智深醉闹五台山》，引「赤条条来去无牵挂」曲文",
+      "宝玉听曲悟禅机，写偈语「你证我证」，黛玉续之，宝钗以六祖典故点化",
+      "元宵夜贾母命众人制灯谜，众姐妹谜底暗含各自命运",
+      "贾政看灯谜后心生悲感，暗觉谶语不祥"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "薛宝钗",
+        "group": "core"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "贾政",
+        "group": "jia"
+      },
+      {
+        "name": "贾元春",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 23,
+    "arcId": 3,
+    "timePeriod": "春日——众人入住大观园后",
+    "title": "西厢记妙词通戏语 牡丹亭艳曲警芳心",
+    "events": [
+      "元妃谕命众姐妹入住大观园，宝玉亦得入住",
+      "凤姐为贾芹谋差管理小和尚道士，弄权捞利",
+      "宝玉在沁芳闸桥边读《西厢记》，以「多愁多病」「倾国倾城」与黛玉互语",
+      "黛玉于梨香院墙外偶听《牡丹亭》曲「原来姹紫嫣红开遍」",
+      "黛玉感花伤己，不觉心痛神痴落下泪来"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "贾芹",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 24,
+    "arcId": 3,
+    "timePeriod": "春日",
+    "title": "醉金刚轻财尚义侠 痴女儿遗帕惹相思",
+    "events": [
+      "贾芸求凤姐谋事未果，转向舅舅卜世仁借冰片麝香被拒",
+      "醉金刚倪二仗义借银，贾芸至凤姐处送礼得到种树差事",
+      "红玉（小红）暗慕贾芸，遗帕定情",
+      "宝玉无意间面对鸳鸯言行轻薄被拒"
+    ],
+    "characters": [
+      {
+        "name": "贾芸",
+        "group": "jia"
+      },
+      {
+        "name": "红玉",
+        "group": "servant"
+      },
+      {
+        "name": "倪二",
+        "group": "other"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "鸳鸯",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 25,
+    "arcId": 3,
+    "timePeriod": "春日",
+    "title": "魇魔法姊弟逢五鬼 红楼梦通灵遇双真",
+    "events": [
+      "红玉梦见贾芸，坠儿为二人传帕传情",
+      "贾环蓄意以烛油烫伤宝玉脸部，赵姨娘受训斥",
+      "赵姨娘暗中求马道婆施魇魔法，害宝玉与凤姐",
+      "宝玉凤姐同时中邪发疯，全府大乱",
+      "茫茫大士与渺渺真人持通灵玉念咒解救，宝玉凤姐方痊愈"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "贾环",
+        "group": "jia"
+      },
+      {
+        "name": "赵姨娘",
+        "group": "jia"
+      },
+      {
+        "name": "马道婆",
+        "group": "other"
+      },
+      {
+        "name": "红玉",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 26,
+    "arcId": 3,
+    "timePeriod": "宝玉病愈后——春末",
+    "title": "蜂腰桥设言传心事 潇湘馆春困发幽情",
+    "events": [
+      "宝玉病愈回园，红玉与贾芸在蜂腰桥一带传情眉目",
+      "红玉受凤姐赏识，被凤姐收用至身边",
+      "宝玉至潇湘馆探黛玉，二人亲密闲谈",
+      "黛玉晚间至怡红院叩门，晴雯不开，黛玉误以为宝玉拒客"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "红玉",
+        "group": "servant"
+      },
+      {
+        "name": "贾芸",
+        "group": "jia"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "晴雯",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 27,
+    "arcId": 3,
+    "timePeriod": "四月二十六日——芒种节",
+    "title": "滴翠亭杨妃戏彩蝶 埋香冢飞燕泣残红",
+    "events": [
+      "芒种节众人祭饯花神，满园彩带飘飘",
+      "宝钗扑蝶至滴翠亭，偶听红玉坠儿密谈传帕之事",
+      "宝钗施「金蝉脱壳」嫁祸黛玉，称「颦儿我看你往那里藏」",
+      "黛玉因前夜被拒伤感，独自至花冢葬花",
+      "黛玉吟《葬花吟》：「侬今葬花人笑痴，他年葬侬知是谁」"
+    ],
+    "characters": [
+      {
+        "name": "薛宝钗",
+        "group": "core"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "红玉",
+        "group": "servant"
+      },
+      {
+        "name": "坠儿",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 28,
+    "arcId": 3,
+    "timePeriod": "芒种节后",
+    "title": "蒋玉菡情赠茜香罗 薛宝钗羞笼红麝串",
+    "events": [
+      "宝玉在山坡上偶听黛玉葬花词，恸倒哭泣",
+      "宝黛和解，宝玉表白「你死了我做和尚」",
+      "宝玉与冯紫英等在席上行酒令，结识蒋玉菡",
+      "蒋玉菡以茜香罗互赠宝玉，拿走袭人汗巾",
+      "元妃赐端午节礼，宝玉宝钗之礼一样而黛玉低一等"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "蒋玉菡",
+        "group": "other"
+      },
+      {
+        "name": "薛宝钗",
+        "group": "core"
+      },
+      {
+        "name": "贾元春",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 29,
+    "arcId": 3,
+    "timePeriod": "五月初一——端阳前",
+    "title": "享福人福深还祷福 痴情女情重愈斟情",
+    "events": [
+      "凤姐提议至清虚观为元妃打醮看戏，贾母欣然同往",
+      "张道士为宝玉提亲，贾母以宝玉命中不宜早娶婉拒",
+      "张道士托盘中金麒麟引宝玉注意",
+      "宝黛因「金玉」之论又起口角大闹，宝玉砸玉，黛玉剪穗",
+      "贾母心疼哭泣，称二人是「不是冤家不聚头」"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "张道士",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 30,
+    "arcId": 3,
+    "timePeriod": "端阳前后",
+    "title": "宝钗借扇机带双敲 龄官划蔷痴及局外",
+    "events": [
+      "宝黛和好，凤姐拉二人见贾母，称「黄鹰抓住了鹞子的脚」",
+      "宝玉以「体丰」比杨妃惹恼宝钗，宝钗借扇「机带双敲」讽宝黛",
+      "宝玉调戏金钏，王夫人怒而撵走金钏",
+      "宝玉在大观园偶见龄官在蔷薇架下雨中画「蔷」字",
+      "宝玉方悟「天下人各有各的缘法」"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "薛宝钗",
+        "group": "core"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "金钏",
+        "group": "servant"
+      },
+      {
+        "name": "王夫人",
+        "group": "jia"
+      },
+      {
+        "name": "龄官",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 31,
+    "arcId": 3,
+    "timePeriod": "端阳节",
+    "title": "撕扇子作千金一笑 因麒麟伏白首双星",
+    "events": [
+      "袭人误被宝玉踢伤吐血，暗中调治",
+      "端午家宴众人各怀心事，气氛沉闷",
+      "晴雯跌坏扇子遭宝玉斥责，二人争吵后和解",
+      "宝玉撕扇令晴雯开心，演「千金一笑」",
+      "宝玉拾得金麒麟，湘云亦有一个，暗伏「白首双星」之谶"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "晴雯",
+        "group": "servant"
+      },
+      {
+        "name": "袭人",
+        "group": "servant"
+      },
+      {
+        "name": "史湘云",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 32,
+    "arcId": 3,
+    "timePeriod": "端阳节后",
+    "title": "诉肺腑心迷活宝玉 含耻辱情烈死金钏",
+    "events": [
+      "湘云劝宝玉留心「仕途经济」，宝玉称「林妹妹不说这样混帐话」",
+      "黛玉无意偷听宝玉心声，又喜又悲感叹知己",
+      "宝玉向黛玉诉肺腑：「你放心」，黛玉感动离去",
+      "宝玉错把袭人当黛玉倾诉衷情，袭人惊怕",
+      "金钏被撵后含羞投井而死"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "史湘云",
+        "group": "jia"
+      },
+      {
+        "name": "袭人",
+        "group": "servant"
+      },
+      {
+        "name": "金钏",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 33,
+    "arcId": 3,
+    "timePeriod": "金钏死后不久",
+    "title": "手足眈眈小动唇舌 不肖种种大承笞挞",
+    "events": [
+      "忠顺王府遣人来追查蒋玉菡下落，宝玉撒谎掩饰被揭穿",
+      "贾环趁机向贾政进谗言，称宝玉逼死金钏",
+      "贾政盛怒之下将宝玉打得皮开肉绽",
+      "贾母闻讯赶来喝止，痛骂贾政",
+      "王夫人哭诉金珠之死，贾母心疼宝玉落泪"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "贾政",
+        "group": "jia"
+      },
+      {
+        "name": "贾环",
+        "group": "jia"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "王夫人",
+        "group": "jia"
+      },
+      {
+        "name": "蒋玉菡",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 34,
+    "arcId": 3,
+    "timePeriod": "宝玉挨打后",
+    "title": "情中情因情感妹妹 错里错以错劝哥哥",
+    "events": [
+      "宝钗送药探伤，哭泣失言露出深情，宝玉心中大畅",
+      "袭人向王夫人进言建议防微杜渐，王夫人赏识",
+      "宝玉遣晴雯送旧帕给黛玉传情",
+      "黛玉领会帕意，在帕上题三首绝句诗",
+      "薛蟠酒后失言暗示宝钗对宝玉有情，宝钗又气又羞"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "薛宝钗",
+        "group": "core"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "袭人",
+        "group": "servant"
+      },
+      {
+        "name": "晴雯",
+        "group": "servant"
+      },
+      {
+        "name": "王夫人",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 35,
+    "arcId": 3,
+    "timePeriod": "宝玉养伤期间",
+    "title": "白玉钏亲尝莲叶羹 黄金莺巧结梅花络",
+    "events": [
+      "黛玉远望怡红院人来人往，伤感落泪",
+      "贾母凤姐薛姨妈等纷纷探望宝玉",
+      "玉钏为宝玉送莲叶羹，宝玉柔声安慰",
+      "莺儿为宝玉打梅花络，宝玉对各色配搭见解独到",
+      "傅秋芳家婆子探望宝玉，宝玉不以为然"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "玉钏",
+        "group": "servant"
+      },
+      {
+        "name": "莺儿",
+        "group": "servant"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 36,
+    "arcId": 3,
+    "timePeriod": "宝玉伤愈——夏日",
+    "title": "绣鸳鸯梦兆绛芸轩 识分定情悟梨香院",
+    "events": [
+      "贾母命人嘱咐贾政不得再叫宝玉，宝玉从此逍遥园中",
+      "宝玉日日与姐妹丫鬟为伴，不理仕途经济",
+      "王夫人将袭人月例提至二两银，暗定姨娘名分",
+      "宝钗至怡红院见宝玉午睡，替袭人绣鸳鸯肚兜",
+      "宝玉至梨香院访龄官，见龄官只为贾蔷唱曲，悟「各人有各人的缘法」"
+    ],
+    "characters": [
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "薛宝钗",
+        "group": "core"
+      },
+      {
+        "name": "袭人",
+        "group": "servant"
+      },
+      {
+        "name": "王夫人",
+        "group": "jia"
+      },
+      {
+        "name": "龄官",
+        "group": "servant"
+      },
+      {
+        "name": "贾蔷",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 37,
+    "arcId": 4,
+    "timePeriod": "八月——贾政出差后",
+    "title": "秋爽斋偶结海棠社 蘅芜苑夜拟菊花题",
+    "events": [
+      "贾政点学差离京，宝玉更加自在",
+      "探春发起倡议，于秋爽斋结「海棠诗社」",
+      "众人各取别号：蕉下客、蘅芜君、潇湘妃子、怡红公子等",
+      "首社咏白海棠，宝钗诗夺魁",
+      "湘云被邀入社，宝钗助她筹备螃蟹宴，夜拟菊花题十二首"
+    ],
+    "characters": [
+      {
+        "name": "探春",
+        "group": "jia"
+      },
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "薛宝钗",
+        "group": "core"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "史湘云",
+        "group": "jia"
+      },
+      {
+        "name": "李纨",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 38,
+    "arcId": 4,
+    "timePeriod": "八月——桂花盛开时",
+    "title": "林潇湘魁夺菊花诗 薛蘅芜讽和螃蟹咏",
+    "events": [
+      "湘云宝钗做东，于藕香榭设螃蟹宴赏桂花",
+      "贾母带众人赴宴，满园欢乐",
+      "菊花诗社开赛，黛玉「咏菊」「问菊」「菊梦」三首夺魁",
+      "众人赋螃蟹咏，宝钗讽世之作被推为绝唱",
+      "平儿代凤姐来要螃蟹，李纨拉她饮酒说笑"
+    ],
+    "characters": [
+      {
+        "name": "林黛玉",
+        "group": "core"
+      },
+      {
+        "name": "薛宝钗",
+        "group": "core"
+      },
+      {
+        "name": "史湘云",
+        "group": "jia"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "平儿",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 39,
+    "arcId": 4,
+    "timePeriod": "秋日——螃蟹宴后",
+    "title": "村姥姥是信口开河 情哥哥偏寻根究底",
+    "events": [
+      "刘姥姥二进荣国府，受贾母热情款待",
+      "刘姥姥在贾母处讲「信口开河」的乡下故事",
+      "刘姥姥编雪下抽柴和佛庙成精的故事逗贾母开心",
+      "宝玉听「茗玉」抽柴故事走神，信以为真，派茗烟去寻庙"
+    ],
+    "characters": [
+      {
+        "name": "刘姥姥",
+        "group": "other"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      }
+    ]
+  },
+  {
+    "number": 40,
+    "arcId": 4,
+    "timePeriod": "秋日——刘姥姥二进期间",
+    "title": "史太君两宴大观园 金鸳鸯三宣牙牌令",
+    "events": [
+      "贾母率众于大观园内设宴款待刘姥姥",
+      "凤姐鸳鸯合谋捉弄刘姥姥做「女清客」",
+      "刘姥姥以筷子夹鸽蛋、说笑话逗众人前仰后合",
+      "鸳鸯三宣牙牌令，刘姥姥以乡间俗语应对引大笑",
+      "贾母游园乘船，命刘姥姥同游大观园各处"
+    ],
+    "characters": [
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "刘姥姥",
+        "group": "other"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "鸳鸯",
+        "group": "servant"
+      },
+      {
+        "name": "贾宝玉",
+        "group": "core"
+      },
+      {
+        "name": "林黛玉",
+        "group": "core"
+      }
+    ]
+  },
+  {
+    "number": 41,
+    "arcId": 4,
+    "timePeriod": "大观园鼎盛",
+    "title": "栊翠庵茶品梅花雪 怡红院劫遇母蝗虫",
+    "events": [
+      "刘姥姥游览大观园，众人行酒令取乐",
+      "妙玉在栊翠庵以梅花雪水沏茶招待宝钗黛玉",
+      "刘姥姥醉卧怡红院，闹出笑话",
+      "贾母等在藕香榭宴饮赏桂花"
+    ],
+    "characters": [
+      {
+        "name": "刘姥姥",
+        "group": "other"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "妙玉",
+        "group": "other"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      }
+    ]
+  },
+  {
+    "number": 42,
+    "arcId": 4,
+    "timePeriod": "大观园鼎盛",
+    "title": "蘅芜君兰言解疑癖 潇湘子雅谑补馀香",
+    "events": [
+      "宝钗劝导黛玉不宜看《西厢记》等杂书",
+      "黛玉心服口服，二人关系亲密",
+      "刘姥姥为巧姐取名，以化解灾厄",
+      "众人商议让惜春画大观园行乐图"
+    ],
+    "characters": [
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "刘姥姥",
+        "group": "other"
+      },
+      {
+        "name": "巧姐",
+        "group": "jia"
+      },
+      {
+        "name": "惜春",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 43,
+    "arcId": 4,
+    "timePeriod": "大观园鼎盛",
+    "title": "闲取乐偶攒金庆寿 不了情暂撮土为香",
+    "events": [
+      "众人凑份子为王熙凤过生日",
+      "尤氏等张罗庆寿酒席",
+      "宝玉悄悄溜出城外至水仙庵祭奠金钏",
+      "茗烟跟随宝玉祭祀，猜出缘由"
+    ],
+    "characters": [
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "尤氏",
+        "group": "jia"
+      },
+      {
+        "name": "茗烟",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 44,
+    "arcId": 4,
+    "timePeriod": "大观园鼎盛",
+    "title": "变生不测凤姐泼醋 喜出望外平儿理妆",
+    "events": [
+      "凤姐生日宴上贾琏与鲍二家的私通被撞破",
+      "凤姐醋意大发闹出一场风波",
+      "平儿受委屈被打，宝玉劝慰平儿",
+      "宝玉亲自为平儿理妆，体贴入微"
+    ],
+    "characters": [
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "贾琏",
+        "group": "jia"
+      },
+      {
+        "name": "平儿",
+        "group": "servant"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      }
+    ]
+  },
+  {
+    "number": 45,
+    "arcId": 4,
+    "timePeriod": "大观园鼎盛",
+    "title": "金兰契互剖金兰语 风雨夕闷制风雨词",
+    "events": [
+      "宝钗探望黛玉，二人推心置腹结为知己",
+      "宝钗劝黛玉用燕窝调养身体",
+      "黛玉秋夜听雨，作《秋窗风雨夕》词",
+      "宝玉冒雨来探望黛玉，送蓑衣斗笠"
+    ],
+    "characters": [
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      }
+    ]
+  },
+  {
+    "number": 46,
+    "arcId": 4,
+    "timePeriod": "大观园鼎盛",
+    "title": "尴尬人难免尴尬事 鸳鸯女誓绝鸳鸯偶",
+    "events": [
+      "贾赦看中鸳鸯，要收她为妾",
+      "邢夫人奉命来说媒，鸳鸯拒绝",
+      "鸳鸯在贾母面前剪发立誓，绝不嫁人",
+      "贾母大怒，斥责贾赦邢夫人"
+    ],
+    "characters": [
+      {
+        "name": "鸳鸯",
+        "group": "servant"
+      },
+      {
+        "name": "贾赦",
+        "group": "jia"
+      },
+      {
+        "name": "邢夫人",
+        "group": "jia"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 47,
+    "arcId": 4,
+    "timePeriod": "大观园鼎盛",
+    "title": "呆霸王调情遭苦打 冷郎君惧祸走他乡",
+    "events": [
+      "薛蟠调戏柳湘莲，被其痛打一顿",
+      "赖家办宴请贾府诸人",
+      "贾母等至赖家花园赴宴",
+      "柳湘莲恐薛家报复，远走他乡"
+    ],
+    "characters": [
+      {
+        "name": "薛蟠",
+        "group": "other"
+      },
+      {
+        "name": "柳湘莲",
+        "group": "other"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 48,
+    "arcId": 4,
+    "timePeriod": "大观园鼎盛",
+    "title": "滥情人情误思游艺 慕雅女雅集苦吟诗",
+    "events": [
+      "薛蟠外出做生意以避柳湘莲之事",
+      "香菱入园住进蘅芜苑，向黛玉学诗",
+      "香菱苦心吟诗，从平仄格律学起",
+      "香菱梦中得诗，众人称赞"
+    ],
+    "characters": [
+      {
+        "name": "香菱",
+        "group": "servant"
+      },
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "薛蟠",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 49,
+    "arcId": 4,
+    "timePeriod": "大观园鼎盛",
+    "title": "琉璃世界白雪红梅 脂粉香娃割腥啖膻",
+    "events": [
+      "薛宝琴、邢岫烟、李纹、李绮等新客到来",
+      "大雪纷飞，众人赏雪景",
+      "宝琴踏雪折梅，贾母格外喜爱",
+      "众人在芦雪广烤鹿肉，湘云豪放割肉大嚼"
+    ],
+    "characters": [
+      {
+        "name": "薛宝琴",
+        "group": "other"
+      },
+      {
+        "name": "邢岫烟",
+        "group": "other"
+      },
+      {
+        "name": "湘云",
+        "group": "jia"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 50,
+    "arcId": 4,
+    "timePeriod": "大观园鼎盛",
+    "title": "芦雪广争联即景诗 暖香坞雅制春灯谜",
+    "events": [
+      "众人在芦雪广联句赋诗，湘云最为敏捷",
+      "宝琴作十首怀古诗引众人猜谜",
+      "众人至暖香坞制作春灯谜",
+      "黛玉湘云联句争锋，各展才华"
+    ],
+    "characters": [
+      {
+        "name": "湘云",
+        "group": "jia"
+      },
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "薛宝琴",
+        "group": "other"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      }
+    ]
+  },
+  {
+    "number": 51,
+    "arcId": 4,
+    "timePeriod": "大观园鼎盛",
+    "title": "薛小妹新编怀古诗 胡庸医乱用虎狼药",
+    "events": [
+      "宝琴所作十首怀古诗引发众人讨论",
+      "晴雯夜间受寒生病",
+      "庸医胡乱开猛药，宝玉不放心",
+      "宝玉另请大夫为晴雯诊治"
+    ],
+    "characters": [
+      {
+        "name": "薛宝琴",
+        "group": "other"
+      },
+      {
+        "name": "晴雯",
+        "group": "servant"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      }
+    ]
+  },
+  {
+    "number": 52,
+    "arcId": 4,
+    "timePeriod": "大观园鼎盛",
+    "title": "俏平儿情掩虾须镯 勇晴雯病补雀金裘",
+    "events": [
+      "坠儿偷了平儿的虾须镯，平儿顾全体面暗中处理",
+      "宝玉的雀金裘烧了一个洞，无人能补",
+      "晴雯带病连夜补好雀金裘，力尽神危",
+      "晴雯的勇敢与忠心令人感动"
+    ],
+    "characters": [
+      {
+        "name": "平儿",
+        "group": "servant"
+      },
+      {
+        "name": "晴雯",
+        "group": "servant"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "坠儿",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 53,
+    "arcId": 4,
+    "timePeriod": "大观园鼎盛",
+    "title": "宁国府除夕祭宗祠 荣国府元宵开夜宴",
+    "events": [
+      "乌进孝送年终租税，贾珍感叹收入不敷支出",
+      "宁国府大办除夕祭祖仪式，隆重肃穆",
+      "贾珍训斥贾芹在家庙中胡作非为",
+      "荣国府元宵夜宴，灯火辉煌"
+    ],
+    "characters": [
+      {
+        "name": "贾珍",
+        "group": "jia"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "贾蓉",
+        "group": "jia"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "宝琴",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 54,
+    "arcId": 4,
+    "timePeriod": "大观园鼎盛",
+    "title": "史太君破陈腐旧套 王熙凤效戏彩斑衣",
+    "events": [
+      "元宵夜宴上听女先生说书，贾母批驳才子佳人小说套路",
+      "凤姐插科打诨逗贾母开心，效仿「斑衣戏彩」",
+      "宝玉出席祭酒，为众人斟酒",
+      "贾母命梨香院小戏子唱《寻梦》《惠明下书》"
+    ],
+    "characters": [
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "黛玉",
+        "group": "core"
+      }
+    ]
+  },
+  {
+    "number": 55,
+    "arcId": 5,
+    "timePeriod": "暗流涌动",
+    "title": "辱亲女愚妾争闲气 欺幼主刁奴蓄险心",
+    "events": [
+      "凤姐小产卧病，探春李纨代管家务",
+      "赵姨娘之弟赵国基去世，探春按旧例办理引发冲突",
+      "赵姨娘闹到议事厅与探春争吵",
+      "探春不畏情面秉公办事，下人暗中敬服",
+      "平儿从中周旋，劝说各方"
+    ],
+    "characters": [
+      {
+        "name": "探春",
+        "group": "jia"
+      },
+      {
+        "name": "李纨",
+        "group": "jia"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "赵姨娘",
+        "group": "jia"
+      },
+      {
+        "name": "平儿",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 56,
+    "arcId": 5,
+    "timePeriod": "暗流涌动",
+    "title": "敏探春兴利除宿弊 时宝钗小惠全大体",
+    "events": [
+      "探春改革大观园管理，派婆子承包花木果蔬",
+      "宝钗提出兼顾各方利益的方案，众人称善",
+      "蠲免重叠的月银分例，节省开支",
+      "甄府家眷进京送礼拜访，两个宝玉相比较"
+    ],
+    "characters": [
+      {
+        "name": "探春",
+        "group": "jia"
+      },
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "李纨",
+        "group": "jia"
+      },
+      {
+        "name": "平儿",
+        "group": "servant"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 57,
+    "arcId": 5,
+    "timePeriod": "暗流涌动",
+    "title": "慧紫鹃情辞试忙玉 慈姨妈爱语慰痴颦",
+    "events": [
+      "紫鹃试探宝玉，谎称黛玉要回苏州",
+      "宝玉闻言急痛迷心，几近疯癫",
+      "贾母王夫人等赶来看视，请太医诊治",
+      "紫鹃留在怡红院照看宝玉直至痊愈",
+      "紫鹃私下劝黛玉趁贾母健在定下终身大事"
+    ],
+    "characters": [
+      {
+        "name": "紫鹃",
+        "group": "servant"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "薛姨妈",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 58,
+    "arcId": 5,
+    "timePeriod": "暗流涌动",
+    "title": "杏子阴假凤泣虚凰 茜纱窗真情揆痴理",
+    "events": [
+      "老太妃薨逝，贾母王夫人等入朝守制",
+      "梨香院戏子解散，芳官等分配至各房",
+      "藕官在园中烧纸祭故人，宝玉替她遮掩",
+      "宝玉对杏花感伤，悲叹女儿命运",
+      "芳官干娘克扣月钱欺负芳官，众丫鬟出面相护"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "芳官",
+        "group": "servant"
+      },
+      {
+        "name": "藕官",
+        "group": "servant"
+      },
+      {
+        "name": "晴雯",
+        "group": "servant"
+      },
+      {
+        "name": "麝月",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 59,
+    "arcId": 5,
+    "timePeriod": "暗流涌动",
+    "title": "柳叶渚边嗔莺咤燕 绛云轩里召将飞符",
+    "events": [
+      "贾母等送灵远行，府中无主，下人懈怠生事",
+      "莺儿采柳编花篮，与婆子发生冲突",
+      "春燕的母亲打骂春燕，被袭人麝月等斥责",
+      "平儿传令整治园中乱象",
+      "婆子们与小戏子间矛盾不断"
+    ],
+    "characters": [
+      {
+        "name": "莺儿",
+        "group": "servant"
+      },
+      {
+        "name": "春燕",
+        "group": "servant"
+      },
+      {
+        "name": "袭人",
+        "group": "servant"
+      },
+      {
+        "name": "平儿",
+        "group": "servant"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      }
+    ]
+  },
+  {
+    "number": 60,
+    "arcId": 5,
+    "timePeriod": "暗流涌动",
+    "title": "茉莉粉替去蔷薇硝 玫瑰露引来茯苓霜",
+    "events": [
+      "芳官以茉莉粉代替蔷薇硝给贾环，引发误会",
+      "赵姨娘怂恿贾环去闹，又亲自到怡红院大吵",
+      "蕊官等小戏子群起与赵姨娘扭打",
+      "探春出面平息事端，斥责赵姨娘",
+      "柳五儿送玫瑰露茯苓霜被林之孝家的查获"
+    ],
+    "characters": [
+      {
+        "name": "芳官",
+        "group": "servant"
+      },
+      {
+        "name": "赵姨娘",
+        "group": "jia"
+      },
+      {
+        "name": "贾环",
+        "group": "jia"
+      },
+      {
+        "name": "探春",
+        "group": "jia"
+      },
+      {
+        "name": "柳五儿",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 61,
+    "arcId": 5,
+    "timePeriod": "暗流涌动",
+    "title": "投鼠忌器宝玉瞒赃 判冤决狱平儿行权",
+    "events": [
+      "彩云偷王夫人的东西给贾环，宝玉顶替认赃",
+      "柳家的与司棋因鸡蛋一事起争执",
+      "平儿查明真相后大事化小，公正处理",
+      "柳家的复职，秦显家的退回"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "平儿",
+        "group": "servant"
+      },
+      {
+        "name": "彩云",
+        "group": "servant"
+      },
+      {
+        "name": "贾环",
+        "group": "jia"
+      },
+      {
+        "name": "司棋",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 62,
+    "arcId": 5,
+    "timePeriod": "暗流涌动",
+    "title": "憨湘云醉眠芍药裀 呆香菱情解石榴裙",
+    "events": [
+      "宝玉、宝琴、平儿、邢岫烟同日生辰",
+      "探春提议凑份子为平儿庆生，众人欢聚",
+      "众人行酒令抽花名签，各有寓意",
+      "湘云醉卧芍药丛中，花瓣满身",
+      "香菱与众人斗草弄脏石榴裙，宝玉送裙替换"
+    ],
+    "characters": [
+      {
+        "name": "湘云",
+        "group": "jia"
+      },
+      {
+        "name": "香菱",
+        "group": "servant"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "平儿",
+        "group": "servant"
+      },
+      {
+        "name": "探春",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 63,
+    "arcId": 5,
+    "timePeriod": "暗流涌动",
+    "title": "寿怡红群芳开夜宴 死金丹独艳理亲丧",
+    "events": [
+      "宝玉生日夜间众丫鬟设宴庆贺",
+      "请来宝钗黛玉等占花名签行令",
+      "宝钗抽到牡丹「任是无情也动人」，黛玉抽到芙蓉",
+      "敬老爷贾敬吞丹暴死，尤氏独力料理丧事"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "袭人",
+        "group": "servant"
+      },
+      {
+        "name": "晴雯",
+        "group": "servant"
+      },
+      {
+        "name": "尤氏",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 64,
+    "arcId": 5,
+    "timePeriod": "暗流涌动",
+    "title": "幽淑女悲题五美吟 浪荡子情遗九龙珮",
+    "events": [
+      "贾敬灵柩回宁府，宝玉穿孝来往",
+      "黛玉触景伤情，作《五美吟》悼念古代美人",
+      "宝玉探望黛玉，二人对泣",
+      "贾琏在外偷娶尤二姐之事渐起筹划"
+    ],
+    "characters": [
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "贾琏",
+        "group": "jia"
+      },
+      {
+        "name": "紫鹃",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 65,
+    "arcId": 5,
+    "timePeriod": "暗流涌动",
+    "title": "贾二舍偷娶尤二姨 尤三姐思嫁柳二郎",
+    "events": [
+      "贾琏趁凤姐不知，在外偷娶尤二姐为二房",
+      "贾珍与尤三姐厮混，三姐反手戏弄珍琏二人",
+      "尤三姐心属柳湘莲，誓不嫁他人",
+      "兴儿向尤二姐讲述荣府内情"
+    ],
+    "characters": [
+      {
+        "name": "贾琏",
+        "group": "jia"
+      },
+      {
+        "name": "尤二姐",
+        "group": "other"
+      },
+      {
+        "name": "尤三姐",
+        "group": "other"
+      },
+      {
+        "name": "贾珍",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 66,
+    "arcId": 5,
+    "timePeriod": "暗流涌动",
+    "title": "情小妹耻情归地府 冷二郎一冷入空门",
+    "events": [
+      "贾琏路遇薛蟠与柳湘莲，为尤三姐说亲",
+      "柳湘莲以鸳鸯剑为聘礼，允婚",
+      "湘莲后听闻宁府名声不好，悔婚索剑",
+      "尤三姐蒙受耻辱，以鸳鸯剑自刎身亡",
+      "柳湘莲悔恨交加，随道士出家而去"
+    ],
+    "characters": [
+      {
+        "name": "尤三姐",
+        "group": "other"
+      },
+      {
+        "name": "柳湘莲",
+        "group": "other"
+      },
+      {
+        "name": "贾琏",
+        "group": "jia"
+      },
+      {
+        "name": "尤二姐",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 67,
+    "arcId": 5,
+    "timePeriod": "暗流涌动",
+    "title": "见土仪颦卿思故里 闻秘事凤姐讯家童",
+    "events": [
+      "薛蟠从江南带回土产，宝钗分送众人",
+      "黛玉见家乡之物触物伤情，思念父母",
+      "宝玉来劝慰黛玉，带她同去宝钗处散心",
+      "凤姐得知贾琏偷娶尤二姐之事，审问家童兴儿"
+    ],
+    "characters": [
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "薛蟠",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 68,
+    "arcId": 5,
+    "timePeriod": "暗流涌动",
+    "title": "苦尤娘赚入大观园 酸凤姐大闹宁国府",
+    "events": [
+      "凤姐假意示好，将尤二姐骗入大观园",
+      "凤姐暗中安排善姐折磨尤二姐",
+      "凤姐打上宁国府兴师问罪，大闹一场",
+      "凤姐唆使张华告状，设计陷害贾琏尤二姐"
+    ],
+    "characters": [
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "尤二姐",
+        "group": "other"
+      },
+      {
+        "name": "贾琏",
+        "group": "jia"
+      },
+      {
+        "name": "平儿",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 69,
+    "arcId": 5,
+    "timePeriod": "暗流涌动",
+    "title": "弄小巧用借剑杀人 觉大限吞生金自逝",
+    "events": [
+      "凤姐用借剑杀人之策，暗害尤二姐",
+      "秋桐等人对尤二姐百般凌辱欺压",
+      "尤二姐怀孕后被庸医误诊，胎儿流产",
+      "尤二姐万念俱灰，吞金自尽"
+    ],
+    "characters": [
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "尤二姐",
+        "group": "other"
+      },
+      {
+        "name": "贾琏",
+        "group": "jia"
+      },
+      {
+        "name": "秋桐",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 70,
+    "arcId": 5,
+    "timePeriod": "暗流涌动",
+    "title": "林黛玉重建桃花社 史湘云偶填柳絮词",
+    "events": [
+      "黛玉作《桃花行》，众人赞赏",
+      "黛玉倡议重建诗社，改名「桃花社」",
+      "众人以柳絮为题填词，宝钗词最受推崇",
+      "宫中传来消息，贾政即将回京"
+    ],
+    "characters": [
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "湘云",
+        "group": "jia"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "探春",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 71,
+    "arcId": 6,
+    "timePeriod": "风雨欲来",
+    "title": "嫌隙人有心生嫌隙 鸳鸯女无意遇鸳鸯",
+    "events": [
+      "贾母八旬大寿，南安太妃等纷纷来贺",
+      "邢夫人与凤姐嫌隙加深",
+      "鸳鸯无意撞见司棋与潘又安幽会",
+      "仆妇费婆子等因对牌之事互生龃龉"
+    ],
+    "characters": [
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "邢夫人",
+        "group": "jia"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "鸳鸯",
+        "group": "servant"
+      },
+      {
+        "name": "司棋",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 72,
+    "arcId": 6,
+    "timePeriod": "风雨欲来",
+    "title": "王熙凤恃强羞说病 来旺妇倚势霸成亲",
+    "events": [
+      "凤姐操劳过度，身体愈发虚弱却不肯言病",
+      "凤姐梦见秦可卿，心中不安",
+      "贾琏因缺钱向鸳鸯借当贾母的东西",
+      "来旺媳妇倚仗凤姐势力强行为儿子说亲"
+    ],
+    "characters": [
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "贾琏",
+        "group": "jia"
+      },
+      {
+        "name": "鸳鸯",
+        "group": "servant"
+      },
+      {
+        "name": "来旺媳妇",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 73,
+    "arcId": 6,
+    "timePeriod": "风雨欲来",
+    "title": "痴丫头误拾绣春囊 懦小姐不问累金凤",
+    "events": [
+      "傻大姐在园中拾到绣春囊",
+      "邢夫人得知后借此事做文章，送交王夫人",
+      "王夫人震怒，追查绣春囊来源",
+      "迎春的丫鬟偷去累金凤典当，迎春懦弱不敢追究"
+    ],
+    "characters": [
+      {
+        "name": "邢夫人",
+        "group": "jia"
+      },
+      {
+        "name": "王夫人",
+        "group": "jia"
+      },
+      {
+        "name": "迎春",
+        "group": "jia"
+      },
+      {
+        "name": "傻大姐",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 74,
+    "arcId": 6,
+    "timePeriod": "风雨欲来",
+    "title": "惑奸谗抄检大观园 矢孤介杜绝宁国府",
+    "events": [
+      "王夫人命王善保家的等连夜抄检大观园",
+      "各房逐一搜查，晴雯被重点针对",
+      "探春怒斥抄检行为，痛骂王善保家的",
+      "司棋的私情信物被搜出",
+      "惜春与嫂子尤氏争执，声明断绝与宁府来往"
+    ],
+    "characters": [
+      {
+        "name": "王夫人",
+        "group": "jia"
+      },
+      {
+        "name": "探春",
+        "group": "jia"
+      },
+      {
+        "name": "晴雯",
+        "group": "servant"
+      },
+      {
+        "name": "惜春",
+        "group": "jia"
+      },
+      {
+        "name": "司棋",
+        "group": "servant"
+      },
+      {
+        "name": "王善保家的",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 75,
+    "arcId": 6,
+    "timePeriod": "风雨欲来",
+    "title": "开夜宴异兆发悲音 赏中秋新词得佳谶",
+    "events": [
+      "抄检后人心惶惶，尤氏来探春处诉苦",
+      "中秋夜贾府设宴赏月，贾母强颜欢笑",
+      "宴上行令击鼓传花，各人应景作诗词",
+      "夜深闻笛声凄凉，贾母感伤落泪"
+    ],
+    "characters": [
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "探春",
+        "group": "jia"
+      },
+      {
+        "name": "尤氏",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 76,
+    "arcId": 6,
+    "timePeriod": "风雨欲来",
+    "title": "凸碧堂品笛感凄清 凹晶馆联诗悲寂寞",
+    "events": [
+      "中秋夜贾母在凸碧堂赏月品笛",
+      "众人渐散，贾母觉伤感命停乐散席",
+      "黛玉湘云至凹晶馆对月联诗",
+      "黛玉吟出「冷月葬花魂」，妙玉现身续诗"
+    ],
+    "characters": [
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "湘云",
+        "group": "jia"
+      },
+      {
+        "name": "妙玉",
+        "group": "other"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 77,
+    "arcId": 6,
+    "timePeriod": "风雨欲来",
+    "title": "俏丫鬟抱屈夭风流 美优伶斩情归水月",
+    "events": [
+      "王夫人下令撵走晴雯、芳官等人",
+      "晴雯带病被逐出大观园，宝玉悲痛欲绝",
+      "宝玉偷偷去探望病重的晴雯，二人交换贴身衣物",
+      "芳官等被迫出家为尼",
+      "晴雯含冤而死"
+    ],
+    "characters": [
+      {
+        "name": "晴雯",
+        "group": "servant"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "王夫人",
+        "group": "jia"
+      },
+      {
+        "name": "芳官",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 78,
+    "arcId": 6,
+    "timePeriod": "风雨欲来",
+    "title": "老学士闲征姽婳词 痴公子杜撰芙蓉诔",
+    "events": [
+      "贾政命宝玉贾环贾兰作《姽婳词》",
+      "宝玉得知晴雯死后被封为芙蓉花神",
+      "宝玉撰写《芙蓉女儿诔》祭奠晴雯",
+      "黛玉暗中听到诔文，与宝玉讨论修改"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "贾政",
+        "group": "jia"
+      },
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "贾环",
+        "group": "jia"
+      },
+      {
+        "name": "贾兰",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 79,
+    "arcId": 6,
+    "timePeriod": "风雨欲来",
+    "title": "薛文龙悔娶河东狮 贾迎春误嫁中山狼",
+    "events": [
+      "薛蟠娶夏金桂为妻，金桂泼辣善妒",
+      "金桂进门便与薛姨妈香菱生出矛盾",
+      "迎春被贾赦许配孙绍祖，众人不舍",
+      "宝玉感伤迎春出嫁，叹「女儿出嫁如死别」"
+    ],
+    "characters": [
+      {
+        "name": "薛蟠",
+        "group": "other"
+      },
+      {
+        "name": "夏金桂",
+        "group": "other"
+      },
+      {
+        "name": "迎春",
+        "group": "jia"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "香菱",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 80,
+    "arcId": 6,
+    "timePeriod": "风雨欲来",
+    "title": "美香菱屈受贪夫棒 王道士胡诌妒妇方",
+    "events": [
+      "夏金桂善妒，改香菱名为「秋菱」加以折辱",
+      "薛蟠受金桂唆使殴打香菱",
+      "薛姨妈心疼香菱却管不住薛蟠",
+      "王道士开出荒唐的「妒妇方」，讽刺世态"
+    ],
+    "characters": [
+      {
+        "name": "香菱",
+        "group": "servant"
+      },
+      {
+        "name": "薛蟠",
+        "group": "other"
+      },
+      {
+        "name": "夏金桂",
+        "group": "other"
+      },
+      {
+        "name": "薛姨妈",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 81,
+    "arcId": 6,
+    "timePeriod": "风雨欲来",
+    "title": "占旷野金兰契互剖金兰语 坐含香风韵雅制灯谜",
+    "events": [
+      "宝玉探望黛玉，二人互诉衷肠",
+      "迎春嫁入孙家受苦，回娘家哭诉",
+      "贾政考问宝玉功课，命其入家塾读书",
+      "宝玉重入家塾，与秦钟旧友相忆"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "迎春",
+        "group": "jia"
+      },
+      {
+        "name": "贾政",
+        "group": "jia"
+      },
+      {
+        "name": "孙绍祖",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 82,
+    "arcId": 6,
+    "timePeriod": "风雨欲来",
+    "title": "老学究讲义警顽心 病潇湘痴魂惊恶梦",
+    "events": [
+      "代儒讲《孟子》义理，宝玉似懂非懂",
+      "黛玉夜间做噩梦，梦中被父许配他人",
+      "梦中宝玉剖心表白，黛玉惊醒吐血",
+      "紫鹃守护黛玉，忧心其病势加重"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "代儒",
+        "group": "other"
+      },
+      {
+        "name": "紫鹃",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 83,
+    "arcId": 6,
+    "timePeriod": "风雨欲来",
+    "title": "省宫闱贾元妃染恙 闹闺阃薛宝钗吞声",
+    "events": [
+      "元妃在宫中染病，贾母王夫人忧虑",
+      "薛蟠妻金桂悍妒，大闹薛家",
+      "宝钗忍辱吞声劝解无效",
+      "香菱受金桂欺凌，处境凄惨"
+    ],
+    "characters": [
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "元妃",
+        "group": "jia"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "王夫人",
+        "group": "jia"
+      },
+      {
+        "name": "金桂",
+        "group": "other"
+      },
+      {
+        "name": "香菱",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 84,
+    "arcId": 6,
+    "timePeriod": "风雨欲来",
+    "title": "试文字宝玉始提亲 探惊风贾环重结怨",
+    "events": [
+      "贾政试宝玉文字，略有进益",
+      "王熙凤张罗宝玉婚事，提议宝钗",
+      "贾环染病，赵姨娘疑心凤姐使坏",
+      "贾环与贾宝玉嫌隙加深"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "贾政",
+        "group": "jia"
+      },
+      {
+        "name": "贾环",
+        "group": "jia"
+      },
+      {
+        "name": "赵姨娘",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 85,
+    "arcId": 6,
+    "timePeriod": "风雨欲来",
+    "title": "贾存周报升郎中任 薛文龙复惹放流刑",
+    "events": [
+      "贾政升任工部郎中",
+      "北静王过生日，贾府送礼贺寿",
+      "薛蟠在外惹事打死人命，被捕入狱",
+      "薛姨妈悲痛欲绝，宝钗安慰母亲"
+    ],
+    "characters": [
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "贾政",
+        "group": "jia"
+      },
+      {
+        "name": "薛蟠",
+        "group": "other"
+      },
+      {
+        "name": "薛姨妈",
+        "group": "other"
+      },
+      {
+        "name": "北静王",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 86,
+    "arcId": 7,
+    "timePeriod": "抄家",
+    "title": "受私贿老官翻案牍 寄闲情淑女解琴书",
+    "events": [
+      "薛蟠案件中官员受贿翻案",
+      "黛玉抚琴寄情，讲解琴理",
+      "宝玉听黛玉弹琴，感其凄凉",
+      "黛玉以琴书自遣，病中思虑"
+    ],
+    "characters": [
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "薛蟠",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 87,
+    "arcId": 7,
+    "timePeriod": "抄家",
+    "title": "感秋深抚琴悲往事 坐禅寂走火入邪魔",
+    "events": [
+      "黛玉秋夜抚琴，琴弦断裂，预感不祥",
+      "妙玉打坐走火入魔，被人救起",
+      "宝玉探望妙玉，妙玉神思恍惚",
+      "黛玉感秋伤怀，病情加重"
+    ],
+    "characters": [
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "妙玉",
+        "group": "other"
+      },
+      {
+        "name": "紫鹃",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 88,
+    "arcId": 7,
+    "timePeriod": "抄家",
+    "title": "博庭欢宝玉赞孤儿 正家法贾珍鞭悍仆",
+    "events": [
+      "宝玉赞贾兰孤儿聪慧",
+      "贾珍责罚悍仆整顿家风",
+      "贾母给众人分派活计",
+      "宝玉在学中应付差事"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "贾珍",
+        "group": "jia"
+      },
+      {
+        "name": "贾兰",
+        "group": "jia"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 89,
+    "arcId": 7,
+    "timePeriod": "抄家",
+    "title": "人亡物在公子填词 蛇影杯弓颦卿绝粒",
+    "events": [
+      "宝玉为晴雯等亡者填词追忆",
+      "黛玉误听宝玉定亲消息",
+      "黛玉悲愤绝粒，不饮不食",
+      "紫鹃苦劝黛玉无效"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "紫鹃",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 90,
+    "arcId": 7,
+    "timePeriod": "抄家",
+    "title": "失绵衣贫女耐嗷嘈 送果品小郎惊叵测",
+    "events": [
+      "岫烟典当冬衣度日，处境艰难",
+      "宝玉向黛玉表明心迹，误会渐解",
+      "黛玉复食，病情暂缓",
+      "薛蝌送果品时遇金桂挑衅"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "岫烟",
+        "group": "other"
+      },
+      {
+        "name": "薛蝌",
+        "group": "other"
+      },
+      {
+        "name": "金桂",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 91,
+    "arcId": 7,
+    "timePeriod": "抄家",
+    "title": "纵淫心宝蟾工设计 布疑阵宝玉妄谈禅",
+    "events": [
+      "宝蟾受金桂指使勾引薛蝌",
+      "宝玉与黛玉谈禅论道",
+      "宝玉谈「无可云证，是立足境」之偈",
+      "黛玉以禅机反驳，二人说笑"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "宝蟾",
+        "group": "servant"
+      },
+      {
+        "name": "薛蝌",
+        "group": "other"
+      },
+      {
+        "name": "金桂",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 92,
+    "arcId": 7,
+    "timePeriod": "抄家",
+    "title": "评女传巧姐慕贤良 玩母珠贾政参聚散",
+    "events": [
+      "巧姐读《列女传》，凤姐喜其好学",
+      "贾政得母珠一串把玩，感叹聚散",
+      "宝玉与众姐妹谈论功课",
+      "贾母身体渐弱，家中气氛沉闷"
+    ],
+    "characters": [
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "贾政",
+        "group": "jia"
+      },
+      {
+        "name": "巧姐",
+        "group": "jia"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 93,
+    "arcId": 7,
+    "timePeriod": "抄家",
+    "title": "甄家仆投靠贾家门 水月庵掀翻风月案",
+    "events": [
+      "甄家败落，仆人包勇来投奔贾府",
+      "贾政收留包勇看管门户",
+      "水月庵尼姑与贾芹私通丑事败露",
+      "贾政怒斥贾芹，整顿家风"
+    ],
+    "characters": [
+      {
+        "name": "贾政",
+        "group": "jia"
+      },
+      {
+        "name": "包勇",
+        "group": "servant"
+      },
+      {
+        "name": "贾芹",
+        "group": "jia"
+      },
+      {
+        "name": "贾珍",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 94,
+    "arcId": 7,
+    "timePeriod": "抄家",
+    "title": "宴海棠贾母赏花妖 失宝玉通灵知奇祸",
+    "events": [
+      "大观园枯死海棠忽然开花，众人称奇",
+      "贾母率众赏花设宴",
+      "宝玉通灵宝玉不翼而飞",
+      "全家上下搜寻通灵玉不得，宝玉神志渐昏"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "王夫人",
+        "group": "jia"
+      },
+      {
+        "name": "袭人",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 95,
+    "arcId": 7,
+    "timePeriod": "抄家",
+    "title": "因讹成实元妃薨逝 以假混真宝玉疯颠",
+    "events": [
+      "元妃薨逝，贾府举哀",
+      "宝玉失玉后疯癫日重，痴呆不醒",
+      "贾母王夫人商议冲喜之法",
+      "有人送假玉来骗银，被识破"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "元妃",
+        "group": "jia"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "王夫人",
+        "group": "jia"
+      },
+      {
+        "name": "王熙凤",
+        "group": "core"
+      }
+    ]
+  },
+  {
+    "number": 96,
+    "arcId": 7,
+    "timePeriod": "抄家",
+    "title": "瞒消息凤姐设奇谋 泄机关颦儿迷本性",
+    "events": [
+      "凤姐献「掉包计」，以宝钗替黛玉嫁宝玉",
+      "贾母王夫人同意掉包之计",
+      "黛玉偶然得知消息，神志恍惚",
+      "宝玉被告知娶的是黛玉（实为宝钗），暂时欢喜"
+    ],
+    "characters": [
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "王夫人",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 97,
+    "arcId": 7,
+    "timePeriod": "抄家",
+    "title": "林黛玉焚稿断痴情 薛宝钗出闺成大礼",
+    "events": [
+      "黛玉得知宝玉娶宝钗，万念俱灰",
+      "黛玉焚烧诗稿和手帕，与往昔诀别",
+      "宝钗出嫁成大礼，宝玉以为娶的是黛玉",
+      "黛玉含恨而逝，临终呼「宝玉，你好……」"
+    ],
+    "characters": [
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "紫鹃",
+        "group": "servant"
+      },
+      {
+        "name": "李纨",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 98,
+    "arcId": 7,
+    "timePeriod": "抄家",
+    "title": "苦绛珠魂归离恨天 病神瑛泪洒相思地",
+    "events": [
+      "黛玉魂归离恨天，绛珠仙草还泪已毕",
+      "宝玉揭盖头发现新娘是宝钗，大恸",
+      "宝玉哭闹不止，病情反复",
+      "宝钗以柔情相劝，宝玉暂时安静"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "黛玉",
+        "group": "core"
+      },
+      {
+        "name": "袭人",
+        "group": "servant"
+      },
+      {
+        "name": "王夫人",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 99,
+    "arcId": 7,
+    "timePeriod": "抄家",
+    "title": "守官箴恶奴同破例 阅邸报老舅自担惊",
+    "events": [
+      "贾政外放粮道，途中理事",
+      "恶奴李十儿怂恿贾政随俗收礼",
+      "贾政初守官箴后渐被裹挟",
+      "王子腾在途中暴病身亡，消息传来贾府震惊"
+    ],
+    "characters": [
+      {
+        "name": "贾政",
+        "group": "jia"
+      },
+      {
+        "name": "王子腾",
+        "group": "other"
+      },
+      {
+        "name": "李十儿",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 100,
+    "arcId": 7,
+    "timePeriod": "抄家",
+    "title": "破好事香菱结深恨 悲远嫁宝玉感离情",
+    "events": [
+      "金桂继续迫害香菱，香菱血病加重",
+      "探春被议定远嫁海疆",
+      "宝玉伤感探春远嫁，悲叹姐妹离散",
+      "薛姨妈忧虑薛家败势"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "探春",
+        "group": "jia"
+      },
+      {
+        "name": "香菱",
+        "group": "servant"
+      },
+      {
+        "name": "金桂",
+        "group": "other"
+      },
+      {
+        "name": "薛姨妈",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 101,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "大观园月夜感幽魂 散花寺神签惊异兆",
+    "events": [
+      "凤姐夜过大观园遇秦可卿幽魂",
+      "凤姐往散花寺求签，得「王熙凤衣锦还乡」之签",
+      "凤姐自感大限将至，心神不宁",
+      "贾琏看邸报知贾家族人在外犯事"
+    ],
+    "characters": [
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "贾琏",
+        "group": "jia"
+      },
+      {
+        "name": "秦可卿",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 102,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "宁国府骨肉病灾祲 大观园符水驱妖孽",
+    "events": [
+      "探春出嫁后大观园愈加荒凉",
+      "尤氏夜穿大观园受惊生病",
+      "毛半仙占卦示凶兆",
+      "贾珍贾蓉相继患病，贾赦请道士入园驱邪",
+      "贾政被参降调回京"
+    ],
+    "characters": [
+      {
+        "name": "尤氏",
+        "group": "jia"
+      },
+      {
+        "name": "贾珍",
+        "group": "jia"
+      },
+      {
+        "name": "贾蓉",
+        "group": "jia"
+      },
+      {
+        "name": "贾赦",
+        "group": "jia"
+      },
+      {
+        "name": "贾政",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 103,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "施毒计金桂自焚身 昧真禅雨村空遇旧",
+    "events": [
+      "金桂设计毒害香菱，误服毒药自焚身亡",
+      "宝蟾供出金桂下毒真相",
+      "贾雨村于破庙遇甄士隐",
+      "甄士隐劝雨村回头，雨村不悟"
+    ],
+    "characters": [
+      {
+        "name": "金桂",
+        "group": "other"
+      },
+      {
+        "name": "香菱",
+        "group": "servant"
+      },
+      {
+        "name": "宝蟾",
+        "group": "servant"
+      },
+      {
+        "name": "贾雨村",
+        "group": "other"
+      },
+      {
+        "name": "甄士隐",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 104,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "醉金刚小鳅生大浪 痴公子馀痛触前情",
+    "events": [
+      "贾雨村与倪二因故争执，倪二怀恨贾家",
+      "贾芸帮忙调解未果",
+      "贾政回京见宝玉，问其功课",
+      "宝玉因贾政问及黛玉旧事伤心落泪"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "贾政",
+        "group": "jia"
+      },
+      {
+        "name": "贾芸",
+        "group": "jia"
+      },
+      {
+        "name": "倪二",
+        "group": "other"
+      },
+      {
+        "name": "贾雨村",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 105,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "锦衣军查抄宁国府 骢马使弹劾平安州",
+    "events": [
+      "锦衣府奉旨查抄贾府",
+      "西平王北静王到场监办",
+      "贾赦被拿，凤姐吐血昏厥",
+      "贾母惊吓，抄出违禁物品和重利借券",
+      "御史参奏平安州牵连贾赦"
+    ],
+    "characters": [
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "贾赦",
+        "group": "jia"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "北静王",
+        "group": "other"
+      },
+      {
+        "name": "西平王",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 106,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "王熙凤致祸抱羞惭 贾太君祷天消祸患",
+    "events": [
+      "贾母惊吓气逆，病势沉重",
+      "北静王府传旨宽免贾政",
+      "贾赦家产入官，馀者发还",
+      "凤姐自悔贪财铸成大错",
+      "贾政查家计方知寅吃卯粮",
+      "贾母夜间焚香祷天消灾"
+    ],
+    "characters": [
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "贾政",
+        "group": "jia"
+      },
+      {
+        "name": "贾琏",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 107,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "散馀资贾母明大义 复世职政老沐天恩",
+    "events": [
+      "贾赦发配台站效力，贾珍发往海疆",
+      "贾蓉释放回府",
+      "贾母散馀资分派家产，明辨大义",
+      "贾政承袭荣国府世职",
+      "包勇醉后痛骂贾雨村忘恩负义"
+    ],
+    "characters": [
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "贾政",
+        "group": "jia"
+      },
+      {
+        "name": "贾赦",
+        "group": "jia"
+      },
+      {
+        "name": "贾珍",
+        "group": "jia"
+      },
+      {
+        "name": "包勇",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 108,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "强欢笑蘅芜庆生辰 死缠绵潇湘闻鬼哭",
+    "events": [
+      "贾母为宝钗做生日，强颜欢笑",
+      "史湘云出嫁后回门探访",
+      "迎春回来诉苦，众人伤感",
+      "行酒令掷骰，气氛凄凉",
+      "宝玉夜至潇湘馆闻鬼哭声"
+    ],
+    "characters": [
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "湘云",
+        "group": "jia"
+      },
+      {
+        "name": "迎春",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 109,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "候芳魂五儿承错爱 还孽债迎女返真元",
+    "events": [
+      "宝玉外间梦黛玉不得，五儿夜话相伴",
+      "宝玉将五儿误作晴雯，寄托旧情",
+      "宝钗以痴情治痴情，柔声相劝",
+      "迎春被孙绍祖凌虐致死，贾母闻讯大恸"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "迎春",
+        "group": "jia"
+      },
+      {
+        "name": "五儿",
+        "group": "servant"
+      },
+      {
+        "name": "孙绍祖",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 110,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "史太君寿终归地府 王凤姐力诎失人心",
+    "events": [
+      "贾母享年八十三岁寿终正寝",
+      "凤姐勉力操办丧事，银钱掣肘",
+      "鸳鸯恳求凤姐体面发送主母",
+      "邢夫人不助凤姐，众人离心",
+      "凤姐积劳吐血"
+    ],
+    "characters": [
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "贾母",
+        "group": "jia"
+      },
+      {
+        "name": "鸳鸯",
+        "group": "servant"
+      },
+      {
+        "name": "邢夫人",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 111,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "鸳鸯女殉主登太虚 狗彘奴欺天招伙盗",
+    "events": [
+      "鸳鸯殉主自缢身亡",
+      "秦可卿魂魄引鸳鸯登太虚幻境",
+      "何三等贼人趁丧事入府偷盗",
+      "包勇奋勇赶贼，打死何三"
+    ],
+    "characters": [
+      {
+        "name": "鸳鸯",
+        "group": "servant"
+      },
+      {
+        "name": "秦可卿",
+        "group": "jia"
+      },
+      {
+        "name": "包勇",
+        "group": "servant"
+      },
+      {
+        "name": "何三",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 112,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "活冤孽妙尼遭大劫 死雠仇赵妾赴冥曹",
+    "events": [
+      "妙玉被盗贼用闷香掳走，下落不明",
+      "赵姨娘忽发暴病，状如被阴司拷打",
+      "赵姨娘口称被冤魂索命，凄惨身亡",
+      "贾环悲痛无奈"
+    ],
+    "characters": [
+      {
+        "name": "妙玉",
+        "group": "other"
+      },
+      {
+        "name": "赵姨娘",
+        "group": "jia"
+      },
+      {
+        "name": "贾环",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 113,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "忏宿冤凤姐托村妪 释旧憾情婢感痴郎",
+    "events": [
+      "凤姐见尤二姐幽魂索命，惊惧不已",
+      "刘姥姥闻讯赶来探望凤姐",
+      "凤姐托孤，将巧姐交给刘姥姥照管",
+      "凤姐恳求刘姥姥代为祷告消灾",
+      "紫鹃感念宝玉痴情黛玉，心生悲悯"
+    ],
+    "characters": [
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "刘姥姥",
+        "group": "other"
+      },
+      {
+        "name": "巧姐",
+        "group": "jia"
+      },
+      {
+        "name": "紫鹃",
+        "group": "servant"
+      },
+      {
+        "name": "平儿",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 114,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "王熙凤历幻返金陵 甄应嘉蒙恩还玉阙",
+    "events": [
+      "凤姐临终说要船要轿回金陵，含恨而逝",
+      "王仁嫌弃巧姐，不肯照看",
+      "平儿变卖首饰当钱操办凤姐丧事",
+      "甄应嘉蒙恩起复，来京拜访贾府"
+    ],
+    "characters": [
+      {
+        "name": "王熙凤",
+        "group": "core"
+      },
+      {
+        "name": "平儿",
+        "group": "servant"
+      },
+      {
+        "name": "巧姐",
+        "group": "jia"
+      },
+      {
+        "name": "王仁",
+        "group": "other"
+      },
+      {
+        "name": "甄应嘉",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 115,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "惑偏私惜春矢素志 证同类宝玉失相知",
+    "events": [
+      "惜春决意出家修行，矢志不移",
+      "甄宝玉随父来访贾府",
+      "贾宝玉与甄宝玉见面，满心期待",
+      "甄宝玉大谈文章经济，贾宝玉失望旧病复发"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "惜春",
+        "group": "jia"
+      },
+      {
+        "name": "甄宝玉",
+        "group": "other"
+      },
+      {
+        "name": "甄应嘉",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 116,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "得通灵幻境悟仙缘 送慈柩故乡全孝道",
+    "events": [
+      "宝玉梦中再入太虚幻境",
+      "宝玉见到尤三姐、鸳鸯、十二钗等册子",
+      "通灵宝玉失而复得，和尚送玉来归",
+      "贾政送贾母灵柩南归故里全孝道"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "贾政",
+        "group": "jia"
+      },
+      {
+        "name": "尤三姐",
+        "group": "other"
+      },
+      {
+        "name": "鸳鸯",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 117,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "阻超凡佳人双护玉 欣聚党恶子独承家",
+    "events": [
+      "宝玉欲将通灵玉还给和尚，意图出家",
+      "袭人紫鹃拼命拦阻，夺下宝玉",
+      "王夫人宝钗赶来制止",
+      "贾琏接信知父亲病重，匆忙离家",
+      "贾芸贾蔷贾环趁机在家作乱胡为"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "袭人",
+        "group": "servant"
+      },
+      {
+        "name": "紫鹃",
+        "group": "servant"
+      },
+      {
+        "name": "王夫人",
+        "group": "jia"
+      },
+      {
+        "name": "贾环",
+        "group": "jia"
+      }
+    ]
+  },
+  {
+    "number": 118,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "记微嫌舅兄欺弱女 惊谜语妻妾谏痴人",
+    "events": [
+      "惜春获准带发修行，紫鹃自愿跟随",
+      "宝玉吟惜春判词，暗示深意",
+      "王仁贾环贾芸密谋将巧姐卖给外藩",
+      "平儿与刘姥姥连夜救巧姐出逃",
+      "宝钗袭人苦谏宝玉回心转意"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "惜春",
+        "group": "jia"
+      },
+      {
+        "name": "紫鹃",
+        "group": "servant"
+      },
+      {
+        "name": "平儿",
+        "group": "servant"
+      },
+      {
+        "name": "刘姥姥",
+        "group": "other"
+      },
+      {
+        "name": "王仁",
+        "group": "other"
+      }
+    ]
+  },
+  {
+    "number": 119,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "中乡魁宝玉却尘缘 沐皇恩贾家延世泽",
+    "events": [
+      "宝玉与贾兰同赴乡试",
+      "宝玉临行向众人磕头诀别，流泪告辞",
+      "王仁贾环欲逼嫁巧姐，刘姥姥带巧姐平儿出逃",
+      "宝玉贾兰双双中举",
+      "宝玉考后不归，就此出家",
+      "贾府蒙皇恩赦罪复职延续世泽"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "宝钗",
+        "group": "core"
+      },
+      {
+        "name": "贾兰",
+        "group": "jia"
+      },
+      {
+        "name": "刘姥姥",
+        "group": "other"
+      },
+      {
+        "name": "巧姐",
+        "group": "jia"
+      },
+      {
+        "name": "平儿",
+        "group": "servant"
+      }
+    ]
+  },
+  {
+    "number": 120,
+    "arcId": 8,
+    "timePeriod": "飞鸟各投林",
+    "title": "甄士隐详说太虚情 贾雨村归结红楼梦",
+    "events": [
+      "贾政扶灵柩南归，途经毘陵驿",
+      "贾政于雪中见宝玉随一僧一道拜别而去",
+      "宝玉歌「归彼大荒」，飘然远逝",
+      "甄士隐向贾雨村详说太虚幻境因果",
+      "全书以「落了片白茫茫大地真干净」作结"
+    ],
+    "characters": [
+      {
+        "name": "宝玉",
+        "group": "core"
+      },
+      {
+        "name": "贾政",
+        "group": "jia"
+      },
+      {
+        "name": "甄士隐",
+        "group": "other"
+      },
+      {
+        "name": "贾雨村",
+        "group": "other"
+      },
+      {
+        "name": "袭人",
+        "group": "servant"
+      }
+    ]
+  }
+];
+
+const themes = [
+  {
+    "icon": "🏚️",
+    "titleZh": "兴衰无常",
+    "titleEn": "Impermanence of Glory",
+    "desc": "贾、史、王、薛四大家族由「烈火烹油、鲜花着锦」的极盛走向「忽喇喇似大厦倾」的覆灭，映照世间一切繁华终归虚无的宿命。"
+  },
+  {
+    "icon": "💘",
+    "titleZh": "情与礼的冲突",
+    "titleEn": "Love vs. Duty",
+    "desc": "宝玉与黛玉以「木石前盟」为心灵契约，却敌不过「金玉良缘」的家族安排。个人真情在封建礼教与家族利益面前被无情碾碎。"
+  },
+  {
+    "icon": "🪞",
+    "titleZh": "真与假",
+    "titleEn": "Reality vs. Illusion",
+    "desc": "「假作真时真亦假，无为有处有还无。」甄士隐与贾雨村、大观园与太虚幻境、通灵宝玉与顽石——全书在真假虚实间反复辩证，追问何为真实。"
+  },
+  {
+    "icon": "🔮",
+    "titleZh": "命运与判词",
+    "titleEn": "Fate & Prophecy",
+    "desc": "金陵十二钗判词、红楼梦曲、太虚幻境薄命司册页——人物命运在故事开篇便已注定，读者在阅读中见证谶语一一应验，体味宿命之不可抗。"
+  },
+  {
+    "icon": "🥀",
+    "titleZh": "女性的悲剧",
+    "titleEn": "Women's Tragedy",
+    "desc": "黛玉泪尽而逝、晴雯含冤夭亡、迎春受虐致死、探春远嫁、妙玉遭劫……「千红一窟（哭）、万艳同杯（悲）」，每位女性都是封建制度的牺牲品。"
+  }
+];
+
+const groupConfig = {
+  "core": {
+    "color": "#ffe66d",
+    "label": "核心"
+  },
+  "twelve": {
+    "color": "#ff6b6b",
+    "label": "金陵十二钗"
+  },
+  "jia": {
+    "color": "#6c63ff",
+    "label": "贾家长辈"
+  },
+  "servant": {
+    "color": "#4ecdc4",
+    "label": "丫鬟仆人"
+  },
+  "other": {
+    "color": "#8888a0",
+    "label": "外人僧道"
+  }
+};
+
+
+// ========== Dynamic Rendering ==========
+(function() {
+    'use strict';
+
+    const gradientClasses = ['g1', 'g2', 'g3', 'g4'];
+
+    // ---- Render Timeline ----
+    function renderTimeline() {
+        if (typeof timeline === 'undefined' || !timeline.length) return;
+        const container = document.getElementById('timeline-container');
+        timeline.forEach(function(item) {
+            const el = document.createElement('div');
+            el.className = 'timeline-item';
+            el.setAttribute('data-animate', '');
+            el.innerHTML =
+                '<div class="timeline-content">' +
+                    '<div class="timeline-year">' + item.year + '</div>' +
+                    '<div class="timeline-label">' + item.label + '</div>' +
+                '</div>' +
+                '<div class="timeline-dot"></div>' +
+                '<div class="timeline-spacer"></div>';
+            container.appendChild(el);
+        });
+    }
+
+    // ---- Render Chapters (grouped by arc) ----
+    function renderChapters() {
+        if (typeof chapters === 'undefined' || !chapters.length) return;
+        var container = document.getElementById('chapters-container');
+        var arcMap = {};
+
+        // Build arc lookup
+        if (typeof arcs !== 'undefined') {
+            arcs.forEach(function(arc) { arcMap[arc.id] = arc; });
+        }
+
+        // Group chapters by arcId
+        var grouped = {};
+        var arcOrder = [];
+        chapters.forEach(function(ch) {
+            var aid = ch.arcId || '_default';
+            if (!grouped[aid]) {
+                grouped[aid] = [];
+                arcOrder.push(aid);
+            }
+            grouped[aid].push(ch);
+        });
+
+        arcOrder.forEach(function(arcId, arcIndex) {
+            var arc = arcMap[arcId];
+
+            // Arc header
+            if (arc) {
+                var arcHeader = document.createElement('div');
+                arcHeader.className = 'arc-header';
+                var badgeClass = gradientClasses[arcIndex % gradientClasses.length];
+                arcHeader.innerHTML =
+                    '<span class="arc-badge ' + badgeClass + '">' + arc.id.toUpperCase() + '</span>' +
+                    '<span class="arc-title">' + arc.title +
+                        (arc.titleEn ? ' <span class="arc-title-en">' + arc.titleEn + '</span>' : '') +
+                    '</span>';
+                container.appendChild(arcHeader);
+            }
+
+            // Chapter cards within this arc
+            grouped[arcId].forEach(function(ch) {
+                var num = String(ch.number).padStart(2, '0');
+                var gClass = gradientClasses[(ch.number - 1) % gradientClasses.length];
+
+                // Build events list
+                var eventsHtml = '';
+                if (ch.events && ch.events.length) {
+                    eventsHtml = '<h4>// key events</h4><ul class="chapter-events">';
+                    ch.events.forEach(function(ev) {
+                        eventsHtml += '<li>' + ev + '</li>';
+                    });
+                    eventsHtml += '</ul>';
+                }
+
+                // Build character pills
+                var charsHtml = '';
+                if (ch.characters && ch.characters.length) {
+                    charsHtml = '<h4>// characters</h4><div class="character-tags">';
+                    ch.characters.forEach(function(c) {
+                        var group = 'other';
+                        if (typeof groupConfig !== 'undefined') {
+                            for (var g in groupConfig) {
+                                if (groupConfig[g] && groupConfig[g].indexOf(c) !== -1) {
+                                    group = g;
+                                    break;
+                                }
+                            }
+                        }
+                        charsHtml += '<span class="char-pill ' + group + '">' + c + '</span>';
+                    });
+                    charsHtml += '</div>';
+                }
+
+                var card = document.createElement('div');
+                card.className = 'chapter-card';
+                card.setAttribute('data-animate', '');
+                card.setAttribute('onclick', "this.classList.toggle('expanded')");
+                card.innerHTML =
+                    '<div class="chapter-header">' +
+                        '<div class="chapter-badge ' + gClass + '">' + num + '</div>' +
+                        '<div class="chapter-info">' +
+                            (ch.timePeriod ? '<div class="chapter-time">' + ch.timePeriod + '</div>' : '') +
+                            '<div class="chapter-title">' + ch.title + '</div>' +
+                        '</div>' +
+                        '<div class="chapter-expand-icon">▼</div>' +
+                    '</div>' +
+                    '<div class="chapter-details">' +
+                        '<div class="divider"></div>' +
+                        eventsHtml +
+                        charsHtml +
+                    '</div>';
+
+                container.appendChild(card);
+            });
+        });
+    }
+
+    // ---- Render Themes ----
+    function renderThemes() {
+        if (typeof themes === 'undefined' || !themes.length) return;
+        var container = document.getElementById('themes-container');
+        themes.forEach(function(t) {
+            var card = document.createElement('div');
+            card.className = 'theme-card';
+            card.setAttribute('data-animate', '');
+            card.innerHTML =
+                '<div class="theme-icon">' + (t.icon || '') + '</div>' +
+                '<div class="theme-title-zh">' + t.titleZh + '</div>' +
+                '<div class="theme-title-en">' + t.titleEn + '</div>' +
+                '<p class="theme-desc">' + t.desc + '</p>';
+            container.appendChild(card);
+        });
+    }
+
+    // ---- Render Character Legend ----
+    function renderLegend() {
+        if (typeof groupConfig === 'undefined') return;
+        var container = document.getElementById('legend-container');
+        var labelMap = {
+            core: { css: 'core-label', label: '核心双主角 / Core' },
+            police: { css: 'police-label', label: '警方 / Police' },
+            victim: { css: 'victim-label', label: '受害者 / Victims' },
+            other: { css: 'other-label', label: '其他关键人物 / Others' }
+        };
+
+        for (var group in groupConfig) {
+            if (!groupConfig[group] || !groupConfig[group].length) continue;
+            var info = labelMap[group] || { css: 'other-label', label: group };
+            var div = document.createElement('div');
+            div.className = 'legend-group';
+            div.innerHTML =
+                '<div class="legend-group-title ' + info.css + '">● ' + info.label + '</div>' +
+                '<div class="legend-names">' + groupConfig[group].join('、') + '</div>';
+            container.appendChild(div);
+        }
+    }
+
+    // ---- Execute Rendering ----
+    renderTimeline();
+    renderChapters();
+    renderThemes();
+    renderLegend();
+
+    // ========== Scroll Progress Bar ==========
+    var progressBar = document.getElementById('progress-bar');
+
+    function updateProgress() {
+        var scrollTop = window.scrollY;
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        progressBar.style.width = progress + '%';
+    }
+
+    window.addEventListener('scroll', updateProgress, { passive: true });
+
+    // ========== IntersectionObserver: Fade-in on Scroll ==========
+    var animatedElements = document.querySelectorAll('[data-animate]');
+
+    var observerOptions = {
+        root: null,
+        rootMargin: '0px 0px -60px 0px',
+        threshold: 0.1
+    };
+
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry, index) {
+            if (entry.isIntersecting) {
+                // Stagger the animation for sibling elements
+                var siblings = entry.target.parentElement.querySelectorAll('[data-animate]');
+                var delay = 0;
+                siblings.forEach(function(sib, i) {
+                    if (sib === entry.target) {
+                        delay = i * 100;
+                    }
+                });
+
+                setTimeout(function() {
+                    entry.target.classList.add('visible');
+                }, delay);
+
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    animatedElements.forEach(function(el) {
+        observer.observe(el);
+    });
+
+    // ========== Hero Canvas: Floating Particles ==========
+    var canvas = document.getElementById('hero-canvas');
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var animFrame;
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    function createParticles() {
+        particles = [];
+        var count = Math.floor((canvas.width * canvas.height) / 18000);
+        for (var i = 0; i < count; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 1.8 + 0.3,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3,
+                alpha: Math.random() * 0.4 + 0.1,
+                color: pickColor()
+            });
+        }
+    }
+
+    function pickColor() {
+        var colors = [
+            'rgba(108,99,255,',   // accent
+            'rgba(255,107,107,',  // accent2
+            'rgba(78,205,196,',   // accent3
+            'rgba(255,230,109,',  // accent4
+            'rgba(232,232,240,'   // text
+        ];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function drawParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (var i = 0; i < particles.length; i++) {
+            var p = particles[i];
+
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // Wrap around edges
+            if (p.x < -5) p.x = canvas.width + 5;
+            if (p.x > canvas.width + 5) p.x = -5;
+            if (p.y < -5) p.y = canvas.height + 5;
+            if (p.y > canvas.height + 5) p.y = -5;
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fillStyle = p.color + p.alpha + ')';
+            ctx.fill();
+        }
+
+        // Draw connections
+        for (var i = 0; i < particles.length; i++) {
+            for (var j = i + 1; j < particles.length; j++) {
+                var dx = particles[i].x - particles[j].x;
+                var dy = particles[i].y - particles[j].y;
+                var dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 100) {
+                    var alpha = (1 - dist / 100) * 0.08;
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = 'rgba(108,99,255,' + alpha + ')';
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        animFrame = requestAnimationFrame(drawParticles);
+    }
+
+    resizeCanvas();
+    createParticles();
+    drawParticles();
+
+    window.addEventListener('resize', function() {
+        resizeCanvas();
+        createParticles();
+    });
+
+    // Pause animation when hero is not visible
+    var heroSection = document.querySelector('.hero');
+    var heroObserver = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) {
+            if (!animFrame) drawParticles();
+        } else {
+            if (animFrame) {
+                cancelAnimationFrame(animFrame);
+                animFrame = null;
+            }
+        }
+    }, { threshold: 0.05 });
+
+    heroObserver.observe(heroSection);
+
+})();
+</script>
+
+</body>
+</html>

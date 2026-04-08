@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>打个盹儿，就能赢：让睡眠来巩固你的学习成果 · Sleep on It: How Sleep Consolidates Learning | Chapter 10</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Design System ── */
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(108, 99, 255, 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Progress Bar ── */
+#progressBar { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); z-index: 9999; transition: width 0.1s linear; }
+
+/* ── Hero ── */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-bg 4s ease-in-out infinite; }
+@keyframes pulse-bg { 0%, 100% { opacity: .4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .7; transform: translate(-50%, -50%) scale(1.15); } }
+.hero-content { position: relative; z-index: 1; }
+.hero-chapter { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 6px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.hero-icon { font-size: 5rem; margin: 20px 0; filter: drop-shadow(0 0 30px var(--glow)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.hero-title { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.hero-sub { font-size: 1.1rem; color: var(--text-dim); font-weight: 300; max-width: 600px; margin: 0 auto; }
+.scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+.scroll-hint span { display: block; width: 2px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 8px; }
+.scroll-hint small { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Sections ── */
+section { padding: 80px 0; }
+.section-tag { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 32px; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Feynman Steps ── */
+.feynman-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feynman-step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; transition: all 0.3s; }
+.feynman-step:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 30px var(--glow); }
+.feynman-num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feynman-label { font-weight: 500; margin-bottom: 4px; }
+.feynman-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ── Takeaways ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.takeaway-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.3s; }
+.takeaway-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 8px 25px var(--glow); }
+.takeaway-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.takeaway-card h4 { color: var(--accent3); margin-bottom: 0.5rem; font-size: 1rem; }
+.takeaway-card p { font-size: 0.9rem; color: var(--text-dim); }
+
+/* ── Quiz ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 8px; }
+.quiz-question { font-weight: 500; margin-bottom: 12px; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* ── Nav Footer ── */
+.nav-footer { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 60px; border-top: 1px solid var(--border); margin-top: 40px; }
+.nav-btn { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); padding: 12px 20px; border: 1px solid var(--border); border-radius: 12px; transition: all 0.3s; font-size: 0.875rem; }
+.nav-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); transform: translateY(-2px); }
+.nav-btn small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Pre-Quiz (testing effect) ── */
+.prequiz-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.95rem; }
+.prequiz-card { background: var(--card); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.prequiz-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; margin-bottom: 8px; }
+.prequiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1.05rem; }
+.prequiz-hint { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+.prequiz-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 8px; resize: vertical; }
+.prequiz-input:focus { outline: none; border-color: var(--accent4); }
+
+/* ── Cover and Recall ── */
+.recall-prompt { background: linear-gradient(135deg, rgba(255,230,109,0.08), rgba(108,99,255,0.08)); border: 2px dashed var(--accent4); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.recall-text { font-size: 1.1rem; font-weight: 500; margin-bottom: 1rem; }
+.recall-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 0.9rem; resize: vertical; margin-bottom: 1rem; }
+.recall-input:focus { outline: none; border-color: var(--accent4); }
+.recall-reveal-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); font-size: 0.9rem; transition: all 0.3s; }
+.recall-reveal-btn:hover { background: #5a52e0; transform: translateY(-2px); }
+
+/* ── Critical Evaluation ── */
+.critical-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.critical-card { background: var(--card); border-left: 4px solid var(--accent2); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px; margin-bottom: 16px; }
+.critical-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 6px; }
+.critical-label.claim { color: var(--accent2); }
+.critical-label.evidence { color: var(--accent3); }
+.critical-label.counter { color: var(--accent4); }
+.critical-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+.critical-text:last-child { margin-bottom: 0; }
+
+/* ── Application ── */
+.application-intro { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem; }
+.application-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; transition: all 0.3s; }
+.application-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+.application-scenario { background: rgba(78,205,196,0.1); border-radius: 8px; padding: 16px; }
+.application-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 2px; margin-bottom: 4px; }
+.application-action { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 16px; }
+.application-action-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+.application-arrow { color: var(--accent3); font-size: 1.5rem; }
+.application-text { font-size: 0.9rem; }
+@media (max-width: 768px) { .application-card { grid-template-columns: 1fr; } .application-arrow { transform: rotate(90deg); justify-self: center; } }
+
+/* ── Block CSS (injected per block) ── */
+
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
+/* Block: pipeline */
+.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
+.pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(108,99,255,0.3); }
+.pipe-node.highlight { background: linear-gradient(135deg, var(--accent2), #ef4444); }
+.pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
+.pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
+@media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
+
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .container { padding: 0 16px; }
+    section { padding: 60px 0; }
+    .feynman-grid { grid-template-columns: 1fr 1fr; }
+    .takeaways { grid-template-columns: 1fr; }
+    .nav-footer { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="sec-hero">
+    <div class="hero-content">
+        <div class="hero-chapter">Chapter 10 / 10 · Part IV · 潜入意识的深海 — 学霸的终极武器</div>
+        <div class="hero-icon">😴</div>
+        <h1 class="hero-title">打个盹儿，就能赢：让睡眠来巩固你的学习成果</h1>
+        <p class="hero-sub">睡眠不是学习的敌人——它是大脑的「夜班工人」，在你失去意识时默默巩固记忆、发现规律、整合知识</p>
+    </div>
+    <div class="scroll-hint">
+        <span></span>
+        <small>SCROLL</small>
+    </div>
+</section>
+
+<!-- ── Feynman Steps ── -->
+<div class="container">
+    <!-- ── Pre-Quiz (testing effect) ── -->
+    <section id="sec-prequiz" class="fade-in" style="display:none;">
+        <div class="section-tag">Pre-Quiz · Testing Effect</div>
+        <div class="section-title">🧪 先测后学</div>
+        <p class="prequiz-intro">在阅读本章内容之前，先尝试回答以下问题。答错没关系——预测本身就在强化你的学习。</p>
+        <div id="preQuizContainer"></div>
+    </section>
+
+    <section id="sec-feynman" class="fade-in">
+        <div class="section-tag">Feynman Method</div>
+        <div class="section-title">费曼学习路径</div>
+        <div class="feynman-grid" id="feynmanGrid"></div>
+    </section>
+
+    <!-- ── Sections (assembled from blocks) ── -->
+    <!-- Block: pipeline — Flow diagram with connected nodes -->
+<section id="sec-block1" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">大脑的睡眠结构：5个阶段的「夜班轮值」</div>
+    <div class="pipeline-flow" id="pipeline-block1"></div>
+    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;">一夜睡眠的循环（约4-5个周期）</div>
+</section>
+
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">「夜班理论」：每个睡眠阶段巩固什么？</div>
+    <div class="tips-grid" id="tipsGrid-block2"></div>
+</section>
+
+<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">彩蛋实验：睡与不睡差了35%</div>
+    <div class="comparison-grid">
+        <div class="comparison-side hard">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">「醒组」：早上学→晚上考</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">早上学习彩蛋层级关系
+（A > B, B > C, C > D...）
+
+12小时后（晚上）考试
+中间保持清醒
+
+简单关系：正确率高
+远距离推理：正确率 69%
+24小时后再考：差距更大</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side smart">
+            <div class="comparison-icon"></div>
+            <div class="comparison-label">「睡组」：晚上学→早上考</div>
+            <div class="comparison-title"></div>
+            <div class="comparison-text">晚上学习彩蛋层级关系
+（A > B, B > C, C > D...）
+
+12小时后（早上）考试
+中间睡了一觉
+
+简单关系：正确率高
+远距离推理：正确率 93%
+24小时后再考：领先35%</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">两组学生学习的内容完全一样，唯一的区别是中间有没有睡觉。马修·沃克解释：「在睡眠过程中，你会拓宽记忆的透光孔，因此能看到更完整的景象。」</div></div>
+</section>
+
+<!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block4" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">🌙 </div>
+        <div class="insight-content">在失去意识的停机状态中，大脑实际上是在澄清记忆、深化技能——睡眠是完成这两项任务必不可少的步骤。
+
+清醒的时候学习效果自是最佳，等收效越来越低时就应赶紧去睡觉，再拖下去就是浪费时间了。而接下来的工作，睡眠会帮你继续完成。
+
+这就叫做阴阳互补。</div>
+    </div>
+</section>
+
+<!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block5" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">实战策略：根据考试类型调整睡眠</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">📝</div>
+            <div class="analogy-label">记忆型考试（单词/公式/日期）</div>
+            <div class="analogy-desc">需要深度睡眠（前半夜）
+按时上床睡觉，保证深度睡眠
+可以提前起床做最后复习
+策略：早睡 + 早起复习</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">🧩</div>
+            <div class="analogy-label">推理/表演型（数学/音乐/运动）</div>
+            <div class="analogy-desc">需要REM + 第2阶段（后半夜）
+可以晚一些睡
+千万不要起太早！
+策略：晚睡 + 睡到自然醒</div>
+        </div>
+    </div>
+    
+</section>
+
+
+    <!-- ── Takeaways (with cover and recall) ── -->
+    <section id="sec-takeaways" class="fade-in">
+        <div class="section-tag">Key Takeaways</div>
+        <div class="section-title">🎓 核心收获</div>
+        <div id="recallPrompt" class="recall-prompt" style="display:none;">
+            <p class="recall-text">📝 合上笔记，回忆一下这章的要点——你能想起几条？</p>
+            <textarea class="recall-input" placeholder="在这里写下你记得的要点..." rows="4"></textarea>
+            <button class="recall-reveal-btn" onclick="revealTakeaways()">看看你遗漏了什么 ▾</button>
+        </div>
+        <div class="takeaways" id="takeawaysGrid" style="display:none;"></div>
+    </section>
+
+    <!-- ── Critical Evaluation (Adler's Q3: Is it true?) ── -->
+    <section id="sec-critical" class="fade-in" style="display:none;">
+        <div class="section-tag">Critical Evaluation</div>
+        <div class="section-title">⚖️ 批判性评价：这是真的吗？</div>
+        <p class="critical-intro">分析阅读的第三步：对作者的论点做出独立判断</p>
+        <div id="criticalContainer"></div>
+    </section>
+
+    <!-- ── Application (Adler's Q4: What of it?) ── -->
+    <section id="sec-application" class="fade-in" style="display:none;">
+        <div class="section-tag">Application</div>
+        <div class="section-title">🔧 实际应用：这跟我有什么关系？</div>
+        <p class="application-intro">将本章知识转化为可执行的行动</p>
+        <div id="applicationContainer"></div>
+    </section>
+
+    <!-- ── Quiz ── -->
+    <section id="sec-quiz" class="fade-in">
+        <div class="section-tag">Self Check</div>
+        <div class="section-title">🧪 自测题</div>
+        <div id="quizContainer"></div>
+    </section>
+
+    <!-- ── Navigation Footer ── -->
+    <nav class="nav-footer" id="navFooter"></nav>
+</div>
+
+<script>
+/* ── Data ── */
+const feynmanSteps = [
+  {
+    "step": 1,
+    "title": "选择概念",
+    "desc": "睡眠巩固学习 = 大脑在睡眠的不同阶段分别处理不同类型的记忆和技能，睡觉本身就是学习的一部分"
+  },
+  {
+    "step": 2,
+    "title": "教给小白",
+    "desc": "想象你白天拍了一大堆照片，晚上大脑的「夜班编辑」开始工作：深度睡眠阶段负责归档整理（记住新名词和数据），快速眼动阶段负责创意剪辑（发现照片之间隐藏的联系），第2阶段负责修图调色（打磨动作技巧）。早上醒来，照片已经变成了一本精美相册"
+  },
+  {
+    "step": 3,
+    "title": "发现盲点",
+    "desc": "我们以为熬夜学到的东西更多——其实砍掉睡眠就是砍掉了大脑整理和巩固记忆的时间。彩蛋实验中，睡过一觉的组比没睡的组成绩高35%"
+  },
+  {
+    "step": 4,
+    "title": "简化与类比",
+    "desc": "睡眠就像电脑的磁盘整理程序——白天你往硬盘里乱扔文件，晚上系统自动分类、建索引、删垃圾。不运行这个程序，文件越多电脑越慢"
+  }
+];
+const takeaways = [
+  {
+    "icon": "😴",
+    "title": "睡觉就是学习",
+    "text": "大脑在睡眠中澄清记忆、深化技能、发现规律。最新研究表明睡眠是学习必不可少的步骤，不是浪费时间。"
+  },
+  {
+    "icon": "📊",
+    "title": "35%的巨大差距",
+    "text": "彩蛋实验中，睡过一觉的组在远距离推理上的正确率比没睡的组高35%。这在诸多睡眠学习实验中并不罕见。"
+  },
+  {
+    "icon": "🔄",
+    "title": "不同阶段，不同功能",
+    "text": "深度睡眠巩固事实记忆、第2阶段巩固运动技能、REM阶段负责模式识别和创意整合——每个阶段都不可替代。"
+  },
+  {
+    "icon": "💤",
+    "title": "午睡是秘密武器",
+    "text": "1-1.5小时的午睡可以包含深度睡眠和REM阶段，学习巩固效果≈整晚8小时。午睡者成绩提升约30%。"
+  },
+  {
+    "icon": "🎯",
+    "title": "按考试类型调整睡眠",
+    "text": "记忆型考试：按时睡、早起复习。推理/表演型：可以晚睡，但千万别早起——后半夜的REM和第2阶段是关键。"
+  },
+  {
+    "icon": "⚖️",
+    "title": "阴阳互补的学习观",
+    "text": "清醒时学习效果最佳，收效递减时就去睡觉。醒着的学习和睡着的巩固是互补的两半，缺一不可。"
+  }
+];
+const quiz = [
+  {
+    "id": "q1",
+    "question": "为什么门捷列夫、凯库勒这样的科学家能在梦中获得重大灵感？这和睡眠的哪个阶段有关？",
+    "answer": "这和REM（快速眼动）睡眠阶段有关。在REM阶段，大脑的神经元高度活跃，忙于进行模式识别——帮我们感知白天清醒思维中显现不出来的各种关系和联结。门捷列夫花了好几个通宵试图排列元素，大量信息已经存入大脑，但清醒时的思维框架限制了他发现正确的排列。REM阶段打破了这种思维限制，让大脑自由地把信息重新组合，最终在梦中「看见」了元素周期表。"
+  },
+  {
+    "id": "q2",
+    "question": "如果一个运动员明天有重要比赛，教练让他凌晨5点起床训练。根据本章的睡眠理论，这个做法对不对？为什么？",
+    "answer": "这个做法是错误的。根据「夜班理论」，运动技能（运动记忆）的巩固主要发生在第2阶段睡眠，而第2阶段集中在后半夜，尤其是醒来前最后几小时。凌晨5点起床会砍掉这段关键的运动记忆巩固时间，削弱前一天训练的成果。正如卡莱尔·史密斯所说：「不妨晚点睡，但不要起太早。有些教练偏要让运动员早晨5点起床，这简直是瞎胡闹。」"
+  },
+  {
+    "id": "q3",
+    "question": "用你自己的话解释「夜班理论」——大脑的夜班工人分别负责什么？（费曼检验）",
+    "answer": "参考答案：想象大脑有一个三班制的夜班团队。\n\n第一班（深度睡眠，前半夜上班）：「档案管理员」。负责把白天学到的新事实——名字、公式、日期——整理归档到长期记忆的柜子里。\n\n第二班（第2阶段，后半夜上班）：「动作教练」。负责回放和打磨你白天练习的动作——钢琴指法、投篮姿势、开车技巧——让肌肉记忆更精确。\n\n第三班（REM阶段，后半夜上班）：「创意总监」。负责把白天收集的各种信息碎片重新排列组合，寻找隐藏的规律和联系，还顺便帮你做心理治疗——把焦虑情绪「剥」掉，只保留有用的记忆内容。\n\n三个班组轮流工作4-5个循环。砍掉任何一个班次，对应的学习就会打折扣。"
+  },
+  {
+    "id": "q4",
+    "question": "午睡1小时的学习效果怎么能和整晚8小时差不多？这不是违反直觉吗？",
+    "answer": "这确实违反直觉，但梅德尼克的研究发现，1-1.5小时的午睡中，大脑常常也会进入深度睡眠期和REM阶段——虽然时间短，但两个关键巩固阶段都经历了。这就像一次「精简版」的整夜睡眠。当然有两个限制：第一，午睡不能完全替代夜间睡眠，因为夜间有4-5个完整循环提供更充分的巩固；第二，午睡的效果特别适用于早上学过的内容，帮助在当天傍晚的测试中表现更好。总之，午睡是一个高性价比的学习辅助工具。"
+  }
+];
+const preQuiz = [
+  {
+    "question": "你认为熬夜学习和早早睡觉相比，哪个最终学到的东西更多？",
+    "hint": "想想你熬夜突击复习后，第二天考试的实际表现如何"
+  },
+  {
+    "question": "你觉得睡眠中的大脑是「停机休息」状态，还是在积极做着什么？",
+    "hint": "回想一下你是否有过半夜突然想到某个问题答案的经历"
+  },
+  {
+    "question": "白天打个1小时的盹儿，和晚上睡8小时，在巩固学习方面的效果差距有多大？你猜是10倍还是更小？",
+    "hint": "想想午睡时大脑经历了哪些睡眠阶段"
+  }
+];
+const criticalEval = [
+  {
+    "claim": "睡过一觉的学生在远距离推理上的正确率比没睡的学生高35%",
+    "evidence": "哈佛与麦克吉尔大学2007年的彩蛋嵌套层级实验中，「睡组」对最远距离层级关系的辨识正确率为93%，「醒组」为69%，24小时后差距进一步拉大到35%",
+    "counterpoint": "实验中的「醒组」在12小时清醒期间的活动未受控制——疲劳、分心等因素也可能影响成绩，不能完全归因于睡眠的记忆巩固作用"
+  },
+  {
+    "claim": "不同睡眠阶段分别巩固不同类型的学习——深度睡眠巩固事实记忆，第2阶段巩固运动技能，REM巩固模式识别",
+    "evidence": "卡莱尔·史密斯的「转向」实验证明打断第2阶段睡眠会削弱运动学习进步；多项研究表明打断深度睡眠影响词汇和事实记忆",
+    "counterpoint": "「夜班理论」仍是假说阶段，各睡眠阶段的功能划分可能过于简化——实际上各阶段可能存在交叉配合，且个体差异（夜猫子vs早起者）可能导致不同的最优策略"
+  }
+];
+const application = [
+  {
+    "scenario": "当你在准备一场需要记忆大量知识点的考试时（如单词、公式、日期）",
+    "action": "保证按时上床睡觉以获取充分的深度睡眠（集中在前半夜），可以适当早起做最后复习。深度睡眠是事实记忆归档的关键阶段，砍掉前半夜的睡眠等于砍掉了记忆巩固时间"
+  },
+  {
+    "scenario": "当你在准备一场表演或运动比赛（音乐演奏、体育竞技）时",
+    "action": "前一晚可以晚一些睡，但千万不要起太早——运动技能的巩固发生在第2阶段睡眠，集中在后半夜醒来前的最后几小时。正如史密斯所说：让运动员早晨5点起床简直是瞎胡闹"
+  },
+  {
+    "scenario": "当你学习了大量新内容但感到效率递减、脑子转不动时",
+    "action": "不要硬撑——去睡一个1-1.5小时的午觉。梅德尼克的研究证明午睡的学习巩固效果接近整晚8小时睡眠。清醒时学习、疲倦时睡觉，这种「阴阳互补」才是最高效的学习节奏"
+  }
+];
+const chapterNav = {"prev": {"num": 9, "title": "不加思考地习得：感知的力量", "href": "ch09.html"}};
+window.pipeData_block1 = [
+  {
+    "cmd": "第1阶段：入睡",
+    "annotation": "脑波逐渐平缓"
+  },
+  {
+    "cmd": "第2阶段：浅睡",
+    "annotation": "运动记忆专场"
+  },
+  {
+    "cmd": "第3-4阶段：深睡",
+    "annotation": "事实记忆归档"
+  },
+  {
+    "cmd": "回升到第2阶段",
+    "annotation": "再次巩固技能"
+  },
+  {
+    "cmd": "REM快速眼动",
+    "annotation": "模式识别与创意"
+  }
+];
+window.tipsData_block2 = [
+  {
+    "icon": "🔵",
+    "title": "深度睡眠（第3-4阶段）",
+    "desc": "巩固陈述性记忆：新学的单词、姓名、日期、公式、数据。集中在前半夜。想记牢新知识？按时睡觉比晚睡早起更重要"
+  },
+  {
+    "icon": "🟢",
+    "title": "第2阶段",
+    "desc": "巩固运动记忆：钢琴指法、体育动作、手眼协调技能。集中在后半夜（醒来前最后几小时）。表演前一晚可以晚睡，但千万别早起"
+  },
+  {
+    "icon": "🟣",
+    "title": "REM快速眼动阶段",
+    "desc": "模式识别与创意整合：发现隐藏规律、解决创造性难题、处理情绪记忆。集中在后半夜。应付数学逻辑考试？睡个懒觉"
+  },
+  {
+    "icon": "💤",
+    "title": "午睡1-1.5小时",
+    "desc": "短午觉中也包含深度睡眠和REM阶段。梅德尼克发现：午睡1小时的学习巩固效果≈整晚8小时睡眠。成绩提升约30%"
+  }
+];
+
+/* ── Pre-Quiz ── */
+(function() {
+    if (typeof preQuiz === 'undefined' || !preQuiz.length) return;
+    document.getElementById('sec-prequiz').style.display = '';
+    const container = document.getElementById('preQuizContainer');
+    preQuiz.forEach((pq, i) => {
+        const div = document.createElement('div');
+        div.className = 'prequiz-card fade-in';
+        div.innerHTML = `
+            <div class="prequiz-num">PRE-Q${i + 1}</div>
+            <div class="prequiz-question">${pq.question}</div>
+            ${pq.hint ? '<div class="prequiz-hint">💡 ' + pq.hint + '</div>' : ''}
+            <textarea class="prequiz-input" placeholder="写下你的猜测..." rows="2"></textarea>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Feynman Steps ── */
+(function() {
+    const grid = document.getElementById('feynmanGrid');
+    if (typeof feynmanSteps === 'undefined') return;
+    feynmanSteps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'feynman-step fade-in';
+        div.innerHTML = `
+            <div class="feynman-num">0${s.step}</div>
+            <div class="feynman-label">${s.title}</div>
+            <div class="feynman-desc">${s.desc}</div>`;
+        grid.appendChild(div);
+    });
+})();
+
+/* ── Takeaways (with cover and recall) ── */
+(function() {
+    const grid = document.getElementById('takeawaysGrid');
+    const recallPrompt = document.getElementById('recallPrompt');
+    if (typeof takeaways === 'undefined') return;
+    if (takeaways.length > 0) {
+        recallPrompt.style.display = '';
+    } else {
+        grid.style.display = '';
+    }
+    takeaways.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'takeaway-card fade-in';
+        div.innerHTML = `
+            <div class="icon">${t.icon}</div>
+            <h4>${t.title}</h4>
+            <p>${t.desc || t.text}</p>`;
+        grid.appendChild(div);
+    });
+})();
+
+function revealTakeaways() {
+    const grid = document.getElementById('takeawaysGrid');
+    grid.style.display = '';
+    document.querySelector('.recall-reveal-btn').textContent = '已显示 ▴';
+    grid.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+/* ── Critical Evaluation ── */
+(function() {
+    if (typeof criticalEval === 'undefined' || !criticalEval.length) return;
+    document.getElementById('sec-critical').style.display = '';
+    const container = document.getElementById('criticalContainer');
+    criticalEval.forEach(ce => {
+        const div = document.createElement('div');
+        div.className = 'critical-card fade-in';
+        div.innerHTML = `
+            <div class="critical-label claim">CLAIM · 论点</div>
+            <div class="critical-text">${ce.claim}</div>
+            <div class="critical-label evidence">EVIDENCE · 论据</div>
+            <div class="critical-text">${ce.evidence}</div>
+            ${ce.counterpoint ? '<div class="critical-label counter">COUNTERPOINT · 反论</div><div class="critical-text">' + ce.counterpoint + '</div>' : ''}`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Application ── */
+(function() {
+    if (typeof application === 'undefined' || !application.length) return;
+    document.getElementById('sec-application').style.display = '';
+    const container = document.getElementById('applicationContainer');
+    application.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'application-card fade-in';
+        div.innerHTML = `
+            <div class="application-scenario">
+                <div class="application-scenario-label">SCENARIO · 场景</div>
+                <div class="application-text">${app.scenario}</div>
+            </div>
+            <div class="application-arrow">→</div>
+            <div class="application-action">
+                <div class="application-action-label">ACTION · 行动</div>
+                <div class="application-text">${app.action}</div>
+            </div>`;
+        container.appendChild(div);
+    });
+})();
+
+/* ── Quiz ── */
+(function() {
+    const container = document.getElementById('quizContainer');
+    if (typeof quiz === 'undefined') return;
+    quiz.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-card fade-in';
+        div.onclick = function() { toggleQuiz(this); };
+        div.innerHTML = `
+            <div class="quiz-num">Q${i + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+            <div class="quiz-toggle">点击显示答案 ▾</div>
+            <div class="quiz-answer">${q.answer}</div>`;
+        container.appendChild(div);
+    });
+})();
+
+function toggleQuiz(card) {
+    const isOpen = card.classList.contains('open');
+    card.classList.toggle('open');
+    const answer = card.querySelector('.quiz-answer');
+    answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+    card.querySelector('.quiz-toggle').textContent = isOpen ? '点击显示答案 ▾' : '收起 ▴';
+}
+
+/* ── Navigation Footer ── */
+(function() {
+    const nav = document.getElementById('navFooter');
+    if (typeof chapterNav === 'undefined') return;
+    let html = '';
+    if (chapterNav.prev) {
+        html += `<a href="${chapterNav.prev.href}" class="nav-btn"><span>←</span><div><small>PREV · CH${String(chapterNav.prev.num).padStart(2,'0')}</small>${chapterNav.prev.title}</div></a>`;
+    } else {
+        html += '<div></div>';
+    }
+    if (chapterNav.next) {
+        html += `<a href="${chapterNav.next.href}" class="nav-btn"><div style="text-align:right"><small>NEXT · CH${String(chapterNav.next.num).padStart(2,'0')}</small>${chapterNav.next.title}</div><span>→</span></a>`;
+    }
+    nav.innerHTML = html;
+})();
+
+/* ── Block JS (injected per block) ── */
+
+// Block: tips-grid
+(function() {
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'tip-card fade-in';
+            div.innerHTML = `
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: pipeline
+(function() {
+    document.querySelectorAll('[id^="pipeline-"]').forEach(container => {
+        const blockId = container.id.replace('pipeline-', '');
+        const dataVar = window['pipeData_' + blockId];
+        if (!dataVar) return;
+        const pipeData = dataVar;
+        pipeData.forEach((node, i) => {
+            if (i > 0) {
+                const arrow = document.createElement('div');
+                arrow.className = 'pipe-arrow';
+                arrow.textContent = '→';
+                container.appendChild(arrow);
+            }
+            const wrapper = document.createElement('div');
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'pipe-node' + (node.bottleneck ? ' highlight' : '');
+            nodeDiv.textContent = node.cmd || node.name || '';
+            wrapper.appendChild(nodeDiv);
+            if (node.annotation || node.data) {
+                const dataDiv = document.createElement('div');
+                dataDiv.className = 'pipe-data';
+                dataDiv.textContent = node.annotation || node.data;
+                wrapper.appendChild(dataDiv);
+            }
+            container.appendChild(wrapper);
+        });
+    });
+})();
+
+
+/* ── Progress Bar ── */
+window.addEventListener('scroll', () => {
+    const pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+
+/* ── IntersectionObserver ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
