@@ -137,6 +137,12 @@ section { padding: 80px 0; }
 
 /* ── Block CSS (injected per block) ── */
 
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
 /* Block: analogy */
 .analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
 .analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
@@ -160,12 +166,6 @@ section { padding: 80px 0; }
 .tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
 .tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
 .tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
-
-
-/* Block: insight-box */
-.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
-.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
-.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
 
 
 /* Block: pipeline */
@@ -696,6 +696,26 @@ function toggleQuiz(card) {
 })();
 
 
+// Block: tips-grid
+(function() {
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(tip => {
+            const div = document.createElement('div');
+            div.className = 'tip-card fade-in';
+            div.innerHTML = `
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
 // Block: code-evolution
 (function() {
     document.querySelectorAll('[id^="evoTimeline-"]').forEach(container => {
@@ -717,26 +737,6 @@ function toggleQuiz(card) {
                     <div class="evo-desc">${step.desc || ''}</div>
                     ${step.code ? '<pre class="evo-code">' + step.code + '</pre>' : ''}
                 </div>`;
-            container.appendChild(div);
-        });
-    });
-})();
-
-
-// Block: tips-grid
-(function() {
-    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
-        const blockId = container.id.replace('tipsGrid-', '');
-        const dataVar = window['tipsData_' + blockId];
-        if (!dataVar) return;
-        dataVar.forEach(tip => {
-            const div = document.createElement('div');
-            div.className = 'tip-card fade-in';
-            div.innerHTML = `
-                <div class="tip-icon">${tip.icon || '💡'}</div>
-                <div class="tip-title">${tip.title}</div>
-                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
-                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
             container.appendChild(div);
         });
     });

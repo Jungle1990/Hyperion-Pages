@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noesis · Knowledge Graph</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(108, 99, 255, 0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Hero ── */
+.hero {
+  text-align: center;
+  padding: 2.5rem 1.5rem 1.5rem;
+  position: relative;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(78,205,196,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 900;
+  background: linear-gradient(135deg, #fff 0%, var(--accent) 50%, var(--accent3) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s ease-in-out infinite;
+}
+@keyframes shimmer { 0%, 100% { background-position: 0% center; } 50% { background-position: 200% center; } }
+.hero-sub { font-size: 0.95rem; color: var(--text-dim); font-weight: 300; margin-top: 0.3rem; }
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+.hero-stats .num { color: var(--accent4); font-weight: 700; font-size: 1.1rem; }
+
+/* ── Controls ── */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  padding: 0.8rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(15, 17, 23, 0.9);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+.filter-btn {
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-btn:hover { border-color: var(--accent); color: var(--text); }
+.filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.search-box {
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+  background: var(--card);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  outline: none;
+  width: 160px;
+  transition: border-color 0.2s;
+}
+.search-box:focus { border-color: var(--accent); }
+
+/* ── Graph Canvas ── */
+.graph-wrap {
+  position: relative;
+  width: 100%;
+  height: 50vh;
+  min-height: 300px;
+  border-bottom: 1px solid var(--border);
+}
+.graph-wrap canvas { display: block; width: 100%; height: 100%; }
+
+/* ── Concept List ── */
+.concept-list { max-width: 800px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+
+.concept-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.concept-card:hover { border-color: var(--accent); }
+.concept-card.hidden { display: none; }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  cursor: pointer;
+  user-select: none;
+}
+.card-type {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.card-type.extract { background: var(--accent); }
+.card-type.synthesis { background: var(--accent3); }
+.card-type.question { background: var(--accent4); }
+
+.card-title { font-weight: 600; font-size: 0.95rem; flex: 1; }
+.card-domains {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.domain-tag {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  padding: 2px 8px;
+  border-radius: 2rem;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+.card-status {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+.card-arrow {
+  color: var(--text-dim);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.concept-card.open .card-arrow { transform: rotate(90deg); }
+
+.card-body {
+  display: none;
+  padding: 0 18px 16px;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--text);
+}
+.concept-card.open .card-body { display: block; }
+.card-body h2 { font-size: 1rem; font-weight: 700; color: var(--accent3); margin: 1rem 0 0.4rem; }
+.card-body h2:first-child { margin-top: 0; }
+.card-body p { margin-bottom: 0.6rem; }
+.card-body ul, .card-body ol { margin: 0.4rem 0 0.6rem 1.2rem; }
+.card-body li { margin-bottom: 0.3rem; }
+.card-body strong { color: var(--accent4); }
+.card-body em { color: var(--accent3); font-style: italic; }
+
+.card-sources {
+  margin-top: 0.8rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+.card-sources span { margin-right: 12px; }
+.card-connections {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+}
+.conn-link {
+  display: inline-block;
+  padding: 2px 8px;
+  margin: 2px 4px 2px 0;
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+  color: var(--accent);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.conn-link:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Legend ── */
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0.6rem;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+}
+.legend-item { display: flex; align-items: center; gap: 4px; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.footer {
+  text-align: center;
+  padding: 2rem 0;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+@media (max-width: 600px) {
+  .card-header { padding: 12px 14px; gap: 8px; }
+  .card-domains { display: none; }
+  .hero-stats { gap: 1rem; }
+  .controls { gap: 5px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Noesis</h1>
+  <p class="hero-sub">A Living Knowledge Graph — νόησις</p>
+  <div class="hero-stats" id="stats"></div>
+</div>
+
+<div class="controls" id="controls"></div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> Extract</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--accent3)"></div> Synthesis</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--accent4)"></div> Question</div>
+</div>
+
+<div class="graph-wrap">
+  <canvas id="graphCanvas"></canvas>
+</div>
+
+<div class="concept-list" id="conceptList"></div>
+
+<div class="footer">
+  Part of <a href="index.html">Hyperion</a> — Built with the Syntopical Method
+</div>
+
+<script>
+const GRAPH = {
+  "nodes": [
+    {
+      "id": "active-engagement",
+      "title": "主动参与 · Active Engagement",
+      "type": "extract",
+      "status": "mature",
+      "domain": [
+        "meta-learning"
+      ],
+      "tags": [
+        "learning",
+        "reading",
+        "agency"
+      ],
+      "sources": [
+        {
+          "book": "ruhe-xuexi",
+          "ref": "Ch.4 — Testing Effect"
+        },
+        {
+          "book": "ruhe-yuedu",
+          "ref": "Ch.1 — The Activity and Art of Reading"
+        }
+      ],
+      "connections": 3,
+      "body": "## Core Insight\n\nLearning and reading are not reception — they are construction. The learner who retrieves, questions, and struggles learns more than the one who highlights and re-reads. The reader who asks \"what is the author's argument?\" understands more than the one who lets words wash over them.\n\nThis is independently discovered by cognitive science (retrieval practice) and classical education (the demanding reader). The convergence across traditions strengthens the claim: passivity is the enemy of understanding.\n\n## Why This Matters\n\nEvery tool in this repo — the Feynman method, the interactive quizzes, the progressive disclosure — is an instantiation of this principle. The design philosophy itself embodies active engagement: you don't just read about an algorithm, you expand it, quiz yourself, trace the code."
+    },
+    {
+      "id": "algorithmic-thinking",
+      "title": "算法思维 · Algorithmic Thinking",
+      "type": "extract",
+      "status": "growing",
+      "domain": [
+        "computation",
+        "epistemology"
+      ],
+      "tags": [
+        "algorithms",
+        "abstraction",
+        "problem-solving"
+      ],
+      "sources": [
+        {
+          "book": "algorithms4",
+          "ref": "Ch.1 — Basic Programming Model"
+        },
+        {
+          "book": "more-programming-pearls",
+          "ref": "Ch.1 — Profiling"
+        }
+      ],
+      "connections": 3,
+      "body": "## Core Insight\n\nAlgorithmic thinking is not about memorizing algorithms. It is the practice of:\n1. **Precisely defining the problem** before attempting a solution\n2. **Decomposing** complex problems into tractable subproblems\n3. **Recognizing patterns** — when a new problem is structurally identical to a solved one\n4. **Reasoning about trade-offs** — time vs space, simplicity vs performance, generality vs specificity\n\nBentley adds a practical dimension: profiling before optimizing, testing before trusting, and the discipline of back-of-envelope estimation to catch errors before they propagate.\n\n## Why This Matters\n\nAlgorithmic thinking is a special case of structured thinking — the same skill that Adler calls \"analytical reading\" and that Confucius embeds in 格物致知 (investigating things). The difference is the domain: algorithms operate on formal objects with provable properties, while ethics and literature operate on ambiguous human situations.\n\nThe tension: algorithmic thinking tempts us to believe all problems are formally solvable. The AI-era essay warns that the most important human problems (meaning, belonging, judgment) resist algorithmic treatment."
+    },
+    {
+      "id": "forgetting-paradox",
+      "title": "遗忘悖论 · The Forgetting Paradox",
+      "type": "synthesis",
+      "status": "growing",
+      "domain": [
+        "meta-learning",
+        "ethics",
+        "epistemology"
+      ],
+      "tags": [
+        "memory",
+        "time",
+        "intentionality",
+        "civilization"
+      ],
+      "sources": [
+        {
+          "book": "ruhe-xuexi",
+          "ref": "Ch.2 — Power of Forgetting"
+        },
+        {
+          "book": "lunyu-biecai",
+          "ref": "Ch.1 — 学而时习之"
+        },
+        {
+          "book": "hongloumeng",
+          "ref": "Timeline — Jia family decline"
+        }
+      ],
+      "connections": 3,
+      "body": "## Core Insight\n\nHow We Learn says forgetting strengthens memory through desirable difficulty. 论语 says 温故而知新 — review the old to know the new. But 红楼梦 shows how the Jia family's forgetting of their founding virtues led to irreversible decline.\n\nForgetting is dual: **cognitive ally** but **civilizational poison**. The difference is *intentional return* (温故) vs *drift* (the Jia decline).\n\n## Why This Matters\n\nThis resolves an apparent contradiction between cognitive science and traditional wisdom. They're not disagreeing — they're operating at different timescales. Individual memory benefits from forgetting-and-retrieval cycles (hours to weeks). Cultural memory requires continuous transmission (decades to centuries). The mechanism is the same — retrieval strengthens — but the cost of failure is asymmetric.\n\nAt the individual level, forgotten-and-retrieved knowledge comes back stronger. At the civilizational level, forgotten virtues may never return — because there is no one left who remembers what to retrieve.\n\n## Open Questions\n\n- Does spaced repetition work for cultural transmission? (cf. ritual, liturgy, annual festivals)\n- Is the Feynman method itself a form of intentional forgetting-and-rebuilding?\n- What is the \"spacing interval\" for civilizational memory — and have we exceeded it?"
+    },
+    {
+      "id": "four-levels-of-reading",
+      "title": "阅读四层次 · Four Levels of Reading",
+      "type": "extract",
+      "status": "mature",
+      "domain": [
+        "meta-learning",
+        "epistemology"
+      ],
+      "tags": [
+        "reading",
+        "hierarchy",
+        "comprehension"
+      ],
+      "sources": [
+        {
+          "book": "ruhe-yuedu",
+          "ref": "Ch.2 — The Levels of Reading"
+        }
+      ],
+      "connections": 3,
+      "body": "## Core Insight\n\nAdler identifies four cumulative levels of reading:\n\n1. **Elementary** — can I decode the words? (literacy)\n2. **Inspectional** — what is this book about, structurally? (systematic skimming + superficial reading)\n3. **Analytical** — what exactly is the author saying, and is it true? (deep engagement with argument)\n4. **Syntopical** — what do multiple authors say about the same question, and what is MY position? (comparative reading leading to original thought)\n\nEach level contains all previous levels. Most people read at level 1-2 for everything. The Feynman method operates at level 3. The Noesis project operates at level 4.\n\n## Why This Matters\n\nThis framework is the intellectual foundation for the entire Hyperion project. Book breakdowns are level 3 (analytical). The syntopical.json is level 4 applied to two books. Noesis is level 4 applied across all domains — the highest form of reading, where you stop asking what books say and start asking what YOU think."
+    },
+    {
+      "id": "governance-through-virtue",
+      "title": "德治 · Governance Through Virtue",
+      "type": "extract",
+      "status": "growing",
+      "domain": [
+        "ethics",
+        "human-nature"
+      ],
+      "tags": [
+        "governance",
+        "virtue",
+        "confucianism",
+        "power"
+      ],
+      "sources": [
+        {
+          "book": "lunyu-biecai",
+          "ref": "Ch.2 — 为政以德"
+        },
+        {
+          "book": "hongloumeng",
+          "ref": "Characters — Jia family elders vs younger generation"
+        }
+      ],
+      "connections": 2,
+      "body": "## Core Insight\n\nConfucius argues that governance through virtue (德) is like the North Star: it stays in place while everything revolves around it. This is not passivity — it's the claim that moral authority generates order more durably than rules or force.\n\n南怀瑾's reading deepens this: 德 is not moral perfection but *embodied consistency* — the leader's inner state radiating outward through behavior, creating a field of trust that organizes collective action without explicit commands.\n\n## Why This Matters\n\n红楼梦 provides the negative case study. The Jia family's early patriarchs governed through personal virtue and earned loyalty. Later generations governed through position, habit, and increasingly desperate manipulation. The family's decline tracks exactly the loss of 德 — not as abstract moral failure, but as the concrete erosion of the four reasons people follow (vision, integrity, belonging, sacrifice).\n\nThis is not a historical curiosity. Every organization faces this decay: founders govern through character; successors govern through structure; structure eventually becomes empty ritual."
+    },
+    {
+      "id": "human-value-in-ai-era",
+      "title": "AI时代的人类价值 · Human Value in the AI Era",
+      "type": "extract",
+      "status": "growing",
+      "domain": [
+        "epistemology",
+        "human-nature",
+        "systems"
+      ],
+      "tags": [
+        "AI",
+        "meaning",
+        "labor",
+        "philosophy"
+      ],
+      "sources": [
+        {
+          "essay": "human-value-ai-era",
+          "ref": "Full essay — 9 sections"
+        }
+      ],
+      "connections": 3,
+      "body": "## Core Insight\n\nThe current economic equation is: Labor → Money → Consumption, with the hidden assumption that Human Value ≈ Market Value ≈ Scarce Labor Provision. When AI reduces the scarcity of labor, this equation breaks.\n\nBut the essay goes deeper: it questions whether the problem is economic at all. Perhaps the real crisis is that we've confused *doing* with *being*. Humans uniquely provide:\n- **Relationships** — real trust, conflict, repair (not simulated empathy)\n- **Judgment & accountability** — models advise, humans decide and bear consequences\n- **Problem formulation** — models answer questions, humans ask what matters\n- **Aesthetic taste** — models generate, humans define \"good\"\n\n## Why This Matters\n\nThis connects to every domain in the knowledge graph. Algorithms are tools (computation serving human intent). Learning science tells us how to develop uniquely human capacities. Confucian ethics provides a framework for human value that doesn't depend on economic productivity. The novels show what happens when humans lose their sense of purpose (白夜行) or when social structures decay (红楼梦).\n\nThe deepest move: \"All methodologies assume people need 'doing things' to live well. If that assumption fails, the problem becomes psychological/philosophical, not economic.\""
+    },
+    {
+      "id": "passive-vs-active",
+      "title": "被动与主动 · Passive vs Active",
+      "type": "synthesis",
+      "status": "growing",
+      "domain": [
+        "meta-learning",
+        "ethics",
+        "human-nature"
+      ],
+      "tags": [
+        "agency",
+        "engagement",
+        "leadership"
+      ],
+      "sources": [
+        {
+          "book": "ruhe-yuedu",
+          "ref": "Ch.1 — Reading as activity"
+        },
+        {
+          "book": "ruhe-xuexi",
+          "ref": "Ch.4 — Retrieval vs re-reading"
+        },
+        {
+          "book": "lunyu-biecai",
+          "ref": "Ch.1 — 学 is not passive absorption"
+        },
+        {
+          "essay": "attraction-mechanisms",
+          "ref": "Section on participation vs notification"
+        }
+      ],
+      "connections": 2,
+      "body": "## Core Insight\n\nThe distinction between passive and active recurs across every domain in this collection:\n\n- **Learning**: Re-reading (passive) vs retrieval practice (active)\n- **Reading**: Letting words wash over you vs asking questions of the text\n- **Ethics**: Knowing virtue vs practicing it (知 vs 行)\n- **Leadership**: Being notified vs being invited to participate\n\nIn each case, the passive mode *feels* like engagement but produces little. The active mode *feels* harder but produces transformation. This is not a metaphor — the same psychological mechanism (effortful processing) underlies all four domains.\n\n## Why This Matters\n\nMost institutions default to passive modes: lectures, memos, compliance training, motivational posters. The consistent finding across domains is that passive exposure is nearly worthless for deep change. This suggests a meta-principle: **if it feels easy, it's probably not working**.\n\nThe uncomfortable corollary: the Feynman method works *because* it's hard. Simplifying a concept until a child could understand it is effortful retrieval applied to comprehension."
+    },
+    {
+      "id": "ritual-as-spaced-repetition",
+      "title": "礼即间隔重复？ · Is Ritual Spaced Repetition?",
+      "type": "question",
+      "status": "seed",
+      "domain": [
+        "meta-learning",
+        "ethics",
+        "systems"
+      ],
+      "tags": [
+        "ritual",
+        "memory",
+        "culture",
+        "time"
+      ],
+      "sources": [
+        {
+          "book": "ruhe-xuexi",
+          "ref": "Ch.3 — Spacing Effect"
+        },
+        {
+          "book": "lunyu-biecai",
+          "ref": "Ch.3 — 八佾, on rites and music"
+        }
+      ],
+      "connections": 3,
+      "body": "## The Question\n\nCognitive science shows that spaced retrieval is the most powerful memory mechanism. Confucian thought places enormous weight on 礼 (ritual/rites) as the foundation of social order. Are these the same insight expressed in different vocabularies?\n\nAnnual festivals, daily rituals, seasonal ceremonies — these are literally spaced repetition schedules for cultural values. The Spring Festival retrieves filial piety. The Qingming Festival retrieves ancestor reverence. Weekly Sabbath retrieves the sacred-profane distinction.\n\nIf ritual IS cultural spaced repetition, then the modern decline of ritual predicts cultural forgetting — exactly what the forgetting-paradox concept warns about.\n\n## Tensions\n\n- Ritual can become empty repetition (the very thing How We Learn warns against)\n- Confucius himself distinguishes between 礼 with heart and 礼 as mere form\n- Spaced repetition requires *effortful retrieval* — does ritual provide this, or does familiarity reduce it to passive re-exposure?\n\n## Open Threads\n\n- What makes a ritual \"alive\" vs \"dead\"? Is it the same as the difference between retrieval practice and re-reading?\n- Could we design modern rituals with cognitive science principles? Or does that instrumentalize something that must remain organic?"
+    },
+    {
+      "id": "spacing-effect",
+      "title": "间隔效应 · The Spacing Effect",
+      "type": "extract",
+      "status": "mature",
+      "domain": [
+        "meta-learning"
+      ],
+      "tags": [
+        "memory",
+        "time",
+        "practice"
+      ],
+      "sources": [
+        {
+          "book": "ruhe-xuexi",
+          "ref": "Ch.3 — The Spacing Effect"
+        }
+      ],
+      "connections": 2,
+      "body": "## Core Insight\n\nDistributing study across time produces stronger, more durable learning than massing it into a single session. The gap between sessions allows partial forgetting, and the effort of retrieval during the next session strengthens the memory trace.\n\nThis is one of the most robust findings in cognitive science, replicated across ages, materials, and cultures. It works because forgetting creates \"desirable difficulty\" — the harder the retrieval, the stronger the re-encoding.\n\n## Why This Matters\n\nThe spacing effect challenges the intuition that more time = more learning. It reveals that *when* you study matters as much as *how long*. This has implications far beyond studying — it suggests that all mastery is fundamentally temporal, not volumetric."
+    },
+    {
+      "id": "structured-progression",
+      "title": "结构化递进 · Structured Progression",
+      "type": "synthesis",
+      "status": "growing",
+      "domain": [
+        "meta-learning",
+        "computation",
+        "systems"
+      ],
+      "tags": [
+        "hierarchy",
+        "progression",
+        "learning-design"
+      ],
+      "sources": [
+        {
+          "book": "ruhe-yuedu",
+          "ref": "Ch.2 — The Levels of Reading"
+        },
+        {
+          "book": "ruhe-xuexi",
+          "ref": "Ch.1 — Brain Storytelling"
+        },
+        {
+          "book": "algorithms4",
+          "ref": "Part structure — Fundamentals → Sorting → Searching → Graphs → Strings"
+        },
+        {
+          "book": "lunyu-biecai",
+          "ref": "Ch.1 — 学而时习之, progressive cultivation"
+        }
+      ],
+      "connections": 3,
+      "body": "## Core Insight\n\nEvery deep system of knowledge is organized as a progression of levels, where each level subsumes the previous one:\n\n- **Reading**: elementary → inspectional → analytical → syntopical (Adler)\n- **Learning**: encoding → consolidation → retrieval → transfer (cognitive science)\n- **Algorithms**: primitives → data structures → algorithm families → system design (Sedgewick)\n- **Virtue**: 学 (study) → 习 (practice) → 知 (understanding) → 行 (embodied action) (Confucius via Nan Huaijin)\n\nThis isn't coincidence. It reflects a universal pattern: **mastery is not accumulation but transformation**. Each level doesn't just add content — it reorganizes how you see everything below it.\n\n## Why This Matters\n\nThis pattern is the backbone of the Hyperion project's design. The progressive disclosure in Algo Atlas (3 levels per algorithm), the Feynman method chapters (simplify → teach → find gaps → refine), and the book breakdown structure all instantiate this principle.\n\nUnderstanding this pattern lets you *design* learning experiences, not just undergo them."
+    },
+    {
+      "id": "syntopical-method",
+      "title": "主题阅读法 · The Syntopical Method",
+      "type": "extract",
+      "status": "mature",
+      "domain": [
+        "meta-learning",
+        "epistemology"
+      ],
+      "tags": [
+        "reading",
+        "synthesis",
+        "methodology"
+      ],
+      "sources": [
+        {
+          "book": "ruhe-yuedu",
+          "ref": "Ch.20 — Syntopical Reading"
+        }
+      ],
+      "connections": 3,
+      "body": "## Core Insight\n\nSyntopical reading is Adler's highest level: reading multiple books on the same subject, not to summarize each, but to construct YOUR understanding of the question. The steps:\n\n1. **Find the relevant passages** across books (not reading each cover-to-cover)\n2. **Establish a shared vocabulary** — authors use different terms for similar ideas; you must translate\n3. **Define the questions** — YOUR questions, not the authors' questions\n4. **Map the positions** — who agrees, who disagrees, who addresses the question differently\n5. **Analyze the discussion** — find the shape of the truth that no single author captured\n\nThe key insight: at this level, YOU become the authority. The books are your conversation partners, not your teachers.\n\n## Why This Matters\n\nThis concept is the methodology that Noesis implements. Each concept file is an exercise in syntopical reading — drawing from multiple sources to construct original understanding. The knowledge graph IS the syntopicon."
+    },
+    {
+      "id": "why-people-follow",
+      "title": "人为何追随 · Why People Follow",
+      "type": "extract",
+      "status": "mature",
+      "domain": [
+        "human-nature",
+        "ethics"
+      ],
+      "tags": [
+        "leadership",
+        "trust",
+        "human-nature"
+      ],
+      "sources": [
+        {
+          "essay": "attraction-mechanisms",
+          "ref": "Section: 非强制性影响力的四个维度"
+        }
+      ],
+      "connections": 3,
+      "body": "## Core Insight\n\nPeople voluntarily follow someone for four reasons, none of which involve coercion:\n\n1. **You see what I cannot see** — clarity about the real problem, not just symptoms\n2. **Your words match your actions** — consistency creates predictability, which creates trust\n3. **I have a place in this** — participation, not just notification; my contribution matters\n4. **You bear risk at critical moments** — when it's dangerous, you step forward, not back\n\nThese four form a hierarchy: vision → integrity → belonging → sacrifice. Each higher level requires all lower levels to already be present.\n\n## Why This Matters\n\nThis framework comes from the essays, but it maps onto 论语's concept of the 君子 (exemplary person) — someone who leads through character, not position. It also maps onto the Jia family decline in 红楼梦: each generation lost one more of these four qualities, and the family's authority eroded accordingly.\n\nIt predicts that in the AI era, these four will become *more* important, not less — because AI can provide information but cannot provide vision, cannot bear risk, and cannot make someone feel they belong."
+    }
+  ],
+  "edges": [
+    {
+      "source": "active-engagement",
+      "target": "structured-progression",
+      "type": "part-of"
+    },
+    {
+      "source": "active-engagement",
+      "target": "passive-vs-active",
+      "type": "supports"
+    },
+    {
+      "source": "algorithmic-thinking",
+      "target": "structured-progression",
+      "type": "part-of"
+    },
+    {
+      "source": "algorithmic-thinking",
+      "target": "human-value-in-ai-era",
+      "type": "tensions"
+    },
+    {
+      "source": "algorithmic-thinking",
+      "target": "passive-vs-active",
+      "type": "supports"
+    },
+    {
+      "source": "forgetting-paradox",
+      "target": "spacing-effect",
+      "type": "extends"
+    },
+    {
+      "source": "forgetting-paradox",
+      "target": "active-engagement",
+      "type": "supports"
+    },
+    {
+      "source": "forgetting-paradox",
+      "target": "ritual-as-spaced-repetition",
+      "type": "supports"
+    },
+    {
+      "source": "four-levels-of-reading",
+      "target": "structured-progression",
+      "type": "supports"
+    },
+    {
+      "source": "four-levels-of-reading",
+      "target": "active-engagement",
+      "type": "supports"
+    },
+    {
+      "source": "four-levels-of-reading",
+      "target": "syntopical-method",
+      "type": "part-of"
+    },
+    {
+      "source": "governance-through-virtue",
+      "target": "why-people-follow",
+      "type": "supports"
+    },
+    {
+      "source": "governance-through-virtue",
+      "target": "forgetting-paradox",
+      "type": "tensions"
+    },
+    {
+      "source": "human-value-in-ai-era",
+      "target": "why-people-follow",
+      "type": "tensions"
+    },
+    {
+      "source": "human-value-in-ai-era",
+      "target": "algorithmic-thinking",
+      "type": "tensions"
+    },
+    {
+      "source": "human-value-in-ai-era",
+      "target": "ritual-as-spaced-repetition",
+      "type": "supports"
+    },
+    {
+      "source": "passive-vs-active",
+      "target": "active-engagement",
+      "type": "extends"
+    },
+    {
+      "source": "passive-vs-active",
+      "target": "why-people-follow",
+      "type": "supports"
+    },
+    {
+      "source": "ritual-as-spaced-repetition",
+      "target": "forgetting-paradox",
+      "type": "supports"
+    },
+    {
+      "source": "ritual-as-spaced-repetition",
+      "target": "spacing-effect",
+      "type": "extends"
+    },
+    {
+      "source": "ritual-as-spaced-repetition",
+      "target": "governance-through-virtue",
+      "type": "supports"
+    },
+    {
+      "source": "spacing-effect",
+      "target": "forgetting-paradox",
+      "type": "supports"
+    },
+    {
+      "source": "spacing-effect",
+      "target": "active-engagement",
+      "type": "supports"
+    },
+    {
+      "source": "structured-progression",
+      "target": "active-engagement",
+      "type": "supports"
+    },
+    {
+      "source": "structured-progression",
+      "target": "algorithmic-thinking",
+      "type": "extends"
+    },
+    {
+      "source": "structured-progression",
+      "target": "four-levels-of-reading",
+      "type": "part-of"
+    },
+    {
+      "source": "syntopical-method",
+      "target": "four-levels-of-reading",
+      "type": "part-of"
+    },
+    {
+      "source": "syntopical-method",
+      "target": "active-engagement",
+      "type": "supports"
+    },
+    {
+      "source": "syntopical-method",
+      "target": "structured-progression",
+      "type": "supports"
+    },
+    {
+      "source": "why-people-follow",
+      "target": "passive-vs-active",
+      "type": "supports"
+    },
+    {
+      "source": "why-people-follow",
+      "target": "governance-through-virtue",
+      "type": "extends"
+    },
+    {
+      "source": "why-people-follow",
+      "target": "human-value-in-ai-era",
+      "type": "tensions"
+    }
+  ]
+};
+
+// ── Domain colors ──
+const DOMAIN_COLORS = {
+  'meta-learning': '#6c63ff',
+  'computation': '#ff6b6b',
+  'ethics': '#4ecdc4',
+  'human-nature': '#ffe66d',
+  'epistemology': '#c084fc',
+  'systems': '#f97316',
+};
+const TYPE_COLORS = { extract: '#6c63ff', synthesis: '#4ecdc4', question: '#ffe66d' };
+
+// ── State ──
+let activeFilter = 'all';
+let searchQuery = '';
+let simulation = null;
+
+// ── Stats ──
+function renderStats() {
+  const types = {};
+  const domains = new Set();
+  GRAPH.nodes.forEach(n => {
+    types[n.type] = (types[n.type] || 0) + 1;
+    n.domain.forEach(d => domains.add(d));
+  });
+  document.getElementById('stats').innerHTML =
+    '<div><span class="num">' + GRAPH.nodes.length + '</span> concepts</div>' +
+    '<div><span class="num">' + GRAPH.edges.length + '</span> connections</div>' +
+    '<div><span class="num">' + domains.size + '</span> domains</div>';
+}
+
+// ── Controls ──
+function renderControls() {
+  const domains = new Set();
+  GRAPH.nodes.forEach(n => n.domain.forEach(d => domains.add(d)));
+  const wrap = document.getElementById('controls');
+
+  let html = '<input class="search-box" id="searchInput" placeholder="Search concepts..." />';
+  html += '<button class="filter-btn active" data-filter="all">All</button>';
+  Array.from(domains).sort().forEach(d => {
+    html += '<button class="filter-btn" data-filter="' + d + '">' + d + '</button>';
+  });
+  wrap.innerHTML = html;
+
+  wrap.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      wrap.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      activeFilter = this.dataset.filter;
+      filterConcepts();
+      drawGraph();
+    });
+  });
+
+  document.getElementById('searchInput').addEventListener('input', function() {
+    searchQuery = this.value.toLowerCase();
+    filterConcepts();
+    drawGraph();
+  });
+}
+
+// ── Markdown-lite renderer ──
+function renderBody(md) {
+  let html = md
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/^(\d+)\. (.+)$/gm, '<li>$1. $2</li>');
+
+  // Wrap consecutive <li> in <ul>
+  html = html.replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>');
+  // Wrap remaining text lines in <p>
+  html = html.split('\n').map(line => {
+    line = line.trim();
+    if (!line || line.startsWith('<')) return line;
+    return '<p>' + line + '</p>';
+  }).join('\n');
+
+  return html;
+}
+
+// ── Concept cards ──
+function renderConcepts() {
+  const list = document.getElementById('conceptList');
+  // Sort: synthesis first, then extract, then question
+  const order = { synthesis: 0, question: 1, extract: 2 };
+  const sorted = GRAPH.nodes.slice().sort((a, b) => (order[a.type] || 9) - (order[b.type] || 9));
+
+  list.innerHTML = sorted.map(n => {
+    const domains = n.domain.map(d => '<span class="domain-tag">' + d + '</span>').join('');
+    const sources = n.sources.map(s => '<span>' + (s.book || s.essay || '') + ': ' + (s.ref || '') + '</span>').join('');
+
+    const conns = GRAPH.edges
+      .filter(e => e.source === n.id || e.target === n.id)
+      .map(e => {
+        const other = e.source === n.id ? e.target : e.source;
+        const otherNode = GRAPH.nodes.find(x => x.id === other);
+        const label = otherNode ? otherNode.title : other;
+        return '<span class="conn-link" data-target="' + other + '">' + e.type + ' → ' + label + '</span>';
+      }).join('');
+
+    return '<div class="concept-card" data-id="' + n.id + '" data-type="' + n.type + '" data-domains="' + n.domain.join(',') + '">' +
+      '<div class="card-header">' +
+        '<div class="card-type ' + n.type + '"></div>' +
+        '<div class="card-title">' + n.title + '</div>' +
+        '<div class="card-domains">' + domains + '</div>' +
+        '<span class="card-status">' + n.status + '</span>' +
+        '<span class="card-arrow">▸</span>' +
+      '</div>' +
+      '<div class="card-body">' +
+        renderBody(n.body) +
+        (sources ? '<div class="card-sources">' + sources + '</div>' : '') +
+        (conns ? '<div class="card-connections">' + conns + '</div>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  // Toggle cards
+  list.querySelectorAll('.card-header').forEach(header => {
+    header.addEventListener('click', function() {
+      this.parentElement.classList.toggle('open');
+    });
+  });
+
+  // Connection links scroll to target
+  list.querySelectorAll('.conn-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const target = this.dataset.target;
+      const card = list.querySelector('[data-id="' + target + '"]');
+      if (card) {
+        card.classList.add('open');
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.style.borderColor = 'var(--accent)';
+        setTimeout(() => card.style.borderColor = '', 1500);
+      }
+    });
+  });
+}
+
+function filterConcepts() {
+  document.querySelectorAll('.concept-card').forEach(card => {
+    const domains = card.dataset.domains.split(',');
+    const title = card.querySelector('.card-title').textContent.toLowerCase();
+    const body = card.querySelector('.card-body').textContent.toLowerCase();
+
+    const matchFilter = activeFilter === 'all' || domains.includes(activeFilter);
+    const matchSearch = !searchQuery || title.includes(searchQuery) || body.includes(searchQuery);
+
+    card.classList.toggle('hidden', !(matchFilter && matchSearch));
+  });
+}
+
+// ── Force-directed graph ──
+const canvas = document.getElementById('graphCanvas');
+const ctx = canvas.getContext('2d');
+let nodes = [], edges = [];
+let animFrame;
+
+function initGraph() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * window.devicePixelRatio;
+  canvas.height = rect.height * window.devicePixelRatio;
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+  const W = rect.width, H = rect.height;
+  const cx = W / 2, cy = H / 2;
+
+  // Initialize node positions
+  nodes = GRAPH.nodes.map((n, i) => {
+    const angle = (i / GRAPH.nodes.length) * Math.PI * 2;
+    const r = Math.min(W, H) * 0.3;
+    return {
+      ...n,
+      x: cx + r * Math.cos(angle) + (Math.random() - 0.5) * 40,
+      y: cy + r * Math.sin(angle) + (Math.random() - 0.5) * 40,
+      vx: 0,
+      vy: 0,
+      radius: 6 + n.connections * 2,
+    };
+  });
+
+  edges = GRAPH.edges.map(e => ({
+    ...e,
+    sourceNode: nodes.find(n => n.id === e.source),
+    targetNode: nodes.find(n => n.id === e.target),
+  })).filter(e => e.sourceNode && e.targetNode);
+
+  simulate();
+}
+
+function simulate() {
+  const W = canvas.width / window.devicePixelRatio;
+  const H = canvas.height / window.devicePixelRatio;
+  let iterations = 0;
+
+  function tick() {
+    // Repulsion
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        let dx = nodes[j].x - nodes[i].x;
+        let dy = nodes[j].y - nodes[i].y;
+        let dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        let force = 800 / (dist * dist);
+        let fx = (dx / dist) * force;
+        let fy = (dy / dist) * force;
+        nodes[i].vx -= fx;
+        nodes[i].vy -= fy;
+        nodes[j].vx += fx;
+        nodes[j].vy += fy;
+      }
+    }
+
+    // Attraction along edges
+    edges.forEach(e => {
+      let dx = e.targetNode.x - e.sourceNode.x;
+      let dy = e.targetNode.y - e.sourceNode.y;
+      let dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      let force = (dist - 100) * 0.02;
+      let fx = (dx / dist) * force;
+      let fy = (dy / dist) * force;
+      e.sourceNode.vx += fx;
+      e.sourceNode.vy += fy;
+      e.targetNode.vx -= fx;
+      e.targetNode.vy -= fy;
+    });
+
+    // Center gravity
+    nodes.forEach(n => {
+      n.vx += (W / 2 - n.x) * 0.003;
+      n.vy += (H / 2 - n.y) * 0.003;
+    });
+
+    // Update positions with damping
+    const damping = 0.85;
+    nodes.forEach(n => {
+      n.vx *= damping;
+      n.vy *= damping;
+      n.x += n.vx;
+      n.y += n.vy;
+      // Bounds
+      n.x = Math.max(n.radius, Math.min(W - n.radius, n.x));
+      n.y = Math.max(n.radius, Math.min(H - n.radius, n.y));
+    });
+
+    drawGraph();
+    iterations++;
+    if (iterations < 200) {
+      animFrame = requestAnimationFrame(tick);
+    }
+  }
+
+  tick();
+}
+
+function drawGraph() {
+  const W = canvas.width / window.devicePixelRatio;
+  const H = canvas.height / window.devicePixelRatio;
+  ctx.clearRect(0, 0, W, H);
+
+  // Visible set
+  const visibleIds = new Set();
+  document.querySelectorAll('.concept-card:not(.hidden)').forEach(c => visibleIds.add(c.dataset.id));
+  if (visibleIds.size === 0) GRAPH.nodes.forEach(n => visibleIds.add(n.id));
+
+  // Draw edges
+  edges.forEach(e => {
+    const sVis = visibleIds.has(e.source);
+    const tVis = visibleIds.has(e.target);
+    if (!sVis && !tVis) return;
+
+    ctx.beginPath();
+    ctx.moveTo(e.sourceNode.x, e.sourceNode.y);
+    ctx.lineTo(e.targetNode.x, e.targetNode.y);
+
+    const alpha = (sVis && tVis) ? 0.3 : 0.08;
+    if (e.type === 'tensions') {
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = 'rgba(255, 107, 107, ' + alpha + ')';
+    } else if (e.type === 'extends') {
+      ctx.setLineDash([2, 6]);
+      ctx.strokeStyle = 'rgba(78, 205, 196, ' + alpha + ')';
+    } else {
+      ctx.setLineDash([]);
+      ctx.strokeStyle = 'rgba(108, 99, 255, ' + alpha + ')';
+    }
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  // Draw nodes
+  nodes.forEach(n => {
+    const visible = visibleIds.has(n.id);
+    const alpha = visible ? 1 : 0.15;
+    const color = TYPE_COLORS[n.type] || '#6c63ff';
+
+    // Glow
+    if (visible) {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.radius + 4, 0, Math.PI * 2);
+      ctx.fillStyle = color.replace(')', ', 0.15)').replace('rgb', 'rgba');
+      ctx.fill();
+    }
+
+    // Node circle
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.globalAlpha = alpha;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // Label
+    if (visible) {
+      ctx.font = '500 10px "Noto Sans SC", sans-serif';
+      ctx.fillStyle = 'rgba(232, 232, 240, 0.8)';
+      ctx.textAlign = 'center';
+      const label = n.title.split(' · ')[0];
+      ctx.fillText(label, n.x, n.y + n.radius + 14);
+    }
+  });
+}
+
+// ── Canvas click → scroll to card ──
+canvas.addEventListener('click', function(e) {
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  for (const n of nodes) {
+    const dx = n.x - x, dy = n.y - y;
+    if (dx * dx + dy * dy < (n.radius + 4) * (n.radius + 4)) {
+      const card = document.querySelector('[data-id="' + n.id + '"]');
+      if (card) {
+        card.classList.add('open');
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.style.borderColor = 'var(--accent3)';
+        setTimeout(() => card.style.borderColor = '', 1500);
+      }
+      break;
+    }
+  }
+});
+
+// ── Resize ──
+window.addEventListener('resize', function() {
+  cancelAnimationFrame(animFrame);
+  initGraph();
+});
+
+// ── Init ──
+renderStats();
+renderControls();
+renderConcepts();
+initGraph();
+</script>
+</body>
+</html>

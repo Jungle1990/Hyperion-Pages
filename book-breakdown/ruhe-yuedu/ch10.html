@@ -137,6 +137,12 @@ section { padding: 80px 0; }
 
 /* ── Block CSS (injected per block) ── */
 
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
 /* Block: analogy */
 .analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
 .analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
@@ -160,28 +166,6 @@ section { padding: 80px 0; }
 .tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
 .tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
 .tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
-
-
-/* Block: insight-box */
-.insight-box { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
-.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
-.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
-
-
-/* Block: comparison */
-.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
-.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
-.comparison-side:hover { transform: scale(1.03); }
-.comparison-side.hard { border-color: var(--danger); }
-.comparison-side.smart { border-color: var(--success); }
-.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
-.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
-.comparison-side.hard .comparison-label { color: var(--danger); }
-.comparison-side.smart .comparison-label { color: var(--success); }
-.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
-.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
-.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
-@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
 
 
 /* Block: pipeline */
@@ -209,6 +193,22 @@ section { padding: 80px 0; }
 .evo-speed.neutral { background: rgba(136,136,160,0.15); color: var(--text-dim); }
 .evo-desc { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 10px; }
 .evo-code { background: #12141c; border: 1px solid #1e2030; border-radius: 0.5rem; padding: 1rem; font-family: var(--font-mono); font-size: 0.8rem; color: #a0a0c0; overflow-x: auto; white-space: pre; }
+
+
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
 
 
 /* ── Responsive ── */
@@ -698,27 +698,20 @@ function toggleQuiz(card) {
 
 /* ── Block JS (injected per block) ── */
 
-// Block: code-evolution
+// Block: tips-grid
 (function() {
-    document.querySelectorAll('[id^="evoTimeline-"]').forEach(container => {
-        const blockId = container.id.replace('evoTimeline-', '');
-        const dataVar = window['evoData_' + blockId];
+    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
+        const blockId = container.id.replace('tipsGrid-', '');
+        const dataVar = window['tipsData_' + blockId];
         if (!dataVar) return;
-        dataVar.forEach((step, i) => {
+        dataVar.forEach(tip => {
             const div = document.createElement('div');
-            div.className = 'evo-step' + (i === 0 ? ' active' : '') + ' fade-in';
-            const badge = step.badge || '';
-            const speedClass = badge.match(/O\(1\)|\u03B1|lg/) ? 'success' : badge.match(/O\(N\)/) ? 'danger' : 'neutral';
+            div.className = 'tip-card fade-in';
             div.innerHTML = `
-                <div class="evo-dot"></div>
-                <div class="evo-card">
-                    <div class="evo-header">
-                        <span class="evo-title">${step.title}</span>
-                        <span class="evo-speed ${speedClass}">${badge}</span>
-                    </div>
-                    <div class="evo-desc">${step.desc || ''}</div>
-                    ${step.code ? '<pre class="evo-code">' + step.code + '</pre>' : ''}
-                </div>`;
+                <div class="tip-icon">${tip.icon || '💡'}</div>
+                <div class="tip-title">${tip.title}</div>
+                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
+                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
             container.appendChild(div);
         });
     });
@@ -756,20 +749,27 @@ function toggleQuiz(card) {
 })();
 
 
-// Block: tips-grid
+// Block: code-evolution
 (function() {
-    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
-        const blockId = container.id.replace('tipsGrid-', '');
-        const dataVar = window['tipsData_' + blockId];
+    document.querySelectorAll('[id^="evoTimeline-"]').forEach(container => {
+        const blockId = container.id.replace('evoTimeline-', '');
+        const dataVar = window['evoData_' + blockId];
         if (!dataVar) return;
-        dataVar.forEach(tip => {
+        dataVar.forEach((step, i) => {
             const div = document.createElement('div');
-            div.className = 'tip-card fade-in';
+            div.className = 'evo-step' + (i === 0 ? ' active' : '') + ' fade-in';
+            const badge = step.badge || '';
+            const speedClass = badge.match(/O\(1\)|\u03B1|lg/) ? 'success' : badge.match(/O\(N\)/) ? 'danger' : 'neutral';
             div.innerHTML = `
-                <div class="tip-icon">${tip.icon || '💡'}</div>
-                <div class="tip-title">${tip.title}</div>
-                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
-                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+                <div class="evo-dot"></div>
+                <div class="evo-card">
+                    <div class="evo-header">
+                        <span class="evo-title">${step.title}</span>
+                        <span class="evo-speed ${speedClass}">${badge}</span>
+                    </div>
+                    <div class="evo-desc">${step.desc || ''}</div>
+                    ${step.code ? '<pre class="evo-code">' + step.code + '</pre>' : ''}
+                </div>`;
             container.appendChild(div);
         });
     });
