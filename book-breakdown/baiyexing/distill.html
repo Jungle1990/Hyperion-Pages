@@ -19,7 +19,7 @@
   --text: #e8e8f0;
   --text-dim: #8888a0;
   --border: #2a2d3a;
-  --glow: rgba(108,99,255,0.15);
+  --glow: rgba(var(--accent-rgb),0.15);
   --font-sans: 'Noto Sans SC', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --radius: 14px;
@@ -53,8 +53,8 @@ body {
 }
 .hero::before {
   content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%),
-              radial-gradient(ellipse at 70% 80%, rgba(78,205,196,0.06) 0%, transparent 50%);
+  background: radial-gradient(ellipse at 30% 20%, rgba(var(--accent-rgb),0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(var(--accent3-rgb),0.06) 0%, transparent 50%);
   pointer-events: none;
 }
 .back-link {
@@ -82,7 +82,7 @@ body {
 .section-nav {
   display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
   padding: 16px 20px; position: sticky; top: 0; z-index: 50;
-  background: rgba(15,17,23,0.92); backdrop-filter: blur(12px);
+  background: rgba(var(--bg-rgb),0.92); backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
 }
 .nav-pill {
@@ -128,7 +128,7 @@ body {
 .quote-footer { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
 .quote-chapter {
   font-family: var(--font-mono); font-size: 0.7rem;
-  background: rgba(108,99,255,0.15); color: var(--accent);
+  background: rgba(var(--accent-rgb),0.15); color: var(--accent);
   padding: 2px 10px; border-radius: 2rem;
 }
 .quote-context {
@@ -225,6 +225,55 @@ body {
   .quote-card { padding: 16px 18px; }
   .section-header { margin: 3rem 0 1.5rem; }
 }
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
 </style>
 </head>
 <body>
@@ -639,5 +688,69 @@ function scrollToSection(id, el) {
   if (el) el.classList.add('active');
 }
 </script>
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+  <span class="theme-toggle-icon" id="themeIcon"></span>
+</button>
+<style>
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
 </body>
 </html>

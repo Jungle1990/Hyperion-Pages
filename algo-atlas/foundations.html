@@ -18,7 +18,7 @@
   --text: #e8e8f0;
   --text-dim: #8888a0;
   --border: #2a2d3a;
-  --glow: rgba(108, 99, 255, 0.15);
+  --glow: rgba(var(--accent-rgb), 0.15);
   --font-sans: 'Noto Sans SC', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --radius: 14px;
@@ -145,7 +145,7 @@ body {
   color: var(--text);
 }
 .ctrl-btn.active {
-  background: rgba(108, 99, 255, 0.15);
+  background: rgba(var(--accent-rgb), 0.15);
   border-color: var(--accent);
   color: var(--accent);
 }
@@ -175,34 +175,34 @@ body {
   white-space: nowrap;
 }
 .badge--time {
-  background: rgba(108, 99, 255, 0.15);
+  background: rgba(var(--accent-rgb), 0.15);
   color: var(--accent);
-  border: 1px solid rgba(108, 99, 255, 0.3);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
 }
 .badge--space {
-  background: rgba(78, 205, 196, 0.1);
+  background: rgba(var(--accent3-rgb), 0.1);
   color: var(--accent3);
-  border: 1px solid rgba(78, 205, 196, 0.2);
+  border: 1px solid rgba(var(--accent3-rgb), 0.2);
 }
 .badge--easy {
-  background: rgba(78, 205, 196, 0.15);
+  background: rgba(var(--accent3-rgb), 0.15);
   color: var(--accent3);
-  border: 1px solid rgba(78, 205, 196, 0.3);
+  border: 1px solid rgba(var(--accent3-rgb), 0.3);
 }
 .badge--medium {
-  background: rgba(255, 230, 109, 0.15);
+  background: rgba(var(--accent4-rgb), 0.15);
   color: var(--accent4);
-  border: 1px solid rgba(255, 230, 109, 0.3);
+  border: 1px solid rgba(var(--accent4-rgb), 0.3);
 }
 .badge--hard {
-  background: rgba(255, 107, 107, 0.15);
+  background: rgba(var(--accent2-rgb), 0.15);
   color: var(--accent2);
-  border: 1px solid rgba(255, 107, 107, 0.3);
+  border: 1px solid rgba(var(--accent2-rgb), 0.3);
 }
 .badge--source {
-  background: rgba(136, 136, 160, 0.1);
+  background: rgba(var(--text-dim-rgb), 0.1);
   color: var(--text-dim);
-  border: 1px solid rgba(136, 136, 160, 0.2);
+  border: 1px solid rgba(var(--text-dim-rgb), 0.2);
 }
 
 /* ─── Algorithm Card ─── */
@@ -215,7 +215,7 @@ body {
   overflow: hidden;
 }
 .algo-card:hover {
-  border-color: rgba(108, 99, 255, 0.3);
+  border-color: rgba(var(--accent-rgb), 0.3);
 }
 .algo-card.expanded-l1 {
   border-color: var(--accent);
@@ -317,7 +317,7 @@ body {
   font-weight: 700;
 }
 .insight-box {
-  background: rgba(108, 99, 255, 0.08);
+  background: rgba(var(--accent-rgb), 0.08);
   border-left: 3px solid var(--accent);
   padding: 0.8rem 1rem;
   border-radius: 0 8px 8px 0;
@@ -332,13 +332,13 @@ body {
 
 /* ─── Code Block ─── */
 .code-block {
-  background: #12141c;
+  background: var(--code-bg);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 1.25rem;
   font-family: var(--font-mono);
   font-size: 0.8rem;
-  color: #c0c0d8;
+  color: var(--text-dim);
   overflow-x: auto;
   white-space: pre;
   line-height: 1.7;
@@ -380,7 +380,7 @@ body {
 }
 .complexity-table td {
   padding: 0.4rem 0.8rem;
-  border-bottom: 1px solid rgba(42, 45, 58, 0.5);
+  border-bottom: 1px solid rgba(var(--border-rgb), 0.5);
 }
 .complexity-table tr:last-child td { border-bottom: none; }
 
@@ -388,8 +388,8 @@ body {
 .deep-dive-btn {
   display: block;
   width: 100%;
-  background: rgba(108, 99, 255, 0.06);
-  border: 1px dashed rgba(108, 99, 255, 0.3);
+  background: rgba(var(--accent-rgb), 0.06);
+  border: 1px dashed rgba(var(--accent-rgb), 0.3);
   color: var(--accent);
   font-family: var(--font-mono);
   font-size: 0.8rem;
@@ -400,7 +400,7 @@ body {
   margin-top: 1rem;
 }
 .deep-dive-btn:hover {
-  background: rgba(108, 99, 255, 0.12);
+  background: rgba(var(--accent-rgb), 0.12);
   border-color: var(--accent);
 }
 
@@ -420,14 +420,14 @@ body {
 .variation-item, .related-item, .app-item {
   font-size: 0.85rem;
   padding: 0.4rem 0.8rem;
-  background: rgba(108, 99, 255, 0.04);
+  background: rgba(var(--accent-rgb), 0.04);
   border-radius: 6px;
   border-left: 2px solid var(--accent);
 }
 .related-item { border-left-color: var(--accent3); }
 .app-item { border-left-color: var(--accent4); }
 .vs-box {
-  background: rgba(255, 107, 107, 0.06);
+  background: rgba(var(--accent2-rgb), 0.06);
   border-left: 3px solid var(--accent2);
   padding: 0.8rem 1rem;
   border-radius: 0 8px 8px 0;
@@ -435,13 +435,13 @@ body {
   line-height: 1.6;
 }
 .walkthrough-block {
-  background: #12141c;
+  background: var(--code-bg);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 1rem;
   font-family: var(--font-mono);
   font-size: 0.78rem;
-  color: #c0c0d8;
+  color: var(--text-dim);
   white-space: pre-wrap;
   line-height: 1.6;
 }
@@ -558,6 +558,55 @@ body {
   .controls { flex-direction: column; align-items: flex-start; }
   .nav-footer { flex-direction: column; }
 }
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
 </style>
 </head>
 <body>
@@ -1041,5 +1090,69 @@ function handleHash() {
 window.addEventListener('hashchange', handleHash);
 handleHash();
 </script>
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+  <span class="theme-toggle-icon" id="themeIcon"></span>
+</button>
+<style>
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
 </body>
 </html>

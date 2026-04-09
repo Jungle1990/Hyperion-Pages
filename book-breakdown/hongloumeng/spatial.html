@@ -13,7 +13,12 @@
 :root {
     --bg: #0f1117; --card: #1a1d27; --card-hover: #222636;
     --accent: #6c63ff; --accent2: #ff6b6b; --accent3: #4ecdc4; --accent4: #ffe66d;
-    --text: #e8e8f0; --text-dim: #8888a0; --border: #2a2d3a; --glow: rgba(108,99,255,0.15);
+    --text: #e8e8f0; --text-dim: #8888a0; --border: #2a2d3a; --glow: rgba(var(--accent-rgb),0.15);
+    --bg-rgb: 15,17,23; --card-rgb: 26,29,39;
+    --text-rgb: 232,232,240; --text-dim-rgb: 136,136,160;
+    --border-rgb: 42,45,58; --accent-rgb: 108,99,255;
+    --accent2-rgb: 255,107,107; --accent3-rgb: 78,205,196; --accent4-rgb: 255,230,109;
+    --bg-hero: #13151f;
 }
 
 html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'Noto Sans SC', sans-serif; }
@@ -24,7 +29,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg);
     height: 18vh; min-height: 130px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     position: relative; overflow: hidden;
-    background: linear-gradient(180deg, #13151f 0%, var(--bg) 100%);
+    background: linear-gradient(180deg, var(--bg-hero) 0%, var(--bg) 100%);
 }
 .hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .hero-content { position: relative; z-index: 1; text-align: center; }
@@ -41,7 +46,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg);
 .controls {
     position: sticky; top: 0; z-index: 20;
     display: flex; align-items: center; gap: 14px; padding: 8px 20px;
-    background: rgba(15,17,23,0.92); backdrop-filter: blur(12px);
+    background: rgba(var(--bg-rgb),0.92); backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border); flex-wrap: wrap;
 }
 .controls-group { display: flex; align-items: center; gap: 6px; }
@@ -92,7 +97,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg);
 .legend-bar {
     position: absolute; bottom: 16px; left: 16px; z-index: 10;
     display: flex; flex-direction: column; gap: 4px; padding: 10px 14px;
-    background: rgba(26,29,39,0.9); border: 1px solid var(--border); border-radius: 8px;
+    background: rgba(var(--card-rgb),0.9); border: 1px solid var(--border); border-radius: 8px;
     font-size: 0.7rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace;
 }
 .legend-row { display: flex; align-items: center; gap: 6px; }
@@ -102,6 +107,55 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg);
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
 </style>
 </head>
 <body>
@@ -840,6 +894,22 @@ const charMap = {};
 if (typeof characters !== 'undefined') characters.forEach(c => { charMap[c.id] = c; });
 const gConfig = (typeof groupConfig !== 'undefined') ? groupConfig : {};
 
+// ══════════════════════════════════════════════════
+// THEME COLOR CACHE
+// ══════════════════════════════════════════════════
+var _tc = {};
+function _refreshTC() {
+  var s = getComputedStyle(document.documentElement);
+  _tc.bg = s.getPropertyValue('--bg-rgb').trim();
+  _tc.card = s.getPropertyValue('--card-rgb').trim();
+  _tc.text = s.getPropertyValue('--text-rgb').trim();
+  _tc.textDim = s.getPropertyValue('--text-dim-rgb').trim();
+  _tc.border = s.getPropertyValue('--border-rgb').trim();
+  _tc.accent = s.getPropertyValue('--accent-rgb').trim();
+}
+_refreshTC();
+window.addEventListener('themechange', function() { _refreshTC(); });
+
 let state = {
     selectedLocation: null,
     hoveredLocation: null,
@@ -1057,14 +1127,14 @@ function drawMap() {
 
         // Label
         ctx.font = (isHovered || isSelected ? '700' : '500') + ' 13px "Noto Sans SC", sans-serif';
-        ctx.fillStyle = isHovered || isSelected ? '#fff' : 'rgba(232,232,240,0.8)';
+        ctx.fillStyle = isHovered || isSelected ? '#fff' : `rgba(${_tc.text},0.8)`;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(loc.name, x, y - r - 12);
 
         // Event count badge
         if (evCount > 0) {
             ctx.font = '9px "JetBrains Mono", monospace';
-            ctx.fillStyle = 'rgba(136,136,160,0.5)';
+            ctx.fillStyle = `rgba(${_tc.textDim},0.5)`;
             ctx.fillText(evCount + ' events', x, y + r + 14);
         }
 
@@ -1075,7 +1145,7 @@ function drawMap() {
                 ctx.beginPath(); ctx.arc(sx, sy, 6, 0, Math.PI * 2);
                 ctx.fillStyle = hexToRGBA(color, 0.25); ctx.fill();
                 ctx.font = '10px "Noto Sans SC", sans-serif';
-                ctx.fillStyle = 'rgba(232,232,240,0.5)';
+                ctx.fillStyle = `rgba(${_tc.text},0.5)`;
                 ctx.textAlign = 'center'; ctx.textBaseline = 'top';
                 ctx.fillText(sub.name, sx, sy + 10);
             });
@@ -1169,5 +1239,69 @@ document.fonts.ready.then(() => {
     render();
 });
 </script>
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+  <span class="theme-toggle-icon" id="themeIcon"></span>
+</button>
+<style>
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
 </body>
 </html>

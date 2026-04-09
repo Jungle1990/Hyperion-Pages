@@ -18,7 +18,7 @@
     --text: #e8e8f0;
     --text-dim: #8888a0;
     --border: #2a2d3a;
-    --glow: rgba(108, 99, 255, 0.15);
+    --glow: rgba(var(--accent-rgb), 0.15);
     --radius: 14px;
     --font-sans: 'Noto Sans SC', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
@@ -31,8 +31,8 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text);
 
 /* ── Compact Hero ── */
 .hero { padding: 3rem 2rem 2rem; text-align: center; position: relative; }
-.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(255,107,107,0.06) 0%, transparent 50%); pointer-events: none; }
-.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px rgba(108,99,255,0.3)); }
+.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 20%, rgba(var(--accent-rgb),0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(var(--accent2-rgb),0.06) 0%, transparent 50%); pointer-events: none; }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px rgba(var(--accent-rgb),0.3)); }
 .hero h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 900; margin-bottom: 0.3rem; }
 .hero-en { font-size: 1rem; color: var(--text-dim); font-weight: 300; margin-bottom: 0.5rem; }
 .hero-badge { display: inline-block; padding: 0.4rem 1.2rem; border: 1px solid var(--accent3); border-radius: 2rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent3); letter-spacing: 2px; }
@@ -48,7 +48,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text);
 .section-title { font-size: 1.4rem; font-weight: 700; }
 
 /* ── Unity Statement ── */
-.unity-card { background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.08)); border: 1px solid var(--accent); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
+.unity-card { background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent3-rgb),0.08)); border: 1px solid var(--accent); border-radius: var(--radius); padding: 2rem; text-align: center; margin-bottom: 2rem; }
 .unity-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; margin-bottom: 1rem; }
 .unity-text { font-size: 1.2rem; font-weight: 500; line-height: 1.9; }
 
@@ -97,6 +97,55 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text);
     .question-item { padding-left: 50px; }
     .outline-card { padding-left: 50px; }
 }
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
 </style>
 </head>
 <body>
@@ -419,5 +468,69 @@ const chapterManifest = [
     container.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 })();
 </script>
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+  <span class="theme-toggle-icon" id="themeIcon"></span>
+</button>
+<style>
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
 </body>
 </html>
