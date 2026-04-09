@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>白夜行 读后蒸馏 / Distill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(108,99,255,0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Progress Bar ── */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  z-index: 9999; transition: width 0.1s linear;
+}
+
+/* ── Hero ── */
+.hero {
+  min-height: 50vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 4rem 2rem 3rem; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(78,205,196,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.back-link {
+  position: absolute; top: 20px; left: 24px;
+  color: var(--text-dim); text-decoration: none; font-size: 0.85rem;
+  z-index: 2; transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent3); }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px var(--glow)); }
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900;
+  background: linear-gradient(135deg, var(--accent4) 0%, var(--accent) 40%, var(--accent3) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-subtitle {
+  font-size: 1rem; color: var(--text-dim); font-weight: 300;
+  margin-top: 0.5rem; max-width: 500px;
+}
+.hero-book {
+  font-size: 0.85rem; color: var(--accent); font-family: var(--font-mono);
+  margin-top: 1rem; letter-spacing: 1px;
+}
+
+/* ── Section Nav ── */
+.section-nav {
+  display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+  padding: 16px 20px; position: sticky; top: 0; z-index: 50;
+  background: rgba(15,17,23,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-pill {
+  padding: 6px 16px; border-radius: 2rem; border: 1px solid var(--border);
+  background: transparent; color: var(--text-dim); font-family: var(--font-sans);
+  font-size: 0.8rem; cursor: pointer; transition: all 0.2s; text-decoration: none;
+}
+.nav-pill:hover, .nav-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 800px; margin: 0 auto; padding: 0 20px 4rem; }
+
+/* ── Section Header ── */
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  margin: 4rem 0 2rem; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-header-icon { font-size: 1.8rem; }
+.section-header h2 { font-size: 1.5rem; font-weight: 700; }
+.section-header .section-label {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  color: var(--accent); letter-spacing: 2px; text-transform: uppercase;
+  margin-left: auto;
+}
+
+/* ── Quotes ── */
+.quote-list { display: flex; flex-direction: column; gap: 16px; }
+.quote-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent4); border-radius: var(--radius);
+  padding: 20px 24px; cursor: pointer; transition: all 0.3s;
+}
+.quote-card:hover { border-color: var(--accent4); transform: translateX(4px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.quote-text {
+  font-size: 1.05rem; font-weight: 400; line-height: 1.9;
+  position: relative; padding-left: 1.2rem;
+}
+.quote-text::before {
+  content: '\201C'; position: absolute; left: -4px; top: -8px;
+  font-size: 2.5rem; color: var(--accent4); opacity: 0.4; font-family: serif;
+}
+.quote-footer { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.quote-chapter {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  background: rgba(108,99,255,0.15); color: var(--accent);
+  padding: 2px 10px; border-radius: 2rem;
+}
+.quote-context {
+  font-size: 0.78rem; color: var(--text-dim);
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease, margin-top 0.3s ease;
+  line-height: 1.6;
+}
+.quote-card.expanded .quote-context { max-height: 200px; margin-top: 10px; }
+.quote-expand-hint {
+  font-size: 0.7rem; color: var(--text-dim); margin-left: auto;
+  font-family: var(--font-mono); opacity: 0.6;
+}
+.quote-card.expanded .quote-expand-hint { display: none; }
+
+/* ── Concepts ── */
+.concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.concept-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; transition: all 0.3s;
+  cursor: default;
+}
+.concept-card:hover { border-color: var(--accent3); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.concept-icon { font-size: 2rem; margin-bottom: 12px; }
+.concept-name { font-weight: 700; font-size: 1rem; margin-bottom: 2px; }
+.concept-name-zh { font-size: 0.8rem; color: var(--accent3); margin-bottom: 10px; }
+.concept-summary {
+  font-size: 0.82rem; color: var(--text-dim); line-height: 1.7;
+  max-height: 3.4rem; overflow: hidden; transition: max-height 0.4s ease;
+}
+.concept-card:hover .concept-summary { max-height: 400px; }
+.concept-more {
+  font-size: 0.7rem; color: var(--accent); margin-top: 6px;
+  font-family: var(--font-mono); transition: opacity 0.2s;
+}
+.concept-card:hover .concept-more { opacity: 0; }
+
+/* ── Principles ── */
+.principle-list { display: flex; flex-direction: column; gap: 12px; counter-reset: principle; }
+.principle-item {
+  display: flex; align-items: flex-start; gap: 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 22px; transition: all 0.3s;
+  counter-increment: principle;
+}
+.principle-item:hover { border-color: var(--accent2); transform: translateX(4px); }
+.principle-num {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent2); min-width: 28px; padding-top: 2px;
+}
+.principle-num::before { content: counter(principle, decimal-leading-zero); }
+.principle-icon { font-size: 1.4rem; flex-shrink: 0; padding-top: 1px; }
+.principle-body { flex: 1; }
+.principle-text { font-size: 0.95rem; font-weight: 500; }
+.principle-text-zh { font-size: 0.82rem; color: var(--text-dim); margin-top: 4px; }
+
+/* ── Essence ── */
+.essence-list { display: flex; flex-direction: column; gap: 2px; }
+.essence-item {
+  display: grid; grid-template-columns: 60px 1fr; gap: 16px;
+  padding: 14px 20px; border-radius: var(--radius);
+  transition: background 0.2s;
+}
+.essence-item:hover { background: var(--card); }
+.essence-chapter {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent); padding-top: 3px; text-align: right;
+}
+.essence-body {}
+.essence-title { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 2px; }
+.essence-sentence { font-size: 0.9rem; line-height: 1.7; }
+
+/* ── Empty State ── */
+.empty-state {
+  text-align: center; padding: 3rem; color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Footer ── */
+.footer {
+  text-align: center; padding: 2rem 0; color: var(--text-dim);
+  font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 3rem;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .hero { min-height: 40vh; padding: 3rem 1.5rem 2rem; }
+  .concept-grid { grid-template-columns: 1fr; }
+  .essence-item { grid-template-columns: 45px 1fr; gap: 10px; }
+  .quote-card { padding: 16px 18px; }
+  .section-header { margin: 3rem 0 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<section class="hero">
+  <a href="index.html" class="back-link">&larr; Back</a>
+  <div class="hero-icon">🧪</div>
+  <h1>Distill</h1>
+  <p class="hero-subtitle">What remains after the last page — the ideas worth carrying forward</p>
+  <div class="hero-book">🌓 白夜行</div>
+</section>
+
+<nav class="section-nav">
+  <a class="nav-pill active" href="#quotes" onclick="scrollToSection('quotes',this)">Quotes</a>
+  <a class="nav-pill" href="#concepts" onclick="scrollToSection('concepts',this)">Concepts</a>
+  <a class="nav-pill" href="#principles" onclick="scrollToSection('principles',this)">Principles</a>
+  <a class="nav-pill" href="#essence" onclick="scrollToSection('essence',this)">Essence</a>
+</nav>
+
+<main class="container">
+
+  <!-- Quotes -->
+  <div class="section-header fade-in" id="quotes">
+    <span class="section-header-icon">&#x1F4AC;</span>
+    <h2>Quotes</h2>
+    <span class="section-label">GOLDEN LINES</span>
+  </div>
+  <div class="quote-list" id="quoteList"></div>
+
+  <!-- Concepts -->
+  <div class="section-header fade-in" id="concepts">
+    <span class="section-header-icon">&#x1F9E0;</span>
+    <h2>Concepts</h2>
+    <span class="section-label">MENTAL MODELS</span>
+  </div>
+  <div class="concept-grid" id="conceptGrid"></div>
+
+  <!-- Principles -->
+  <div class="section-header fade-in" id="principles">
+    <span class="section-header-icon">&#x2728;</span>
+    <h2>Principles</h2>
+    <span class="section-label">ACTION RULES</span>
+  </div>
+  <div class="principle-list" id="principleList"></div>
+
+  <!-- Essence -->
+  <div class="section-header fade-in" id="essence">
+    <span class="section-header-icon">&#x1F3AF;</span>
+    <h2>Essence</h2>
+    <span class="section-label">ONE SENTENCE PER CHAPTER</span>
+  </div>
+  <div class="essence-list" id="essenceList"></div>
+
+</main>
+
+<div class="footer">
+  Distilled with the <a href="https://en.wikipedia.org/wiki/Feynman_Technique">Feynman Method</a>
+</div>
+
+<script>
+const distill = {
+  "quotes": [
+    {
+      "text": "我的人生就像在白夜里走路。",
+      "chapter": 8,
+      "context": "桐原亮司在跨年夜被问到新年抱负时的回答。这句话道破了他一生的处境——永远行走在既非白天也非黑夜的灰色地带，有光却不是真正的阳光。"
+    },
+    {
+      "text": "我的天空里没有太阳，总是黑夜，但并不暗，因为有东西代替了太阳。虽然没有太阳那么明亮，但对我来说已经足够。凭借着这份光，我便能把黑夜当成白天。你明白吧？我从来就没有太阳，所以不怕失去。",
+      "chapter": 13,
+      "context": "雪穗对员工夏美说出的罕见真心话。「代替太阳的东西」暗指亮司——她从未拥有过正常的人生之光，亮司的牺牲是她唯一的光源。"
+    },
+    {
+      "text": "只见雪穗正沿扶梯上楼，她的背影犹如白色的影子。她一次都没有回头。",
+      "chapter": 13,
+      "context": "全书最后两句。亮司死后，雪穗头也不回地离开——这个背影浓缩了整部小说的悲剧：她无法回头，因为回头意味着承认一切。"
+    },
+    {
+      "text": "曾经拥有的东西被夺走，并不代表就会回到原来没有那种东西的时候。",
+      "chapter": 13,
+      "context": "典子在秋吉雄一（亮司）离开后的感悟。失去所爱之后，人不会回到未曾拥有时的状态，而是留下一个永远无法填补的空洞。"
+    },
+    {
+      "text": "那是我的旧伤。",
+      "chapter": 13,
+      "context": "退休刑警笹垣被问及为何仍放不下十九年前的旧案时的回答。一句话概括了他对这桩悬案的执念——不是职业义务，而是灵魂深处无法愈合的伤口。"
+    },
+    {
+      "text": "因为她相信这种做法能够轻易夺走对方的灵魂……",
+      "chapter": 13,
+      "context": "笹垣对雪穗行为模式的分析。童年被夺走灵魂的雪穗，长大后以同样的方式控制他人——创伤不仅留下伤疤，还会变成武器。"
+    },
+    {
+      "text": "事后，他们两人如何协调约定不得而知。笹垣推测，多半没有协调约定这回事，他们只是想保护自己的灵魂。结果，雪穗从不以真面目示人，亮司则至今仍在黑暗的通风管中徘徊。",
+      "chapter": 13,
+      "context": "笹垣对整个案件的终极推理。两个被毁掉的孩子没有谋划，只是本能地保护残存的自我——雪穗戴上面具活在阳光下，亮司永远躲在暗处。"
+    },
+    {
+      "text": "一想到他是抱着何种心情在通风管中爬行，笹垣便感到心痛。",
+      "chapter": 13,
+      "context": "笹垣想象十一岁的亮司杀死父亲后，独自在黑暗的通风管中爬行逃离的场景。这个画面成为亮司一生的隐喻——永远在黑暗中匍匐前行。"
+    },
+    {
+      "text": "你知道吗？人的肌肤拥有绝佳的记忆力。听说，一个人的肌肤会记住所承受过紫外线的量。所以，晒黑的肌肤就算白了回来，等到年纪大了，伤害依然会出现。",
+      "chapter": 5,
+      "context": "雪穗关于肌肤记忆的言论，表面谈论护肤，实则暗喻童年创伤的不可磨灭——身体会记住一切伤害，即使表面已经痊愈。"
+    },
+    {
+      "text": "好像在演戏呀，笹垣心想。",
+      "chapter": 1,
+      "context": "桐原洋介的妻子弥生子认领丈夫尸体时的反应。笹垣敏锐的直觉捕捉到了那份刻意的悲伤——这个「演戏」的判断贯穿了他此后十九年的追查。"
+    },
+    {
+      "text": "枪虾会挖洞，住在洞里。可有个家伙却要去住在它的洞里，那就是虾虎鱼。不过虾虎鱼也不白住，它会在洞口巡视，要是有外敌靠近，就摆动尾鳍通知洞里的枪虾。它们合作无间，这好像叫互利共生。",
+      "chapter": 11,
+      "context": "笹垣用枪虾与虾虎鱼的关系比喻雪穗和亮司的共生模式。这个生物学隐喻精准概括了两人的关系——一个在暗处挖掘，一个在明处守望。"
+    },
+    {
+      "text": "命案发生已过了十九年，他的脑海里仍牢记着相关人物的姓名。",
+      "chapter": 13,
+      "context": "描述笹垣对这桩悬案的执着。十九年过去了，所有人都已向前走，唯独他无法忘记每一个名字、每一个细节——这是追寻真相的代价。"
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Symbiotic Crime",
+      "nameZh": "共生犯罪",
+      "summary": "桐原亮司与唐泽雪穗如同枪虾和虾虎鱼般互利共生：亮司在暗处清除一切障碍——杀人、设局、伪造证据，雪穗则在明处步步高升，以完美的社会形象掩盖一切罪行。两人几乎从不直接接触，却像一个有机体的两个部分般精密协作长达十九年。这种犯罪模式之所以难以侦破，正是因为作案者与获益者之间没有任何可见的联系。",
+      "icon": "🦐"
+    },
+    {
+      "name": "Trauma Transmission",
+      "nameZh": "创伤传递",
+      "summary": "童年遭受性侵的雪穗，长大后将同样的手段施加于他人——江利子、藤村都子、筱冢美佳，一个接一个的受害者重复着她当年的噩梦。笹垣洞察到她「相信这种做法能够轻易夺走对方的灵魂」，这恰恰揭示了创伤的传递机制：受害者内化了施害者的逻辑，将自己承受的痛苦转化为控制他人的工具。创伤不会消失，它只会以新的形式在新的受害者身上重演。",
+      "icon": "🔗"
+    },
+    {
+      "name": "Social Camouflage",
+      "nameZh": "社会伪装",
+      "summary": "雪穗是东野圭吾笔下最完美的伪装者。从西本雪穗到唐泽雪穗，再到高宫雪穗，每一次身份转换都伴随着更精致的面具。她举止优雅、善解人意、品位高雅，每一个接近她的人都被她的光芒所折服。然而这一切都是精心构建的保护色——正如她自己所说，她「从不以真面目示人」。全书最残酷的设计是，读者始终无法直接窥视她的内心，只能从他人的视角拼凑出那个隐藏在白色影子背后的真实灵魂。",
+      "icon": "🎭"
+    },
+    {
+      "name": "Cold Case Obsession",
+      "nameZh": "执念追踪",
+      "summary": "刑警笹垣润三从1973年的当铺命案开始，穷尽十九年追查真相。即使案件被打入冷宫，即使他已退休，即使所有人都认为凶手早已因车祸身亡，他仍然无法放下这个「旧伤」。他用自己的退休金住廉价旅店，一次次从大阪奔赴东京，拼凑着每一块碎片。他的执念不是出于职业荣誉，而是出于对真相本身的信仰——他知道有两个孩子在那栋废弃建筑里失去了灵魂，而正义从未降临。",
+      "icon": "🔍"
+    },
+    {
+      "name": "Moral Compromise",
+      "nameZh": "道德滑坡",
+      "summary": "园村友彦的故事线展示了一个普通人如何一步步沦为犯罪的帮凶。从高中时期被桐原「帮忙」处理花冈夕子的死亡开始，友彦就落入了桐原的掌控。他参与银行诈骗、经营盗版软件店铺、为桐原提供藏身之所，每一次妥协都让他离正常生活更远一步。友彦并非恶人，但正是这种「不得不如此」的逐步退让，将他绑上了桐原的犯罪战车。沉默本身就是一种共谋。",
+      "icon": "⬇️"
+    },
+    {
+      "name": "The White Night Paradox",
+      "nameZh": "白夜悖论",
+      "summary": "白夜是极地特有的现象——太阳不落山，夜晚却有光。桐原亮司说「我的人生就像在白夜里走路」，雪穗说「我从来就没有太阳，所以不怕失去」。两人的人生都悬浮在光明与黑暗之间的灰色地带：有光，但不是真正的阳光；是夜，但并不完全黑暗。这种永恒的黄昏状态就是他们的存在本质——无法走入真正的白天，也回不到纯粹的黑夜。他们互为彼此的替代太阳，以共生维系着这场永无天明的白夜行走。",
+      "icon": "🌗"
+    }
+  ],
+  "principles": [
+    {
+      "text": "Truth does not expire — it only waits for someone stubborn enough to find it",
+      "textZh": "真相不会过期——它只是在等待一个足够执着的人去发现它",
+      "icon": "🔦"
+    },
+    {
+      "text": "The most perfect mask is the one that makes everyone forget there is a face beneath it",
+      "textZh": "最完美的面具，是让所有人都忘记面具之下还有一张脸",
+      "icon": "🎭"
+    },
+    {
+      "text": "Silence in the face of injustice is not neutrality — it is complicity",
+      "textZh": "在不义面前保持沉默不是中立，而是共谋",
+      "icon": "🤐"
+    },
+    {
+      "text": "Childhood wounds do not heal with time — they metastasize into the patterns of adulthood",
+      "textZh": "童年的伤口不会随时间愈合——它们会扩散为成年后的行为模式",
+      "icon": "💔"
+    },
+    {
+      "text": "Protection can become the heaviest chain — the one who sacrifices everything loses the right to live for themselves",
+      "textZh": "保护可以变成最沉重的枷锁——那个牺牲一切的人，失去了为自己而活的权利",
+      "icon": "⛓️"
+    },
+    {
+      "text": "Appearances and reality diverge most dangerously in the people we think we know best",
+      "textZh": "表象与真实的裂缝，在我们自以为最了解的人身上最为致命",
+      "icon": "🪞"
+    },
+    {
+      "text": "Every small moral concession paves the way for the next — until the road back disappears entirely",
+      "textZh": "每一次微小的道德让步都在为下一次铺路——直到回头的路彻底消失",
+      "icon": "🕳️"
+    },
+    {
+      "text": "Two broken souls can sustain each other, but they cannot make each other whole",
+      "textZh": "两个破碎的灵魂可以相互支撑，却无法让彼此完整",
+      "icon": "🌓"
+    }
+  ],
+  "essence": [
+    {
+      "chapter": 1,
+      "title": "第一章",
+      "sentence": "当铺老板桐原洋介被剪刀刺死在废弃大楼中，十一岁的儿子桐原亮司表现得异常冷漠，而雪穗的母亲西本文代随后煤气中毒身亡——两个孩子用最极端的方式终结了各自的噩梦，也开启了长达十九年的白夜行走。"
+    },
+    {
+      "chapter": 2,
+      "title": "第二章",
+      "sentence": "清华女子学园发生少女遇袭事件，无辜的藤村都子成为替罪羊——这是雪穗和亮司共生犯罪模式的首次运作：制造一个受害者来消除一个威胁者，以冷酷的精确保护脆弱的秘密。"
+    },
+    {
+      "chapter": 3,
+      "title": "第三章",
+      "sentence": "园村友彦被桐原引入地下世界，花冈夕子的死让友彦落入桐原的掌控——一个普通少年从此被绑上犯罪的战车，以沉默换取安全，以共谋换取庇护。"
+    },
+    {
+      "chapter": 4,
+      "title": "第四章",
+      "sentence": "家教中道正晴追查雪穗的身世，触及了唐泽礼子收养的真相和西本文代之死的疑点——每一个试图揭开雪穗过去的人，都会被无形的力量阻止在真相的门槛之外。"
+    },
+    {
+      "chapter": 5,
+      "title": "第五章",
+      "sentence": "大学时代的江利子遭到性侵、精神崩溃，雪穗从此失去了唯一的竞争对手并获得接近筱冢家族的通道——最亲密的朋友成为最精准的猎物，友情不过是一枚随时可弃的棋子。"
+    },
+    {
+      "chapter": 6,
+      "title": "第六章",
+      "sentence": "桐原策划银行诈骗，奈美江被灭口，友彦在恐惧中越陷越深——暗处的犯罪机器越转越快，每一个被利用过的人都会变成需要清除的痕迹。"
+    },
+    {
+      "chapter": 7,
+      "title": "第七章",
+      "sentence": "雪穗精心布局与高宫诚的婚姻，婚礼当天诚的心上人千都留在酒店遭遇不测——雪穗以婚姻为工具实现社会阶层的跃升，任何挡在路上的人都会被无声地清除。"
+    },
+    {
+      "chapter": 8,
+      "title": "第八章",
+      "sentence": "友彦开设电脑店MUGEN，桐原涉足盗版软件和电脑犯罪，并在跨年夜说出「我的人��就像在白夜里走路」——在用精美剪纸为友彦送上祝福的同时，桐原带走了那把命运般的剪刀。"
+    },
+    {
+      "chapter": 9,
+      "title": "第九章",
+      "sentence": "雪穗开设精品店R&Y，主导了与高宫诚的离婚——当婚姻完成了社会跳板的使命，丈夫便成了可以丢弃的阶梯，而R&Y的名字暗藏着她与亮司之间无人知晓的纽带。"
+    },
+    {
+      "chapter": 10,
+      "title": "第十章",
+      "sentence": "私家侦探今枝直巳受雇调查雪穗，逐步发现她身边可疑的行为模式——一个局外人以理性和专业接近了真相的核心，却不知自己已经走进了最危险的地带。"
+    },
+    {
+      "chapter": 11,
+      "title": "第十一章",
+      "sentence": "今枝的调查深入到唐泽礼子之死的真相，随后他突然失踪——每一个接近真相的人都会消失，沉默的代价是用更多的沉默来掩盖，直到真相被埋入无人能及的深处。"
+    },
+    {
+      "chapter": 12,
+      "title": "第十二章",
+      "sentence": "退休刑警笹垣十九年后重启旧案，典子发现秋吉雄一的秘密，筱冢美佳遭到侵害——所有的线索开始汇聚，散落在二十六年间的碎片终于拼出了那幅令人毛骨悚然的全貌。"
+    },
+    {
+      "chapter": 13,
+      "title": "第十三章",
+      "sentence": "笹垣与一成联手揭开全部真相，亮司在R&Y大阪店开业之夜坠亡，雪穗沿扶梯上楼、一次都没有回头——白夜终于走到了尽头，那个替代太阳的人熄灭了，而她只能继续行走在永恒的黑暗中。"
+    }
+  ]
+};
+
+
+(function() {
+  const data = typeof distill !== 'undefined' ? distill : {};
+  const quotes = data.quotes || [];
+  const concepts = data.concepts || [];
+  const principles = data.principles || [];
+  const essence = data.essence || [];
+
+  // ── Render Quotes ──
+  const quoteList = document.getElementById('quoteList');
+  if (quotes.length === 0) {
+    quoteList.innerHTML = '<div class="empty-state">No quotes distilled yet.</div>';
+  } else {
+    quotes.forEach(q => {
+      const card = document.createElement('div');
+      card.className = 'quote-card fade-in';
+      card.onclick = function() { this.classList.toggle('expanded'); };
+      card.innerHTML =
+        '<div class="quote-text">' + escHtml(q.text) + '</div>' +
+        '<div class="quote-footer">' +
+          (q.chapter ? '<span class="quote-chapter">Ch.' + q.chapter + '</span>' : '') +
+          '<span class="quote-expand-hint">click to expand</span>' +
+        '</div>' +
+        (q.context ? '<div class="quote-context">' + escHtml(q.context) + '</div>' : '');
+      quoteList.appendChild(card);
+    });
+  }
+
+  // ── Render Concepts ──
+  const conceptGrid = document.getElementById('conceptGrid');
+  if (concepts.length === 0) {
+    conceptGrid.innerHTML = '<div class="empty-state">No concepts distilled yet.</div>';
+  } else {
+    concepts.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'concept-card fade-in';
+      card.innerHTML =
+        '<div class="concept-icon">' + (c.icon || '\u{1F9E0}') + '</div>' +
+        '<div class="concept-name">' + escHtml(c.name) + '</div>' +
+        (c.nameZh ? '<div class="concept-name-zh">' + escHtml(c.nameZh) + '</div>' : '') +
+        '<div class="concept-summary">' + escHtml(c.summary || '') + '</div>' +
+        '<div class="concept-more">hover to read more</div>';
+      conceptGrid.appendChild(card);
+    });
+  }
+
+  // ── Render Principles ──
+  const principleList = document.getElementById('principleList');
+  if (principles.length === 0) {
+    principleList.innerHTML = '<div class="empty-state">No principles distilled yet.</div>';
+  } else {
+    principles.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'principle-item fade-in';
+      item.innerHTML =
+        '<div class="principle-num"></div>' +
+        '<div class="principle-icon">' + (p.icon || '\u{1F4A1}') + '</div>' +
+        '<div class="principle-body">' +
+          '<div class="principle-text">' + escHtml(p.text) + '</div>' +
+          (p.textZh ? '<div class="principle-text-zh">' + escHtml(p.textZh) + '</div>' : '') +
+        '</div>';
+      principleList.appendChild(item);
+    });
+  }
+
+  // ── Render Essence ──
+  const essenceList = document.getElementById('essenceList');
+  if (essence.length === 0) {
+    essenceList.innerHTML = '<div class="empty-state">No chapter essences distilled yet.</div>';
+  } else {
+    essence.forEach(e => {
+      const item = document.createElement('div');
+      item.className = 'essence-item fade-in';
+      item.innerHTML =
+        '<div class="essence-chapter">Ch.' + (e.chapter || '?') + '</div>' +
+        '<div class="essence-body">' +
+          (e.title ? '<div class="essence-title">' + escHtml(e.title) + '</div>' : '') +
+          '<div class="essence-sentence">' + escHtml(e.sentence || '') + '</div>' +
+        '</div>';
+      essenceList.appendChild(item);
+    });
+  }
+
+  // ── Utility ──
+  function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // ── Scroll Progress ──
+  var progressBar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', function() {
+    var h = document.documentElement;
+    var pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    progressBar.style.width = Math.min(pct, 100) + '%';
+  });
+
+  // ── IntersectionObserver Fade-in ──
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // ── Active nav pill tracking ──
+  var sections = ['quotes', 'concepts', 'principles', 'essence'];
+  var navPills = document.querySelectorAll('.nav-pill');
+  var sectionObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        navPills.forEach(function(p) { p.classList.remove('active'); });
+        var pill = document.querySelector('.nav-pill[href="#' + entry.target.id + '"]');
+        if (pill) pill.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -60% 0px' });
+
+  sections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+})();
+
+function scrollToSection(id, el) {
+  var target = document.getElementById(id);
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.querySelectorAll('.nav-pill').forEach(function(p) { p.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+</script>
+</body>
+</html>

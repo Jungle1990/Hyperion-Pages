@@ -152,358 +152,387 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg);
 const spatial = {
   "locations": [
     {
-      "id": "osaka",
-      "name": "大阪",
-      "nameEn": "Osaka",
-      "x": 0.25,
-      "y": 0.45,
-      "radius": 120,
-      "color": "#ff6b6b",
+      "id": "fuse",
+      "name": "大阪·布施",
+      "nameEn": "Osaka Fuse District",
+      "x": 0.3,
+      "y": 0.5,
+      "radius": 90,
+      "color": "#ffe66d",
       "subLocations": [
-        {
-          "id": "building",
-          "name": "废弃建筑",
-          "x": 0.12,
-          "y": 0.3
-        },
         {
           "id": "pawnshop",
           "name": "桐原当铺",
-          "x": 0.2,
-          "y": 0.5
+          "x": 0.28,
+          "y": 0.45
         },
         {
-          "id": "seika_school",
-          "name": "清华女子学园",
+          "id": "building",
+          "name": "废弃大楼",
+          "x": 0.32,
+          "y": 0.42
+        },
+        {
+          "id": "nishimoto",
+          "name": "西本家公寓",
+          "x": 0.25,
+          "y": 0.52
+        },
+        {
+          "id": "library",
+          "name": "图书馆",
           "x": 0.35,
-          "y": 0.25
-        },
-        {
-          "id": "ooe_apartment",
-          "name": "大江公寓 (西本家)",
-          "x": 0.15,
-          "y": 0.6
-        },
-        {
-          "id": "karasawa_house",
-          "name": "唐泽家",
-          "x": 0.38,
-          "y": 0.45
-        },
-        {
-          "id": "police_hq",
-          "name": "大阪府警本部",
-          "x": 0.1,
-          "y": 0.45
-        },
-        {
-          "id": "nishifuse_station",
-          "name": "西布施分局",
-          "x": 0.12,
-          "y": 0.38
-        },
-        {
-          "id": "ooe_junior_high",
-          "name": "大江初中",
-          "x": 0.18,
-          "y": 0.65
-        },
-        {
-          "id": "osaka_304",
-          "name": "西长堀公寓304室",
-          "x": 0.3,
           "y": 0.55
         },
         {
-          "id": "seika_univ",
-          "name": "清华女子大学",
-          "x": 0.4,
-          "y": 0.3
+          "id": "police-station",
+          "name": "布施警察署",
+          "x": 0.22,
+          "y": 0.42
         },
         {
-          "id": "eimei_univ",
-          "name": "永明大学",
-          "x": 0.42,
-          "y": 0.35
+          "id": "osaka-304",
+          "name": "西长堀公寓304室",
+          "x": 0.38,
+          "y": 0.5
         }
       ]
+    },
+    {
+      "id": "seika",
+      "name": "清华学园",
+      "nameEn": "Seika Academy",
+      "x": 0.15,
+      "y": 0.25,
+      "radius": 50,
+      "color": "#ff8fab",
+      "subLocations": [
+        {
+          "id": "seika-junior",
+          "name": "清华女子初中",
+          "x": 0.12,
+          "y": 0.22
+        },
+        {
+          "id": "seika-univ",
+          "name": "清华女子大学",
+          "x": 0.18,
+          "y": 0.28
+        }
+      ]
+    },
+    {
+      "id": "karasawa",
+      "name": "唐泽家",
+      "nameEn": "Karasawa Residence",
+      "x": 0.1,
+      "y": 0.5,
+      "radius": 40,
+      "color": "#4ecdc4"
+    },
+    {
+      "id": "shinozuka",
+      "name": "筱冢家",
+      "nameEn": "Shinozuka Estate",
+      "x": 0.1,
+      "y": 0.72,
+      "radius": 40,
+      "color": "#a78bfa"
     },
     {
       "id": "tokyo",
       "name": "东京",
       "nameEn": "Tokyo",
       "x": 0.72,
-      "y": 0.45,
-      "radius": 120,
+      "y": 0.4,
+      "radius": 100,
       "color": "#6c63ff",
       "subLocations": [
         {
-          "id": "mugen_shop",
+          "id": "mugen",
           "name": "MUGEN电脑店",
-          "x": 0.6,
-          "y": 0.35
-        },
-        {
-          "id": "seijo_apartment",
-          "name": "成城公寓 (高宫家)",
-          "x": 0.75,
-          "y": 0.25
-        },
-        {
-          "id": "touzai_denso",
-          "name": "东西电装总公司",
           "x": 0.65,
-          "y": 0.45
+          "y": 0.32
         },
         {
-          "id": "yukiho_shop",
-          "name": "R&Y (雪穗的店)",
-          "x": 0.82,
-          "y": 0.35
+          "id": "touzai",
+          "name": "东西电装总公司",
+          "x": 0.7,
+          "y": 0.45
         },
         {
           "id": "ginza",
           "name": "银座",
-          "x": 0.85,
-          "y": 0.45
-        },
-        {
-          "id": "imaeda_office",
-          "name": "今枝侦探事务所",
-          "x": 0.7,
-          "y": 0.55
-        },
-        {
-          "id": "nerima_apartment",
-          "name": "练马公寓 (典子家)",
-          "x": 0.58,
-          "y": 0.55
+          "x": 0.78,
+          "y": 0.38
         },
         {
           "id": "shinjuku",
           "name": "新宿",
-          "x": 0.62,
-          "y": 0.4
-        },
-        {
-          "id": "shimokitazawa",
-          "name": "下北泽",
           "x": 0.68,
-          "y": 0.6
+          "y": 0.5
         },
         {
-          "id": "golf_range",
-          "name": "老鹰高尔夫练习场",
-          "x": 0.78,
-          "y": 0.55
-        },
-        {
-          "id": "toshima_apartment",
-          "name": "丰岛区公寓 (秋吉住所)",
-          "x": 0.63,
+          "id": "imaeda-office",
+          "name": "今枝侦探事务所",
+          "x": 0.75,
           "y": 0.52
+        },
+        {
+          "id": "seijo",
+          "name": "成城公寓（高宫家）",
+          "x": 0.8,
+          "y": 0.3
         }
       ]
     },
     {
-      "id": "other",
-      "name": "其他地区",
-      "nameEn": "Other Areas",
+      "id": "nerima",
+      "name": "练马·典子公寓",
+      "nameEn": "Nerima / Noriko's Apartment",
+      "x": 0.58,
+      "y": 0.58,
+      "radius": 35,
+      "color": "#ffa94d"
+    },
+    {
+      "id": "ry-tokyo",
+      "name": "R&Y东京店",
+      "nameEn": "R&Y Tokyo Boutique",
+      "x": 0.82,
+      "y": 0.22,
+      "radius": 35,
+      "color": "#ff6b6b"
+    },
+    {
+      "id": "ry-osaka",
+      "name": "R&Y大阪店",
+      "nameEn": "R&Y Osaka Boutique (Final Scene)",
+      "x": 0.35,
+      "y": 0.72,
+      "radius": 35,
+      "color": "#ff6b6b"
+    },
+    {
+      "id": "nagoya",
+      "name": "名古屋",
+      "nameEn": "Nagoya",
       "x": 0.5,
-      "y": 0.85,
-      "radius": 60,
-      "color": "#4ecdc4",
-      "subLocations": [
-        {
-          "id": "nagoya",
-          "name": "名古屋",
-          "x": 0.45,
-          "y": 0.8
-        },
-        {
-          "id": "shiga",
-          "name": "滋贺 (印刷工厂)",
-          "x": 0.35,
-          "y": 0.85
-        }
-      ]
+      "y": 0.82,
+      "radius": 40,
+      "color": "#868e96"
     }
   ],
   "movements": [
     {
       "chapter": 1,
       "character": "sasagaki",
-      "from": "police_hq",
+      "from": "police-station",
       "to": "building",
-      "desc": "笹垣接到通知赶赴废弃建筑，调查桐原洋介遇害现场"
+      "desc": "笹垣接到通知赶赴废弃大楼，调查桐原洋介遇害现场"
     },
     {
       "chapter": 1,
       "character": "sasagaki",
       "from": "building",
       "to": "pawnshop",
-      "desc": "笹垣护送桐原弥生子回到桐原当铺确认情况"
+      "desc": "笹垣前往桐原当铺询问弥生子案发当晚的情况"
+    },
+    {
+      "chapter": 1,
+      "character": "sasagaki",
+      "from": "pawnshop",
+      "to": "nishimoto",
+      "desc": "笹垣走访西本文代的公寓，初次见到年幼的雪穗"
     },
     {
       "chapter": 2,
       "character": "eriko",
-      "from": "seika_school",
-      "to": "ooe_apartment",
-      "desc": "江利子放学后到雪穗在大江的家中作客，得知雪穗身世"
+      "from": "seika-junior",
+      "to": "nishimoto",
+      "desc": "江利子放学后到雪穗在西本家的公寓作客"
     },
     {
       "chapter": 2,
       "character": "ryoji",
-      "from": "ooe_junior_high",
+      "from": "fuse",
       "to": "building",
-      "desc": "菊池向雄一揭露桐原亮司父亲被害的废弃大楼"
+      "desc": "亮司被菊池带到父亲遇害的废弃大楼"
     },
     {
       "chapter": 3,
       "character": "tomohiko",
-      "from": "eimei_univ",
-      "to": "osaka_304",
-      "desc": "友彦跟随桐原亮司到西长堀公寓，初次涉足灰色生意"
+      "from": "fuse",
+      "to": "osaka-304",
+      "desc": "友彦跟随亮司到西长堀公寓，初次涉足灰色交易"
     },
     {
       "chapter": 3,
       "character": "ryoji",
       "from": "pawnshop",
-      "to": "osaka_304",
-      "desc": "桐原亮司组织友彦和村下到公寓陪少奶奶们聊天"
+      "to": "osaka-304",
+      "desc": "亮司组织友彦等人到公寓从事色情服务交易"
     },
     {
       "chapter": 4,
       "character": "yukiho",
-      "from": "seika_school",
-      "to": "karasawa_house",
-      "desc": "雪穗在唐泽礼子家接受家教辅导，中道正晴执教"
+      "from": "seika-junior",
+      "to": "karasawa",
+      "desc": "雪穗被唐泽礼子收养，搬入唐泽家"
     },
     {
       "chapter": 4,
-      "character": "yukiho",
-      "from": "karasawa_house",
-      "to": "shinjuku",
-      "desc": "雪穗深夜瞒着养母偷偷外出搭出租车，行踪成谜"
+      "character": "nakamichi",
+      "from": "fuse",
+      "to": "karasawa",
+      "desc": "中道正晴到唐泽家担任雪穗的家庭教师"
     },
     {
       "chapter": 5,
       "character": "yukiho",
-      "from": "seika_school",
-      "to": "seika_univ",
-      "desc": "雪穗升入清华女子大学，加入社交舞社"
+      "from": "seika-junior",
+      "to": "seika-univ",
+      "desc": "雪穗升入清华女子大学，加入社交舞蹈社"
     },
     {
       "chapter": 5,
       "character": "eriko",
-      "from": "seika_univ",
-      "to": "eimei_univ",
-      "desc": "江利子与雪穗前往永明大学参加社交舞联合练习"
+      "from": "seika-univ",
+      "to": "shinozuka",
+      "desc": "江利子与筱冢一成交往，进入筱冢家族的社交圈"
+    },
+    {
+      "chapter": 5,
+      "character": "ryoji",
+      "from": "osaka-304",
+      "to": "seika-univ",
+      "desc": "亮司暗中接近江利子，为雪穗清除竞争对手"
     },
     {
       "chapter": 6,
       "character": "tomohiko",
-      "from": "osaka_304",
-      "to": "mugen_shop",
-      "desc": "友彦男扮女装使用伪造银行卡取款成功，桐原筹划电脑店"
+      "from": "osaka-304",
+      "to": "nagoya",
+      "desc": "友彦男扮女装前往名古屋使用伪造银行卡取款"
     },
     {
       "chapter": 6,
       "character": "ryoji",
-      "from": "osaka_304",
-      "to": "mugen_shop",
-      "desc": "桐原将活动据点从大阪公寓转移至东京MUGEN电脑店"
+      "from": "osaka-304",
+      "to": "nagoya",
+      "desc": "亮司安排奈美江到名古屋配合犯罪后将其灭口"
     },
     {
       "chapter": 7,
       "character": "yukiho",
-      "from": "seika_univ",
-      "to": "seijo_apartment",
-      "desc": "雪穗帮高宫诚打扫婚房，准备结婚新生活"
+      "from": "karasawa",
+      "to": "seijo",
+      "desc": "雪穗嫁入高宫家，搬进成城公寓开始婚后生活"
     },
     {
       "chapter": 7,
       "character": "shinozuka_k",
-      "from": "eimei_univ",
-      "to": "touzai_denso",
-      "desc": "筱冢一成（高宫诚背景）——高宫在东西电装专利部工作"
+      "from": "shinozuka",
+      "to": "touzai",
+      "desc": "筱冢一成在东西电装公司工作，与高宫诚成为同事"
+    },
+    {
+      "chapter": 8,
+      "character": "ryoji",
+      "from": "fuse",
+      "to": "mugen",
+      "desc": "亮司将活动据点从大阪转移到东京MUGEN电脑店"
     },
     {
       "chapter": 8,
       "character": "tomohiko",
-      "from": "mugen_shop",
-      "to": "mugen_shop",
-      "desc": "友彦在MUGEN电脑店接待客户，金城来访谈盗版马里奥"
+      "from": "fuse",
+      "to": "mugen",
+      "desc": "友彦跟随亮司来到东京，经营MUGEN电脑店"
     },
     {
       "chapter": 9,
       "character": "yukiho",
-      "from": "seijo_apartment",
-      "to": "yukiho_shop",
-      "desc": "雪穗在婚后从股票投资转向开设精品店R&Y"
+      "from": "seijo",
+      "to": "ry-tokyo",
+      "desc": "雪穗在离婚后开设R&Y精品店，开始独立事业"
     },
     {
       "chapter": 9,
       "character": "ryoji",
-      "from": "mugen_shop",
-      "to": "touzai_denso",
-      "desc": "桐原暗中窃取东西电装专家系统数据，通过Memorix售卖"
+      "from": "mugen",
+      "to": "touzai",
+      "desc": "亮司暗中窃取东西电装专家系统数据"
     },
     {
       "chapter": 10,
       "character": "imaeda",
-      "from": "golf_range",
-      "to": "toshima_apartment",
-      "desc": "今枝在高尔夫练习场偶遇高宫诚，回想三年前调查秋吉雄一"
+      "from": "imaeda-office",
+      "to": "mugen",
+      "desc": "今枝追踪秋吉雄一的线索来到MUGEN电脑店"
     },
     {
       "chapter": 10,
       "character": "imaeda",
-      "from": "imaeda_office",
-      "to": "shimokitazawa",
-      "desc": "今枝跟踪秋吉雄一到下北泽，发现其窥探三泽千都留住处"
+      "from": "mugen",
+      "to": "nerima",
+      "desc": "今枝跟踪秋吉雄一到练马区，发现其行踪可疑"
     },
     {
       "chapter": 11,
       "character": "imaeda",
-      "from": "imaeda_office",
+      "from": "imaeda-office",
       "to": "ginza",
-      "desc": "今枝在银座咖啡馆向筱冢一成汇报对雪穗的调查结果"
+      "desc": "今枝在银座咖啡馆向筱冢一成汇报调查雪穗的发现"
     },
     {
       "chapter": 11,
       "character": "shinozuka_k",
       "from": "ginza",
-      "to": "yukiho_shop",
-      "desc": "筱冢审视调查报告，决定继续关注雪穗的R&Y精品店"
+      "to": "ry-tokyo",
+      "desc": "筱冢一成审视调查报告后前往R&Y精品店观察雪穗"
     },
     {
       "chapter": 12,
       "character": "ryoji",
-      "from": "toshima_apartment",
-      "to": "nerima_apartment",
-      "desc": "桐原亮司以秋吉雄一身份出现在典子公寓，建立据点"
+      "from": "mugen",
+      "to": "nerima",
+      "desc": "亮司以秋吉雄一身份住进典子的练马公寓"
+    },
+    {
+      "chapter": 12,
+      "character": "imaeda",
+      "from": "imaeda-office",
+      "to": "nerima",
+      "desc": "今枝追查到亮司的藏身处后被其杀害"
     },
     {
       "chapter": 13,
       "character": "sasagaki",
-      "from": "police_hq",
-      "to": "imaeda_office",
+      "from": "fuse",
+      "to": "imaeda-office",
       "desc": "笹垣退休后从大阪赴东京，探访今枝事务所继续追查旧案"
     },
     {
       "chapter": 13,
       "character": "sasagaki",
-      "from": "imaeda_office",
+      "from": "imaeda-office",
       "to": "shinjuku",
-      "desc": "笹垣住进新宿旅店，与古贺久志会面讨论十九年悬案"
+      "desc": "笹垣住进新宿旅馆，与古贺久志会面讨论十九年悬案"
     },
     {
       "chapter": 13,
       "character": "sasagaki",
       "from": "shinjuku",
-      "to": "yukiho_shop",
-      "desc": "笹垣追踪雪穗与亮司的关联，逼近最终真相"
+      "to": "ry-osaka",
+      "desc": "笹垣追踪雪穗与亮司到R&Y大阪店开业现场"
+    },
+    {
+      "chapter": 13,
+      "character": "ryoji",
+      "from": "nerima",
+      "to": "ry-osaka",
+      "desc": "亮司最后一次出现在R&Y大阪店，从楼上坠落身亡"
     }
   ]
 };
@@ -512,186 +541,194 @@ const characters = [
   {
     "id": "ryoji",
     "name": "桐原亮司",
-    "en": "Ryoji Kirihara",
+    "en": "Kirihara Ryoji",
     "group": "core",
-    "desc": "桐原洋介之子。故事的「影」，在暗中为雪穗扫除一切障碍。使用多个假身份（秋吉雄一等）",
+    "desc": "影子行者，为保护雪穗在黑暗中犯下一切罪行。擅长剪纸，最终死于自己的剪刀。",
     "radius": 28
   },
   {
     "id": "yukiho",
     "name": "唐泽雪穗",
-    "en": "Yukiho Karasawa",
+    "en": "Karasawa Yukiho",
     "group": "core",
-    "desc": "西本文代之女，被唐泽礼子收养。故事的「光」，外表优雅完美，暗中操控一切",
+    "desc": "从被侵犯的女孩蜕变为完美的社会名流，所有威胁皆由亮司在暗中消除。",
     "radius": 28
   },
   {
     "id": "sasagaki",
     "name": "笹垣润三",
-    "en": "Junzo Sasagaki",
-    "group": "police",
-    "desc": "刑警，从1973年起追查桐原洋介被杀案，退休后仍不放弃",
+    "en": "Sasagaki Junzo",
+    "group": "investigator",
+    "desc": "追踪桐原洋介被杀案十九年的执著刑警，退休后仍不放弃。",
     "radius": 22
   },
   {
     "id": "imaeda",
     "name": "今枝直巳",
-    "en": "Naomi Imaeda",
-    "group": "police",
-    "desc": "私家侦探，受雇调查雪穗，发现诸多疑点后失踪",
-    "radius": 18
+    "en": "Imaeda Naomi",
+    "group": "investigator",
+    "desc": "受筱冢一成委托调查雪穗的私家侦探，因追查过深而被杀。",
+    "radius": 22
+  },
+  {
+    "id": "koga",
+    "name": "古贺",
+    "en": "Koga",
+    "group": "investigator",
+    "desc": "搜查一科警官，在最终行动中协助笹垣。",
+    "radius": 22
+  },
+  {
+    "id": "miyako",
+    "name": "桐原弥生子",
+    "en": "Kirihara Miyako",
+    "group": "family",
+    "desc": "亮司之母，与松浦有染，晚年醉后透露了丈夫的恋童癖。",
+    "radius": 20
   },
   {
     "id": "reiko",
     "name": "唐泽礼子",
-    "en": "Reiko Karasawa",
-    "group": "yukiho",
-    "desc": "雪穗的养母，出身名门",
-    "radius": 16
+    "en": "Karasawa Reiko",
+    "group": "family",
+    "desc": "雪穗的养母，为雪穗提供了上流社会的入场券。",
+    "radius": 20
   },
   {
-    "id": "takamiya",
+    "id": "makoto",
     "name": "高宫诚",
-    "en": "Makoto Takamiya",
-    "group": "yukiho",
-    "desc": "雪穗的第一任丈夫，在专利事务所工作",
-    "radius": 16
+    "en": "Takamiya Makoto",
+    "group": "family",
+    "desc": "雪穗的第一任丈夫，東西電装专利部职员，被雪穗利用获取内幕信息后离婚。",
+    "radius": 20
   },
   {
-    "id": "misawa",
-    "name": "三泽千都留",
-    "en": "Chizuru Misawa",
-    "group": "yukiho",
-    "desc": "高宫诚的心上人，婚礼当天在酒店遭遇意外",
-    "radius": 15
-  },
-  {
-    "id": "nakamichi",
-    "name": "中道正晴",
-    "en": "Masaharu Nakamichi",
-    "group": "yukiho",
-    "desc": "雪穗的大学家教，追求雪穗",
-    "radius": 15
-  },
-  {
-    "id": "shinozuka_k",
+    "id": "kazunari",
     "name": "筱冢一成",
-    "en": "Kazunari Shinozuka",
-    "group": "yukiho",
-    "desc": "筱冢药业继承人，怀疑雪穗的真面目",
-    "radius": 18
+    "en": "Shinozuka Kazunari",
+    "group": "family",
+    "desc": "雪穗在大学认识的财阀子弟，雪穗真正渴望的人。",
+    "radius": 20
   },
   {
-    "id": "shinozuka_y",
+    "id": "yasuharu",
     "name": "筱冢康晴",
-    "en": "Yasuharu Shinozuka",
-    "group": "yukiho",
-    "desc": "一成的堂兄，被雪穗利用",
-    "radius": 16
-  },
-  {
-    "id": "mika",
-    "name": "筱冢美佳",
-    "en": "Mika Shinozuka",
-    "group": "yukiho",
-    "desc": "康晴的女儿，被性侵的受害者",
-    "radius": 15
-  },
-  {
-    "id": "eriko",
-    "name": "川岛江利子",
-    "en": "Eriko Kawashima",
-    "group": "yukiho",
-    "desc": "雪穗的初中好友，后来看清雪穗真面目",
-    "radius": 16
+    "en": "Shinozuka Yasuharu",
+    "group": "family",
+    "desc": "一成的堂兄，向雪穗求婚。",
+    "radius": 20
   },
   {
     "id": "tomohiko",
-    "name": "园村友彦",
-    "en": "Tomohiko Sonomura",
-    "group": "ryoji",
-    "desc": "亮司的高中同学和帮手，经营电脑店MUGEN",
+    "name": "園村友彦",
+    "en": "Sonomura Tomohiko",
+    "group": "accomplice",
+    "desc": "被亮司招募的忠实下属，因共犯关系无法脱身。",
     "radius": 18
   },
   {
-    "id": "hiroe",
-    "name": "中岛弘惠",
-    "en": "Hiroe Nakajima",
-    "group": "ryoji",
-    "desc": "友彦的女友，在MUGEN工作",
-    "radius": 15
-  },
-  {
     "id": "matsuura",
-    "name": "松浦",
-    "en": "Matsuura",
-    "group": "ryoji",
-    "desc": "与桐原有旧交，涉足地下生意",
-    "radius": 15
-  },
-  {
-    "id": "noriko",
-    "name": "栗原典子",
-    "en": "Noriko Kurihara",
-    "group": "ryoji",
-    "desc": "亮司晚年的女友（以「秋吉雄一」身份交往），药剂师",
-    "radius": 16
-  },
-  {
-    "id": "eri",
-    "name": "菅原绘里",
-    "en": "Eri Sugawara",
-    "group": "ryoji",
-    "desc": "今枝的线人/女友，被利用接近雪穗",
-    "radius": 15
+    "name": "松浦勇",
+    "en": "Matsuura Isamu",
+    "group": "accomplice",
+    "desc": "当铺经理兼勒索者，知道亮司的秘密，被杀后埋在唐泽家花园。",
+    "radius": 18
   },
   {
     "id": "yosuke",
     "name": "桐原洋介",
-    "en": "Yosuke Kirihara",
+    "en": "Kirihara Yosuke",
     "group": "victim",
-    "desc": "亮司的父亲，当铺老板，被杀害",
+    "desc": "当铺老板，恋童癖者，以金钱购买幼女雪穗，被亮司杀害。",
     "radius": 16
   },
   {
-    "id": "yaeko",
-    "name": "桐原弥生子",
-    "en": "Yaeko Kirihara",
+    "id": "fumie",
+    "name": "西本文代",
+    "en": "Nishimoto Fumie",
     "group": "victim",
-    "desc": "亮司的母亲",
-    "radius": 15
+    "desc": "雪穗的生母，卖女求财，死于煤气中毒。",
+    "radius": 16
   },
   {
-    "id": "fumiyo",
-    "name": "西本文代",
-    "en": "Fumiyo Nishimoto",
+    "id": "eriko",
+    "name": "川岛江利子",
+    "en": "Kawashima Eriko",
     "group": "victim",
-    "desc": "雪穗的生母，煤气中毒死亡",
+    "desc": "雪穗的好友，被下药拍照以消除对筱冢一成的竞争。",
+    "radius": 16
+  },
+  {
+    "id": "miyako_f",
+    "name": "藤村都子",
+    "en": "Fujimura Miyako",
+    "group": "victim",
+    "desc": "中学时被袭击，亮司嫁祸菊池。",
+    "radius": 16
+  },
+  {
+    "id": "namie",
+    "name": "奈美江",
+    "en": "Namie",
+    "group": "victim",
+    "desc": "参与银行卡诈骗，被亮司灭口于名古屋酒店。",
     "radius": 16
   },
   {
     "id": "yuko",
     "name": "花冈夕子",
-    "en": "Yuko Hanaoka",
+    "en": "Hanaoka Yuko",
     "group": "victim",
-    "desc": "有夫之妇，因友彦而死",
+    "desc": "与友彦发生关系时死亡，亮司掩盖其死因。",
+    "radius": 16
+  },
+  {
+    "id": "masaharu",
+    "name": "中道正晴",
+    "en": "Nakamichi Masaharu",
+    "group": "other",
+    "desc": "雪穗的家教，怀疑雪穗参与了母亲的死亡。",
     "radius": 15
   },
   {
-    "id": "miyako",
-    "name": "藤村都子",
-    "en": "Miyako Fujimura",
-    "group": "victim",
-    "desc": "初中生，遇袭受害者",
-    "radius": 14
+    "id": "noriko",
+    "name": "栗原典子",
+    "en": "Kurihara Noriko",
+    "group": "other",
+    "desc": "药剂师，亮司最后的伴侣，为其提供藏身之处。",
+    "radius": 15
   },
   {
-    "id": "namie",
-    "name": "西口奈美江",
-    "en": "Namie Nishiguchi",
-    "group": "victim",
-    "desc": "被亮司利用的女性",
-    "radius": 14
+    "id": "chizuru",
+    "name": "三泽千都留",
+    "en": "Misawa Chizuru",
+    "group": "other",
+    "desc": "高宫诚的高尔夫球友，与其发展感情。",
+    "radius": 15
+  },
+  {
+    "id": "natsumi",
+    "name": "滨本夏美",
+    "en": "Hamamoto Natsumi",
+    "group": "other",
+    "desc": "R&Y店员，见证最终场景。",
+    "radius": 15
+  },
+  {
+    "id": "kikuchi",
+    "name": "菊池文彦",
+    "en": "Kikuchi Fumihiko",
+    "group": "other",
+    "desc": "中学生，被亮司陷害为藤村都子袭击案的嫌疑人。",
+    "radius": 15
+  },
+  {
+    "id": "sugawara",
+    "name": "菅原绘里",
+    "en": "Sugawara Eri",
+    "group": "other",
+    "desc": "今枝的女友，在今枝失踪后守着事务所。",
+    "radius": 15
   }
 ];
 
@@ -700,21 +737,25 @@ const groupConfig = {
     "color": "#ffe66d",
     "label": "核心"
   },
-  "police": {
+  "investigator": {
     "color": "#6c63ff",
-    "label": "警方"
+    "label": "调查者"
   },
-  "yukiho": {
+  "family": {
     "color": "#4ecdc4",
-    "label": "雪穗圈"
+    "label": "亲属"
   },
-  "ryoji": {
-    "color": "#ff6b6b",
-    "label": "亮司圈"
+  "accomplice": {
+    "color": "#ff8fab",
+    "label": "共犯"
   },
   "victim": {
-    "color": "#cc7777",
+    "color": "#ff6b6b",
     "label": "受害者"
+  },
+  "other": {
+    "color": "#8888a0",
+    "label": "其他"
   }
 };
 

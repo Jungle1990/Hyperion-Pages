@@ -253,9 +253,9 @@ body {
 <div class="stars" id="stars"></div>
 
 <section class="hero">
-    <div class="hero-icon">🌙</div>
+    <div class="hero-icon">🌓</div>
     <h1>白夜行</h1>
-    <div class="author">东野圭吾</div>
+    <div class="author">東野圭吾</div>
     <div class="subtitle">Journey Under the Midnight Sun</div>
     <div class="meta-pills" id="metaPills"></div>
     <div class="scroll-hint">
@@ -275,41 +275,56 @@ body {
 const meta = {
   "title": "白夜行",
   "titleEn": "Journey Under the Midnight Sun",
-  "author": "东野圭吾",
+  "author": "東野圭吾",
   "authorEn": "Keigo Higashino",
-  "icon": "🌙",
+  "icon": "🌓",
   "slug": "baiyexing",
   "subtitle": "Journey Under the Midnight Sun",
+  "tagline": "Two souls bound by darkness — one walks in light, the other in shadow",
   "stats": [
     {
       "num": "13",
-      "label": "章"
+      "label": "章",
+      "icon": "📖",
+      "sub": "chapters"
     },
     {
-      "num": "1973–1999",
-      "label": "时间跨度"
+      "num": "~19",
+      "label": "年跨度",
+      "icon": "⏳",
+      "sub": "years (1973–1992)"
     },
     {
       "num": "30+",
-      "label": "人物"
+      "label": "关键人物",
+      "icon": "👥",
+      "sub": "key characters"
+    },
+    {
+      "num": "1",
+      "label": "未解悬案",
+      "icon": "🔍",
+      "sub": "cold case"
     }
   ],
   "nav": {
-    "summary_desc": "逐章拆解全书脉络，梳理每章的关键事件、出场人物和叙事线索。",
+    "summary_desc": "逐章拆解全书脉络，从1973年大阪废弃建筑中的谋杀案到1992年的最终对决，梳理每章关键事件与叙事线索。",
     "summary_tag": "13 chapters → key events → themes",
-    "characters_desc": "交互式关系网络图——拖拽、筛选、揭示隐藏的人物关联。",
+    "characters_desc": "交互式人物关系网络——拖拽节点揭示亮司与雪穗之间从不直接交集却深度纠缠的隐藏关联。",
     "characters_tag": "30+ characters → drag · filter · reveal",
-    "timeline_desc": "横跨27年的时间轴——追踪雪穗、亮司、笹垣三条主线的交汇与分离。",
-    "timeline_tag": "1973–1999 → swim lanes → 60+ events",
-    "emotions_desc": "追踪每一章的情感波动——喜悦、悲伤、紧张、平静四维情感的起伏变化。",
-    "emotions_tag": "13 chapters × 4 emotions → emotional heartbeat",
-    "motifs_desc": "追踪白夜、剪刀、太阳等核心意象在各章中的出现与演变。",
-    "motifs_tag": "8 symbols → 44 occurrences → heatmap",
-    "spatial_desc": "从大阪到东京——角色在关键场所之间的移动轨迹与事件地图。",
-    "spatial_tag": "3 regions → 24 locations → movement paths",
-    "dialogue_desc": "会话网络揭示角色间的对话频率与权力动态——注意亮司和雪穗几乎从未直接对话。",
-    "dialogue_tag": "27 pairs → chord diagram → power dynamics"
-  }
+    "timeline_desc": "横跨19年的双线时间轴——追踪雪穗的社会攀升与亮司的暗影行动，以及笹垣跨越退休的执着追查。",
+    "timeline_tag": "~19 years → swim lanes → 80+ events",
+    "emotions_desc": "以恐惧、悲伤、紧张、绝望四个维度追踪每章的情感脉搏，揭示东野圭吾精心编排的情绪节奏。",
+    "emotions_tag": "13 chapters → 4 dimensions → emotional heartbeat",
+    "motifs_desc": "追踪白夜、剪纸、太阳、虾须草等核心意象在全书中的出现与演变，发现隐藏的叙事暗线。",
+    "motifs_tag": "symbols → heatmap → narrative threads",
+    "spatial_desc": "从大阪西布施的旧公寓到东京银座的高档商店——角色在关键场所之间的移动轨迹与犯罪地图。",
+    "spatial_tag": "locations → movements → event pins",
+    "dialogue_desc": "会话网络揭示角色间的对话频率与权力关系——注意亮司与雪穗几乎从不直接对话，却操控着所有人的命运。",
+    "dialogue_tag": "conversation pairs → chord diagram → power dynamics"
+  },
+  "quote": "我的人生就像在白夜里行走。",
+  "quoteSource": "——唐泽雪穗"
 };
 
 
@@ -329,6 +344,8 @@ const NAV_CARDS = [
       descKey: 'spatial_desc', tagKey: 'spatial_tag' },
     { href: 'dialogue.html', icon: '💬', title: '对话网络', en: 'Dialogue Network',
       descKey: 'dialogue_desc', tagKey: 'dialogue_tag' },
+    { href: 'distill.html', icon: '🧪', title: '读后蒸馏', en: 'Distill',
+      descKey: 'distill_desc', tagKey: 'distill_tag' },
 ];
 
 // Gradient pairs for card top borders

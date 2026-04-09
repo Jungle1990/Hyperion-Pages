@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>编程珠玑（续） 读后蒸馏 / Distill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(108,99,255,0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Progress Bar ── */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  z-index: 9999; transition: width 0.1s linear;
+}
+
+/* ── Hero ── */
+.hero {
+  min-height: 50vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 4rem 2rem 3rem; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(78,205,196,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.back-link {
+  position: absolute; top: 20px; left: 24px;
+  color: var(--text-dim); text-decoration: none; font-size: 0.85rem;
+  z-index: 2; transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent3); }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px var(--glow)); }
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900;
+  background: linear-gradient(135deg, var(--accent4) 0%, var(--accent) 40%, var(--accent3) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-subtitle {
+  font-size: 1rem; color: var(--text-dim); font-weight: 300;
+  margin-top: 0.5rem; max-width: 500px;
+}
+.hero-book {
+  font-size: 0.85rem; color: var(--accent); font-family: var(--font-mono);
+  margin-top: 1rem; letter-spacing: 1px;
+}
+
+/* ── Section Nav ── */
+.section-nav {
+  display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+  padding: 16px 20px; position: sticky; top: 0; z-index: 50;
+  background: rgba(15,17,23,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-pill {
+  padding: 6px 16px; border-radius: 2rem; border: 1px solid var(--border);
+  background: transparent; color: var(--text-dim); font-family: var(--font-sans);
+  font-size: 0.8rem; cursor: pointer; transition: all 0.2s; text-decoration: none;
+}
+.nav-pill:hover, .nav-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 800px; margin: 0 auto; padding: 0 20px 4rem; }
+
+/* ── Section Header ── */
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  margin: 4rem 0 2rem; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-header-icon { font-size: 1.8rem; }
+.section-header h2 { font-size: 1.5rem; font-weight: 700; }
+.section-header .section-label {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  color: var(--accent); letter-spacing: 2px; text-transform: uppercase;
+  margin-left: auto;
+}
+
+/* ── Quotes ── */
+.quote-list { display: flex; flex-direction: column; gap: 16px; }
+.quote-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent4); border-radius: var(--radius);
+  padding: 20px 24px; cursor: pointer; transition: all 0.3s;
+}
+.quote-card:hover { border-color: var(--accent4); transform: translateX(4px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.quote-text {
+  font-size: 1.05rem; font-weight: 400; line-height: 1.9;
+  position: relative; padding-left: 1.2rem;
+}
+.quote-text::before {
+  content: '\201C'; position: absolute; left: -4px; top: -8px;
+  font-size: 2.5rem; color: var(--accent4); opacity: 0.4; font-family: serif;
+}
+.quote-footer { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.quote-chapter {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  background: rgba(108,99,255,0.15); color: var(--accent);
+  padding: 2px 10px; border-radius: 2rem;
+}
+.quote-context {
+  font-size: 0.78rem; color: var(--text-dim);
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease, margin-top 0.3s ease;
+  line-height: 1.6;
+}
+.quote-card.expanded .quote-context { max-height: 200px; margin-top: 10px; }
+.quote-expand-hint {
+  font-size: 0.7rem; color: var(--text-dim); margin-left: auto;
+  font-family: var(--font-mono); opacity: 0.6;
+}
+.quote-card.expanded .quote-expand-hint { display: none; }
+
+/* ── Concepts ── */
+.concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.concept-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; transition: all 0.3s;
+  cursor: default;
+}
+.concept-card:hover { border-color: var(--accent3); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.concept-icon { font-size: 2rem; margin-bottom: 12px; }
+.concept-name { font-weight: 700; font-size: 1rem; margin-bottom: 2px; }
+.concept-name-zh { font-size: 0.8rem; color: var(--accent3); margin-bottom: 10px; }
+.concept-summary {
+  font-size: 0.82rem; color: var(--text-dim); line-height: 1.7;
+  max-height: 3.4rem; overflow: hidden; transition: max-height 0.4s ease;
+}
+.concept-card:hover .concept-summary { max-height: 400px; }
+.concept-more {
+  font-size: 0.7rem; color: var(--accent); margin-top: 6px;
+  font-family: var(--font-mono); transition: opacity 0.2s;
+}
+.concept-card:hover .concept-more { opacity: 0; }
+
+/* ── Principles ── */
+.principle-list { display: flex; flex-direction: column; gap: 12px; counter-reset: principle; }
+.principle-item {
+  display: flex; align-items: flex-start; gap: 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 22px; transition: all 0.3s;
+  counter-increment: principle;
+}
+.principle-item:hover { border-color: var(--accent2); transform: translateX(4px); }
+.principle-num {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent2); min-width: 28px; padding-top: 2px;
+}
+.principle-num::before { content: counter(principle, decimal-leading-zero); }
+.principle-icon { font-size: 1.4rem; flex-shrink: 0; padding-top: 1px; }
+.principle-body { flex: 1; }
+.principle-text { font-size: 0.95rem; font-weight: 500; }
+.principle-text-zh { font-size: 0.82rem; color: var(--text-dim); margin-top: 4px; }
+
+/* ── Essence ── */
+.essence-list { display: flex; flex-direction: column; gap: 2px; }
+.essence-item {
+  display: grid; grid-template-columns: 60px 1fr; gap: 16px;
+  padding: 14px 20px; border-radius: var(--radius);
+  transition: background 0.2s;
+}
+.essence-item:hover { background: var(--card); }
+.essence-chapter {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent); padding-top: 3px; text-align: right;
+}
+.essence-body {}
+.essence-title { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 2px; }
+.essence-sentence { font-size: 0.9rem; line-height: 1.7; }
+
+/* ── Empty State ── */
+.empty-state {
+  text-align: center; padding: 3rem; color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Footer ── */
+.footer {
+  text-align: center; padding: 2rem 0; color: var(--text-dim);
+  font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 3rem;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .hero { min-height: 40vh; padding: 3rem 1.5rem 2rem; }
+  .concept-grid { grid-template-columns: 1fr; }
+  .essence-item { grid-template-columns: 45px 1fr; gap: 10px; }
+  .quote-card { padding: 16px 18px; }
+  .section-header { margin: 3rem 0 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<section class="hero">
+  <a href="index.html" class="back-link">&larr; Back</a>
+  <div class="hero-icon">🧪</div>
+  <h1>Distill</h1>
+  <p class="hero-subtitle">What remains after the last page — the ideas worth carrying forward</p>
+  <div class="hero-book">💎 编程珠玑（续）</div>
+</section>
+
+<nav class="section-nav">
+  <a class="nav-pill active" href="#quotes" onclick="scrollToSection('quotes',this)">Quotes</a>
+  <a class="nav-pill" href="#concepts" onclick="scrollToSection('concepts',this)">Concepts</a>
+  <a class="nav-pill" href="#principles" onclick="scrollToSection('principles',this)">Principles</a>
+  <a class="nav-pill" href="#essence" onclick="scrollToSection('essence',this)">Essence</a>
+</nav>
+
+<main class="container">
+
+  <!-- Quotes -->
+  <div class="section-header fade-in" id="quotes">
+    <span class="section-header-icon">&#x1F4AC;</span>
+    <h2>Quotes</h2>
+    <span class="section-label">GOLDEN LINES</span>
+  </div>
+  <div class="quote-list" id="quoteList"></div>
+
+  <!-- Concepts -->
+  <div class="section-header fade-in" id="concepts">
+    <span class="section-header-icon">&#x1F9E0;</span>
+    <h2>Concepts</h2>
+    <span class="section-label">MENTAL MODELS</span>
+  </div>
+  <div class="concept-grid" id="conceptGrid"></div>
+
+  <!-- Principles -->
+  <div class="section-header fade-in" id="principles">
+    <span class="section-header-icon">&#x2728;</span>
+    <h2>Principles</h2>
+    <span class="section-label">ACTION RULES</span>
+  </div>
+  <div class="principle-list" id="principleList"></div>
+
+  <!-- Essence -->
+  <div class="section-header fade-in" id="essence">
+    <span class="section-header-icon">&#x1F3AF;</span>
+    <h2>Essence</h2>
+    <span class="section-label">ONE SENTENCE PER CHAPTER</span>
+  </div>
+  <div class="essence-list" id="essenceList"></div>
+
+</main>
+
+<div class="footer">
+  Distilled with the <a href="https://en.wikipedia.org/wiki/Feynman_Technique">Feynman Method</a>
+</div>
+
+<script>
+const distill = {
+  "quotes": [
+    {
+      "text": "When in doubt, use brute force.",
+      "chapter": 6,
+      "context": "Ken Thompson的名言——当你不确定该用什么精巧算法时，先用暴力法把问题解决了再说"
+    },
+    {
+      "text": "A good algorithm is like a sharp knife -- it does what it is supposed to do with a minimum of applied effort.",
+      "chapter": 13,
+      "context": "好的算法如同锋利的刀，以最小的力气完成该做的事，Floyd取样算法恰好只需M次随机调用"
+    },
+    {
+      "text": "If you aren't sure how long a computation will take, my rule of thumb is that it will take ten times as long as you expect.",
+      "chapter": 7,
+      "context": "粗略估算的经验法则——计算时间通常是你预期的十倍，数字直觉需要刻意训练"
+    },
+    {
+      "text": "Make it work first before you make it work fast.",
+      "chapter": 6,
+      "context": "大师箴言之一：先让程序正确运行，再去优化速度——过早优化是万恶之源的另一种表述"
+    },
+    {
+      "text": "Testing can show the presence of bugs, but not their absence.",
+      "chapter": 3,
+      "context": "Dijkstra的经典论断——测试能发现bug的存在，但永远无法证明bug的不存在"
+    },
+    {
+      "text": "A program that produces incorrect results twice as fast is infinitely slower.",
+      "chapter": 1,
+      "context": "用Profiler优化性能时必须铭记：产生错误结果的程序跑得再快也毫无意义"
+    },
+    {
+      "text": "Whenever possible, steal code.",
+      "chapter": 6,
+      "context": "Tom Duff的忠告——好的程序员知道写代码，伟大的程序员知道「借用」（复用）代码"
+    },
+    {
+      "text": "The purpose of computing is insight, not numbers.",
+      "chapter": 11,
+      "context": "Richard Hamming的名言——计算的目的是获得洞察力，而不仅仅是数字结果"
+    },
+    {
+      "text": "If the code and the comments disagree, then both are probably wrong.",
+      "chapter": 6,
+      "context": "Norm Schryer的箴言——当代码和注释不一致时，两者很可能都是错的"
+    },
+    {
+      "text": "Do not use the computer to do what you can do yourself.",
+      "chapter": 7,
+      "context": "粗略估算的原则——不要用计算机做你自己就能完成的事，先建立直觉再求精确"
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Back-of-the-Envelope Estimation",
+      "nameZh": "粗略估算",
+      "summary": "用简单的假设和心算快速估算量级的方法。程序员必须克服「数字麻木症」——分不清微秒和毫秒意味着1000倍的差距。72法则、Little定律和安全系数是三个核心工具。在写第一行代码之前先用信封背面估算，能避免走上根本不可行的技术路线。",
+      "icon": "📐"
+    },
+    {
+      "name": "Code Tuning & Profiling",
+      "nameZh": "代码调优与性能剖析",
+      "summary": "用Profiler（性能剖析器）测量程序各部分的执行时间和调用次数，定位真正的性能瓶颈。Knuth发现不到4%的代码占用超过50%的运行时间。优化的正确顺序是：先让程序正确，再用数据定位热点，最后只优化关键路径。",
+      "icon": "🩺"
+    },
+    {
+      "name": "Little Languages (DSL)",
+      "nameZh": "小语言（领域特定语言）",
+      "summary": "为特定领域设计的微型编程语言，不追求通用性，在自己的领域内做到极致简洁。Pic画图、Chem画化学结构式、Scatter画散点图——24行Awk代码就能实现一个散点图DSL。小语言之间还能通过预处理器链层层组合，如同俄罗斯套娃。",
+      "icon": "🔤"
+    },
+    {
+      "name": "Associative Arrays",
+      "nameZh": "关联数组",
+      "summary": "以字符串为索引的数组，等价于哈希表/字典。AWK原生支持关联数组，可以用极简的代码表示符号表、图结构、队列、集合、有限状态机等多种数据结构。掌握这一抽象后，许多需要几十行代码的问题可以缩减为两三行。",
+      "icon": "📚"
+    },
+    {
+      "name": "Algorithm Design by Mathematical Insight",
+      "nameZh": "数学驱动的算法设计",
+      "summary": "经典算法的背后往往是数学上的精妙洞察。Floyd取样算法用恰好M次随机调用完成不重复抽样，牛顿迭代法以平方收敛速度逼近平方根（每步迭代正确位数翻倍），Hoare选择算法以O(N)时间找到第K小元素。好的算法胜过硬件升级。",
+      "icon": "🎲"
+    },
+    {
+      "name": "Self-Describing Data",
+      "nameZh": "自描述数据",
+      "summary": "数据自身携带其含义和来源信息的设计模式，由名值对（Name-Value Pairs）和数据溯源（Provenance）两部分组成。就像考古学家的标签系统一样，自描述数据永远不会「失忆」——即使多年后打开，你仍然知道它是什么、从哪里来。",
+      "icon": "🏷️"
+    }
+  ],
+  "principles": [
+    {
+      "text": "Make it correct first, then make it fast -- a program with wrong results is infinitely slow",
+      "textZh": "先让程序正确，再让程序快速——产生错误结果的程序再快也毫无意义",
+      "icon": "✅"
+    },
+    {
+      "text": "Measure before you optimize -- use profilers to find the real bottleneck, not your intuition",
+      "textZh": "优化之前先测量——用性能剖析器找到真正的瓶颈，而不是凭直觉猜测",
+      "icon": "📐"
+    },
+    {
+      "text": "Build your number sense -- the difference between microseconds and milliseconds is a factor of 1000",
+      "textZh": "培养数字直觉——微秒和毫秒之间相差1000倍，数字麻木症会导致灾难性的工程判断失误",
+      "icon": "🔢"
+    },
+    {
+      "text": "Redefine the problem before solving it -- sometimes the best solution is cutting the Gordian Knot",
+      "textZh": "解题之前先重新定义问题——有时最好的方案是像亚历山大一样一刀斩断戈尔迪之结",
+      "icon": "⚔️"
+    },
+    {
+      "text": "Choose the right level of abstraction -- a small language for the domain beats a general-purpose solution",
+      "textZh": "选择正确的抽象层次——为领域量身定做的小语言胜过通用方案",
+      "icon": "🪜"
+    },
+    {
+      "text": "Let data describe itself -- self-describing data prevents the silent rot of meaning over time",
+      "textZh": "让数据自我描述——自描述数据能防止含义随时间悄然腐蚀",
+      "icon": "🏷️"
+    }
+  ],
+  "essence": [
+    {
+      "chapter": 1,
+      "title": "性能监视工具",
+      "sentence": "用Profiler定位性能瓶颈，Knuth发现不到4%的代码占用超过50%的运行时间——优化要靠测量而非直觉。"
+    },
+    {
+      "chapter": 2,
+      "title": "关联数组",
+      "sentence": "关联数组是字符串索引的万能抽象，用AWK的两三行代码就能替代几十行哈希表实现。"
+    },
+    {
+      "chapter": 3,
+      "title": "程序正确性与测试",
+      "sentence": "测试脚手架能暴露即使经过形式化验证的代码中的bug，测试能证明bug的存在但永远无法证明其不存在。"
+    },
+    {
+      "chapter": 4,
+      "title": "构建可靠软件",
+      "sentence": "自描述数据通过名值对和数据溯源防止数据「失忆」，让数据即使多年后仍能自我解释。"
+    },
+    {
+      "chapter": 5,
+      "title": "劈开戈尔迪之结",
+      "sentence": "面对看似复杂的问题，最好的方案往往是跳出既有技术框架，重新定义问题的边界和约束。"
+    },
+    {
+      "chapter": 6,
+      "title": "计算机科学箴言集",
+      "sentence": "大师们的编程箴言浓缩了数十年的经验法则：先求正确再求快速，代码与注释不一致则两者皆错。"
+    },
+    {
+      "chapter": 7,
+      "title": "粗略估算的艺术",
+      "sentence": "用72法则、Little定律和安全系数在信封背面快速估算量级，培养数字直觉以避免灾难性的工程决策。"
+    },
+    {
+      "chapter": 8,
+      "title": "人事与官僚备忘录",
+      "sentence": "大型软件项目的预算膨胀到229%的残酷数学揭示了管理和沟通成本远超技术成本的现实。"
+    },
+    {
+      "chapter": 9,
+      "title": "小语言",
+      "sentence": "领域特定的小语言让专家用最自然的方式描述问题，24行Awk代码就能构建一个散点图绘制器。"
+    },
+    {
+      "chapter": 10,
+      "title": "文档设计",
+      "sentence": "好的文档遵循迭代、一致、简约三原则，以最少的元素传达最清晰的信息。"
+    },
+    {
+      "chapter": 11,
+      "title": "图形化输出",
+      "sentence": "数据可视化让眼睛替代大脑工作——一张好的图表能瞬间揭示隐藏在数千行数据中的规律。"
+    },
+    {
+      "chapter": 12,
+      "title": "调查的调查",
+      "sentence": "BPL调查小语言将调查系统的设置时间从两天缩短到两小时，展示了小语言在实战中的巨大威力。"
+    },
+    {
+      "chapter": 13,
+      "title": "Floyd采样算法",
+      "sentence": "Floyd取样算法用恰好M次随机调用从N个元素中均匀抽取M个不重复样本，体现了数学之美在算法中的极致运用。"
+    },
+    {
+      "chapter": 14,
+      "title": "牛顿迭代法",
+      "sentence": "牛顿迭代法以平方收敛速度逼近平方根，每步迭代让正确位数翻倍——好算法的威力堪比摩尔定律。"
+    },
+    {
+      "chapter": 15,
+      "title": "Hoare选择算法",
+      "sentence": "Hoare选择算法基于分割操作以期望O(N)时间找到第K小元素，证明了「不需要全部排序就能回答排序问题」的洞察。"
+    }
+  ]
+};
+
+
+(function() {
+  const data = typeof distill !== 'undefined' ? distill : {};
+  const quotes = data.quotes || [];
+  const concepts = data.concepts || [];
+  const principles = data.principles || [];
+  const essence = data.essence || [];
+
+  // ── Render Quotes ──
+  const quoteList = document.getElementById('quoteList');
+  if (quotes.length === 0) {
+    quoteList.innerHTML = '<div class="empty-state">No quotes distilled yet.</div>';
+  } else {
+    quotes.forEach(q => {
+      const card = document.createElement('div');
+      card.className = 'quote-card fade-in';
+      card.onclick = function() { this.classList.toggle('expanded'); };
+      card.innerHTML =
+        '<div class="quote-text">' + escHtml(q.text) + '</div>' +
+        '<div class="quote-footer">' +
+          (q.chapter ? '<span class="quote-chapter">Ch.' + q.chapter + '</span>' : '') +
+          '<span class="quote-expand-hint">click to expand</span>' +
+        '</div>' +
+        (q.context ? '<div class="quote-context">' + escHtml(q.context) + '</div>' : '');
+      quoteList.appendChild(card);
+    });
+  }
+
+  // ── Render Concepts ──
+  const conceptGrid = document.getElementById('conceptGrid');
+  if (concepts.length === 0) {
+    conceptGrid.innerHTML = '<div class="empty-state">No concepts distilled yet.</div>';
+  } else {
+    concepts.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'concept-card fade-in';
+      card.innerHTML =
+        '<div class="concept-icon">' + (c.icon || '\u{1F9E0}') + '</div>' +
+        '<div class="concept-name">' + escHtml(c.name) + '</div>' +
+        (c.nameZh ? '<div class="concept-name-zh">' + escHtml(c.nameZh) + '</div>' : '') +
+        '<div class="concept-summary">' + escHtml(c.summary || '') + '</div>' +
+        '<div class="concept-more">hover to read more</div>';
+      conceptGrid.appendChild(card);
+    });
+  }
+
+  // ── Render Principles ──
+  const principleList = document.getElementById('principleList');
+  if (principles.length === 0) {
+    principleList.innerHTML = '<div class="empty-state">No principles distilled yet.</div>';
+  } else {
+    principles.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'principle-item fade-in';
+      item.innerHTML =
+        '<div class="principle-num"></div>' +
+        '<div class="principle-icon">' + (p.icon || '\u{1F4A1}') + '</div>' +
+        '<div class="principle-body">' +
+          '<div class="principle-text">' + escHtml(p.text) + '</div>' +
+          (p.textZh ? '<div class="principle-text-zh">' + escHtml(p.textZh) + '</div>' : '') +
+        '</div>';
+      principleList.appendChild(item);
+    });
+  }
+
+  // ── Render Essence ──
+  const essenceList = document.getElementById('essenceList');
+  if (essence.length === 0) {
+    essenceList.innerHTML = '<div class="empty-state">No chapter essences distilled yet.</div>';
+  } else {
+    essence.forEach(e => {
+      const item = document.createElement('div');
+      item.className = 'essence-item fade-in';
+      item.innerHTML =
+        '<div class="essence-chapter">Ch.' + (e.chapter || '?') + '</div>' +
+        '<div class="essence-body">' +
+          (e.title ? '<div class="essence-title">' + escHtml(e.title) + '</div>' : '') +
+          '<div class="essence-sentence">' + escHtml(e.sentence || '') + '</div>' +
+        '</div>';
+      essenceList.appendChild(item);
+    });
+  }
+
+  // ── Utility ──
+  function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // ── Scroll Progress ──
+  var progressBar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', function() {
+    var h = document.documentElement;
+    var pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    progressBar.style.width = Math.min(pct, 100) + '%';
+  });
+
+  // ── IntersectionObserver Fade-in ──
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // ── Active nav pill tracking ──
+  var sections = ['quotes', 'concepts', 'principles', 'essence'];
+  var navPills = document.querySelectorAll('.nav-pill');
+  var sectionObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        navPills.forEach(function(p) { p.classList.remove('active'); });
+        var pill = document.querySelector('.nav-pill[href="#' + entry.target.id + '"]');
+        if (pill) pill.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -60% 0px' });
+
+  sections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+})();
+
+function scrollToSection(id, el) {
+  var target = document.getElementById(id);
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.querySelectorAll('.nav-pill').forEach(function(p) { p.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+</script>
+</body>
+</html>

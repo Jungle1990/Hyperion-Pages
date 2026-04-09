@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>论语别裁 读后蒸馏 / Distill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(108,99,255,0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Progress Bar ── */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  z-index: 9999; transition: width 0.1s linear;
+}
+
+/* ── Hero ── */
+.hero {
+  min-height: 50vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 4rem 2rem 3rem; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(78,205,196,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.back-link {
+  position: absolute; top: 20px; left: 24px;
+  color: var(--text-dim); text-decoration: none; font-size: 0.85rem;
+  z-index: 2; transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent3); }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px var(--glow)); }
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900;
+  background: linear-gradient(135deg, var(--accent4) 0%, var(--accent) 40%, var(--accent3) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-subtitle {
+  font-size: 1rem; color: var(--text-dim); font-weight: 300;
+  margin-top: 0.5rem; max-width: 500px;
+}
+.hero-book {
+  font-size: 0.85rem; color: var(--accent); font-family: var(--font-mono);
+  margin-top: 1rem; letter-spacing: 1px;
+}
+
+/* ── Section Nav ── */
+.section-nav {
+  display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+  padding: 16px 20px; position: sticky; top: 0; z-index: 50;
+  background: rgba(15,17,23,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-pill {
+  padding: 6px 16px; border-radius: 2rem; border: 1px solid var(--border);
+  background: transparent; color: var(--text-dim); font-family: var(--font-sans);
+  font-size: 0.8rem; cursor: pointer; transition: all 0.2s; text-decoration: none;
+}
+.nav-pill:hover, .nav-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 800px; margin: 0 auto; padding: 0 20px 4rem; }
+
+/* ── Section Header ── */
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  margin: 4rem 0 2rem; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-header-icon { font-size: 1.8rem; }
+.section-header h2 { font-size: 1.5rem; font-weight: 700; }
+.section-header .section-label {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  color: var(--accent); letter-spacing: 2px; text-transform: uppercase;
+  margin-left: auto;
+}
+
+/* ── Quotes ── */
+.quote-list { display: flex; flex-direction: column; gap: 16px; }
+.quote-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent4); border-radius: var(--radius);
+  padding: 20px 24px; cursor: pointer; transition: all 0.3s;
+}
+.quote-card:hover { border-color: var(--accent4); transform: translateX(4px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.quote-text {
+  font-size: 1.05rem; font-weight: 400; line-height: 1.9;
+  position: relative; padding-left: 1.2rem;
+}
+.quote-text::before {
+  content: '\201C'; position: absolute; left: -4px; top: -8px;
+  font-size: 2.5rem; color: var(--accent4); opacity: 0.4; font-family: serif;
+}
+.quote-footer { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.quote-chapter {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  background: rgba(108,99,255,0.15); color: var(--accent);
+  padding: 2px 10px; border-radius: 2rem;
+}
+.quote-context {
+  font-size: 0.78rem; color: var(--text-dim);
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease, margin-top 0.3s ease;
+  line-height: 1.6;
+}
+.quote-card.expanded .quote-context { max-height: 200px; margin-top: 10px; }
+.quote-expand-hint {
+  font-size: 0.7rem; color: var(--text-dim); margin-left: auto;
+  font-family: var(--font-mono); opacity: 0.6;
+}
+.quote-card.expanded .quote-expand-hint { display: none; }
+
+/* ── Concepts ── */
+.concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.concept-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; transition: all 0.3s;
+  cursor: default;
+}
+.concept-card:hover { border-color: var(--accent3); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.concept-icon { font-size: 2rem; margin-bottom: 12px; }
+.concept-name { font-weight: 700; font-size: 1rem; margin-bottom: 2px; }
+.concept-name-zh { font-size: 0.8rem; color: var(--accent3); margin-bottom: 10px; }
+.concept-summary {
+  font-size: 0.82rem; color: var(--text-dim); line-height: 1.7;
+  max-height: 3.4rem; overflow: hidden; transition: max-height 0.4s ease;
+}
+.concept-card:hover .concept-summary { max-height: 400px; }
+.concept-more {
+  font-size: 0.7rem; color: var(--accent); margin-top: 6px;
+  font-family: var(--font-mono); transition: opacity 0.2s;
+}
+.concept-card:hover .concept-more { opacity: 0; }
+
+/* ── Principles ── */
+.principle-list { display: flex; flex-direction: column; gap: 12px; counter-reset: principle; }
+.principle-item {
+  display: flex; align-items: flex-start; gap: 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 22px; transition: all 0.3s;
+  counter-increment: principle;
+}
+.principle-item:hover { border-color: var(--accent2); transform: translateX(4px); }
+.principle-num {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent2); min-width: 28px; padding-top: 2px;
+}
+.principle-num::before { content: counter(principle, decimal-leading-zero); }
+.principle-icon { font-size: 1.4rem; flex-shrink: 0; padding-top: 1px; }
+.principle-body { flex: 1; }
+.principle-text { font-size: 0.95rem; font-weight: 500; }
+.principle-text-zh { font-size: 0.82rem; color: var(--text-dim); margin-top: 4px; }
+
+/* ── Essence ── */
+.essence-list { display: flex; flex-direction: column; gap: 2px; }
+.essence-item {
+  display: grid; grid-template-columns: 60px 1fr; gap: 16px;
+  padding: 14px 20px; border-radius: var(--radius);
+  transition: background 0.2s;
+}
+.essence-item:hover { background: var(--card); }
+.essence-chapter {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent); padding-top: 3px; text-align: right;
+}
+.essence-body {}
+.essence-title { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 2px; }
+.essence-sentence { font-size: 0.9rem; line-height: 1.7; }
+
+/* ── Empty State ── */
+.empty-state {
+  text-align: center; padding: 3rem; color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Footer ── */
+.footer {
+  text-align: center; padding: 2rem 0; color: var(--text-dim);
+  font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 3rem;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .hero { min-height: 40vh; padding: 3rem 1.5rem 2rem; }
+  .concept-grid { grid-template-columns: 1fr; }
+  .essence-item { grid-template-columns: 45px 1fr; gap: 10px; }
+  .quote-card { padding: 16px 18px; }
+  .section-header { margin: 3rem 0 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<section class="hero">
+  <a href="index.html" class="back-link">&larr; Back</a>
+  <div class="hero-icon">🧪</div>
+  <h1>Distill</h1>
+  <p class="hero-subtitle">What remains after the last page — the ideas worth carrying forward</p>
+  <div class="hero-book">📜 论语别裁</div>
+</section>
+
+<nav class="section-nav">
+  <a class="nav-pill active" href="#quotes" onclick="scrollToSection('quotes',this)">Quotes</a>
+  <a class="nav-pill" href="#concepts" onclick="scrollToSection('concepts',this)">Concepts</a>
+  <a class="nav-pill" href="#principles" onclick="scrollToSection('principles',this)">Principles</a>
+  <a class="nav-pill" href="#essence" onclick="scrollToSection('essence',this)">Essence</a>
+</nav>
+
+<main class="container">
+
+  <!-- Quotes -->
+  <div class="section-header fade-in" id="quotes">
+    <span class="section-header-icon">&#x1F4AC;</span>
+    <h2>Quotes</h2>
+    <span class="section-label">GOLDEN LINES</span>
+  </div>
+  <div class="quote-list" id="quoteList"></div>
+
+  <!-- Concepts -->
+  <div class="section-header fade-in" id="concepts">
+    <span class="section-header-icon">&#x1F9E0;</span>
+    <h2>Concepts</h2>
+    <span class="section-label">MENTAL MODELS</span>
+  </div>
+  <div class="concept-grid" id="conceptGrid"></div>
+
+  <!-- Principles -->
+  <div class="section-header fade-in" id="principles">
+    <span class="section-header-icon">&#x2728;</span>
+    <h2>Principles</h2>
+    <span class="section-label">ACTION RULES</span>
+  </div>
+  <div class="principle-list" id="principleList"></div>
+
+  <!-- Essence -->
+  <div class="section-header fade-in" id="essence">
+    <span class="section-header-icon">&#x1F3AF;</span>
+    <h2>Essence</h2>
+    <span class="section-label">ONE SENTENCE PER CHAPTER</span>
+  </div>
+  <div class="essence-list" id="essenceList"></div>
+
+</main>
+
+<div class="footer">
+  Distilled with the <a href="https://en.wikipedia.org/wiki/Feynman_Technique">Feynman Method</a>
+</div>
+
+<script>
+const distill = {
+  "quotes": [
+    {
+      "text": "学而时习之，不亦说乎？有朋自远方来，不亦乐乎？人不知而不愠，不亦君子乎？",
+      "chapter": 1,
+      "context": "《论语》开篇三句，南怀瑾解读为做学问的三个层次：随时实践的内心喜悦、志同道合的切磋之乐、不被理解也不怨恨的修养境界。"
+    },
+    {
+      "text": "吾日三省吾身：为人谋而不忠乎？与朋友交而不信乎？传不习乎？",
+      "chapter": 1,
+      "context": "曾子的反省功夫。南怀瑾强调这不是宗教式的忏悔，而是每天随时随地检点自己做人做事是否到位。"
+    },
+    {
+      "text": "为政以德，譬如北辰，居其所而众星共之。",
+      "chapter": 2,
+      "context": "孔子论为政的根本精神：以道德感化为核心，自己站稳中心位置，万事自然归向，不需要权术手段。"
+    },
+    {
+      "text": "吾十有五而志于学，三十而立，四十而不惑，五十而知天命，六十而耳顺，七十而从心所欲不逾矩。",
+      "chapter": 2,
+      "context": "孔子自述一生修养历程。南怀瑾指出这不是普通的自传，而是说明做学问需要一生的人情世故磨练，每个阶段都有不同的内在功夫。"
+    },
+    {
+      "text": "朝闻道，夕死可矣。",
+      "chapter": 4,
+      "context": "南怀瑾认为这里的「道」是宇宙生命的本体真理，不是一般的道理。能够领悟到生命的真谛，死也无所遗憾。"
+    },
+    {
+      "text": "知之者不如好之者，好之者不如乐之者。",
+      "chapter": 6,
+      "context": "学问的三个层次：理性认知、情感热爱、身心融合的乐趣。南怀瑾将此与佛家「法喜」、道家「乐道」相印证。"
+    },
+    {
+      "text": "志于道，据于德，依于仁，游于艺。",
+      "chapter": 7,
+      "context": "孔子学问的四大纲领。南怀瑾解读为：志向在最高真理，行为以道德为根据，处世以仁爱为依归，在六艺中从容涵泳。"
+    },
+    {
+      "text": "克己复礼为仁。一日克己复礼，天下归仁焉。",
+      "chapter": 12,
+      "context": "颜渊问仁，孔子给出最彻底的回答。南怀瑾解释「克己」为克制自己的妄念与偏私，「复礼」为恢复内心本有的庄严诚敬。"
+    },
+    {
+      "text": "君子固穷，小人穷斯滥矣。",
+      "chapter": 15,
+      "context": "孔子在陈蔡绝粮时对子路说的话。南怀瑾认为这是修养的最高考验——真正的君子在困境中依然坚守信念，不因穷困而动摇。"
+    },
+    {
+      "text": "不知命，无以为君子也；不知礼，无以立也；不知言，无以知人也。",
+      "chapter": 20,
+      "context": "《论语》全书最后三句，南怀瑾视为总结：知天命是认识时代趋势，知礼是懂得做人规范，知言是能辨别他人真意。三者具备才是完整的学问。"
+    },
+    {
+      "text": "学问不是文学，不是知识，学问是从人生经验上来，做人做事上去体会的。",
+      "chapter": 1,
+      "context": "南怀瑾对「学问」的核心定义，贯穿全书。这是理解《论语别裁》立论的基石：学问的标准不在于读了多少书，而在于做人做事的修养。"
+    },
+    {
+      "text": "孔家店被人打倒，是被宋儒冤枉的。六七百年来，所有的四书五经，被一家注解笼罩了。",
+      "chapter": 1,
+      "context": "南怀瑾对「五四打倒孔家店」的深刻反思：被打倒的其实是朱熹注解里的孔子，不是孔子本人。必须推开注解直接读原文。"
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Ren (Benevolence)",
+      "nameZh": "仁",
+      "summary": "孔子思想的核心概念。南怀瑾主张体用一贯：体是内心克己修养的功夫，用是推己及人、己所不欲勿施于人的行为实践。仁不是抽象的「博爱」，而是人与人之间真实的相处之道。",
+      "icon": "💛"
+    },
+    {
+      "name": "Li (Rites and Propriety)",
+      "nameZh": "礼",
+      "summary": "不仅是礼貌或仪式，而是涵盖文化制度、社会规范与个人内在修养的完整体系。《礼记》首句「毋不敬」揭示其核心——内心的庄严诚敬。礼乐相辅，是为政教化的文化载体。",
+      "icon": "🏛️"
+    },
+    {
+      "name": "Junzi vs Xiaoren",
+      "nameZh": "君子与小人",
+      "summary": "君子是有中心思想、有内在修养的人，「不器」——不自限为某一专才；「固穷」——困境中坚守信念。小人不是道德贬义，而是指没有中心思想、随波逐流的普通人。两者之辨贯穿《论语》全书。",
+      "icon": "⚖️"
+    },
+    {
+      "name": "Zhongyong (The Mean)",
+      "nameZh": "中庸",
+      "summary": "不是滑头的折中主义或和稀泥，而是力量均衡的持平之道。「中」是本体，「庸」是用——在事事物物上恰到好处地把握分寸。尧传舜「允执其中」是中国政治文化的根本心法。",
+      "icon": "🎯"
+    },
+    {
+      "name": "True Learning",
+      "nameZh": "学而时习之",
+      "summary": "南怀瑾对「学问」的重新定义：不是知识积累或文学造诣，而是做人做事的体验与修养。「时习之」不是按时温习功课，而是随时随地在生活中实践。不识一字也可能有真学问。",
+      "icon": "📖"
+    },
+    {
+      "name": "One Thread (Yi Yi Guan Zhi)",
+      "nameZh": "一以贯之",
+      "summary": "孔子学问的总纲领。不是靠博闻强记把知识一点点堆起来，而是找到一个根本的东西，豁然贯通一切。曾子解为「忠恕」——忠是尽心做事的体，恕是推己及人的用。",
+      "icon": "🧵"
+    },
+    {
+      "name": "Filial Piety as Foundation",
+      "nameZh": "孝悌为本",
+      "summary": "仁的根基。孝不是教条式服从「天下无不是的父母」，而是对父母养育之恩的真情回报。悌是兄弟朋友间的友爱。孝悌扩而充之，即为对社会、国家的责任与爱，是从政之本。",
+      "icon": "🌳"
+    },
+    {
+      "name": "Interpreting Classics by Classics",
+      "nameZh": "以经解经",
+      "summary": "南怀瑾的核心方法论：推开宋儒以来的注解框架，只读原文，以《论语》前后语句互相印证来还原孔孟本来的思想。六七百年来四书五经被朱熹一家注解笼罩，必须回到源头。",
+      "icon": "🔑"
+    }
+  ],
+  "principles": [
+    {
+      "text": "True learning is life experience, not book knowledge",
+      "textZh": "学问不在读了多少书，而在做人做事的体验与修养——随时随地在生活中实践，才是「学而时习之」的真义",
+      "icon": "📖"
+    },
+    {
+      "text": "Govern by moral influence, not by force",
+      "textZh": "为政以德，不是权力操控，而是以自身修养感化他人——先正己，后正人，核心目标只有「安居乐业」四字",
+      "icon": "🌟"
+    },
+    {
+      "text": "Self-mastery precedes all outward achievement",
+      "textZh": "克己复礼为仁——一切外在成就的根基是内心的自我净化，克制妄念偏私，恢复本有的庄严诚敬",
+      "icon": "🧘"
+    },
+    {
+      "text": "Seek the one thread that runs through all",
+      "textZh": "学问之道不在博闻强记，而在一以贯之——找到根本，则一通百通；忠恕二字即是体用合一的实践法门",
+      "icon": "🧵"
+    },
+    {
+      "text": "The exemplary person stands firm in adversity",
+      "textZh": "君子固穷，小人穷斯滥矣——修养的真正考验不在顺境，而在困境中能否坚守信念不动摇",
+      "icon": "🏔️"
+    },
+    {
+      "text": "Filial piety is the root of benevolence",
+      "textZh": "孝悌为仁之本——对父母的真情回报扩而充之，就是对天下人的仁爱，是从政治世的根基",
+      "icon": "🌳"
+    },
+    {
+      "text": "Read the original, not the commentary",
+      "textZh": "以经解经，推开后人注解直读原文——六七百年的误读证明，任何权威注解都可能遮蔽原典的真意",
+      "icon": "🔑"
+    },
+    {
+      "text": "Know destiny, know propriety, know language",
+      "textZh": "不知命无以为君子，不知礼无以立，不知言无以知人——认识时代趋势、懂得做人规范、辨别他人真意，三者具备才是完整学问",
+      "icon": "☀️"
+    }
+  ],
+  "essence": [
+    {
+      "chapter": 1,
+      "title": "学而第一",
+      "sentence": "学问不是知识，而是做人做事的修养——随时在生活中实践，不被理解也不怨恨，这才是「学而时习之」的真义。"
+    },
+    {
+      "chapter": 2,
+      "title": "为政第二",
+      "sentence": "为政的根本是道德感化而非权术操控，孔子一生从「志学」到「从心所欲不逾矩」的历程说明，治世必须建立在深厚的人情世故之上。"
+    },
+    {
+      "chapter": 3,
+      "title": "八佾第三",
+      "sentence": "礼乐是文化教化的载体，礼的核心是内心的庄严诚敬，失去了内在精神的礼乐只是空壳——「人而不仁，如礼何？如乐何？」"
+    },
+    {
+      "chapter": 4,
+      "title": "里仁第四",
+      "sentence": "仁的体是内心修养，用是推己及人；「朝闻道，夕死可矣」说明学问的终极追求是对生命真理的彻悟。"
+    },
+    {
+      "chapter": 5,
+      "title": "公冶长第五",
+      "sentence": "通过品评历史人物的得失功过，展示仁的标准不是教条，而是在具体情境中对人性的通达理解。"
+    },
+    {
+      "chapter": 6,
+      "title": "雍也第六",
+      "sentence": "「知之者不如好之者，好之者不如乐之者」——学问有三重境界，最高是将学问融入生命、化为乐趣。"
+    },
+    {
+      "chapter": 7,
+      "title": "述而第七",
+      "sentence": "「志于道、据于德、依于仁、游于艺」是孔子学问的四大纲领，也是他一生「述而不作、信而好古」的自画像。"
+    },
+    {
+      "chapter": 8,
+      "title": "泰伯第八",
+      "sentence": "泰伯三让天下而民无得而称，是君子高风亮节的极致——真正伟大的品德不需要别人知道。"
+    },
+    {
+      "chapter": 9,
+      "title": "子罕第九",
+      "sentence": "圣人的修养在于自我约束与谦逊——「子绝四：毋意、毋必、毋固、毋我」，去掉主观偏见才能通达事理。"
+    },
+    {
+      "chapter": 10,
+      "title": "乡党第十",
+      "sentence": "以孔子日常生活的言行细节——饮食起居、应对进退——呈现知行合一的修养境界，学问最终要落实到一举一动。"
+    },
+    {
+      "chapter": 11,
+      "title": "先进第十一",
+      "sentence": "以弟子群像映照因材施教之道，子路的勇、颜回的仁、子贡的辩各有长短，好老师的关键是看到每个人的不同。"
+    },
+    {
+      "chapter": 12,
+      "title": "颜渊第十二",
+      "sentence": "「克己复礼为仁」是孔子对仁最彻底的定义——内心的自我净化做到位，天下自然归向仁道。"
+    },
+    {
+      "chapter": 13,
+      "title": "子路第十三",
+      "sentence": "领导之道在于「先之劳之」——自己先做榜样再要求别人，政治的核心是「正」，自己正了才能正人。"
+    },
+    {
+      "chapter": 14,
+      "title": "宪问第十四",
+      "sentence": "知识分子的节操在于「知其不可而为之」——明知道做不到也要坚持，这是担当精神的极致。"
+    },
+    {
+      "chapter": 15,
+      "title": "卫灵公第十五",
+      "sentence": "「君子固穷」是修养的最高考验，而「一以贯之」再度点明学问的总纲——万事归结到一个根本。"
+    },
+    {
+      "chapter": 16,
+      "title": "季氏第十六",
+      "sentence": "权力有本分的界限，「不在其位不谋其政」——僭越本分是乱之始，守住自己该做的才是正道。"
+    },
+    {
+      "chapter": 17,
+      "title": "阳货第十七",
+      "sentence": "出处抉择是立身的第一步——面对权势诱惑时如何自处，孔子见阳货而不同流合污就是最好的示范。"
+    },
+    {
+      "chapter": 18,
+      "title": "微子第十八",
+      "sentence": "入世与隐逸是永恒的张力，隐士们的「洁身自好」值得尊敬，但孔子选择「知其不可而为之」的入世担当。"
+    },
+    {
+      "chapter": 19,
+      "title": "子张第十九",
+      "sentence": "学问要兼顾广博与精深——「博学而笃志，切问而近思」，不偏于空谈理论，也不困于琐碎细节。"
+    },
+    {
+      "chapter": 20,
+      "title": "尧曰第二十",
+      "sentence": "全书以尧舜禹「公天下」的精神收束，归结为知命、知礼、知言三知——这是孔子学问对每个人的终极要求。"
+    }
+  ]
+};
+
+
+(function() {
+  const data = typeof distill !== 'undefined' ? distill : {};
+  const quotes = data.quotes || [];
+  const concepts = data.concepts || [];
+  const principles = data.principles || [];
+  const essence = data.essence || [];
+
+  // ── Render Quotes ──
+  const quoteList = document.getElementById('quoteList');
+  if (quotes.length === 0) {
+    quoteList.innerHTML = '<div class="empty-state">No quotes distilled yet.</div>';
+  } else {
+    quotes.forEach(q => {
+      const card = document.createElement('div');
+      card.className = 'quote-card fade-in';
+      card.onclick = function() { this.classList.toggle('expanded'); };
+      card.innerHTML =
+        '<div class="quote-text">' + escHtml(q.text) + '</div>' +
+        '<div class="quote-footer">' +
+          (q.chapter ? '<span class="quote-chapter">Ch.' + q.chapter + '</span>' : '') +
+          '<span class="quote-expand-hint">click to expand</span>' +
+        '</div>' +
+        (q.context ? '<div class="quote-context">' + escHtml(q.context) + '</div>' : '');
+      quoteList.appendChild(card);
+    });
+  }
+
+  // ── Render Concepts ──
+  const conceptGrid = document.getElementById('conceptGrid');
+  if (concepts.length === 0) {
+    conceptGrid.innerHTML = '<div class="empty-state">No concepts distilled yet.</div>';
+  } else {
+    concepts.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'concept-card fade-in';
+      card.innerHTML =
+        '<div class="concept-icon">' + (c.icon || '\u{1F9E0}') + '</div>' +
+        '<div class="concept-name">' + escHtml(c.name) + '</div>' +
+        (c.nameZh ? '<div class="concept-name-zh">' + escHtml(c.nameZh) + '</div>' : '') +
+        '<div class="concept-summary">' + escHtml(c.summary || '') + '</div>' +
+        '<div class="concept-more">hover to read more</div>';
+      conceptGrid.appendChild(card);
+    });
+  }
+
+  // ── Render Principles ──
+  const principleList = document.getElementById('principleList');
+  if (principles.length === 0) {
+    principleList.innerHTML = '<div class="empty-state">No principles distilled yet.</div>';
+  } else {
+    principles.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'principle-item fade-in';
+      item.innerHTML =
+        '<div class="principle-num"></div>' +
+        '<div class="principle-icon">' + (p.icon || '\u{1F4A1}') + '</div>' +
+        '<div class="principle-body">' +
+          '<div class="principle-text">' + escHtml(p.text) + '</div>' +
+          (p.textZh ? '<div class="principle-text-zh">' + escHtml(p.textZh) + '</div>' : '') +
+        '</div>';
+      principleList.appendChild(item);
+    });
+  }
+
+  // ── Render Essence ──
+  const essenceList = document.getElementById('essenceList');
+  if (essence.length === 0) {
+    essenceList.innerHTML = '<div class="empty-state">No chapter essences distilled yet.</div>';
+  } else {
+    essence.forEach(e => {
+      const item = document.createElement('div');
+      item.className = 'essence-item fade-in';
+      item.innerHTML =
+        '<div class="essence-chapter">Ch.' + (e.chapter || '?') + '</div>' +
+        '<div class="essence-body">' +
+          (e.title ? '<div class="essence-title">' + escHtml(e.title) + '</div>' : '') +
+          '<div class="essence-sentence">' + escHtml(e.sentence || '') + '</div>' +
+        '</div>';
+      essenceList.appendChild(item);
+    });
+  }
+
+  // ── Utility ──
+  function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // ── Scroll Progress ──
+  var progressBar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', function() {
+    var h = document.documentElement;
+    var pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    progressBar.style.width = Math.min(pct, 100) + '%';
+  });
+
+  // ── IntersectionObserver Fade-in ──
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // ── Active nav pill tracking ──
+  var sections = ['quotes', 'concepts', 'principles', 'essence'];
+  var navPills = document.querySelectorAll('.nav-pill');
+  var sectionObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        navPills.forEach(function(p) { p.classList.remove('active'); });
+        var pill = document.querySelector('.nav-pill[href="#' + entry.target.id + '"]');
+        if (pill) pill.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -60% 0px' });
+
+  sections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+})();
+
+function scrollToSection(id, el) {
+  var target = document.getElementById(id);
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.querySelectorAll('.nav-pill').forEach(function(p) { p.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+</script>
+</body>
+</html>

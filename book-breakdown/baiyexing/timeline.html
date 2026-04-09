@@ -520,15 +520,58 @@ const events = [
   {
     "year": 1973,
     "month": 10,
-    "lane": 2,
+    "lane": 3,
     "type": "crime",
+    "arc": 1,
     "chapter": 1,
-    "title": "桐原洋介遇害",
-    "titleEn": "Yosuke Kirihara murdered",
-    "desc": "在废弃建筑中被剪刀刺死。当天提取100万日元现金失踪。",
+    "title": "桐原洋介提取百万现金",
+    "titleEn": "Kirihara Yosuke withdraws 1M yen",
+    "desc": "桐原洋介从银行提取一百万日元现金，用途不明，后被证实与文代的交易有关。",
+    "chars": [
+      "桐原洋介"
+    ]
+  },
+  {
+    "year": 1973,
+    "month": 10,
+    "lane": 0,
+    "type": "crime",
+    "arc": 1,
+    "chapter": 1,
+    "title": "洋介在废弃大楼侵犯雪穗",
+    "titleEn": "Yosuke assaults Yukiho in abandoned building",
+    "desc": "桐原洋介在废弃大楼中对年幼的西本雪穗实施侵犯，这是整部小说「原罪」的起点。",
     "chars": [
       "桐原洋介",
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1973,
+    "month": 10,
+    "lane": 0,
+    "type": "death",
+    "arc": 1,
+    "chapter": 1,
+    "title": "亮司���杀父亲桐原洋介",
+    "titleEn": "Ryoji stabs his father Yosuke to death",
+    "desc": "桐原亮司目睹父亲的罪行后，用剪刀将其刺杀于废弃大楼内。这一弑父行为成为亮司一生「在白夜中行走」的起点。",
+    "chars": [
       "桐原亮司",
+      "桐原洋介"
+    ]
+  },
+  {
+    "year": 1973,
+    "month": 10,
+    "lane": 2,
+    "type": "investigation",
+    "arc": 1,
+    "chapter": 1,
+    "title": "笹垣润三接手洋介被杀案",
+    "titleEn": "Sasagaki takes on the Yosuke murder case",
+    "desc": "大阪府警笹垣润三刑警被指派调查桐原洋介的死亡案件，开始走访质屋周边。",
+    "chars": [
       "笹垣润三"
     ]
   },
@@ -537,66 +580,173 @@ const events = [
     "month": 10,
     "lane": 2,
     "type": "investigation",
+    "arc": 1,
     "chapter": 1,
-    "title": "笹垣开始调查",
-    "titleEn": "Sasagaki begins investigation",
-    "desc": "刑警笹垣润三负责调查桐原洋介被杀案。",
+    "title": "笹垣初次接触亮司与雪穗",
+    "titleEn": "Sasagaki first encounters Ryoji and Yukiho",
+    "desc": "笹垣在调查过程中分别接触了桐原亮司和西本雪穗，两个孩子表现得异常平静。",
     "chars": [
-      "笹垣润三"
+      "笹垣润三",
+      "桐原亮司",
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1973,
+    "month": 10,
+    "lane": 0,
+    "type": "crime",
+    "arc": 1,
+    "chapter": 1,
+    "title": "洋介向文代支付百万日元",
+    "titleEn": "Yosuke pays 1M yen to Fumiyo",
+    "desc": "桐原洋介向西本文代支付一百万日元，作为「购买」雪穗的报酬。文代为了金钱出卖了自己的女儿。",
+    "chars": [
+      "桐原洋介",
+      "西本文代"
     ]
   },
   {
     "year": 1973,
     "month": 11,
-    "lane": 0,
-    "type": "tragedy",
+    "lane": 2,
+    "type": "investigation",
+    "arc": 1,
     "chapter": 1,
-    "title": "西本文代死亡",
-    "titleEn": "Fumiyo Nishimoto dies",
-    "desc": "雪穗的生母煤气中毒死亡，疑似自杀。",
+    "title": "笹垣调查寺崎忠夫",
+    "titleEn": "Sasagaki investigates Terasaki Tadao",
+    "desc": "笹垣怀疑文代的情人寺崎忠夫与洋介之死有关，开始追踪他的行踪。",
     "chars": [
-      "西本文代",
-      "唐泽雪穗"
+      "笹垣润三",
+      "寺崎忠夫"
+    ]
+  },
+  {
+    "year": 1973,
+    "month": 11,
+    "lane": 3,
+    "type": "death",
+    "arc": 1,
+    "chapter": 1,
+    "title": "寺崎忠夫车祸身亡",
+    "titleEn": "Terasaki dies in a car accident",
+    "desc": "嫌疑人寺崎忠夫在卡车事故中死亡，死因存疑——疑似被亮司或雪穗设计陷害。关键证人就此消失。",
+    "chars": [
+      "寺崎忠夫"
     ]
   },
   {
     "year": 1973,
     "month": 12,
-    "lane": 1,
-    "type": "identity",
+    "lane": 3,
+    "type": "death",
+    "arc": 1,
     "chapter": 1,
-    "title": "亮司目睹真相",
-    "titleEn": "Ryoji witnesses the truth",
-    "desc": "年幼的亮司目睹父亲对雪穗的侵害，杀死父亲。",
+    "title": "西本文代煤气中毒死亡",
+    "titleEn": "Nishimoto Fumiyo dies of gas poisoning",
+    "desc": "雪穗的生母西本文代被发现死于煤气中毒，被判定为自杀。实际上极可能是雪穗为切断过去而策划的谋杀。",
+    "chars": [
+      "西本文代",
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1973,
+    "month": 12,
+    "lane": 0,
+    "type": "turning-point",
+    "arc": 1,
+    "chapter": 1,
+    "title": "亮司与雪穗缔结暗中同盟",
+    "titleEn": "Ryoji and Yukiho form their secret pact",
+    "desc": "在弑父和弑母之后，两人形成了不可言说的共生关系——亮司在暗处为雪穗铺路，雪穗在明处步步攀升。",
     "chars": [
       "桐原亮司",
-      "唐泽雪穗",
-      "桐原洋介"
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1974,
+    "month": 1,
+    "lane": 2,
+    "type": "investigation",
+    "arc": 1,
+    "chapter": 1,
+    "title": "洋介案悬而未决",
+    "titleEn": "Yosuke murder case goes cold",
+    "desc": "随着寺崎死亡、文代自杀，笹垣失去了所有线索。案件被搁置，但笹垣始终无法释怀。",
+    "chars": [
+      "笹垣润三"
     ]
   },
   {
     "year": 1977,
     "month": 4,
-    "lane": 0,
-    "type": "identity",
+    "lane": 1,
+    "type": "social",
+    "arc": 2,
     "chapter": 2,
-    "title": "雪穗进入清华女子学园",
-    "titleEn": "Yukiho enters Seika school",
-    "desc": "被唐泽礼子收养后，进入名门女校。",
+    "title": "雪穗被唐泽礼子收养",
+    "titleEn": "Yukiho adopted by Karasawa Reiko",
+    "desc": "雪穗被家境优渥的唐泽礼子收养，从大阪底层跃入上流社会。她开始以「唐泽雪穗」的身份生活。",
     "chars": [
-      "唐泽雪穗",
+      "西本雪穗",
+      "唐泽礼子"
+    ]
+  },
+  {
+    "year": 1977,
+    "month": 4,
+    "lane": 1,
+    "type": "social",
+    "arc": 2,
+    "chapter": 2,
+    "title": "雪穗进入清华女子学院",
+    "titleEn": "Yukiho enrolls at Seika Girls' Academy",
+    "desc": "雪穗转入名门私立清华学院，开始打造完美淑女的形象，学业成绩优异，举止端庄。",
+    "chars": [
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1977,
+    "month": 5,
+    "lane": 1,
+    "type": "social",
+    "arc": 2,
+    "chapter": 2,
+    "title": "江利子与雪穗结为好友",
+    "titleEn": "Eriko befriends Yukiho",
+    "desc": "川�的江利子被雪穗的优雅所吸引，主动接近并成为密友。雪穗借此打入上流社交圈。",
+    "chars": [
+      "西本雪穗",
       "川岛江利子"
     ]
   },
   {
     "year": 1977,
     "month": 9,
+    "lane": 0,
+    "type": "crime",
+    "arc": 2,
+    "chapter": 2,
+    "title": "亮司开始使用秋吉雄一假身份",
+    "titleEn": "Ryoji starts using Akiyoshi Yuichi alias",
+    "desc": "桐原亮司开始使用「秋吉雄一」这个化名活动，为日后的犯罪行为提供掩护。",
+    "chars": [
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1978,
+    "month": 3,
     "lane": 3,
     "type": "crime",
+    "arc": 2,
     "chapter": 2,
-    "title": "藤村都子遇袭",
-    "titleEn": "Miyako Fujimura attacked",
-    "desc": "清华女子学园学生遭到性侵，案件震动学校。",
+    "title": "藤村都子遭到袭击",
+    "titleEn": "Fujimura Miyako attacked",
+    "desc": "雪穗的同学藤村都子被人袭击，嫌疑被嫁祸给菊池。实际上是亮司为帮助雪穗排除社交障碍而策划的。",
     "chars": [
       "藤村都子",
       "桐原亮司"
@@ -604,170 +754,412 @@ const events = [
   },
   {
     "year": 1978,
-    "month": 4,
-    "lane": 1,
-    "type": "identity",
-    "chapter": 3,
-    "title": "亮司与友彦结识",
-    "titleEn": "Ryoji meets Tomohiko",
-    "desc": "高中时期，桐原亮司与园村友彦成为同学和伙伴。",
+    "month": 3,
+    "lane": 0,
+    "type": "crime",
+    "arc": 2,
+    "chapter": 2,
+    "title": "菊池被陷害为袭击者",
+    "titleEn": "Kikuchi framed for the attack",
+    "desc": "亮司精心设计，将袭击都子的罪名嫁祸给菊池，菊池百口莫辩。这是亮司「暗线」作案模式的早期体现。",
     "chars": [
       "桐原亮司",
-      "园村友彦"
+      "菊池"
     ]
   },
   {
     "year": 1978,
-    "month": 8,
+    "month": 6,
     "lane": 1,
-    "type": "crime",
-    "chapter": 3,
-    "title": "花冈夕子之死",
-    "titleEn": "Yuko Hanaoka dies",
-    "desc": "有夫之妇花冈夕子与友彦发生关系后死亡，桐原帮助善后。",
+    "type": "social",
+    "arc": 2,
+    "chapter": 2,
+    "title": "雪穗在学院中地位稳固",
+    "titleEn": "Yukiho establishes herself at the academy",
+    "desc": "藤村事件后，雪穗在学院中再无威胁者，逐渐成为众人仰慕的核心人物。",
     "chars": [
-      "花冈夕子",
-      "园村友彦",
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1979,
+    "month": 1,
+    "lane": 0,
+    "type": "crime",
+    "arc": 2,
+    "chapter": 3,
+    "title": "亮司经营色情服务",
+    "titleEn": "Ryoji runs a sex service business",
+    "desc": "桐原亮司开始经营非法的色情服务，以此作为收入来源和控制他人的手段。",
+    "chars": [
       "桐原亮司"
     ]
   },
   {
-    "year": 1980,
-    "month": 4,
+    "year": 1979,
+    "month": 3,
     "lane": 0,
-    "type": "romance",
-    "chapter": 4,
-    "title": "中道正晴追求雪穗",
-    "titleEn": "Nakamichi pursues Yukiho",
-    "desc": "大学生正晴做雪穗的家教，被她吸引。",
+    "type": "social",
+    "arc": 2,
+    "chapter": 3,
+    "title": "亮司招募友彦加入",
+    "titleEn": "Ryoji recruits Tomohiko",
+    "desc": "亮司将�的友彦拉入自己的圈子，友彦成为亮司最亲密的同伙和日后的商业伙伴。",
     "chars": [
-      "中道正晴",
-      "唐泽雪穗"
+      "桐原亮司",
+      "友彦"
     ]
   },
   {
-    "year": 1980,
+    "year": 1979,
+    "month": 6,
+    "lane": 3,
+    "type": "death",
+    "arc": 2,
+    "chapter": 3,
+    "title": "夕子意外死亡",
+    "titleEn": "Yuko dies under suspicious circumstances",
+    "desc": "色情服务中的女孩夕子意外死亡，亮司随即进行善后处理，销毁一切证据。",
+    "chars": [
+      "桐原亮司",
+      "夕子"
+    ]
+  },
+  {
+    "year": 1979,
+    "month": 6,
+    "lane": 0,
+    "type": "crime",
+    "arc": 2,
+    "chapter": 3,
+    "title": "亮司善后夕子之死",
+    "titleEn": "Ryoji covers up Yuko's death",
+    "desc": "亮司冷静地处理夕子的尸体和相关证据，展现出超越年龄的犯罪手腕。",
+    "chars": [
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1979,
     "month": 9,
     "lane": 0,
-    "type": "identity",
-    "chapter": 4,
-    "title": "正晴调查雪穗身世",
-    "titleEn": "Nakamichi investigates Yukiho's past",
-    "desc": "在图书馆偶然发现雪穗母亲之死的旧新闻。",
+    "type": "social",
+    "arc": 2,
+    "chapter": 3,
+    "title": "亮司筹划无限企划游戏公司",
+    "titleEn": "Ryoji plans MUGEN game company",
+    "desc": "亮司开始构想创办电子游戏公司「无限企划」，将非法收入转化为合法生意。",
     "chars": [
-      "中道正晴",
-      "唐泽雪穗"
+      "桐原亮司",
+      "友彦"
     ]
   },
   {
-    "year": 1982,
-    "month": 4,
+    "year": 1979,
+    "month": 10,
+    "lane": 1,
+    "type": "social",
+    "arc": 2,
+    "chapter": 4,
+    "title": "正晴成为雪穗的家庭教师",
+    "titleEn": "Masaharu becomes Yukiho's tutor",
+    "desc": "筱冢一成的表弟正晴开始担任雪穗的家庭教师，两人关系密切。正晴被雪穗的美貌和聪慧所吸引。",
+    "chars": [
+      "西本雪穗",
+      "筱冢正晴"
+    ]
+  },
+  {
+    "year": 1980,
+    "month": 1,
     "lane": 0,
-    "type": "identity",
+    "type": "crime",
+    "arc": 3,
+    "chapter": 4,
+    "title": "亮司窃取潜水艇程序",
+    "titleEn": "Ryoji steals the submarine program",
+    "desc": "亮司利用计算机技术，窃取了正晴参与开发的「潜水艇」游戏程序源代码。",
+    "chars": [
+      "桐原亮司",
+      "筱冢正晴"
+    ]
+  },
+  {
+    "year": 1980,
+    "month": 2,
+    "lane": 2,
+    "type": "investigation",
+    "arc": 3,
+    "chapter": 4,
+    "title": "正晴怀疑雪穗参与窃取",
+    "titleEn": "Masaharu suspects Yukiho's involvement",
+    "desc": "正晴发现程序被盗与雪穗有关联，开始怀疑雪穗并非表面上那般单纯，但缺乏证据。",
+    "chars": [
+      "筱冢正晴",
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1980,
+    "month": 3,
+    "lane": 1,
+    "type": "turning-point",
+    "arc": 3,
+    "chapter": 4,
+    "title": "正晴与雪穗关系破裂",
+    "titleEn": "Masaharu breaks off with Yukiho",
+    "desc": "正晴因对雪穗产生怀疑而疏远她。雪穗失去了第一个可能的正常情感纽带。",
+    "chars": [
+      "筱冢正晴",
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1980,
+    "month": 4,
+    "lane": 1,
+    "type": "social",
+    "arc": 3,
+    "chapter": 4,
+    "title": "唐泽礼子的花道教室",
+    "titleEn": "Karasawa Reiko's ikebana classes",
+    "desc": "唐泽礼子经营花道教室，雪穗在养母的熏陶下进一步习得上流社会的礼仪与审美。",
+    "chars": [
+      "西本雪穗",
+      "唐泽礼子"
+    ]
+  },
+  {
+    "year": 1983,
+    "month": 4,
+    "lane": 1,
+    "type": "social",
+    "arc": 3,
     "chapter": 5,
     "title": "雪穗进入大学",
     "titleEn": "Yukiho enters university",
-    "desc": "雪穗与江利子分别进入不同大学。",
+    "desc": "雪穗考入大学，继续经营她完美淑女的公众形象，在社交场上如鱼得水。",
     "chars": [
-      "唐泽雪穗",
-      "川岛江利子"
+      "西本雪穗"
     ]
   },
   {
-    "year": 1982,
+    "year": 1983,
     "month": 5,
-    "lane": 0,
-    "type": "romance",
+    "lane": 1,
+    "type": "social",
+    "arc": 3,
     "chapter": 5,
-    "title": "雪穗接近筱冢家",
-    "titleEn": "Yukiho approaches Shinozuka family",
-    "desc": "通过社交舞社接近筱冢一成。",
+    "title": "雪穗加入社交舞蹈社",
+    "titleEn": "Yukiho joins social dance club",
+    "desc": "雪穗加入大学的社交舞蹈俱乐部，以优雅的舞姿赢得众人瞩目。",
     "chars": [
-      "唐泽雪穗",
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1983,
+    "month": 6,
+    "lane": 1,
+    "type": "social",
+    "arc": 3,
+    "chapter": 5,
+    "title": "筱冢一成登场",
+    "titleEn": "Shinozuka Kazunari introduced",
+    "desc": "名门筱冢家的继承人筱冢一成出现在雪穗的社交圈中，雪穗将他视为攀升的重要跳板。",
+    "chars": [
+      "筱冢一成",
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1983,
+    "month": 9,
+    "lane": 1,
+    "type": "romantic",
+    "arc": 3,
+    "chapter": 5,
+    "title": "雪穗接近筱冢一成",
+    "titleEn": "Yukiho gets close to Kazunari",
+    "desc": "雪穗有意接近筱冢一成，试图通过这段关系进入真正的上流社会核心圈层。",
+    "chars": [
+      "西本雪穗",
       "筱冢一成"
     ]
   },
   {
-    "year": 1982,
-    "month": 9,
+    "year": 1983,
+    "month": 11,
     "lane": 3,
-    "type": "tragedy",
+    "type": "crime",
+    "arc": 3,
     "chapter": 5,
-    "title": "江利子遭到性侵",
-    "titleEn": "Eriko sexually assaulted",
-    "desc": "江利子被侵害，精神崩溃。一成怀疑雪穗参与。",
+    "title": "江利子被下药拍照",
+    "titleEn": "Eriko drugged and photographed",
+    "desc": "亮司将江利子迷昏并拍摄不雅照片。雪穗利用这些照片威胁江利子退出与一成的竞争。这是对好友最残忍的背叛。",
     "chars": [
       "川岛江利子",
-      "唐泽雪穗",
+      "桐原亮司",
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1983,
+    "month": 12,
+    "lane": 1,
+    "type": "turning-point",
+    "arc": 3,
+    "chapter": 5,
+    "title": "江利子退出与雪穗的友谊",
+    "titleEn": "Eriko withdraws from friendship with Yukiho",
+    "desc": "遭受羞辱的江利子逐渐远离雪穗和社交圈，精神状态急剧恶化。雪穗消除了通往一成路上的最大障碍。",
+    "chars": [
+      "川岛江利子",
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1982,
+    "month": 3,
+    "lane": 0,
+    "type": "crime",
+    "arc": 3,
+    "chapter": 6,
+    "title": "亮司开始银行卡诈骗",
+    "titleEn": "Ryoji starts bank card fraud scheme",
+    "desc": "亮司利用计算机技术伪造银行卡，系统性地从多个账户中盗取资金。",
+    "chars": [
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1982,
+    "month": 6,
+    "lane": 0,
+    "type": "crime",
+    "arc": 3,
+    "chapter": 6,
+    "title": "亮司与奈美江合作",
+    "titleEn": "Ryoji collaborates with Namie",
+    "desc": "亮司利用奈美江作为银行卡诈骗的「取款人」，奈美江不知不觉成为犯罪链条中的棋子。",
+    "chars": [
+      "桐原亮司",
+      "奈美江"
+    ]
+  },
+  {
+    "year": 1984,
+    "month": 2,
+    "lane": 3,
+    "type": "death",
+    "arc": 3,
+    "chapter": 6,
+    "title": "奈美江被杀害",
+    "titleEn": "Namie murdered",
+    "desc": "当奈美江对亮司构成威胁时，亮司将其杀害并毁尸灭迹。又一个无辜者成为「白夜行」的牺牲品。",
+    "chars": [
+      "奈美江",
       "桐原亮司"
     ]
   },
   {
     "year": 1984,
-    "month": 6,
-    "lane": 1,
-    "type": "crime",
+    "month": 4,
+    "lane": 2,
+    "type": "investigation",
+    "arc": 3,
     "chapter": 6,
-    "title": "银行诈骗",
-    "titleEn": "Bank fraud scheme",
-    "desc": "友彦参与桐原策划的银行诈骗行动。",
+    "title": "榎本因银行卡诈骗被捕",
+    "titleEn": "Enomoto arrested for bank card fraud",
+    "desc": "亮司的同伙榎本在银行卡诈骗案中被警方逮捕，但亮司成功切断了所有指向自己的线索。",
     "chars": [
-      "园村友彦",
+      "榎本",
       "桐原亮司"
     ]
   },
   {
-    "year": 1985,
-    "month": 4,
-    "lane": 0,
-    "type": "romance",
-    "chapter": 7,
-    "title": "雪穗与高宫诚结婚",
-    "titleEn": "Yukiho marries Makoto",
-    "desc": "精心安排的相亲后，雪穗嫁给专利事务所职员高宫诚。",
+    "year": 1984,
+    "month": 5,
+    "lane": 2,
+    "type": "investigation",
+    "arc": 3,
+    "chapter": 6,
+    "title": "笹垣注意到案件之间的关联",
+    "titleEn": "Sasagaki notices connections between cases",
+    "desc": "已退休的笹垣在追踪旧案时，注意到银行卡诈骗案与洋介被杀案中某些人物的重叠。",
     "chars": [
-      "唐泽雪穗",
+      "笹垣润三"
+    ]
+  },
+  {
+    "year": 1985,
+    "month": 1,
+    "lane": 1,
+    "type": "social",
+    "arc": 4,
+    "chapter": 7,
+    "title": "高宫诚在东西电装工作",
+    "titleEn": "Takamiya Makoto works at Tozai Denso",
+    "desc": "高宫诚在东西电装公司任职，是一个老实本分的上班族，即将成为雪穗的猎物。",
+    "chars": [
       "高宫诚"
     ]
   },
   {
     "year": 1985,
     "month": 4,
-    "lane": 3,
-    "type": "tragedy",
+    "lane": 1,
+    "type": "romantic",
+    "arc": 4,
     "chapter": 7,
-    "title": "千都留酒店事件",
-    "titleEn": "Chizuru hotel incident",
-    "desc": "婚礼当天，千都留在酒店遭遇意外（暗示被设计）。",
+    "title": "雪穗与高宫诚相识",
+    "titleEn": "Yukiho meets Takamiya Makoto",
+    "desc": "雪穗通过社交场合认识了高宫诚，开始有计划地接近这个在大企业工作的青年。",
     "chars": [
-      "三泽千都留",
-      "唐泽雪穗",
-      "桐原亮司"
+      "西本雪穗",
+      "高宫诚"
+    ]
+  },
+  {
+    "year": 1985,
+    "month": 9,
+    "lane": 1,
+    "type": "romantic",
+    "arc": 4,
+    "chapter": 7,
+    "title": "雪穗与高宫诚结婚",
+    "titleEn": "Yukiho marries Takamiya Makoto",
+    "desc": "雪穗嫁给高宫诚，获得了体面的社会身份。这段婚姻从一开始就是雪穗社会攀升计划的一部分。",
+    "chars": [
+      "西本雪穗",
+      "高宫诚"
+    ]
+  },
+  {
+    "year": 1985,
+    "month": 11,
+    "lane": 3,
+    "type": "death",
+    "arc": 4,
+    "chapter": 7,
+    "title": "唐泽礼子病逝",
+    "titleEn": "Karasawa Reiko passes away",
+    "desc": "雪穗的养母唐泽礼子因病去世，雪穗继承了她的遗产和社会资源。礼子至死不知养女的真面目。",
+    "chars": [
+      "唐泽礼子",
+      "西本雪穗"
     ]
   },
   {
     "year": 1986,
-    "month": 1,
-    "lane": 1,
-    "type": "business",
-    "chapter": 8,
-    "title": "MUGEN电脑店开业",
-    "titleEn": "MUGEN computer shop opens",
-    "desc": "友彦开设电脑店，桐原在幕后操控。",
-    "chars": [
-      "园村友彦",
-      "桐原亮司"
-    ]
-  },
-  {
-    "year": 1986,
-    "month": 6,
-    "lane": 1,
+    "month": 2,
+    "lane": 0,
     "type": "crime",
-    "chapter": 8,
-    "title": "盗版软件事业",
-    "titleEn": "Pirated software business",
-    "desc": "桐原涉足盗版超级马里奥兄弟软件。",
+    "arc": 4,
+    "chapter": 7,
+    "title": "亮司杀害松浦并埋尸",
+    "titleEn": "Ryoji kills Matsuura and buries body",
+    "desc": "亮司将知道太多秘密的松浦杀害，并将尸体深埋。松浦的失踪多年后才被发现。",
     "chars": [
       "桐原亮司",
       "松浦"
@@ -775,318 +1167,767 @@ const events = [
   },
   {
     "year": 1986,
-    "month": 12,
-    "lane": 1,
-    "type": "crime",
+    "month": 3,
+    "lane": 0,
+    "type": "social",
+    "arc": 4,
     "chapter": 8,
-    "title": "盗版软件被查获",
-    "titleEn": "Pirated software seized",
-    "desc": "警方查获大量盗版软件，松浦行踪不明。",
+    "title": "亮司与友彦开设MUGEN游戏店",
+    "titleEn": "Ryoji and Tomohiko open MUGEN game shop",
+    "desc": "亮司和友彦合伙开设了MUGEN电子游戏店铺，作为合法经营的门面。",
     "chars": [
-      "松浦",
+      "桐原亮司",
+      "友彦"
+    ]
+  },
+  {
+    "year": 1986,
+    "month": 6,
+    "lane": 0,
+    "type": "crime",
+    "arc": 4,
+    "chapter": 8,
+    "title": "亮司经营盗版游戏",
+    "titleEn": "Ryoji deals in pirated games",
+    "desc": "亮司在合法店面的掩护下，暗中经营盗版游戏复制和销售业务，利润丰厚。",
+    "chars": [
       "桐原亮司"
     ]
   },
   {
-    "year": 1989,
+    "year": 1987,
+    "month": 1,
+    "lane": 0,
+    "type": "social",
+    "arc": 4,
+    "chapter": 8,
+    "title": "MUGEN新年经营",
+    "titleEn": "MUGEN game shop New Year operations",
+    "desc": "MUGEN游戏店在新年期间生意兴隆，亮司和友彦的合法生意表面上步入正轨。",
+    "chars": [
+      "桐原亮司",
+      "友彦"
+    ]
+  },
+  {
+    "year": 1987,
     "month": 4,
-    "lane": 0,
-    "type": "business",
-    "chapter": 9,
-    "title": "雪穗开设R&Y精品店",
-    "titleEn": "Yukiho opens R&Y boutique",
-    "desc": "雪穗创立自己的精品服装店「R&Y」。",
+    "lane": 2,
+    "type": "investigation",
+    "arc": 4,
+    "chapter": 8,
+    "title": "盗版游戏被查获",
+    "titleEn": "Pirated games seized by authorities",
+    "desc": "警方查获了MUGEN店铺的盗版游戏，亮司再次巧妙地将责任推卸给他人。",
     "chars": [
-      "唐泽雪穗"
+      "桐原亮司"
     ]
   },
   {
-    "year": 1989,
-    "month": 7,
-    "lane": 0,
-    "type": "romance",
-    "chapter": 9,
-    "title": "诚与千都留重逢",
-    "titleEn": "Makoto reunites with Chizuru",
-    "desc": "高宫诚与三泽千都留再次相遇并开始约会。",
+    "year": 1987,
+    "month": 6,
+    "lane": 1,
+    "type": "social",
+    "arc": 4,
+    "chapter": 7,
+    "title": "雪穗经营精品店",
+    "titleEn": "Yukiho runs a boutique",
+    "desc": "雪穗利用养母留下的资源和人脉，开设了自己的精品服饰店，事业上迈出独立的一步。",
     "chars": [
-      "高宫诚",
-      "三泽千都留"
+      "西本雪穗"
     ]
   },
   {
-    "year": 1989,
-    "month": 10,
-    "lane": 0,
-    "type": "identity",
+    "year": 1988,
+    "month": 1,
+    "lane": 1,
+    "type": "crime",
+    "arc": 4,
     "chapter": 9,
-    "title": "雪穗主导离婚",
-    "titleEn": "Yukiho initiates divorce",
-    "desc": "发现诚的外遇后，雪穗果断主导离婚。",
+    "title": "雪穗开始股票交易",
+    "titleEn": "Yukiho begins stock trading",
+    "desc": "雪穗开始涉足股票市场，利用高宫在东西电装获取的企业内部信息进行交易。",
     "chars": [
-      "唐泽雪穗",
+      "西本雪穗",
       "高宫诚"
     ]
   },
   {
-    "year": 1991,
+    "year": 1988,
     "month": 6,
-    "lane": 2,
-    "type": "investigation",
-    "chapter": 10,
-    "title": "今枝受雇调查雪穗",
-    "titleEn": "Imaeda hired to investigate Yukiho",
-    "desc": "私家侦探今枝直巳受雇展开对雪穗的调查。",
+    "lane": 0,
+    "type": "crime",
+    "arc": 4,
+    "chapter": 9,
+    "title": "亮司协助雪穗内幕交易",
+    "titleEn": "Ryoji assists Yukiho's insider trading",
+    "desc": "亮司利用计算机技术帮助雪穗操作股票交易，将高宫提供的内幕信息转化为巨额利润。",
     "chars": [
-      "今枝直巳",
-      "唐泽雪穗"
+      "桐原亮司",
+      "西本雪穗"
     ]
   },
   {
-    "year": 1991,
+    "year": 1988,
     "month": 9,
-    "lane": 2,
-    "type": "investigation",
-    "chapter": 10,
-    "title": "今枝找到江利子",
-    "titleEn": "Imaeda finds Eriko",
-    "desc": "今枝找到已婚的江利子（手冢太太）作为证人。",
+    "lane": 1,
+    "type": "crime",
+    "arc": 4,
+    "chapter": 9,
+    "title": "雪穗利用高宫获取内幕信息",
+    "titleEn": "Yukiho exploits Takamiya for insider info",
+    "desc": "雪穗系统性地从丈夫高宫处套取东西电装的商业机密，用于股票投机。高宫完全被蒙在鼓里。",
     "chars": [
-      "今枝直巳",
-      "川岛江利子"
+      "西本雪穗",
+      "高宫诚"
     ]
   },
   {
-    "year": 1991,
-    "month": 10,
-    "lane": 0,
-    "type": "romance",
-    "chapter": 10,
-    "title": "雪穗接近筱冢康晴",
-    "titleEn": "Yukiho approaches Yasuharu",
-    "desc": "雪穗与筱冢一成的堂兄康晴建立关系。",
-    "chars": [
-      "唐泽雪穗",
-      "筱冢康晴"
-    ]
-  },
-  {
-    "year": 1992,
-    "month": 3,
-    "lane": 2,
-    "type": "investigation",
-    "chapter": 11,
-    "title": "今枝深入调查",
-    "titleEn": "Imaeda deepens investigation",
-    "desc": "今枝发现雪穗身边的可疑模式和R&Y的秘密。",
-    "chars": [
-      "今枝直巳",
-      "唐泽雪穗",
-      "菅原绘里"
-    ]
-  },
-  {
-    "year": 1992,
-    "month": 5,
-    "lane": 0,
-    "type": "tragedy",
-    "chapter": 11,
-    "title": "唐泽礼子去世",
-    "titleEn": "Reiko Karasawa dies",
-    "desc": "雪穗的养母唐泽礼子去世。",
-    "chars": [
-      "唐泽礼子",
-      "唐泽雪穗"
-    ]
-  },
-  {
-    "year": 1992,
-    "month": 8,
-    "lane": 2,
-    "type": "tragedy",
-    "chapter": 11,
-    "title": "今枝失踪",
-    "titleEn": "Imaeda disappears",
-    "desc": "今枝的调查突然中断，本人失踪（暗示遭遇不测）。",
-    "chars": [
-      "今枝直巳",
-      "桐原亮司"
-    ]
-  },
-  {
-    "year": 1998,
+    "year": 1989,
     "month": 3,
     "lane": 1,
-    "type": "romance",
-    "chapter": 12,
-    "title": "亮司与典子交往",
-    "titleEn": "Ryoji dates Noriko",
-    "desc": "以「秋吉雄一」身份与药剂师栗原典子交往。",
+    "type": "turning-point",
+    "arc": 4,
+    "chapter": 9,
+    "title": "雪穗与高宫诚离婚",
+    "titleEn": "Yukiho divorces Takamiya Makoto",
+    "desc": "在榨取完高宫的利用价值后，雪穗提出离婚。高宫的人生从此一蹶不振，成为雪穗攀升路上被丢弃的工具人。",
     "chars": [
-      "桐原亮司",
-      "栗原典子"
+      "西本雪穗",
+      "高宫诚"
     ]
   },
   {
-    "year": 1998,
+    "year": 1989,
     "month": 6,
-    "lane": 3,
-    "type": "crime",
-    "chapter": 12,
-    "title": "筱冢美佳遭侵害",
-    "titleEn": "Mika Shinozuka assaulted",
-    "desc": "筱冢康晴的女儿美佳遭到性侵。一成怀疑亮司。",
+    "lane": 1,
+    "type": "social",
+    "arc": 4,
+    "chapter": 9,
+    "title": "雪穗积累大量财富",
+    "titleEn": "Yukiho accumulates significant wealth",
+    "desc": "通过内幕交易和精品店经营，雪穗已积累起可观的财富，为下一步社会攀升奠定物质基础。",
     "chars": [
-      "筱冢美佳",
-      "桐原亮司",
-      "筱冢一成"
+      "西本雪穗"
     ]
   },
   {
-    "year": 1998,
+    "year": 1989,
     "month": 9,
+    "lane": 1,
+    "type": "social",
+    "arc": 4,
+    "chapter": 9,
+    "title": "雪穗拓展商业版图",
+    "titleEn": "Yukiho expands her business empire",
+    "desc": "离婚后的雪穗将精品店发展为连锁品牌，逐步建立起自己的商业帝国「R&Y」。",
+    "chars": [
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1990,
+    "month": 2,
     "lane": 2,
     "type": "investigation",
-    "chapter": 12,
-    "title": "笹垣重启调查",
-    "titleEn": "Sasagaki reopens investigation",
-    "desc": "退休的笹垣重新开始追查19年前的旧案。",
+    "arc": 5,
+    "chapter": 10,
+    "title": "笹垣退休后继续追查旧案",
+    "titleEn": "Retired Sasagaki continues investigating",
+    "desc": "退休后的笹垣无法放下洋介被杀案，以私人身份继续追踪亮司和雪穗的轨迹。",
     "chars": [
       "笹垣润三"
     ]
   },
   {
-    "year": 1998,
-    "month": 11,
+    "year": 1991,
+    "month": 1,
     "lane": 1,
-    "type": "identity",
+    "type": "romantic",
+    "arc": 5,
+    "chapter": 10,
+    "title": "雪穗接近筱冢一成",
+    "titleEn": "Yukiho approaches Shinozuka Kazunari again",
+    "desc": "雪穗重新接近筱冢一成，这次以成熟女企业家的身份，意图通过婚姻进入筱冢家族的核心。",
+    "chars": [
+      "西本雪穗",
+      "筱冢一成"
+    ]
+  },
+  {
+    "year": 1991,
+    "month": 3,
+    "lane": 2,
+    "type": "investigation",
+    "arc": 5,
+    "chapter": 10,
+    "title": "筱冢一成雇佣今枝调查雪穗",
+    "titleEn": "Kazunari hires Imaeda to investigate Yukiho",
+    "desc": "对雪穗心存疑虑的筱冢一成雇佣私家侦探今枝直巳，调查雪穗的真实背景和过去。",
+    "chars": [
+      "筱冢一成",
+      "今枝直巳"
+    ]
+  },
+  {
+    "year": 1991,
+    "month": 5,
+    "lane": 2,
+    "type": "investigation",
+    "arc": 5,
+    "chapter": 10,
+    "title": "今枝开始调查雪穗的过去",
+    "titleEn": "Imaeda begins investigating Yukiho's past",
+    "desc": "今枝直巳开始系统性地调查唐泽雪穗的身世、婚史和社交关系，逐渐发现诸多疑点。",
+    "chars": [
+      "今枝直巳",
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1991,
+    "month": 7,
+    "lane": 2,
+    "type": "investigation",
+    "arc": 5,
+    "chapter": 10,
+    "title": "今枝追踪到雪穗的大阪出身",
+    "titleEn": "Imaeda traces Yukiho's Osaka origins",
+    "desc": "今枝发现雪穗并非出生于优渥家庭，而是来自大阪底层，被唐泽礼子收养。这一发现打开了通往真相的大门。",
+    "chars": [
+      "今枝直巳",
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1991,
+    "month": 9,
+    "lane": 0,
+    "type": "crime",
+    "arc": 5,
+    "chapter": 10,
+    "title": "亮司察觉有人调查雪穗",
+    "titleEn": "Ryoji detects someone investigating Yukiho",
+    "desc": "亮司通过暗中监视，发现有私家侦探在调查雪穗的背景，开始策划反制措施。",
+    "chars": [
+      "桐原亮司",
+      "今枝直巳"
+    ]
+  },
+  {
+    "year": 1992,
+    "month": 1,
+    "lane": 2,
+    "type": "investigation",
+    "arc": 5,
+    "chapter": 11,
+    "title": "今枝向筱冢一成汇报调查结果",
+    "titleEn": "Imaeda presents findings to Kazunari",
+    "desc": "今枝向筱冢一成提交了详细的调查报告，揭示了雪穗伪造的过去和一系列可疑事件。",
+    "chars": [
+      "今枝直巳",
+      "筱冢一成"
+    ]
+  },
+  {
+    "year": 1992,
+    "month": 1,
+    "lane": 2,
+    "type": "investigation",
+    "arc": 5,
+    "chapter": 11,
+    "title": "今枝发现亮司与雪穗的关联",
+    "titleEn": "Imaeda discovers Ryoji-Yukiho connection",
+    "desc": "今枝在调查中发现桐原亮司与雪穗之间存在隐秘的长期联系，两人表面上毫无交集，实际上一直在暗中配合。",
+    "chars": [
+      "今枝直巳",
+      "桐原亮司",
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1991,
+    "month": 10,
+    "lane": 1,
+    "type": "romantic",
+    "arc": 5,
     "chapter": 12,
-    "title": "典子发现秘密",
-    "titleEn": "Noriko discovers secrets",
-    "desc": "典子发现「秋吉雄一」的种种可疑之处。",
+    "title": "典子与亮司相遇",
+    "titleEn": "Noriko meets Ryoji",
+    "desc": "栗原典子在偶然的场合遇到了化名的桐原亮司，被他忧郁的气质所吸引，两人开始交往。",
     "chars": [
       "栗原典子",
       "桐原亮司"
     ]
   },
   {
-    "year": 1999,
-    "month": 1,
-    "lane": 2,
-    "type": "investigation",
-    "chapter": 13,
-    "title": "笹垣与一成联手",
-    "titleEn": "Sasagaki and Kazunari team up",
-    "desc": "两人联手，真相逐步浮现。",
-    "chars": [
-      "笹垣润三",
-      "筱冢一成"
-    ]
-  },
-  {
-    "year": 1999,
-    "month": 6,
-    "lane": 1,
-    "type": "identity",
-    "chapter": 13,
-    "title": "亮司真实身份暴露",
-    "titleEn": "Ryoji's identity exposed",
-    "desc": "典子发现秋吉雄一就是桐原亮司。",
+    "year": 1991,
+    "month": 11,
+    "lane": 0,
+    "type": "social",
+    "arc": 5,
+    "chapter": 12,
+    "title": "亮司以假身份接近典子",
+    "titleEn": "Ryoji approaches Noriko under alias",
+    "desc": "亮司使用化名与典子交往，典子成为亮司生命中唯一一段接近真实感情的关系。但这也可能是另一次利用。",
     "chars": [
       "桐原亮司",
       "栗原典子"
     ]
   },
   {
-    "year": 1999,
-    "month": 11,
+    "year": 1992,
+    "month": 2,
     "lane": 0,
-    "type": "business",
-    "chapter": 13,
-    "title": "R&Y大阪店开业",
-    "titleEn": "R&Y Osaka store opens",
-    "desc": "雪穗的精品店回到大阪扩张。",
+    "type": "romantic",
+    "arc": 5,
+    "chapter": 12,
+    "title": "亮司与典子短暂的温情",
+    "titleEn": "Brief warmth between Ryoji and Noriko",
+    "desc": "亮司在与典子的关系中显露出罕见的人性温度，但他的白夜注定不允许任何光亮持续存在。",
     "chars": [
-      "唐泽雪穗"
+      "桐原亮司",
+      "栗原典子"
     ]
   },
   {
-    "year": 1999,
-    "month": 12,
-    "lane": 1,
-    "type": "tragedy",
-    "chapter": 13,
-    "title": "桐原亮司之死",
-    "titleEn": "Ryoji Kirihara dies",
-    "desc": "亮司在商场被发现死亡。剪刀贯穿——与26年前父亲的死如出一辙。",
+    "year": 1992,
+    "month": 3,
+    "lane": 3,
+    "type": "death",
+    "arc": 5,
+    "chapter": 12,
+    "title": "今枝直巳失踪",
+    "titleEn": "Imaeda Naomi disappears",
+    "desc": "私家侦探今枝直巳在掌握了关键证据后突然失踪，极可能被亮司杀害灭口。又一个接近真相的人被消除。",
     "chars": [
-      "桐原亮司",
-      "唐泽雪穗",
+      "今枝直巳",
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1992,
+    "month": 4,
+    "lane": 2,
+    "type": "investigation",
+    "arc": 5,
+    "chapter": 13,
+    "title": "笹垣获得突破性证据",
+    "titleEn": "Sasagaki obtains breakthrough evidence",
+    "desc": "笹垣经过近二十年的追踪，终于获得了将亮司和雪穗与当年洋介被杀案联系起来的关键证据。",
+    "chars": [
       "笹垣润三"
     ]
   },
   {
-    "year": 1999,
+    "year": 1992,
+    "month": 4,
+    "lane": 2,
+    "type": "investigation",
+    "arc": 5,
+    "chapter": 13,
+    "title": "松浦的遗骨被发现",
+    "titleEn": "Matsuura's skeleton discovered",
+    "desc": "多年前被亮司杀害的松浦，其遗骨在建筑工地被偶然发现。这一发现为笹垣提供了新的突破口。",
+    "chars": [
+      "松浦",
+      "笹垣润三"
+    ]
+  },
+  {
+    "year": 1992,
+    "month": 5,
+    "lane": 2,
+    "type": "investigation",
+    "arc": 5,
+    "chapter": 13,
+    "title": "弥生子揭露过去的真相",
+    "titleEn": "Yaeiko reveals the truth about the past",
+    "desc": "桐原弥生子向笹垣透露了洋介生前的秘密和桐原家的阴暗过往，拼图终于完整。",
+    "chars": [
+      "桐原弥生子",
+      "笹垣润三"
+    ]
+  },
+  {
+    "year": 1992,
+    "month": 5,
+    "lane": 2,
+    "type": "investigation",
+    "arc": 5,
+    "chapter": 13,
+    "title": "笹垣理清全部真相",
+    "titleEn": "Sasagaki pieces together the full truth",
+    "desc": "笹垣终于将十九年来所有的碎片拼合——洋介的性侵、亮司的弑父、雪穗的弑母、两人的共生犯罪。太阳之下并无白夜。",
+    "chars": [
+      "笹垣润三",
+      "桐原亮司",
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1992,
+    "month": 6,
+    "lane": 1,
+    "type": "social",
+    "arc": 5,
+    "chapter": 13,
+    "title": "R&Y精品店盛大开业",
+    "titleEn": "R&Y boutique grand opening",
+    "desc": "雪穗的R&Y精品店盛大开业，这是她社会攀升的巅峰。店名「R&Y」暗含Ryoji和Yukiho的首字母。",
+    "chars": [
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1992,
+    "month": 6,
+    "lane": 1,
+    "type": "romantic",
+    "arc": 5,
+    "chapter": 13,
+    "title": "雪穗与筱冢一成订婚",
+    "titleEn": "Yukiho engaged to Shinozuka Kazunari",
+    "desc": "雪穗终于如愿以偿，与名门筱冢一成订婚。她用十九年的时间完成了从底层到上流的华丽蜕变。",
+    "chars": [
+      "西本雪穗",
+      "筱冢一成"
+    ]
+  },
+  {
+    "year": 1992,
+    "month": 6,
+    "lane": 0,
+    "type": "death",
+    "arc": 5,
+    "chapter": 13,
+    "title": "桐原亮司坠楼身亡",
+    "titleEn": "Kirihara Ryoji falls to his death",
+    "desc": "在笹垣即将揭露真相之际，亮司在R&Y开业现场的楼梯上用剪刀刺入自己的胸口，坠楼而亡。他用与杀父相同的凶器结束了自己在白夜中行走的一生。",
+    "chars": [
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1992,
+    "month": 6,
+    "lane": 1,
+    "type": "turning-point",
+    "arc": 5,
+    "chapter": 13,
+    "title": "雪穗转身离去，从不回头",
+    "titleEn": "Yukiho walks away without looking back",
+    "desc": "面对亮司的尸体，雪穗没有流露出任何感情，只是转身走上楼梯，「她一次也没有回头」。这是全书最震撼的结尾——十九年的共生关系，在沉默中终结。",
+    "chars": [
+      "西本雪穗",
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1977,
+    "month": 7,
+    "lane": 0,
+    "type": "social",
+    "arc": 2,
+    "chapter": 2,
+    "title": "亮司在母亲的质屋中长大",
+    "titleEn": "Ryoji grows up in his mother's pawn shop",
+    "desc": "父亲死后，亮司跟随母亲桐原弥生子在质屋中生活，性格日益阴沉孤僻。",
+    "chars": [
+      "桐原亮司",
+      "桐原弥生子"
+    ]
+  },
+  {
+    "year": 1980,
+    "month": 6,
+    "lane": 0,
+    "type": "crime",
+    "arc": 3,
+    "chapter": 4,
+    "title": "亮司掌握计算机编程技术",
+    "titleEn": "Ryoji masters computer programming",
+    "desc": "亮司自学计算机编程，展现出惊人的技术天赋。这项技能将成为他日后一切犯罪活动的核心武器。",
+    "chars": [
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1984,
+    "month": 9,
+    "lane": 1,
+    "type": "social",
+    "arc": 3,
+    "chapter": 5,
+    "title": "雪穗成为社交圈女王",
+    "titleEn": "Yukiho becomes queen of the social circle",
+    "desc": "在大学中，雪穗已经建立了不可动摇的社交地位，周围的人无不被她的优雅和气质所折服。",
+    "chars": [
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1986,
+    "month": 8,
+    "lane": 0,
+    "type": "crime",
+    "arc": 4,
+    "chapter": 8,
+    "title": "亮司的剪纸艺术",
+    "titleEn": "Ryoji's paper-cutting art",
+    "desc": "亮司擅长剪纸，常剪出精美的图案。他用杀父的剪刀创作艺术——这是他灵魂深处光明与黑暗的交织。",
+    "chars": [
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1990,
+    "month": 6,
+    "lane": 1,
+    "type": "social",
+    "arc": 5,
+    "chapter": 10,
+    "title": "雪穗筹建R&Y品牌",
+    "titleEn": "Yukiho plans R&Y brand",
+    "desc": "雪穗开始筹划建立自己的高端品牌「R&Y」，将多年积累的财富和人脉投入到这个终极事业中。",
+    "chars": [
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1973,
+    "month": 10,
+    "lane": 2,
+    "type": "investigation",
+    "arc": 1,
+    "chapter": 1,
+    "title": "笹垣走访桐原质屋",
+    "titleEn": "Sasagaki visits Kirihara pawn shop",
+    "desc": "笹垣前往桐原家的质屋进行调查，初次见到年幼的亮司，注意到这个孩子异常冷静的眼神。",
+    "chars": [
+      "笹垣润三",
+      "桐原亮司",
+      "桐原弥生子"
+    ]
+  },
+  {
+    "year": 1983,
+    "month": 7,
+    "lane": 0,
+    "type": "crime",
+    "arc": 3,
+    "chapter": 5,
+    "title": "亮司暗中协助雪穗排除情敌",
+    "titleEn": "Ryoji secretly helps Yukiho eliminate rivals",
+    "desc": "亮司作为雪穗的「暗线」，在幕后系统性地为雪穗扫除社交和情感路上的一切障碍。",
+    "chars": [
+      "桐原亮司",
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1985,
+    "month": 6,
+    "lane": 0,
+    "type": "social",
+    "arc": 4,
+    "chapter": 7,
+    "title": "亮司为雪穗的婚姻铺路",
+    "titleEn": "Ryoji paves the way for Yukiho's marriage",
+    "desc": "亮司在暗中调查高宫的背景并为雪穗创造接近高宫的机会，确保这段「有用的」婚姻顺利进行。",
+    "chars": [
+      "桐原亮司",
+      "西本雪穗",
+      "高宫诚"
+    ]
+  },
+  {
+    "year": 1990,
+    "month": 10,
+    "lane": 2,
+    "type": "investigation",
+    "arc": 5,
+    "chapter": 10,
+    "title": "笹垣追踪亮司的化名活动",
+    "titleEn": "Sasagaki traces Ryoji's alias activities",
+    "desc": "笹垣通过多年积累的线索，开始追踪秋吉雄一等化名背后的真实人物——桐原亮司。",
+    "chars": [
+      "笹垣润三",
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1991,
     "month": 12,
     "lane": 0,
-    "type": "identity",
-    "chapter": 13,
-    "title": "雪穗转身离去",
-    "titleEn": "Yukiho walks away",
-    "desc": "「只见雪穗正沿扶梯上楼，她的背影犹如白色的影子。」她没有回头。",
+    "type": "crime",
+    "arc": 5,
+    "chapter": 12,
+    "title": "亮司策划消除今枝",
+    "titleEn": "Ryoji plans to eliminate Imaeda",
+    "desc": "亮司得知今枝已掌握关键证据后，开始策划将这位私家侦探永远消除。",
     "chars": [
-      "唐泽雪穗"
+      "桐原亮司",
+      "今枝直巳"
+    ]
+  },
+  {
+    "year": 1992,
+    "month": 5,
+    "lane": 1,
+    "type": "social",
+    "arc": 5,
+    "chapter": 13,
+    "title": "雪穗筹备R&Y开业典礼",
+    "titleEn": "Yukiho prepares R&Y grand opening",
+    "desc": "雪穗全身心投入R&Y精品店的开业筹备，这将是她社会地位的最终象征。",
+    "chars": [
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1992,
+    "month": 6,
+    "lane": 2,
+    "type": "investigation",
+    "arc": 5,
+    "chapter": 13,
+    "title": "笹垣赶往R&Y开业现场",
+    "titleEn": "Sasagaki rushes to R&Y opening",
+    "desc": "掌握全部真相的笹垣赶往R&Y开业现场，准备当面揭露亮司和雪穗十九年来的罪行。",
+    "chars": [
+      "笹垣润三"
+    ]
+  },
+  {
+    "year": 1979,
+    "month": 5,
+    "lane": 1,
+    "type": "social",
+    "arc": 2,
+    "chapter": 3,
+    "title": "雪穗在学院获得优异成绩",
+    "titleEn": "Yukiho achieves excellent grades at academy",
+    "desc": "雪穗在清华学院的学业成绩始终名列前茅，同时在课外活动中表现突出，完美地扮演着「好学生」的角色。",
+    "chars": [
+      "西本雪穗"
+    ]
+  },
+  {
+    "year": 1984,
+    "month": 7,
+    "lane": 3,
+    "type": "crime",
+    "arc": 3,
+    "chapter": 5,
+    "title": "江利子精神崩溃",
+    "titleEn": "Eriko suffers mental breakdown",
+    "desc": "遭受不雅照片威胁后，江利子的精神彻底崩溃，从此退出社交生活。曾经最好的朋友成为雪穗最深的牺牲品。",
+    "chars": [
+      "川岛江利子"
+    ]
+  },
+  {
+    "year": 1988,
+    "month": 3,
+    "lane": 0,
+    "type": "crime",
+    "arc": 4,
+    "chapter": 9,
+    "title": "亮司入侵东西电装系统",
+    "titleEn": "Ryoji hacks into Tozai Denso systems",
+    "desc": "亮司利用高超的计算机技术入侵东西电装的内部系统，获取商业机密信息供雪穗进行内幕交易。",
+    "chars": [
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1992,
+    "month": 4,
+    "lane": 0,
+    "type": "turning-point",
+    "arc": 5,
+    "chapter": 13,
+    "title": "亮司感知末日将至",
+    "titleEn": "Ryoji senses the end is near",
+    "desc": "随着松浦遗骨被发现和笹垣的追踪日益逼近，亮司意识到十九年的逃亡即将走到终点。",
+    "chars": [
+      "桐原亮司"
+    ]
+  },
+  {
+    "year": 1992,
+    "month": 6,
+    "lane": 3,
+    "type": "death",
+    "arc": 5,
+    "chapter": 13,
+    "title": "亮司的剪刀——从弑父到终结",
+    "titleEn": "Ryoji's scissors — from patricide to self-end",
+    "desc": "亮司用剪刀结束了自己的生命。从1973年到1992年，剪刀始终是贯穿他命运的象征——剪纸的美与杀戮的恶交织在一起。",
+    "chars": [
+      "桐原亮司"
     ]
   }
 ];
 
 const timelineConfig = {
   "startYear": 1973,
-  "endYear": 1999,
+  "endYear": 1992,
   "yearLabel": "年",
   "laneNames": [
-    "雪穗",
-    "亮司",
-    "警方/调查",
-    "其他"
+    "亮司·暗线",
+    "雪穗·明线",
+    "调查线",
+    "受害者"
   ],
   "laneColors": [
-    "#4ecdc4",
-    "#ff6b6b",
     "#6c63ff",
-    "#8888a0"
+    "#ffe66d",
+    "#4ecdc4",
+    "#ff6b6b"
   ],
   "eventColors": {
-    "crime": "#ff6b6b",
-    "romance": "#ff8fab",
-    "investigation": "#6c63ff",
-    "business": "#4ecdc4",
-    "identity": "#ffe66d",
-    "tragedy": "#ff6b6b"
+    "crime": "#ff4444",
+    "death": "#ff6b6b",
+    "social": "#ffe66d",
+    "investigation": "#4ecdc4",
+    "romantic": "#ff8fab",
+    "turning-point": "#6c63ff"
   },
   "eventTypeLabels": {
     "crime": "犯罪 crime",
-    "romance": "情感 romance",
+    "death": "死亡 death",
+    "social": "社交 social",
     "investigation": "调查 investigation",
-    "business": "商业 business",
-    "identity": "身份 identity",
-    "tragedy": "悲剧 tragedy"
+    "romantic": "情感 romantic",
+    "turning-point": "转折 turning point"
   },
   "eras": [
     {
-      "start": 1970,
-      "end": 1979,
-      "label": "70年代"
+      "start": 1973,
+      "end": 1977,
+      "label": "原罪"
+    },
+    {
+      "start": 1977,
+      "end": 1980,
+      "label": "种子"
     },
     {
       "start": 1980,
-      "end": 1989,
-      "label": "80年代"
+      "end": 1985,
+      "label": "面具"
+    },
+    {
+      "start": 1985,
+      "end": 1990,
+      "label": "攀升"
     },
     {
       "start": 1990,
-      "end": 1999,
-      "label": "90年代"
+      "end": 1992,
+      "label": "终局"
     }
   ]
 };

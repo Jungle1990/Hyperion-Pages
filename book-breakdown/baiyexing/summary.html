@@ -799,11 +799,11 @@
         <canvas id="hero-canvas"></canvas>
     </div>
     <div class="hero-content">
-        <div class="hero-icon">🌙</div>
+        <div class="hero-icon">🌓</div>
         <h1>白夜行</h1>
         <p class="subtitle">Journey Under the Midnight Sun</p>
-        <p class="author">东野圭吾</p>
-        <p class="tagline">Journey Under the Midnight Sun</p>
+        <p class="author">東野圭吾</p>
+        <p class="tagline">Two souls bound by darkness — one walks in light, the other in shadow</p>
     </div>
     <div class="scroll-hint">
         <span>向下滚动</span>
@@ -819,28 +819,28 @@
 
         <div class="stats-grid">
             <div class="stat-card" data-animate>
-                <div class="stat-icon"></div>
+                <div class="stat-icon">📖</div>
                 <div class="stat-value">13</div>
                 <div class="stat-label">章</div>
-                <div class="stat-sub"></div>
+                <div class="stat-sub">chapters</div>
             </div>
             <div class="stat-card" data-animate>
-                <div class="stat-icon"></div>
-                <div class="stat-value">1973–1999</div>
-                <div class="stat-label">时间跨度</div>
-                <div class="stat-sub"></div>
+                <div class="stat-icon">⏳</div>
+                <div class="stat-value">~19</div>
+                <div class="stat-label">年跨度</div>
+                <div class="stat-sub">years (1973–1992)</div>
             </div>
             <div class="stat-card" data-animate>
-                <div class="stat-icon"></div>
+                <div class="stat-icon">👥</div>
                 <div class="stat-value">30+</div>
-                <div class="stat-label">人物</div>
-                <div class="stat-sub"></div>
+                <div class="stat-label">关键人物</div>
+                <div class="stat-sub">key characters</div>
             </div>
             <div class="stat-card" data-animate>
-                <div class="stat-icon"></div>
-                <div class="stat-value"></div>
-                <div class="stat-label"></div>
-                <div class="stat-sub"></div>
+                <div class="stat-icon">🔍</div>
+                <div class="stat-value">1</div>
+                <div class="stat-label">未解悬案</div>
+                <div class="stat-sub">cold case</div>
             </div>
         </div>
     </div>
@@ -893,8 +893,8 @@
 <section class="ending-quote">
     <div class="container">
         <blockquote data-animate>
-            
-            <span class="quote-source"></span>
+            我的人生就像在白夜里行走。
+            <span class="quote-source">——唐泽雪穗</span>
         </blockquote>
     </div>
 </section>
@@ -911,39 +911,39 @@
 <script>
 const arcs = [
   {
-    "id": "childhood",
-    "title": "童年 · 一切的起点",
-    "titleEn": "Childhood — The Origin",
+    "id": "origin",
+    "title": "原罪 · 废墟中的秘密",
+    "titleEn": "Origin — The Sin in the Ruins",
     "chapters": [
       1
     ],
     "yearRange": "1973"
   },
   {
-    "id": "adolescence",
-    "title": "少年时代 · 暗流涌动",
-    "titleEn": "Adolescence — Undercurrents",
+    "id": "seeds",
+    "title": "暗芽 · 少年时代的阴影",
+    "titleEn": "Seeds — The Pattern Emerges",
     "chapters": [
       2,
-      3,
-      4
+      3
     ],
-    "yearRange": "1977–1980"
+    "yearRange": "1977–1979"
   },
   {
-    "id": "university",
-    "title": "大学时代 · 犯罪升级",
-    "titleEn": "University — Escalation",
+    "id": "masks",
+    "title": "面具 · 身份的构建",
+    "titleEn": "Masks — Building Identities",
     "chapters": [
+      4,
       5,
       6
     ],
-    "yearRange": "1982–1984"
+    "yearRange": "1979–1984"
   },
   {
-    "id": "marriage",
-    "title": "婚姻与事业 · 步步为营",
-    "titleEn": "Marriage & Business — Strategic Moves",
+    "id": "ascent",
+    "title": "登天 · 婚姻与暗网",
+    "titleEn": "Ascent — Marriage & Corporate Infiltration",
     "chapters": [
       7,
       8,
@@ -952,87 +952,96 @@ const arcs = [
     "yearRange": "1985–1989"
   },
   {
-    "id": "investigation",
-    "title": "调查 · 接近真相",
-    "titleEn": "Investigation — Closing In",
+    "id": "convergence",
+    "title": "收网 · 白夜的终结",
+    "titleEn": "Convergence — The Final Reckoning",
     "chapters": [
       10,
-      11
-    ],
-    "yearRange": "1991–1992"
-  },
-  {
-    "id": "finale",
-    "title": "终章 · 白夜落幕",
-    "titleEn": "Finale — End of the White Night",
-    "chapters": [
+      11,
       12,
       13
     ],
-    "yearRange": "1998–1999"
+    "yearRange": "1991–1992"
   }
 ];
 
 const chapters = [
   {
     "number": 1,
-    "timePeriod": "1973年 · 大阪",
-    "title": "废弃建筑中的谋杀案——一切的起点",
+    "arcId": 1,
+    "timePeriod": "1973年秋",
+    "title": "第一章",
     "events": [
-      "桐原洋介在废弃建筑中被发现遇害（剪刀刺死）",
-      "刑警笹垣润三开始调查此案",
-      "调查发现死者当天提取了100万日元现金，现金失踪",
-      "死者的儿子桐原亮司（11岁）表现冷漠异常",
-      "西本文代（雪穗母亲）被发现与死者有关系",
-      "田川在典当行被杀案中发现关键线索",
-      "西本文代煤气中毒死亡（疑为自杀）"
+      "桐原洋介被发现在废弃大楼中遇刺身亡，笹垣润三负责调查此案",
+      "调查发现桐原洋介经营当铺，案发当天提取了一百万日元现金",
+      "西本文代与女儿雪穗住在案发现场附近，进入警方调查视野",
+      "嫌疑人寺崎忠夫在逃亡途中因车祸身亡，真相随之湮灭",
+      "西本文代因煤气中毒死亡，死因被判定为意外或自杀",
+      "案件线索全部中断，最终成为悬案"
     ],
     "characters": [
       {
         "name": "笹垣润三",
-        "group": "police"
-      },
-      {
-        "name": "桐原亮司",
-        "group": "core"
+        "group": "investigator"
       },
       {
         "name": "桐原洋介",
         "group": "victim"
       },
       {
+        "name": "桐原弥生子",
+        "group": "family"
+      },
+      {
         "name": "西本文代",
         "group": "victim"
       },
       {
-        "name": "唐泽雪穗",
+        "name": "西本雪穗",
         "group": "core"
+      },
+      {
+        "name": "桐原亮司",
+        "group": "core"
+      },
+      {
+        "name": "寺崎忠夫",
+        "group": "other"
+      },
+      {
+        "name": "松野",
+        "group": "other"
+      },
+      {
+        "name": "田川敏夫",
+        "group": "other"
       }
     ]
   },
   {
     "number": 2,
-    "timePeriod": "1977年 · 大阪",
-    "title": "初中时代——少女的心机初露端倪",
+    "arcId": 2,
+    "timePeriod": "1977年",
+    "title": "第二章",
     "events": [
-      "川岛江利子与唐泽雪穗成为好友",
-      "秋吉雄一（后改名桐原亮司的朋友）偷拍女生",
-      "清华女子学园发生女生遇袭事件（藤村都子被侵害）",
-      "菊池文彦最初被怀疑，后洗清嫌疑",
-      "雪穗展现出超越年龄的成熟与心机"
+      "雪穗被唐泽礼子收养，进入名门清华学园就读",
+      "川岛江利子与雪穗成为好友，被雪穗的优雅气质所吸引",
+      "菊池文彦持有桐原弥生子与松浦的不伦照片，成为潜在威胁",
+      "藤村都子遭到侵犯，菊池被亮司栽赃陷害",
+      "亮司使用化名「秋吉雄一」暗中行动，操控事件走向"
     ],
     "characters": [
       {
-        "name": "川岛江利子",
-        "group": "other"
+        "name": "桐原亮司",
+        "group": "core"
       },
       {
         "name": "唐泽雪穗",
         "group": "core"
       },
       {
-        "name": "秋吉雄一",
-        "group": "other"
+        "name": "川岛江利子",
+        "group": "victim"
       },
       {
         "name": "藤村都子",
@@ -1041,48 +1050,54 @@ const chapters = [
       {
         "name": "菊池文彦",
         "group": "other"
+      },
+      {
+        "name": "唐泽礼子",
+        "group": "family"
       }
     ]
   },
   {
     "number": 3,
-    "timePeriod": "1978年 · 大阪",
-    "title": "友彦被引入亮司的地下世界",
+    "arcId": 2,
+    "timePeriod": "1979年",
+    "title": "第三章",
     "events": [
-      "园村友彦与桐原亮司在高中时期结识",
-      "友彦被桐原引入地下世界",
-      "西口奈美江出场——一个被利用的女性",
-      "花冈夕子（有夫之妇）与友彦发生关系后死亡",
-      "桐原帮助友彦处理了这个危机，友彦开始被桐原控制"
+      "亮司经营以少年为对象的色情服务，走上犯罪道路",
+      "友彦被招募加入亮司的地下生意",
+      "花冈夕子在与友彦的性行为中意外死亡",
+      "亮司冷静地处理了花冈夕子的死亡现场，掩盖真相",
+      "友彦发现亮司还经营着一家名为「無限企画」的游戏公司"
     ],
     "characters": [
-      {
-        "name": "园村友彦",
-        "group": "other"
-      },
       {
         "name": "桐原亮司",
         "group": "core"
       },
       {
-        "name": "西口奈美江",
-        "group": "victim"
+        "name": "園村友彦",
+        "group": "accomplice"
       },
       {
         "name": "花冈夕子",
         "group": "victim"
+      },
+      {
+        "name": "松浦勇",
+        "group": "accomplice"
       }
     ]
   },
   {
     "number": 4,
-    "timePeriod": "1980年 · 大阪",
-    "title": "收养后的雪穗——优雅外表下的秘密",
+    "arcId": 3,
+    "timePeriod": "1979-1980年",
+    "title": "第四章",
     "events": [
-      "中道正晴追求唐泽雪穗，做她的家教",
-      "雪穗被唐泽礼子收养，过着优雅的生活",
-      "正晴调查发现雪穗的真实身世（母亲之死）",
-      "正晴与雪穗的关系发展"
+      "中道正晴受雇为雪穗做家庭教师",
+      "正晴开发的潜水艇游戏程序被盗并遭到贩卖",
+      "正晴怀疑是雪穗偷偷复制了他的程序",
+      "雪穗透露了关于母亲西本文代死亡的令人不安的细节"
     ],
     "characters": [
       {
@@ -1095,76 +1110,82 @@ const chapters = [
       },
       {
         "name": "唐泽礼子",
-        "group": "other"
+        "group": "family"
       }
     ]
   },
   {
     "number": 5,
-    "timePeriod": "1982年 · 大阪/东京",
-    "title": "大学时代——江利子遭遇噩梦",
+    "arcId": 3,
+    "timePeriod": "1983年",
+    "title": "第五章",
     "events": [
-      "江利子与雪穗进入不同大学",
-      "筱冢一成出场——筱冢药业继承人",
-      "江利子加入社交舞社，与一成交往",
-      "雪穗开始接近筱冢家族",
-      "江利子遭到性侵，精神崩溃；一成怀疑雪穗与此事有关"
+      "雪穗和江利子一同进入清华女子大学就读",
+      "社交舞蹈社活动中，筱冢一成登场并与雪穗相识",
+      "江利子被人下药并遭到偷拍，留下不雅照片",
+      "电视新闻报道银行卡诈骗案件频发，暗示亮司的犯罪活动"
     ],
     "characters": [
-      {
-        "name": "川岛江利子",
-        "group": "victim"
-      },
       {
         "name": "唐泽雪穗",
         "group": "core"
       },
       {
+        "name": "川岛江利子",
+        "group": "victim"
+      },
+      {
         "name": "筱冢一成",
-        "group": "other"
+        "group": "family"
       }
     ]
   },
   {
     "number": 6,
-    "timePeriod": "1984年 · 大阪",
-    "title": "银行诈骗——友彦越陷越深",
+    "arcId": 3,
+    "timePeriod": "1982-1984年",
+    "title": "第六章",
     "events": [
-      "友彦参与桐原策划的银行诈骗",
-      "桐原展示高超的犯罪技术",
-      "奈美江被桐原安排藏匿",
-      "友彦越陷越深，完全被桐原控制"
+      "友彦利用伪造银行卡实施诈骗犯罪",
+      "奈美江在名古屋遭到杀害，案件震动当地",
+      "榎本因涉嫌犯罪被逮捕",
+      "友彦逐渐意识到亮司具备杀人的能力与冷酷"
     ],
     "characters": [
       {
-        "name": "园村友彦",
-        "group": "other"
+        "name": "園村友彦",
+        "group": "accomplice"
       },
       {
         "name": "桐原亮司",
         "group": "core"
       },
       {
-        "name": "西口奈美江",
+        "name": "奈美江",
         "group": "victim"
+      },
+      {
+        "name": "榎本",
+        "group": "other"
       }
     ]
   },
   {
     "number": 7,
-    "timePeriod": "1985–1986年 · 东京",
-    "title": "雪穗的精心婚姻布局",
+    "arcId": 4,
+    "timePeriod": "1985-1986年",
+    "title": "第七章",
     "events": [
-      "高宫诚在专利事务所工作",
-      "三泽千都留出场（诚的心上人）",
-      "诚与唐泽雪穗相亲并结婚",
-      "雪穗精心安排结婚对象",
-      "婚礼当天千都留在酒店遭遇意外（暗示被设计）"
+      "高宫诚在东西电装专利部门工作，与雪穗相识",
+      "三泽千都留以临时工身份出现在高宫的职场中",
+      "雪穗与高宫诚结婚，完成向上流社会的跃迁",
+      "松浦勇被亮司杀害，尸体埋藏在唐泽家的庭院中",
+      "亮司为保护雪穗的秘密，不惜对曾经的同伙痛下杀手"
     ],
     "characters": [
       {
         "name": "高宫诚",
-        "group": "other"
+        "group": "family"
       },
       {
         "name": "唐泽雪穗",
@@ -1172,29 +1193,32 @@ const chapters = [
       },
       {
         "name": "三泽千都留",
-        "group": "victim"
+        "group": "other"
       },
       {
-        "name": "唐泽礼子",
-        "group": "other"
+        "name": "松浦勇",
+        "group": "accomplice"
       }
     ]
   },
   {
     "number": 8,
-    "timePeriod": "1988年 · 东京",
-    "title": "电脑犯罪时代——MUGEN开业",
+    "arcId": 4,
+    "timePeriod": "1986–1987年",
+    "title": "第八章",
     "events": [
-      "友彦开设电脑店MUGEN",
-      "桐原涉足盗版软件和电脑犯罪",
-      "友彦与中岛弘惠交往",
-      "松浦出现——与桐原有旧交",
-      "盗版软件被警方查获"
+      "友彦与亮司合伙开设游戏店MUGEN，中岛弘惠在店内打工",
+      "松浦频繁来访，与亮司进行秘密会面，交易内容不明",
+      "亮司开始涉足盗版游戏软件的复制与销售",
+      "新年期间，店铺被查获盗版《超级马里奥兄弟》卡带",
+      "亮司与松浦的关系逐渐紧张，两人之间的矛盾加深",
+      "友彦察觉亮司的行为愈发神秘，但选择不追问",
+      "MUGEN的经营在灰色地带中艰难维持"
     ],
     "characters": [
       {
         "name": "园村友彦",
-        "group": "other"
+        "group": "accomplice"
       },
       {
         "name": "桐原亮司",
@@ -1205,25 +1229,29 @@ const chapters = [
         "group": "other"
       },
       {
-        "name": "松浦",
-        "group": "other"
+        "name": "松浦勇",
+        "group": "accomplice"
       }
     ]
   },
   {
     "number": 9,
-    "timePeriod": "1989年 · 东京",
-    "title": "R&Y精品店——婚姻的终结",
+    "arcId": 4,
+    "timePeriod": "1988–1989年",
+    "title": "第九章",
     "events": [
-      "诚发现婚姻中的疏离感",
-      "雪穗开设精品店「R&Y」",
-      "诚与千都留重逢",
-      "雪穗发现诚的外遇，主导离婚"
+      "高宫诚在東西電装从事AI与专家系统的研发工作",
+      "雪穗激进炒股，买入理卡德股票，获利近两千万日元",
+      "三泽千都留与高宫在工作中日渐亲近，产生感情",
+      "雪穗雇佣私家侦探跟踪高宫，发现其与三泽的婚外情",
+      "雪穗以高宫出轨为由提出离婚，掌握谈判主动权",
+      "离婚正式成立，雪穗带走大量财产，开始独立经营事业",
+      "亮司在幕后协助雪穗处理股票交易的技术环节"
     ],
     "characters": [
       {
         "name": "高宫诚",
-        "group": "other"
+        "group": "family"
       },
       {
         "name": "唐泽雪穗",
@@ -1231,36 +1259,43 @@ const chapters = [
       },
       {
         "name": "三泽千都留",
-        "group": "victim"
+        "group": "other"
+      },
+      {
+        "name": "桐原亮司",
+        "group": "core"
       }
     ]
   },
   {
     "number": 10,
-    "timePeriod": "1991–1992年 · 东京",
-    "title": "私家侦探今枝——接近真相",
+    "arcId": 5,
+    "timePeriod": "1991年",
+    "title": "第十章",
     "events": [
-      "私家侦探今枝直巳受雇调查雪穗",
-      "今枝发现雪穗与筱冢康晴（一成的堂兄）的关系",
-      "江利子（现姓手冢）被今枝找到做证人",
-      "今枝逐步发现雪穗身边的可疑模式"
+      "私家侦探今枝直巳受筱冢一成委托，调查唐泽雪穗的背景",
+      "今枝在高尔夫练习场偶遇高宫诚，了解到雪穗离婚的经过",
+      "今枝整理雪穗的股票交易记录，发现其财富来源可疑",
+      "调查揭示雪穗名下资产与其公开收入严重不符",
+      "今枝拜访川岛江利子，江利子透露大学时代遇袭事件的细节",
+      "江利子暗示雪穗可能与当年的性侵案有关联"
     ],
     "characters": [
       {
         "name": "今枝直巳",
-        "group": "victim"
+        "group": "investigator"
+      },
+      {
+        "name": "筱冢一成",
+        "group": "family"
+      },
+      {
+        "name": "高宫诚",
+        "group": "family"
       },
       {
         "name": "唐泽雪穗",
         "group": "core"
-      },
-      {
-        "name": "筱冢一成",
-        "group": "other"
-      },
-      {
-        "name": "筱冢康晴",
-        "group": "other"
       },
       {
         "name": "川岛江利子",
@@ -1270,19 +1305,25 @@ const chapters = [
   },
   {
     "number": 11,
-    "timePeriod": "1992年 · 东京/大阪",
-    "title": "调查被终止——今枝遭遇不测",
+    "arcId": 5,
+    "timePeriod": "1992年",
+    "title": "第十一章",
     "events": [
-      "今枝的调查深入，接近真相",
-      "菅原绘里（今枝的女友/线人）被利用接近雪穗",
-      "今枝发现雪穗的精品店R&Y的秘密",
-      "唐泽礼子去世",
-      "今枝调查被突然终止（暗示遭遇不测）"
+      "今枝在银座咖啡馆向筱冢一成汇报调查结果",
+      "揭露雪穗生母唐泽礼子的死亡经过及其背后疑点",
+      "今枝详述雪穗的股票交易手法，指出可能存在内幕交易",
+      "今枝推断雪穗真正在意的人是筱冢一成，而非其堂兄康晴",
+      "今枝将藤村都子遇袭案与川岛江利子遇袭案进行类比，指出作案手法的相似性",
+      "筱冢一成开始重新审视与雪穗之间的关系"
     ],
     "characters": [
       {
         "name": "今枝直巳",
-        "group": "victim"
+        "group": "investigator"
+      },
+      {
+        "name": "筱冢一成",
+        "group": "family"
       },
       {
         "name": "唐泽雪穗",
@@ -1291,28 +1332,22 @@ const chapters = [
       {
         "name": "菅原绘里",
         "group": "other"
-      },
-      {
-        "name": "筱冢一成",
-        "group": "other"
-      },
-      {
-        "name": "唐泽礼子",
-        "group": "other"
       }
     ]
   },
   {
     "number": 12,
-    "timePeriod": "1998年 · 东京/大阪",
-    "title": "十九年后——笹垣重启旧案",
+    "arcId": 5,
+    "timePeriod": "1991–1992年",
+    "title": "第十二章",
     "events": [
-      "栗原典子出场——秋吉雄一（实为桐原亮司）的女友",
-      "典子发现秋吉的种种秘密",
-      "筱冢美佳（康晴的女儿）遭到性侵",
-      "一成怀疑亮司是幕后黑手",
-      "笹垣重新开始追查十九年前的旧案",
-      "笹垣拜访桐原弥生子（亮司母亲）"
+      "药剂师栗原典子在亮司晕倒时与他相遇，开始交往",
+      "亮司以「秋吉雄一」的假名与典子同居，利用其住所进行电脑作业",
+      "筱冢一成深入调查，发现雪穗与童年命案之间的关联",
+      "今枝继续追查雪穗与亮司的秘密联系，逐渐接近真相",
+      "亮司察觉今枝的调查已威胁到他和雪穗的安全",
+      "今枝失踪——被亮司杀害灭口，调查线索就此中断",
+      "筱冢康晴与雪穗的婚事继续推进"
     ],
     "characters": [
       {
@@ -1324,40 +1359,53 @@ const chapters = [
         "group": "core"
       },
       {
-        "name": "筱冢美佳",
-        "group": "victim"
-      },
-      {
         "name": "筱冢一成",
-        "group": "other"
+        "group": "family"
       },
       {
-        "name": "笹垣润三",
-        "group": "police"
+        "name": "唐泽雪穗",
+        "group": "core"
+      },
+      {
+        "name": "筱冢康晴",
+        "group": "family"
+      },
+      {
+        "name": "今枝直巳",
+        "group": "investigator"
       }
     ]
   },
   {
     "number": 13,
-    "timePeriod": "1999年 · 东京/大阪",
-    "title": "终章——白色影子的背影",
+    "arcId": 5,
+    "timePeriod": "1992年",
+    "title": "第十三章",
     "events": [
-      "笹垣与一成联手，真相逐步浮现",
-      "典子发现秋吉的真实身份（桐原亮司）",
-      "美佳再次成为目标",
-      "R&Y大阪店开业",
-      "亮司在商场被发现死亡（从高处坠落/剪刀自刺）",
-      "雪穗离开现场，没有回头",
-      "「只见雪穗正沿扶梯上楼，她的背影犹如白色的影子」"
+      "退休刑警笹垣造访今枝事务所，在仙人掌花盆中发现绿色玻璃碎片，与松浦的太阳镜吻合",
+      "警方挖掘唐泽家花园，发现松浦的白骨遗体",
+      "桐原弥生子揭露桐原洋介生前是恋童癖的真相",
+      "雪穗的精品店R&Y大阪店盛大开幕",
+      "亮司伪装成圣诞老人潜入现场，被笹垣识破身份",
+      "追逐中亮司从高处跳下，被自己随身携带的剪刀刺中身亡",
+      "雪穗面对亮司的尸体说「我不认识这个人」，头也不回地离去"
     ],
     "characters": [
       {
         "name": "笹垣润三",
-        "group": "police"
+        "group": "investigator"
       },
       {
-        "name": "筱冢一成",
+        "name": "菅原绘里",
         "group": "other"
+      },
+      {
+        "name": "古贺",
+        "group": "investigator"
+      },
+      {
+        "name": "桐原弥生子",
+        "group": "family"
       },
       {
         "name": "桐原亮司",
@@ -1369,6 +1417,10 @@ const chapters = [
       },
       {
         "name": "栗原典子",
+        "group": "other"
+      },
+      {
+        "name": "滨本夏美",
         "group": "other"
       }
     ]
@@ -1378,27 +1430,33 @@ const chapters = [
 const themes = [
   {
     "icon": "🌗",
-    "titleZh": "光与影",
-    "titleEn": "Light & Shadow",
-    "desc": "雪穗是「光」，亮司是「影」，两人共生但不能共存于阳光下。她在明处步步高升，他在暗处默默清除一切障碍。"
-  },
-  {
-    "icon": "🎭",
-    "titleZh": "真相与谎言",
-    "titleEn": "Truth & Lies",
-    "desc": "每个人物都有表面身份与隐藏真相。全书从未直接描写两位主角的内心，读者只能从旁观者的视角拼凑真相。"
+    "titleZh": "光暗共生",
+    "titleEn": "Light / Darkness Symbiosis",
+    "desc": "雪穗是「光」，亮司是「影」。两人如同白夜中的太阳与黑暗——她在众人面前步步高升，他在暗处默默清除一切障碍。没有亮司的牺牲，雪穗的「白天」就不存在；没有雪穗的存在，亮司的「黑夜」也失去了意义。"
   },
   {
     "icon": "💔",
-    "titleZh": "爱与牺牲",
-    "titleEn": "Love & Sacrifice",
-    "desc": "亮司为雪穗牺牲一切，包括他的灵魂。他放弃了正常的生活、身份，甚至生命，只为让她能够行走在白天。"
+    "titleZh": "童年创伤与命运循环",
+    "titleEn": "Childhood Trauma & Cycles",
+    "desc": "1973年的那个地下室改变了两个孩子的一生。父亲的性侵、母亲的纵容，将纯真彻底碾碎。此后的一切——欺骗、犯罪、操控——都是那道童年伤疤的不断复发与扩散，创伤从未被治愈，只是被掩埋在越来越精致的伪装之下。"
   },
   {
-    "icon": "🪞",
-    "titleZh": "身份与伪装",
-    "titleEn": "Identity & Disguise",
-    "desc": "雪穗的多次身份重塑——从西本雪穗到唐泽雪穗，再到高宫雪穗。亮司则隐姓埋名，化身秋吉雄一生活在暗处。"
+    "icon": "🎭",
+    "titleZh": "社会面具与身份伪装",
+    "titleEn": "Social Masks & Identity",
+    "desc": "雪穗从西本雪穗到唐泽雪穗再到高宫雪穗，每一次身份重塑都是对过去的彻底否定。亮司则隐姓埋名化身秋吉雄一。在这个故事中，没有人展示真实的自己——全书甚至从未直接描写两位主角的内心世界。"
+  },
+  {
+    "icon": "⚖️",
+    "titleZh": "跨越时间的正义",
+    "titleEn": "Justice Across Time",
+    "desc": "笹垣用十九年追查一桩悬案，从现役刑警到退休老人，从大阪到东京。他的执着代表着一种信念：真相不会被时间掩埋。然而当真相最终显露时，正义是否真的降临了？代价又是什么？"
+  },
+  {
+    "icon": "🕸️",
+    "titleZh": "道德共谋与沉默之罪",
+    "titleEn": "Moral Complicity & Silent Guilt",
+    "desc": "亮司为雪穗犯下一切罪行，雪穗默许并利用这一切。但罪恶的边界在哪里？那些被操控的旁人——江利子、高宫、今枝——是受害者还是某种程度上的共谋者？沉默本身是否也是一种罪？"
   }
 ];
 
@@ -1407,21 +1465,25 @@ const groupConfig = {
     "color": "#ffe66d",
     "label": "核心"
   },
-  "police": {
+  "investigator": {
     "color": "#6c63ff",
-    "label": "警方"
+    "label": "调查者"
   },
-  "yukiho": {
+  "family": {
     "color": "#4ecdc4",
-    "label": "雪穗圈"
+    "label": "亲属"
   },
-  "ryoji": {
-    "color": "#ff6b6b",
-    "label": "亮司圈"
+  "accomplice": {
+    "color": "#ff8fab",
+    "label": "共犯"
   },
   "victim": {
-    "color": "#cc7777",
+    "color": "#ff6b6b",
     "label": "受害者"
+  },
+  "other": {
+    "color": "#8888a0",
+    "label": "其他"
   }
 };
 

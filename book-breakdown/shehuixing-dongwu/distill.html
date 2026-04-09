@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>社会性动物 读后蒸馏 / Distill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(108,99,255,0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Progress Bar ── */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  z-index: 9999; transition: width 0.1s linear;
+}
+
+/* ── Hero ── */
+.hero {
+  min-height: 50vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 4rem 2rem 3rem; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(78,205,196,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.back-link {
+  position: absolute; top: 20px; left: 24px;
+  color: var(--text-dim); text-decoration: none; font-size: 0.85rem;
+  z-index: 2; transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent3); }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px var(--glow)); }
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900;
+  background: linear-gradient(135deg, var(--accent4) 0%, var(--accent) 40%, var(--accent3) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-subtitle {
+  font-size: 1rem; color: var(--text-dim); font-weight: 300;
+  margin-top: 0.5rem; max-width: 500px;
+}
+.hero-book {
+  font-size: 0.85rem; color: var(--accent); font-family: var(--font-mono);
+  margin-top: 1rem; letter-spacing: 1px;
+}
+
+/* ── Section Nav ── */
+.section-nav {
+  display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+  padding: 16px 20px; position: sticky; top: 0; z-index: 50;
+  background: rgba(15,17,23,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-pill {
+  padding: 6px 16px; border-radius: 2rem; border: 1px solid var(--border);
+  background: transparent; color: var(--text-dim); font-family: var(--font-sans);
+  font-size: 0.8rem; cursor: pointer; transition: all 0.2s; text-decoration: none;
+}
+.nav-pill:hover, .nav-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 800px; margin: 0 auto; padding: 0 20px 4rem; }
+
+/* ── Section Header ── */
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  margin: 4rem 0 2rem; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-header-icon { font-size: 1.8rem; }
+.section-header h2 { font-size: 1.5rem; font-weight: 700; }
+.section-header .section-label {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  color: var(--accent); letter-spacing: 2px; text-transform: uppercase;
+  margin-left: auto;
+}
+
+/* ── Quotes ── */
+.quote-list { display: flex; flex-direction: column; gap: 16px; }
+.quote-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent4); border-radius: var(--radius);
+  padding: 20px 24px; cursor: pointer; transition: all 0.3s;
+}
+.quote-card:hover { border-color: var(--accent4); transform: translateX(4px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.quote-text {
+  font-size: 1.05rem; font-weight: 400; line-height: 1.9;
+  position: relative; padding-left: 1.2rem;
+}
+.quote-text::before {
+  content: '\201C'; position: absolute; left: -4px; top: -8px;
+  font-size: 2.5rem; color: var(--accent4); opacity: 0.4; font-family: serif;
+}
+.quote-footer { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.quote-chapter {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  background: rgba(108,99,255,0.15); color: var(--accent);
+  padding: 2px 10px; border-radius: 2rem;
+}
+.quote-context {
+  font-size: 0.78rem; color: var(--text-dim);
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease, margin-top 0.3s ease;
+  line-height: 1.6;
+}
+.quote-card.expanded .quote-context { max-height: 200px; margin-top: 10px; }
+.quote-expand-hint {
+  font-size: 0.7rem; color: var(--text-dim); margin-left: auto;
+  font-family: var(--font-mono); opacity: 0.6;
+}
+.quote-card.expanded .quote-expand-hint { display: none; }
+
+/* ── Concepts ── */
+.concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.concept-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; transition: all 0.3s;
+  cursor: default;
+}
+.concept-card:hover { border-color: var(--accent3); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.concept-icon { font-size: 2rem; margin-bottom: 12px; }
+.concept-name { font-weight: 700; font-size: 1rem; margin-bottom: 2px; }
+.concept-name-zh { font-size: 0.8rem; color: var(--accent3); margin-bottom: 10px; }
+.concept-summary {
+  font-size: 0.82rem; color: var(--text-dim); line-height: 1.7;
+  max-height: 3.4rem; overflow: hidden; transition: max-height 0.4s ease;
+}
+.concept-card:hover .concept-summary { max-height: 400px; }
+.concept-more {
+  font-size: 0.7rem; color: var(--accent); margin-top: 6px;
+  font-family: var(--font-mono); transition: opacity 0.2s;
+}
+.concept-card:hover .concept-more { opacity: 0; }
+
+/* ── Principles ── */
+.principle-list { display: flex; flex-direction: column; gap: 12px; counter-reset: principle; }
+.principle-item {
+  display: flex; align-items: flex-start; gap: 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 22px; transition: all 0.3s;
+  counter-increment: principle;
+}
+.principle-item:hover { border-color: var(--accent2); transform: translateX(4px); }
+.principle-num {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent2); min-width: 28px; padding-top: 2px;
+}
+.principle-num::before { content: counter(principle, decimal-leading-zero); }
+.principle-icon { font-size: 1.4rem; flex-shrink: 0; padding-top: 1px; }
+.principle-body { flex: 1; }
+.principle-text { font-size: 0.95rem; font-weight: 500; }
+.principle-text-zh { font-size: 0.82rem; color: var(--text-dim); margin-top: 4px; }
+
+/* ── Essence ── */
+.essence-list { display: flex; flex-direction: column; gap: 2px; }
+.essence-item {
+  display: grid; grid-template-columns: 60px 1fr; gap: 16px;
+  padding: 14px 20px; border-radius: var(--radius);
+  transition: background 0.2s;
+}
+.essence-item:hover { background: var(--card); }
+.essence-chapter {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent); padding-top: 3px; text-align: right;
+}
+.essence-body {}
+.essence-title { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 2px; }
+.essence-sentence { font-size: 0.9rem; line-height: 1.7; }
+
+/* ── Empty State ── */
+.empty-state {
+  text-align: center; padding: 3rem; color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Footer ── */
+.footer {
+  text-align: center; padding: 2rem 0; color: var(--text-dim);
+  font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 3rem;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .hero { min-height: 40vh; padding: 3rem 1.5rem 2rem; }
+  .concept-grid { grid-template-columns: 1fr; }
+  .essence-item { grid-template-columns: 45px 1fr; gap: 10px; }
+  .quote-card { padding: 16px 18px; }
+  .section-header { margin: 3rem 0 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<section class="hero">
+  <a href="index.html" class="back-link">&larr; Back</a>
+  <div class="hero-icon">🧪</div>
+  <h1>Distill</h1>
+  <p class="hero-subtitle">What remains after the last page — the ideas worth carrying forward</p>
+  <div class="hero-book">🦁 社会性动物</div>
+</section>
+
+<nav class="section-nav">
+  <a class="nav-pill active" href="#quotes" onclick="scrollToSection('quotes',this)">Quotes</a>
+  <a class="nav-pill" href="#concepts" onclick="scrollToSection('concepts',this)">Concepts</a>
+  <a class="nav-pill" href="#principles" onclick="scrollToSection('principles',this)">Principles</a>
+  <a class="nav-pill" href="#essence" onclick="scrollToSection('essence',this)">Essence</a>
+</nav>
+
+<main class="container">
+
+  <!-- Quotes -->
+  <div class="section-header fade-in" id="quotes">
+    <span class="section-header-icon">&#x1F4AC;</span>
+    <h2>Quotes</h2>
+    <span class="section-label">GOLDEN LINES</span>
+  </div>
+  <div class="quote-list" id="quoteList"></div>
+
+  <!-- Concepts -->
+  <div class="section-header fade-in" id="concepts">
+    <span class="section-header-icon">&#x1F9E0;</span>
+    <h2>Concepts</h2>
+    <span class="section-label">MENTAL MODELS</span>
+  </div>
+  <div class="concept-grid" id="conceptGrid"></div>
+
+  <!-- Principles -->
+  <div class="section-header fade-in" id="principles">
+    <span class="section-header-icon">&#x2728;</span>
+    <h2>Principles</h2>
+    <span class="section-label">ACTION RULES</span>
+  </div>
+  <div class="principle-list" id="principleList"></div>
+
+  <!-- Essence -->
+  <div class="section-header fade-in" id="essence">
+    <span class="section-header-icon">&#x1F3AF;</span>
+    <h2>Essence</h2>
+    <span class="section-label">ONE SENTENCE PER CHAPTER</span>
+  </div>
+  <div class="essence-list" id="essenceList"></div>
+
+</main>
+
+<div class="footer">
+  Distilled with the <a href="https://en.wikipedia.org/wiki/Feynman_Technique">Feynman Method</a>
+</div>
+
+<script>
+const distill = {
+  "quotes": [
+    {
+      "text": "People who do crazy things are not necessarily crazy.",
+      "chapter": 1,
+      "context": "社会心理学的核心洞见：疯狂行为往往源于情境压力，而非个人病态"
+    },
+    {
+      "text": "We are all susceptible to social influence — the question is not whether, but how and when.",
+      "chapter": 1,
+      "context": "没有人能免疫社会影响，真正的智慧在于理解影响发生的机制与条件"
+    },
+    {
+      "text": "The human mind is not a rational calculator but a cognitive miser, looking for shortcuts to reduce mental effort.",
+      "chapter": 2,
+      "context": "人类并非理性计算器，而是「认知吝啬者」，总在寻找省力的思维捷径"
+    },
+    {
+      "text": "Once we have committed ourselves to a course of action, we will find it very difficult to retreat — our need to justify our past behavior drives us forward.",
+      "chapter": 3,
+      "context": "认知失调的行为惯性：一旦做出承诺，自我辩护机制会让我们越陷越深"
+    },
+    {
+      "text": "Dissonance reduction is not a rational process; it is a rationalization process.",
+      "chapter": 3,
+      "context": "区分理性与合理化：减少失调不是在寻找真相，而是在为已有结论找理由"
+    },
+    {
+      "text": "Conformity is not always a bad thing. Without it, society could not function.",
+      "chapter": 4,
+      "context": "从众并非全是消极的——没有一定程度的从众，社会将无法运转"
+    },
+    {
+      "text": "Prejudice is a two-legged stool: it has a cognitive component (stereotype) and an emotional component (hostility), both of which must be addressed.",
+      "chapter": 7,
+      "context": "偏见的双重结构：认知层面的刻板印象和情感层面的敌意，两者缺一不可"
+    },
+    {
+      "text": "The most effective way to reduce prejudice between groups is through cooperative interdependence — working together toward shared goals.",
+      "chapter": 7,
+      "context": "减少偏见最有效的方法不是空洞说教，而是创造合作互赖的情境（拼图课堂法）"
+    },
+    {
+      "text": "We like people who are similar to us, who are physically attractive, who are familiar, and who like us back.",
+      "chapter": 8,
+      "context": "人际吸引力的四大法则：相似性、外貌吸引力、熟悉度和互惠性"
+    },
+    {
+      "text": "If we want to understand human behavior, we need to look not only at the person, but at the situation.",
+      "chapter": 9,
+      "context": "社会心理学的方法论遗训：理解行为必须同时考察个人与情境的交互作用"
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Cognitive Dissonance",
+      "nameZh": "认知失调",
+      "summary": "当一个人同时持有两种相互矛盾的认知（信念、态度或行为）时产生的心理不适。人们会通过改变态度、增加合理化认知或淡化矛盾来减少失调。这一理论解释了为什么人们在做出错误决定后反而更加坚持，为什么付出越多越珍惜——本质上都是自我辩护机制在驱动。",
+      "icon": "🔄"
+    },
+    {
+      "name": "Conformity (Three Levels)",
+      "nameZh": "从众（三个层次）",
+      "summary": "社会影响导致个体改变行为或观点的现象，分为三个递进层次：依从（为了获得奖赏或避免惩罚而表面服从）、认同（为了被喜欢或获得归属感而改变）、内化（真正接受并改变自己的信念体系）。Asch线段实验证明即使答案明显错误，群体压力也能让人否认自己的眼睛。",
+      "icon": "👥"
+    },
+    {
+      "name": "Fundamental Attribution Error",
+      "nameZh": "基本归因错误",
+      "summary": "人们在解释他人行为时，系统性地高估性格因素、低估情境因素的倾向。看到有人发怒就认为「他脾气差」，而忽略他可能刚经历了巨大压力。这种错误在个人主义文化中尤为严重，是偏见和误解的重要认知根源。",
+      "icon": "🎯"
+    },
+    {
+      "name": "Self-Justification",
+      "nameZh": "自我辩护",
+      "summary": "人们在做出决定或承诺后，会无意识地寻找理由证明自己是对的，甚至扭曲事实来维护自我形象。这一机制既保护了自尊，也是人类犯下系统性错误（如战争升级、错误定罪后拒不翻案）的深层原因。它与认知失调互为表里。",
+      "icon": "🛡️"
+    },
+    {
+      "name": "Jigsaw Classroom",
+      "nameZh": "拼图课堂法",
+      "summary": "Aronson发明的合作学习方法：将学生分成小组，每人负责一块「拼图」知识，必须教给其他组员才能完成整体学习。通过创造合作互赖的情境，打破竞争隔阂，有效减少了种族偏见和欺凌，同时提升了少数族裔学生的自尊和学业成绩。",
+      "icon": "🧩"
+    },
+    {
+      "name": "Central vs. Peripheral Route to Persuasion",
+      "nameZh": "说服的中心路径与外围路径",
+      "summary": "中心路径依靠逻辑论证和事实证据说服受众，产生的态度改变深入持久；外围路径依靠信息来源的吸引力、情感诉求等「捷径」打动受众，产生的态度改变表面短暂。受众的动机和能力决定了哪条路径被激活。",
+      "icon": "📡"
+    }
+  ],
+  "principles": [
+    {
+      "text": "Behavior is shaped by the interaction of person and situation — never attribute to character what can be explained by context",
+      "textZh": "行为由个人与情境的交互作用塑造——永远不要把可以用情境解释的行为归因于性格",
+      "icon": "🔍"
+    },
+    {
+      "text": "The more effort we put into something, the more we value it — not because it is valuable, but because we need to justify the effort",
+      "textZh": "我们为某事付出的努力越多，就越珍视它——不是因为它真的有价值，而是因为我们需要为付出的努力辩护",
+      "icon": "💎"
+    },
+    {
+      "text": "Prejudice can be reduced not by lecturing, but by creating situations of cooperative interdependence between groups",
+      "textZh": "偏见不是靠说教消除的，而是靠创造群体间合作互赖的情境来减少的",
+      "icon": "🤝"
+    },
+    {
+      "text": "We are cognitive misers: we rely on mental shortcuts that usually work but can lead to systematic errors in judgment",
+      "textZh": "我们是认知吝啬者：依赖通常有效但有时会导致系统性判断错误的心理捷径",
+      "icon": "🧠"
+    },
+    {
+      "text": "Social influence operates on a spectrum from compliance to identification to internalization — each deeper and more lasting",
+      "textZh": "社会影响沿着「依从→认同→内化」的光谱运作，层次越深，影响越持久",
+      "icon": "📊"
+    },
+    {
+      "text": "Understanding the mechanisms of social influence is the best defense against manipulation — awareness is the antidote",
+      "textZh": "理解社会影响的机制是对抗操纵的最佳防御——觉察本身就是解药",
+      "icon": "💡"
+    }
+  ],
+  "essence": [
+    {
+      "chapter": 1,
+      "title": "什么是社会心理学",
+      "sentence": "社会心理学研究情境力量如何塑造人的思想和行为——做出疯狂举动的人未必是疯子。"
+    },
+    {
+      "chapter": 2,
+      "title": "社会认知",
+      "sentence": "人是「认知吝啬者」，依赖图式和捷径处理信息，这既是高效的生存策略也是系统偏差的根源。"
+    },
+    {
+      "chapter": 3,
+      "title": "自我辩护",
+      "sentence": "认知失调驱动的自我辩护让人在错误决定上越陷越深——减少失调不是理性过程，而是合理化过程。"
+    },
+    {
+      "chapter": 4,
+      "title": "从众",
+      "sentence": "从众分为依从、认同和内化三个层次，群体压力甚至能让人否认自己亲眼所见的事实。"
+    },
+    {
+      "chapter": 5,
+      "title": "大众传播、宣传与说服",
+      "sentence": "说服走中心路径（逻辑论证）还是外围路径（情感捷径），取决于受众的动机和处理能力。"
+    },
+    {
+      "chapter": 6,
+      "title": "人类的攻击性",
+      "sentence": "攻击行为是先天本能与后天情境（挫折、去个体化、社会学习）交互作用的产物，可以被情境干预所减少。"
+    },
+    {
+      "chapter": 7,
+      "title": "偏见",
+      "sentence": "偏见的根源是认知捷径（刻板印象）与情感需求（替罪羊）的结合，拼图课堂法证明合作互赖能有效瓦解偏见。"
+    },
+    {
+      "chapter": 8,
+      "title": "喜欢、爱与联系",
+      "sentence": "人际吸引遵循相似性、熟悉度、互惠性和外貌吸引力四大法则，而深层的爱需要自我表露和相互依赖。"
+    },
+    {
+      "chapter": 9,
+      "title": "作为一门科学的社会心理学",
+      "sentence": "随机分配的实验法是社会心理学区别于常识的关键——它让我们能够区分因果与相关。"
+    }
+  ]
+};
+
+
+(function() {
+  const data = typeof distill !== 'undefined' ? distill : {};
+  const quotes = data.quotes || [];
+  const concepts = data.concepts || [];
+  const principles = data.principles || [];
+  const essence = data.essence || [];
+
+  // ── Render Quotes ──
+  const quoteList = document.getElementById('quoteList');
+  if (quotes.length === 0) {
+    quoteList.innerHTML = '<div class="empty-state">No quotes distilled yet.</div>';
+  } else {
+    quotes.forEach(q => {
+      const card = document.createElement('div');
+      card.className = 'quote-card fade-in';
+      card.onclick = function() { this.classList.toggle('expanded'); };
+      card.innerHTML =
+        '<div class="quote-text">' + escHtml(q.text) + '</div>' +
+        '<div class="quote-footer">' +
+          (q.chapter ? '<span class="quote-chapter">Ch.' + q.chapter + '</span>' : '') +
+          '<span class="quote-expand-hint">click to expand</span>' +
+        '</div>' +
+        (q.context ? '<div class="quote-context">' + escHtml(q.context) + '</div>' : '');
+      quoteList.appendChild(card);
+    });
+  }
+
+  // ── Render Concepts ──
+  const conceptGrid = document.getElementById('conceptGrid');
+  if (concepts.length === 0) {
+    conceptGrid.innerHTML = '<div class="empty-state">No concepts distilled yet.</div>';
+  } else {
+    concepts.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'concept-card fade-in';
+      card.innerHTML =
+        '<div class="concept-icon">' + (c.icon || '\u{1F9E0}') + '</div>' +
+        '<div class="concept-name">' + escHtml(c.name) + '</div>' +
+        (c.nameZh ? '<div class="concept-name-zh">' + escHtml(c.nameZh) + '</div>' : '') +
+        '<div class="concept-summary">' + escHtml(c.summary || '') + '</div>' +
+        '<div class="concept-more">hover to read more</div>';
+      conceptGrid.appendChild(card);
+    });
+  }
+
+  // ── Render Principles ──
+  const principleList = document.getElementById('principleList');
+  if (principles.length === 0) {
+    principleList.innerHTML = '<div class="empty-state">No principles distilled yet.</div>';
+  } else {
+    principles.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'principle-item fade-in';
+      item.innerHTML =
+        '<div class="principle-num"></div>' +
+        '<div class="principle-icon">' + (p.icon || '\u{1F4A1}') + '</div>' +
+        '<div class="principle-body">' +
+          '<div class="principle-text">' + escHtml(p.text) + '</div>' +
+          (p.textZh ? '<div class="principle-text-zh">' + escHtml(p.textZh) + '</div>' : '') +
+        '</div>';
+      principleList.appendChild(item);
+    });
+  }
+
+  // ── Render Essence ──
+  const essenceList = document.getElementById('essenceList');
+  if (essence.length === 0) {
+    essenceList.innerHTML = '<div class="empty-state">No chapter essences distilled yet.</div>';
+  } else {
+    essence.forEach(e => {
+      const item = document.createElement('div');
+      item.className = 'essence-item fade-in';
+      item.innerHTML =
+        '<div class="essence-chapter">Ch.' + (e.chapter || '?') + '</div>' +
+        '<div class="essence-body">' +
+          (e.title ? '<div class="essence-title">' + escHtml(e.title) + '</div>' : '') +
+          '<div class="essence-sentence">' + escHtml(e.sentence || '') + '</div>' +
+        '</div>';
+      essenceList.appendChild(item);
+    });
+  }
+
+  // ── Utility ──
+  function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // ── Scroll Progress ──
+  var progressBar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', function() {
+    var h = document.documentElement;
+    var pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    progressBar.style.width = Math.min(pct, 100) + '%';
+  });
+
+  // ── IntersectionObserver Fade-in ──
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // ── Active nav pill tracking ──
+  var sections = ['quotes', 'concepts', 'principles', 'essence'];
+  var navPills = document.querySelectorAll('.nav-pill');
+  var sectionObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        navPills.forEach(function(p) { p.classList.remove('active'); });
+        var pill = document.querySelector('.nav-pill[href="#' + entry.target.id + '"]');
+        if (pill) pill.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -60% 0px' });
+
+  sections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+})();
+
+function scrollToSection(id, el) {
+  var target = document.getElementById(id);
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.querySelectorAll('.nav-pill').forEach(function(p) { p.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+</script>
+</body>
+</html>

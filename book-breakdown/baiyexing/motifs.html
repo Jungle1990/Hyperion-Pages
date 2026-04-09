@@ -138,332 +138,318 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg);
 const motifs = {
   "symbols": [
     {
-      "id": "white_night",
+      "id": "white-night",
       "name": "白夜",
       "nameEn": "White Night",
-      "icon": "🌙",
+      "icon": "🌓",
       "color": "#ffe66d"
     },
     {
       "id": "scissors",
-      "name": "剪刀",
-      "nameEn": "Scissors",
+      "name": "剪刀/剪纸",
+      "nameEn": "Scissors / Paper-cutting",
       "icon": "✂️",
       "color": "#ff6b6b"
     },
     {
-      "id": "sun",
-      "name": "太阳",
-      "nameEn": "Sun",
-      "icon": "☀️",
-      "color": "#ffa94d"
-    },
-    {
-      "id": "light_shadow",
-      "name": "光与影",
-      "nameEn": "Light & Shadow",
-      "icon": "🌓",
+      "id": "ventilation",
+      "name": "通风管道",
+      "nameEn": "Ventilation Ducts",
+      "icon": "🕳️",
       "color": "#6c63ff"
     },
     {
-      "id": "mask",
-      "name": "面具",
-      "nameEn": "Masks / False Identity",
-      "icon": "🎭",
+      "id": "shrimp-goby",
+      "name": "枪虾与虾虎鱼",
+      "nameEn": "Shrimp & Goby",
+      "icon": "🦐",
       "color": "#4ecdc4"
     },
     {
-      "id": "shrimp",
-      "name": "虾虎鱼与枪虾",
-      "nameEn": "Goby & Pistol Shrimp",
-      "icon": "🦐",
-      "color": "#e599f7"
+      "id": "mask",
+      "name": "面具/伪装",
+      "nameEn": "Masks & Disguises",
+      "icon": "🎭",
+      "color": "#ff8fab"
     },
     {
-      "id": "patchwork",
-      "name": "拼布",
-      "nameEn": "Patchwork",
-      "icon": "🧵",
-      "color": "#74c0fc"
-    },
-    {
-      "id": "ventilation",
-      "name": "通风管",
-      "nameEn": "Ventilation Shaft",
-      "icon": "🕳️",
-      "color": "#868e96"
+      "id": "light-dark",
+      "name": "光与暗",
+      "nameEn": "Light & Darkness",
+      "icon": "☀️",
+      "color": "#8888a0"
     }
   ],
   "occurrences": [
     {
-      "symbol": "light_shadow",
+      "symbol": "light-dark",
       "chapter": 1,
       "intensity": 3,
-      "context": "废弃大楼幽暗中发现尸体，亮司眼中蕴含阴沉黑暗"
+      "context": "废弃大楼幽暗中发现桐原洋介的尸体，阳光无法穿透的角落"
     },
     {
       "symbol": "ventilation",
       "chapter": 1,
       "intensity": 3,
-      "context": "男孩们在通风管中玩耍，经此发现尸体"
+      "context": "男孩们通过通风管道发现案发现场，管道成为进入黑暗的通道"
     },
     {
       "symbol": "scissors",
       "chapter": 1,
       "intensity": 2,
-      "context": "亮司房间挂着精美的剪纸帆船作品"
+      "context": "笹垣在亮司房间看到精致的剪纸帆船作品"
     },
     {
-      "symbol": "patchwork",
+      "symbol": "ventilation",
+      "chapter": 1,
+      "intensity": 2,
+      "context": "笹垣注意到通风管道可以从外部进入大楼，推断凶手的进入路线"
+    },
+    {
+      "symbol": "white-night",
       "chapter": 1,
       "intensity": 1,
-      "context": "雪穗家中贫困环境的暗示与对比"
+      "context": "案件发生后亮司独自站在暗处，眼中看不到光也看不到黑暗"
     },
     {
-      "symbol": "light_shadow",
+      "symbol": "light-dark",
       "chapter": 2,
       "intensity": 2,
-      "context": "雪穗散发光芒，桐原冰冷阴沉的目光"
-    },
-    {
-      "symbol": "patchwork",
-      "chapter": 2,
-      "intensity": 3,
-      "context": "雪穗热衷拼布，绣有RK缩写的杂物袋"
+      "context": "雪穗如白色百合般纯洁夺目，亮司如阴影般沉默不语"
     },
     {
       "symbol": "mask",
       "chapter": 2,
       "intensity": 2,
-      "context": "菊池如能剧面具般毫无表情的脸"
+      "context": "菊池文彦的脸如同能剧面具般毫无表情"
+    },
+    {
+      "symbol": "scissors",
+      "chapter": 2,
+      "intensity": 2,
+      "context": "亮司在教室独自用剪刀剪纸，同学们投来异样目光"
+    },
+    {
+      "symbol": "light-dark",
+      "chapter": 3,
+      "intensity": 2,
+      "context": "亮司在昏暗的公寓中组织灰色交易，窗帘紧闭"
     },
     {
       "symbol": "mask",
       "chapter": 3,
       "intensity": 3,
-      "context": "有人假扮花冈夕子退房，冒充身份"
+      "context": "有人假扮花冈夕子在酒店退房，冒用他人身份"
     },
     {
-      "symbol": "light_shadow",
-      "chapter": 3,
+      "symbol": "light-dark",
+      "chapter": 4,
       "intensity": 2,
-      "context": "桐原在昏暗中静坐抽烟，奈美江失去光泽"
+      "context": "正晴试图揭开文代之死的真相，但每一条线索都通向黑暗"
     },
     {
-      "symbol": "sun",
-      "chapter": 3,
+      "symbol": "mask",
+      "chapter": 4,
+      "intensity": 2,
+      "context": "雪穗在养母面前表现完美，深夜偷偷外出行踪成谜"
+    },
+    {
+      "symbol": "light-dark",
+      "chapter": 4,
       "intensity": 1,
-      "context": "夕子戴太阳镜遮掩身份，光线与遮蔽"
-    },
-    {
-      "symbol": "sun",
-      "chapter": 4,
-      "intensity": 2,
-      "context": "正晴调查雪穗母亲死因，真相被遮蔽如日蚀"
-    },
-    {
-      "symbol": "light_shadow",
-      "chapter": 4,
-      "intensity": 2,
       "context": "雪穗可能目睹母亲濒死却未施救的黑暗猜想"
     },
     {
-      "symbol": "mask",
-      "chapter": 4,
-      "intensity": 2,
-      "context": "雪穗瞒着养母深夜外出，完美伪装日常"
-    },
-    {
-      "symbol": "light_shadow",
-      "chapter": 5,
-      "intensity": 2,
-      "context": "江利子决定躲在别人影子下生活"
-    },
-    {
-      "symbol": "mask",
-      "chapter": 5,
-      "intensity": 2,
-      "context": "江利子外貌大变身，筱冢一成塑造她的新形象"
-    },
-    {
-      "symbol": "sun",
+      "symbol": "white-night",
       "chapter": 5,
       "intensity": 1,
-      "context": "讨论紫外线对肌肤的伤害与记忆"
+      "context": "江利子决定在别人的影子下生活，如同永远走不出白夜"
+    },
+    {
+      "symbol": "light-dark",
+      "chapter": 5,
+      "intensity": 2,
+      "context": "江利子外表大变身，从平凡走向光鲜，但内心阴影未消"
+    },
+    {
+      "symbol": "mask",
+      "chapter": 5,
+      "intensity": 2,
+      "context": "江利子的形象被筱冢一成重新塑造，仿佛戴上了新面具"
+    },
+    {
+      "symbol": "mask",
+      "chapter": 5,
+      "intensity": 1,
+      "context": "江利子遭性侵后雪穗表现关切，但背后动机成谜"
+    },
+    {
+      "symbol": "light-dark",
+      "chapter": 6,
+      "intensity": 3,
+      "context": "友彦在黑暗中辗转难眠，犯罪的阴影笼罩一切"
     },
     {
       "symbol": "mask",
       "chapter": 6,
       "intensity": 3,
-      "context": "友彦戴假发伪装取款，桐原伪造银行卡"
+      "context": "友彦戴假发男扮女装取款，奈美江用太阳镜伪装身份"
     },
     {
-      "symbol": "light_shadow",
+      "symbol": "light-dark",
       "chapter": 6,
       "intensity": 2,
-      "context": "友彦在黑暗中无法入眠，暗中运作的犯罪"
-    },
-    {
-      "symbol": "sun",
-      "chapter": 6,
-      "intensity": 1,
-      "context": "奈美江用假发和太阳镜伪装提款"
+      "context": "奈美江在名古屋被杀，光芒彻底熄灭"
     },
     {
       "symbol": "mask",
       "chapter": 7,
       "intensity": 2,
-      "context": "诚假装偶遇，雪穗精心策划的社交表演"
+      "context": "高宫诚自以为偶遇雪穗，实际是精心策划的社交表演"
     },
     {
-      "symbol": "light_shadow",
+      "symbol": "light-dark",
       "chapter": 7,
       "intensity": 1,
-      "context": "酒店中的秘密会面与暗中布局"
+      "context": "婚礼表面光鲜，背后暗藏雪穗对筱冢家族的布局"
+    },
+    {
+      "symbol": "mask",
+      "chapter": 7,
+      "intensity": 2,
+      "context": "雪穗在筱冢一成面前展现完美妻子形象"
     },
     {
       "symbol": "scissors",
       "chapter": 8,
       "intensity": 3,
-      "context": "桐原展示德国剪刀，剪出男孩与女孩的剪纸"
+      "context": "亮司展示德国索林根剪刀，剪出手拉手的男孩与女孩"
     },
     {
-      "symbol": "white_night",
+      "symbol": "white-night",
       "chapter": 8,
       "intensity": 3,
-      "context": "桐原说出「我的人生就像在白夜里走路」"
+      "context": "「我的人生就像在白夜里走路」——亮司的核心独白"
     },
     {
-      "symbol": "light_shadow",
+      "symbol": "light-dark",
       "chapter": 8,
       "intensity": 2,
-      "context": "桐原脸如水泥面具般僵硬，阴影笼罩"
+      "context": "亮司的脸如水泥面具般僵硬，坐在昏暗的店里"
     },
     {
       "symbol": "mask",
       "chapter": 8,
       "intensity": 2,
-      "context": "桐原过去伪造银行卡，制作盗版游戏"
+      "context": "亮司制作盗版游戏卡带，在合法与非法之间伪装"
     },
     {
       "symbol": "mask",
       "chapter": 9,
       "intensity": 3,
-      "context": "雪穗如能剧面具般面无表情，隐藏真实自我"
+      "context": "雪穗如同能剧面具般面无表情，隐藏真实自我"
     },
     {
-      "symbol": "light_shadow",
+      "symbol": "light-dark",
       "chapter": 9,
       "intensity": 2,
-      "context": "家中一片黑暗，诚发现雪穗的另一面"
+      "context": "家中一片黑暗，高宫发现雪穗光鲜表面下的另一面"
+    },
+    {
+      "symbol": "white-night",
+      "chapter": 9,
+      "intensity": 2,
+      "context": "高宫在离婚后感到人生进入了无尽的白夜"
     },
     {
       "symbol": "mask",
       "chapter": 10,
       "intensity": 3,
-      "context": "秋吉被监视伪装的货车跟踪，身份调查层层深入"
+      "context": "秋吉雄一被伪装货车跟踪，身份层层剥开"
     },
     {
-      "symbol": "light_shadow",
+      "symbol": "light-dark",
       "chapter": 10,
       "intensity": 2,
-      "context": "江利子心跌落黑暗深渊，雪穗光芒四射"
+      "context": "江利子的心坠入黑暗深渊，而雪穗光芒四射"
     },
     {
-      "symbol": "patchwork",
+      "symbol": "mask",
       "chapter": 10,
-      "intensity": 1,
-      "context": "R&Y精品店初次登场，雪穗的时尚事业"
+      "intensity": 2,
+      "context": "亮司以「秋吉雄一」假身份生活在东京"
     },
     {
-      "symbol": "shrimp",
+      "symbol": "shrimp-goby",
       "chapter": 11,
       "intensity": 3,
-      "context": "笹垣首次提出枪虾与虾虎鱼的共生比喻"
+      "context": "笹垣首次提出枪虾与虾虎鱼的共生比喻来形容亮司与雪穗"
     },
     {
       "symbol": "mask",
       "chapter": 11,
       "intensity": 2,
-      "context": "千都留假扮有钱人家小姐，写假地址"
+      "context": "三泽千都留假扮富家小姐，在酒店登记写假地址"
     },
     {
-      "symbol": "light_shadow",
+      "symbol": "light-dark",
       "chapter": 11,
       "intensity": 2,
-      "context": "今枝视野被黑暗包围，暗中调查真相"
+      "context": "今枝的视野渐渐被黑暗包围，调查真相越来越危险"
     },
     {
-      "symbol": "shrimp",
+      "symbol": "shrimp-goby",
       "chapter": 12,
       "intensity": 3,
-      "context": "笹垣明确指出虾虎鱼在枪虾身边——亮司在雪穗身边"
+      "context": "笹垣明确指出「虾虎鱼就在枪虾身边」——亮司始终在雪穗身边"
     },
     {
-      "symbol": "light_shadow",
+      "symbol": "light-dark",
       "chapter": 12,
       "intensity": 3,
-      "context": "雪穗如一朵黑玫瑰，光芒夺目却内含黑暗"
+      "context": "雪穗如一朵黑色玫瑰，光芒夺目却内含致命黑暗"
     },
     {
       "symbol": "mask",
       "chapter": 12,
       "intensity": 2,
-      "context": "笹垣追问雪穗与亮司的真正身份"
+      "context": "笹垣追问雪穗与亮司的真实身份和关系"
     },
     {
-      "symbol": "sun",
-      "chapter": 12,
-      "intensity": 1,
-      "context": "仙人掌盆栽中松浦太阳镜碎片的线索"
-    },
-    {
-      "symbol": "white_night",
+      "symbol": "white-night",
       "chapter": 13,
       "intensity": 3,
-      "context": "雪穗说没有太阳却把黑夜当白天——白夜独白"
-    },
-    {
-      "symbol": "sun",
-      "chapter": 13,
-      "intensity": 3,
-      "context": "「我的天空里没有太阳」——渴望阳光的终极表白"
+      "context": "雪穗说「我的天空里没有太阳，总是黑夜，但并不暗」——白夜的终极诠释"
     },
     {
       "symbol": "scissors",
       "chapter": 13,
       "intensity": 3,
-      "context": "亮司被自己珍视的剪刀刺入胸口而死"
-    },
-    {
-      "symbol": "light_shadow",
-      "chapter": 13,
-      "intensity": 3,
-      "context": "雪穗白色身影如光，亮司在黑暗通风管中徘徊"
+      "context": "亮司被自己珍视的剪刀刺入胸口，以死终结一切"
     },
     {
       "symbol": "ventilation",
       "chapter": 13,
       "intensity": 3,
-      "context": "笹垣还原亮司经通风管弑父的全过程"
+      "context": "笹垣还原亮司当年经通风管道进入大楼弑父的全过程"
     },
     {
-      "symbol": "shrimp",
+      "symbol": "shrimp-goby",
       "chapter": 13,
       "intensity": 2,
-      "context": "笹垣坚信枪虾就在虾虎鱼身边，展开监视"
+      "context": "笹垣坚信「枪虾就在虾虎鱼身边」，在R&Y大阪店外展开最后监视"
+    },
+    {
+      "symbol": "light-dark",
+      "chapter": 13,
+      "intensity": 3,
+      "context": "雪穗白色身影如光，亮司在黑暗中倒下，光与暗的终极对位"
     },
     {
       "symbol": "mask",
       "chapter": 13,
       "intensity": 2,
-      "context": "雪穗从不以真面目示人，完美表演到最后"
-    },
-    {
-      "symbol": "patchwork",
-      "chapter": 13,
-      "intensity": 2,
-      "context": "R&Y大阪店盛大开业，雪穗时尚帝国的顶点"
+      "context": "雪穗至死不以真面目示人，完美表演贯穿始终"
     }
   ]
 };

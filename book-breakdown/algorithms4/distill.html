@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>算法（第四版） 读后蒸馏 / Distill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(108,99,255,0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Progress Bar ── */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  z-index: 9999; transition: width 0.1s linear;
+}
+
+/* ── Hero ── */
+.hero {
+  min-height: 50vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 4rem 2rem 3rem; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(78,205,196,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.back-link {
+  position: absolute; top: 20px; left: 24px;
+  color: var(--text-dim); text-decoration: none; font-size: 0.85rem;
+  z-index: 2; transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent3); }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px var(--glow)); }
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900;
+  background: linear-gradient(135deg, var(--accent4) 0%, var(--accent) 40%, var(--accent3) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-subtitle {
+  font-size: 1rem; color: var(--text-dim); font-weight: 300;
+  margin-top: 0.5rem; max-width: 500px;
+}
+.hero-book {
+  font-size: 0.85rem; color: var(--accent); font-family: var(--font-mono);
+  margin-top: 1rem; letter-spacing: 1px;
+}
+
+/* ── Section Nav ── */
+.section-nav {
+  display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+  padding: 16px 20px; position: sticky; top: 0; z-index: 50;
+  background: rgba(15,17,23,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-pill {
+  padding: 6px 16px; border-radius: 2rem; border: 1px solid var(--border);
+  background: transparent; color: var(--text-dim); font-family: var(--font-sans);
+  font-size: 0.8rem; cursor: pointer; transition: all 0.2s; text-decoration: none;
+}
+.nav-pill:hover, .nav-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 800px; margin: 0 auto; padding: 0 20px 4rem; }
+
+/* ── Section Header ── */
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  margin: 4rem 0 2rem; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-header-icon { font-size: 1.8rem; }
+.section-header h2 { font-size: 1.5rem; font-weight: 700; }
+.section-header .section-label {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  color: var(--accent); letter-spacing: 2px; text-transform: uppercase;
+  margin-left: auto;
+}
+
+/* ── Quotes ── */
+.quote-list { display: flex; flex-direction: column; gap: 16px; }
+.quote-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent4); border-radius: var(--radius);
+  padding: 20px 24px; cursor: pointer; transition: all 0.3s;
+}
+.quote-card:hover { border-color: var(--accent4); transform: translateX(4px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.quote-text {
+  font-size: 1.05rem; font-weight: 400; line-height: 1.9;
+  position: relative; padding-left: 1.2rem;
+}
+.quote-text::before {
+  content: '\201C'; position: absolute; left: -4px; top: -8px;
+  font-size: 2.5rem; color: var(--accent4); opacity: 0.4; font-family: serif;
+}
+.quote-footer { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.quote-chapter {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  background: rgba(108,99,255,0.15); color: var(--accent);
+  padding: 2px 10px; border-radius: 2rem;
+}
+.quote-context {
+  font-size: 0.78rem; color: var(--text-dim);
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease, margin-top 0.3s ease;
+  line-height: 1.6;
+}
+.quote-card.expanded .quote-context { max-height: 200px; margin-top: 10px; }
+.quote-expand-hint {
+  font-size: 0.7rem; color: var(--text-dim); margin-left: auto;
+  font-family: var(--font-mono); opacity: 0.6;
+}
+.quote-card.expanded .quote-expand-hint { display: none; }
+
+/* ── Concepts ── */
+.concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.concept-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; transition: all 0.3s;
+  cursor: default;
+}
+.concept-card:hover { border-color: var(--accent3); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.concept-icon { font-size: 2rem; margin-bottom: 12px; }
+.concept-name { font-weight: 700; font-size: 1rem; margin-bottom: 2px; }
+.concept-name-zh { font-size: 0.8rem; color: var(--accent3); margin-bottom: 10px; }
+.concept-summary {
+  font-size: 0.82rem; color: var(--text-dim); line-height: 1.7;
+  max-height: 3.4rem; overflow: hidden; transition: max-height 0.4s ease;
+}
+.concept-card:hover .concept-summary { max-height: 400px; }
+.concept-more {
+  font-size: 0.7rem; color: var(--accent); margin-top: 6px;
+  font-family: var(--font-mono); transition: opacity 0.2s;
+}
+.concept-card:hover .concept-more { opacity: 0; }
+
+/* ── Principles ── */
+.principle-list { display: flex; flex-direction: column; gap: 12px; counter-reset: principle; }
+.principle-item {
+  display: flex; align-items: flex-start; gap: 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 22px; transition: all 0.3s;
+  counter-increment: principle;
+}
+.principle-item:hover { border-color: var(--accent2); transform: translateX(4px); }
+.principle-num {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent2); min-width: 28px; padding-top: 2px;
+}
+.principle-num::before { content: counter(principle, decimal-leading-zero); }
+.principle-icon { font-size: 1.4rem; flex-shrink: 0; padding-top: 1px; }
+.principle-body { flex: 1; }
+.principle-text { font-size: 0.95rem; font-weight: 500; }
+.principle-text-zh { font-size: 0.82rem; color: var(--text-dim); margin-top: 4px; }
+
+/* ── Essence ── */
+.essence-list { display: flex; flex-direction: column; gap: 2px; }
+.essence-item {
+  display: grid; grid-template-columns: 60px 1fr; gap: 16px;
+  padding: 14px 20px; border-radius: var(--radius);
+  transition: background 0.2s;
+}
+.essence-item:hover { background: var(--card); }
+.essence-chapter {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent); padding-top: 3px; text-align: right;
+}
+.essence-body {}
+.essence-title { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 2px; }
+.essence-sentence { font-size: 0.9rem; line-height: 1.7; }
+
+/* ── Empty State ── */
+.empty-state {
+  text-align: center; padding: 3rem; color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Footer ── */
+.footer {
+  text-align: center; padding: 2rem 0; color: var(--text-dim);
+  font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 3rem;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .hero { min-height: 40vh; padding: 3rem 1.5rem 2rem; }
+  .concept-grid { grid-template-columns: 1fr; }
+  .essence-item { grid-template-columns: 45px 1fr; gap: 10px; }
+  .quote-card { padding: 16px 18px; }
+  .section-header { margin: 3rem 0 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<section class="hero">
+  <a href="index.html" class="back-link">&larr; Back</a>
+  <div class="hero-icon">🧪</div>
+  <h1>Distill</h1>
+  <p class="hero-subtitle">What remains after the last page — the ideas worth carrying forward</p>
+  <div class="hero-book">🔬 算法（第四版）</div>
+</section>
+
+<nav class="section-nav">
+  <a class="nav-pill active" href="#quotes" onclick="scrollToSection('quotes',this)">Quotes</a>
+  <a class="nav-pill" href="#concepts" onclick="scrollToSection('concepts',this)">Concepts</a>
+  <a class="nav-pill" href="#principles" onclick="scrollToSection('principles',this)">Principles</a>
+  <a class="nav-pill" href="#essence" onclick="scrollToSection('essence',this)">Essence</a>
+</nav>
+
+<main class="container">
+
+  <!-- Quotes -->
+  <div class="section-header fade-in" id="quotes">
+    <span class="section-header-icon">&#x1F4AC;</span>
+    <h2>Quotes</h2>
+    <span class="section-label">GOLDEN LINES</span>
+  </div>
+  <div class="quote-list" id="quoteList"></div>
+
+  <!-- Concepts -->
+  <div class="section-header fade-in" id="concepts">
+    <span class="section-header-icon">&#x1F9E0;</span>
+    <h2>Concepts</h2>
+    <span class="section-label">MENTAL MODELS</span>
+  </div>
+  <div class="concept-grid" id="conceptGrid"></div>
+
+  <!-- Principles -->
+  <div class="section-header fade-in" id="principles">
+    <span class="section-header-icon">&#x2728;</span>
+    <h2>Principles</h2>
+    <span class="section-label">ACTION RULES</span>
+  </div>
+  <div class="principle-list" id="principleList"></div>
+
+  <!-- Essence -->
+  <div class="section-header fade-in" id="essence">
+    <span class="section-header-icon">&#x1F3AF;</span>
+    <h2>Essence</h2>
+    <span class="section-label">ONE SENTENCE PER CHAPTER</span>
+  </div>
+  <div class="essence-list" id="essenceList"></div>
+
+</main>
+
+<div class="footer">
+  Distilled with the <a href="https://en.wikipedia.org/wiki/Feynman_Technique">Feynman Method</a>
+</div>
+
+<script>
+const distill = {
+  "quotes": [
+    {
+      "text": "An algorithm must be seen to be believed.",
+      "chapter": 1,
+      "context": "Donald Knuth 的名言，也是本书的精神底色。算法不是抽象概念，必须通过实现和运行来理解。整本书围绕这个信念展开——每个算法都配有完整的 Java 实现和性能测试。"
+    },
+    {
+      "text": "The quickest way to understand an algorithm is to trace through a small example.",
+      "chapter": 6,
+      "context": "理解排序算法的核心方法论：不要试图从代码中「想象」算法的行为，而是拿一组小数据手动跟踪每一步。这种「trace」思维贯穿全书的每一章。"
+    },
+    {
+      "text": "No compare-based sorting algorithm can guarantee to sort N items with fewer than lg(N!) ~ N lg N compares.",
+      "chapter": 7,
+      "context": "归并排序那一章的核心定理。这是一道不可逾越的物理定律——无论你多聪明，基于比较的排序都不可能突破 N lg N 的下界。归并排序恰好达到了这个极限。"
+    },
+    {
+      "text": "Algorithms + Data Structures = Programs.",
+      "chapter": 3,
+      "context": "Niklaus Wirth 的经典公式，也是本书的组织原则。从第3章开始，每引入一种数据结构（栈、队列、堆、BST、图），就伴随着一组依赖它的算法。数据结构是算法的骨架。"
+    },
+    {
+      "text": "The running time of quicksort is 2N ln N compares on the average, which is only about 39% more than the best case.",
+      "chapter": 8,
+      "context": "快速排序的平均性能分析。尽管最坏情况是 N²，但随机打乱后的平均情况仅比理论最优多 39%。这种「在概率意义上接近最优」的思想影响了现代工程的算法选择。"
+    },
+    {
+      "text": "In a red-black BST, all paths from root to null link have the same number of black links.",
+      "chapter": 13,
+      "context": "红黑树的核心不变量——完美黑色平衡。这一条看似简单的规则，背后是 2-3 树到二叉树的精妙映射，保证了所有操作 O(lg N) 的铁律。"
+    },
+    {
+      "text": "Relaxation: if distTo[w] > distTo[v] + e.weight(), update distTo[w].",
+      "chapter": 19,
+      "context": "松弛操作是所有最短路径算法的原子操作。Dijkstra、DAG 最短路径、Bellman-Ford 三种算法的区别仅在于按什么顺序松弛哪些边——核心逻辑只有这一行。"
+    },
+    {
+      "text": "The max-flow min-cut theorem: the value of the max flow equals the capacity of the min cut.",
+      "chapter": 25,
+      "context": "最大流等于最小割——算法世界中最优美的对偶定理。它连接了两个看似毫不相干的问题：「最多能送多少流量」和「最少切断多少容量才能断流」。"
+    },
+    {
+      "text": "Reduction is the very idea of programming: always try to use existing solutions.",
+      "chapter": 25,
+      "context": "归约的本质就是编程的本质——把新问题转化为已解决的问题。从排序到最短路径到最大流到线性规划，每一层都是一个更通用的「问题求解模型」。"
+    },
+    {
+      "text": "For a hash table with M lists and N keys, the probability that the number of keys in a list is within a small constant factor of N/M is extremely close to 1.",
+      "chapter": 14,
+      "context": "散列表的均匀性保证。在理想的均匀散列假设下，拉链法中每条链的长度几乎都在 N/M 附近——这是散列表能逼近 O(1) 的统计学基础。"
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Divide and Conquer",
+      "nameZh": "分治法",
+      "summary": "将大问题分成两个或多个子问题，递归求解后合并结果。归并排序「先分后合」和快速排序「先治后分」展示了分治的两种风格。分治的威力在于把 O(N²) 的问题降到 O(N log N)——每一层递归处理 N 的工作量，而递归树只有 log N 层。",
+      "icon": "✂️"
+    },
+    {
+      "name": "Amortized Analysis",
+      "nameZh": "均摊分析",
+      "summary": "单次操作可能很慢，但如果「平摊」到一系列操作上，平均代价很低。Union-Find 的加权快速合并+路径压缩实现了近似 O(1) 的均摊操作；动态数组扩容单次 O(N) 但均摊 O(1)。均摊分析揭示了「偶尔昂贵、长期便宜」的隐藏经济学。",
+      "icon": "⚖️"
+    },
+    {
+      "name": "Graph Traversal",
+      "nameZh": "图遍历",
+      "summary": "深度优先搜索（DFS）和广度优先搜索（BFS）是图算法的两大基石。DFS 用栈沿一条路走到底再回溯，解决连通性、环检测、拓扑排序；BFS 用队列逐层扩展，求无权图的最短路径。两者时间复杂度都是 O(V+E)，但适用场景截然不同。",
+      "icon": "🗓️"
+    },
+    {
+      "name": "Balanced Search Trees",
+      "nameZh": "平衡搜索树",
+      "summary": "通过旋转和颜色翻转等局部变换，保证二叉搜索树的高度始终为 O(log N)。红黑 BST 用红/黑链接编码 2-3 树的结构，仅凭 put() 末尾的三个 if 语句实现自动平衡。这是第一个同时为搜索和插入提供对数级最坏保证的数据结构。",
+      "icon": "🌲"
+    },
+    {
+      "name": "Hashing",
+      "nameZh": "散列",
+      "summary": "通过散列函数将键映射为数组索引，逼近 O(1) 的平均查找时间。拉链法和线性探测法是两种主要的冲突处理策略。散列表放弃了有序性换取速度——如果不需要 min/max/rank 等有序操作，散列表几乎总是最快的选择。",
+      "icon": "🔑"
+    },
+    {
+      "name": "Greedy Algorithms",
+      "nameZh": "贪心算法",
+      "summary": "每一步选择当前看来最优的方案，期望得到全局最优解。Dijkstra 算法每次选离源点最近的顶点松弛，Prim/Kruskal 每次选最小的边加入 MST。贪心的正确性需要严格证明——并非所有问题都适用，但一旦适用，效率往往极高。",
+      "icon": "🎯"
+    },
+    {
+      "name": "NP-Completeness",
+      "nameZh": "NP 完全性",
+      "summary": "一类所有已知算法都需要指数时间的问题——如果你能高效解决其中任何一个（如 SAT、哈密顿路径），就能高效解决所有 NP 问题。P = NP? 是计算机科学最重要的未解问题。遇到 NP 完全问题时，应转向近似算法和启发式方法。",
+      "icon": "🔒"
+    },
+    {
+      "name": "String Processing",
+      "nameZh": "字符串处理",
+      "summary": "字符集有限性（通常 256 或 65536）使得字符串算法可以突破通用比较排序的 N lg N 下界。基数排序利用字符结构达到线性时间，Trie 的查找与键的数量无关，KMP 永不回退文本指针实现线性子串匹配。字符串世界有自己独特的算法范式。",
+      "icon": "🔤"
+    }
+  ],
+  "principles": [
+    {
+      "text": "Choose the right data structure and the algorithm almost writes itself",
+      "textZh": "选对数据结构，算法几乎自己就写出来了",
+      "icon": "🧱"
+    },
+    {
+      "text": "Measure, don't guess: use the scientific method to predict and verify algorithm performance",
+      "textZh": "度量而非猜测：用科学方法预测和验证算法性能",
+      "icon": "🔬"
+    },
+    {
+      "text": "Guarantee worst-case performance when reliability matters; optimize average case when speed matters",
+      "textZh": "可靠性优先时保证最坏情况，速度优先时优化平均情况",
+      "icon": "🛡️"
+    },
+    {
+      "text": "Reduce unknown problems to known ones: every solved algorithm is a tool for solving the next",
+      "textZh": "将未知问题归约为已知问题：每一个已解决的算法都是解决下一个问题的工具",
+      "icon": "🔗"
+    },
+    {
+      "text": "Trade space for time, but know the exchange rate: O(1) lookup costs O(N) memory",
+      "textZh": "用空间换时间，但要清楚汇率：O(1) 的查找代价是 O(N) 的内存",
+      "icon": "💱"
+    },
+    {
+      "text": "API is a contract between client and implementation: change the how without changing the what",
+      "textZh": "API 是客户端与实现之间的契约：改变「怎么做」而不改变「做什么」",
+      "icon": "📜"
+    },
+    {
+      "text": "Iterative refinement beats revolutionary invention: quick-find to weighted quick-union is three lines of change but a million-fold speedup",
+      "textZh": "渐进改良胜过颠覆式发明：从 quick-find 到加权 quick-union，三行代码的差异带来百万倍的性能飞跃",
+      "icon": "🚀"
+    },
+    {
+      "text": "Know the theoretical limits: N lg N for comparison sort, Omega(lg N) for search -- then engineer within those bounds",
+      "textZh": "认清理论极限：比较排序不低于 N lg N，搜索不低于 lg N——然后在边界内做工程优化",
+      "icon": "📏"
+    }
+  ],
+  "essence": [
+    {
+      "chapter": 1,
+      "title": "基本编程模型",
+      "sentence": "原始类型、语句、数组、静态方法、I/O 五大基础工具构成算法的实验室，而二分查找用 20 次比较在百万数据中找到目标——这是算法威力的第一次预演。"
+    },
+    {
+      "chapter": 2,
+      "title": "数据抽象",
+      "sentence": "封装、API 契约与实现分离——数据抽象让我们将「做什么」和「怎么做」解耦，为后续不断替换更优算法奠定架构基础。"
+    },
+    {
+      "chapter": 3,
+      "title": "背包、队列和栈",
+      "sentence": "栈、队列、背包是算法世界的三块基石，链表与数组的对偶展示了「顺序访问 vs 随机访问」的根本权衡。"
+    },
+    {
+      "chapter": 4,
+      "title": "算法分析",
+      "sentence": "增长阶数模型用 1、log N、N、N log N、N² 等几个简单函数就能预测算法在十亿数据上的表现，这是科学方法在计算机科学中的完美应用。"
+    },
+    {
+      "chapter": 5,
+      "title": "案例研究：Union-Find",
+      "sentence": "从 quick-find 到加权 quick-union 再到路径压缩，三行代码的迭代改进将动态连通性问题从 O(N²) 推进到近似 O(1) 的均摊操作。"
+    },
+    {
+      "chapter": 6,
+      "title": "初级排序",
+      "sentence": "选择排序和插入排序虽然都是 O(N²)，但插入排序对「几乎有序」的数据可达线性时间——输入的结构决定算法的实际性能。"
+    },
+    {
+      "chapter": 7,
+      "title": "归并排序",
+      "sentence": "分而治之的典范——递归树恰好 lg N 层、每层 N 的工作量，总计 N lg N，达到基于比较的排序算法的理论下界。"
+    },
+    {
+      "chapter": 8,
+      "title": "快速排序",
+      "sentence": "「先治后分」的分治反转思路——随机打乱 + partition 一次钉死一个元素的位置，以概率性的 2N ln N 比较成为实践中最快的通用排序。"
+    },
+    {
+      "chapter": 9,
+      "title": "优先队列",
+      "sentence": "二叉堆用数组表示完全二叉树，以 O(log N) 的插入和删除最大元素支撑了堆排序、事件驱动模拟和图算法的优先队列需求。"
+    },
+    {
+      "chapter": 10,
+      "title": "排序应用",
+      "sentence": "排序不仅是排序——它是去重、中位数、调度、计算几何等无数问题的基础设施，稳定性则决定了多键排序的正确性。"
+    },
+    {
+      "chapter": 11,
+      "title": "符号表",
+      "sentence": "符号表将「键-值对」抽象为统一的 put/get API，从顺序搜索到二分搜索的演进展示了「无序 → 有序 → 高效」的数据组织逻辑。"
+    },
+    {
+      "chapter": 12,
+      "title": "二叉搜索树",
+      "sentence": "BST 将二分搜索的思想嵌入链式结构，以 O(lg N) 的平均搜索同时支持动态插入——但最坏情况退化为链表，呼唤着平衡机制的到来。"
+    },
+    {
+      "chapter": 13,
+      "title": "平衡搜索树",
+      "sentence": "红黑 BST 用颜色编码 2-3 树的结构，仅凭 put() 末尾三个 if 语句就保证了所有操作 O(lg N) 的最坏性能——简洁与强大的完美结合。"
+    },
+    {
+      "chapter": 14,
+      "title": "散列表",
+      "sentence": "用散列函数将键映射为数组索引，拉链法和线性探测法以 O(1) 的平均查找时间换取了有序性的放弃——这是空间换时间的经典范例。"
+    },
+    {
+      "chapter": 15,
+      "title": "查找应用",
+      "sentence": "集合、字典、索引、稀疏向量——符号表作为「万能胶水」将查找能力注入到几乎所有需要「根据键找值」的场景中。"
+    },
+    {
+      "chapter": 16,
+      "title": "无向图",
+      "sentence": "DFS 和 BFS 是图算法的两大支柱——前者用栈深入到底再回溯，后者用队列逐层扩展，解决连通性、路径、环检测等一切图的基本问题。"
+    },
+    {
+      "chapter": 17,
+      "title": "有向图",
+      "sentence": "有向图引入「方向」的维度——拓扑排序处理依赖关系，Kosaraju 算法用两次 DFS 发现强连通分量，揭示了图中最深层的结构关系。"
+    },
+    {
+      "chapter": 18,
+      "title": "最小生成树",
+      "sentence": "贪心的切分定理保证了每次取横切边的最小边必属于 MST，Prim 和 Kruskal 分别从「顶点增长」和「边排序」两个角度实现了这一原理。"
+    },
+    {
+      "chapter": 19,
+      "title": "最短路径",
+      "sentence": "松弛操作是万物之基——Dijkstra、DAG 最短路径、Bellman-Ford 三种算法的区别仅在于按什么顺序对哪些边执行同一个 relax()。"
+    },
+    {
+      "chapter": 20,
+      "title": "字符串排序",
+      "sentence": "字符集的有限性让基数排序突破了 N lg N 下界——LSD 从右到左、MSD 从左到右、三向快排则在两者之间找到完美平衡。"
+    },
+    {
+      "chapter": 21,
+      "title": "单词查找树",
+      "sentence": "Trie 的查找时间与键的数量无关、只与键的长度成正比——这种「字符级」的搜索树天然支持前缀匹配、自动补全和通配符查找。"
+    },
+    {
+      "chapter": 22,
+      "title": "子字符串查找",
+      "sentence": "KMP 永不回退文本指针、Boyer-Moore 从右往左跳过大量字符、Rabin-Karp 用哈希指纹先筛后验——三种算法从不同角度攻克线性时间子串匹配。"
+    },
+    {
+      "chapter": 23,
+      "title": "正则表达式",
+      "sentence": "用 NFA 而非 DFA 实现正则引擎——允许多个状态同时活跃，用 ε-转移图的 DFS 实现状态追踪，用空间换取避免了指数级的状态爆炸。"
+    },
+    {
+      "chapter": 24,
+      "title": "数据压缩",
+      "sentence": "Huffman 按频率分配编码长度、LZW 动态构建短语词典——但压缩不是万能的，随机数据无法压缩，这是信息论的铁律。"
+    },
+    {
+      "chapter": 25,
+      "title": "综合应用",
+      "sentence": "网络流的最大流-最小割定理、归约的传递性、NP 完全性的存在——算法世界的边界告诉我们哪些问题能解、哪些可能永远解不了。"
+    }
+  ]
+};
+
+
+(function() {
+  const data = typeof distill !== 'undefined' ? distill : {};
+  const quotes = data.quotes || [];
+  const concepts = data.concepts || [];
+  const principles = data.principles || [];
+  const essence = data.essence || [];
+
+  // ── Render Quotes ──
+  const quoteList = document.getElementById('quoteList');
+  if (quotes.length === 0) {
+    quoteList.innerHTML = '<div class="empty-state">No quotes distilled yet.</div>';
+  } else {
+    quotes.forEach(q => {
+      const card = document.createElement('div');
+      card.className = 'quote-card fade-in';
+      card.onclick = function() { this.classList.toggle('expanded'); };
+      card.innerHTML =
+        '<div class="quote-text">' + escHtml(q.text) + '</div>' +
+        '<div class="quote-footer">' +
+          (q.chapter ? '<span class="quote-chapter">Ch.' + q.chapter + '</span>' : '') +
+          '<span class="quote-expand-hint">click to expand</span>' +
+        '</div>' +
+        (q.context ? '<div class="quote-context">' + escHtml(q.context) + '</div>' : '');
+      quoteList.appendChild(card);
+    });
+  }
+
+  // ── Render Concepts ──
+  const conceptGrid = document.getElementById('conceptGrid');
+  if (concepts.length === 0) {
+    conceptGrid.innerHTML = '<div class="empty-state">No concepts distilled yet.</div>';
+  } else {
+    concepts.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'concept-card fade-in';
+      card.innerHTML =
+        '<div class="concept-icon">' + (c.icon || '\u{1F9E0}') + '</div>' +
+        '<div class="concept-name">' + escHtml(c.name) + '</div>' +
+        (c.nameZh ? '<div class="concept-name-zh">' + escHtml(c.nameZh) + '</div>' : '') +
+        '<div class="concept-summary">' + escHtml(c.summary || '') + '</div>' +
+        '<div class="concept-more">hover to read more</div>';
+      conceptGrid.appendChild(card);
+    });
+  }
+
+  // ── Render Principles ──
+  const principleList = document.getElementById('principleList');
+  if (principles.length === 0) {
+    principleList.innerHTML = '<div class="empty-state">No principles distilled yet.</div>';
+  } else {
+    principles.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'principle-item fade-in';
+      item.innerHTML =
+        '<div class="principle-num"></div>' +
+        '<div class="principle-icon">' + (p.icon || '\u{1F4A1}') + '</div>' +
+        '<div class="principle-body">' +
+          '<div class="principle-text">' + escHtml(p.text) + '</div>' +
+          (p.textZh ? '<div class="principle-text-zh">' + escHtml(p.textZh) + '</div>' : '') +
+        '</div>';
+      principleList.appendChild(item);
+    });
+  }
+
+  // ── Render Essence ──
+  const essenceList = document.getElementById('essenceList');
+  if (essence.length === 0) {
+    essenceList.innerHTML = '<div class="empty-state">No chapter essences distilled yet.</div>';
+  } else {
+    essence.forEach(e => {
+      const item = document.createElement('div');
+      item.className = 'essence-item fade-in';
+      item.innerHTML =
+        '<div class="essence-chapter">Ch.' + (e.chapter || '?') + '</div>' +
+        '<div class="essence-body">' +
+          (e.title ? '<div class="essence-title">' + escHtml(e.title) + '</div>' : '') +
+          '<div class="essence-sentence">' + escHtml(e.sentence || '') + '</div>' +
+        '</div>';
+      essenceList.appendChild(item);
+    });
+  }
+
+  // ── Utility ──
+  function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // ── Scroll Progress ──
+  var progressBar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', function() {
+    var h = document.documentElement;
+    var pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    progressBar.style.width = Math.min(pct, 100) + '%';
+  });
+
+  // ── IntersectionObserver Fade-in ──
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // ── Active nav pill tracking ──
+  var sections = ['quotes', 'concepts', 'principles', 'essence'];
+  var navPills = document.querySelectorAll('.nav-pill');
+  var sectionObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        navPills.forEach(function(p) { p.classList.remove('active'); });
+        var pill = document.querySelector('.nav-pill[href="#' + entry.target.id + '"]');
+        if (pill) pill.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -60% 0px' });
+
+  sections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+})();
+
+function scrollToSection(id, el) {
+  var target = document.getElementById(id);
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.querySelectorAll('.nav-pill').forEach(function(p) { p.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+</script>
+</body>
+</html>

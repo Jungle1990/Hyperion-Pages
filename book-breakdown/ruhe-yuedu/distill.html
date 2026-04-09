@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>如何阅读一本书 读后蒸馏 / Distill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(108,99,255,0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Progress Bar ── */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  z-index: 9999; transition: width 0.1s linear;
+}
+
+/* ── Hero ── */
+.hero {
+  min-height: 50vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 4rem 2rem 3rem; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(78,205,196,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.back-link {
+  position: absolute; top: 20px; left: 24px;
+  color: var(--text-dim); text-decoration: none; font-size: 0.85rem;
+  z-index: 2; transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent3); }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px var(--glow)); }
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900;
+  background: linear-gradient(135deg, var(--accent4) 0%, var(--accent) 40%, var(--accent3) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-subtitle {
+  font-size: 1rem; color: var(--text-dim); font-weight: 300;
+  margin-top: 0.5rem; max-width: 500px;
+}
+.hero-book {
+  font-size: 0.85rem; color: var(--accent); font-family: var(--font-mono);
+  margin-top: 1rem; letter-spacing: 1px;
+}
+
+/* ── Section Nav ── */
+.section-nav {
+  display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+  padding: 16px 20px; position: sticky; top: 0; z-index: 50;
+  background: rgba(15,17,23,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-pill {
+  padding: 6px 16px; border-radius: 2rem; border: 1px solid var(--border);
+  background: transparent; color: var(--text-dim); font-family: var(--font-sans);
+  font-size: 0.8rem; cursor: pointer; transition: all 0.2s; text-decoration: none;
+}
+.nav-pill:hover, .nav-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 800px; margin: 0 auto; padding: 0 20px 4rem; }
+
+/* ── Section Header ── */
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  margin: 4rem 0 2rem; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-header-icon { font-size: 1.8rem; }
+.section-header h2 { font-size: 1.5rem; font-weight: 700; }
+.section-header .section-label {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  color: var(--accent); letter-spacing: 2px; text-transform: uppercase;
+  margin-left: auto;
+}
+
+/* ── Quotes ── */
+.quote-list { display: flex; flex-direction: column; gap: 16px; }
+.quote-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent4); border-radius: var(--radius);
+  padding: 20px 24px; cursor: pointer; transition: all 0.3s;
+}
+.quote-card:hover { border-color: var(--accent4); transform: translateX(4px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.quote-text {
+  font-size: 1.05rem; font-weight: 400; line-height: 1.9;
+  position: relative; padding-left: 1.2rem;
+}
+.quote-text::before {
+  content: '\201C'; position: absolute; left: -4px; top: -8px;
+  font-size: 2.5rem; color: var(--accent4); opacity: 0.4; font-family: serif;
+}
+.quote-footer { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.quote-chapter {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  background: rgba(108,99,255,0.15); color: var(--accent);
+  padding: 2px 10px; border-radius: 2rem;
+}
+.quote-context {
+  font-size: 0.78rem; color: var(--text-dim);
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease, margin-top 0.3s ease;
+  line-height: 1.6;
+}
+.quote-card.expanded .quote-context { max-height: 200px; margin-top: 10px; }
+.quote-expand-hint {
+  font-size: 0.7rem; color: var(--text-dim); margin-left: auto;
+  font-family: var(--font-mono); opacity: 0.6;
+}
+.quote-card.expanded .quote-expand-hint { display: none; }
+
+/* ── Concepts ── */
+.concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.concept-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; transition: all 0.3s;
+  cursor: default;
+}
+.concept-card:hover { border-color: var(--accent3); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.concept-icon { font-size: 2rem; margin-bottom: 12px; }
+.concept-name { font-weight: 700; font-size: 1rem; margin-bottom: 2px; }
+.concept-name-zh { font-size: 0.8rem; color: var(--accent3); margin-bottom: 10px; }
+.concept-summary {
+  font-size: 0.82rem; color: var(--text-dim); line-height: 1.7;
+  max-height: 3.4rem; overflow: hidden; transition: max-height 0.4s ease;
+}
+.concept-card:hover .concept-summary { max-height: 400px; }
+.concept-more {
+  font-size: 0.7rem; color: var(--accent); margin-top: 6px;
+  font-family: var(--font-mono); transition: opacity 0.2s;
+}
+.concept-card:hover .concept-more { opacity: 0; }
+
+/* ── Principles ── */
+.principle-list { display: flex; flex-direction: column; gap: 12px; counter-reset: principle; }
+.principle-item {
+  display: flex; align-items: flex-start; gap: 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 22px; transition: all 0.3s;
+  counter-increment: principle;
+}
+.principle-item:hover { border-color: var(--accent2); transform: translateX(4px); }
+.principle-num {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent2); min-width: 28px; padding-top: 2px;
+}
+.principle-num::before { content: counter(principle, decimal-leading-zero); }
+.principle-icon { font-size: 1.4rem; flex-shrink: 0; padding-top: 1px; }
+.principle-body { flex: 1; }
+.principle-text { font-size: 0.95rem; font-weight: 500; }
+.principle-text-zh { font-size: 0.82rem; color: var(--text-dim); margin-top: 4px; }
+
+/* ── Essence ── */
+.essence-list { display: flex; flex-direction: column; gap: 2px; }
+.essence-item {
+  display: grid; grid-template-columns: 60px 1fr; gap: 16px;
+  padding: 14px 20px; border-radius: var(--radius);
+  transition: background 0.2s;
+}
+.essence-item:hover { background: var(--card); }
+.essence-chapter {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent); padding-top: 3px; text-align: right;
+}
+.essence-body {}
+.essence-title { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 2px; }
+.essence-sentence { font-size: 0.9rem; line-height: 1.7; }
+
+/* ── Empty State ── */
+.empty-state {
+  text-align: center; padding: 3rem; color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Footer ── */
+.footer {
+  text-align: center; padding: 2rem 0; color: var(--text-dim);
+  font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 3rem;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .hero { min-height: 40vh; padding: 3rem 1.5rem 2rem; }
+  .concept-grid { grid-template-columns: 1fr; }
+  .essence-item { grid-template-columns: 45px 1fr; gap: 10px; }
+  .quote-card { padding: 16px 18px; }
+  .section-header { margin: 3rem 0 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<section class="hero">
+  <a href="index.html" class="back-link">&larr; Back</a>
+  <div class="hero-icon">🧪</div>
+  <h1>Distill</h1>
+  <p class="hero-subtitle">What remains after the last page — the ideas worth carrying forward</p>
+  <div class="hero-book">📚 如何阅读一本书</div>
+</section>
+
+<nav class="section-nav">
+  <a class="nav-pill active" href="#quotes" onclick="scrollToSection('quotes',this)">Quotes</a>
+  <a class="nav-pill" href="#concepts" onclick="scrollToSection('concepts',this)">Concepts</a>
+  <a class="nav-pill" href="#principles" onclick="scrollToSection('principles',this)">Principles</a>
+  <a class="nav-pill" href="#essence" onclick="scrollToSection('essence',this)">Essence</a>
+</nav>
+
+<main class="container">
+
+  <!-- Quotes -->
+  <div class="section-header fade-in" id="quotes">
+    <span class="section-header-icon">&#x1F4AC;</span>
+    <h2>Quotes</h2>
+    <span class="section-label">GOLDEN LINES</span>
+  </div>
+  <div class="quote-list" id="quoteList"></div>
+
+  <!-- Concepts -->
+  <div class="section-header fade-in" id="concepts">
+    <span class="section-header-icon">&#x1F9E0;</span>
+    <h2>Concepts</h2>
+    <span class="section-label">MENTAL MODELS</span>
+  </div>
+  <div class="concept-grid" id="conceptGrid"></div>
+
+  <!-- Principles -->
+  <div class="section-header fade-in" id="principles">
+    <span class="section-header-icon">&#x2728;</span>
+    <h2>Principles</h2>
+    <span class="section-label">ACTION RULES</span>
+  </div>
+  <div class="principle-list" id="principleList"></div>
+
+  <!-- Essence -->
+  <div class="section-header fade-in" id="essence">
+    <span class="section-header-icon">&#x1F3AF;</span>
+    <h2>Essence</h2>
+    <span class="section-label">ONE SENTENCE PER CHAPTER</span>
+  </div>
+  <div class="essence-list" id="essenceList"></div>
+
+</main>
+
+<div class="footer">
+  Distilled with the <a href="https://en.wikipedia.org/wiki/Feynman_Technique">Feynman Method</a>
+</div>
+
+<script>
+const distill = {
+  "quotes": [
+    {
+      "text": "Reading is a basic tool in the living of a good life.",
+      "chapter": 1,
+      "context": "艾德勒在开篇强调阅读不仅仅是获取信息的技能，更是通往美好生活的基本工具"
+    },
+    {
+      "text": "The art of reading, in short, includes all of the same skills that are involved in the art of unaided discovery: keenness of observation, readily available memory, range of imagination, and an intellect trained in analysis and reflection.",
+      "chapter": 1,
+      "context": "阅读的艺术与自我发现的艺术相通，都需要敏锐的观察力、灵活的记忆力、丰富的想象力和经过训练的分析反思能力"
+    },
+    {
+      "text": "Every book has a skeleton hidden between its covers. Your job as an analytical reader is to find it.",
+      "chapter": 7,
+      "context": "分析阅读的核心任务之一是透视一本书的骨架结构，找出作者的整体论述框架"
+    },
+    {
+      "text": "Marking a book is literally an expression of your differences or your agreements with the author. It is the highest respect you can pay him.",
+      "chapter": 5,
+      "context": "在书上做标记是与作者对话的方式，是对作者最高的敬意"
+    },
+    {
+      "text": "The person who says he knows what he thinks but cannot express it usually does not know what he thinks.",
+      "chapter": 9,
+      "context": "理解与表达不可分割——如果你无法用自己的话说出来，说明你并没有真正理解"
+    },
+    {
+      "text": "In the case of good books, the point is not to see how many of them you can get through, but rather how many can get through to you.",
+      "chapter": 21,
+      "context": "好书不在于读了多少本，而在于有多少本真正触动了你、改变了你的思维"
+    },
+    {
+      "text": "To be informed is to know simply that something is the case. To be enlightened is to know, in addition, what it is all about.",
+      "chapter": 1,
+      "context": "区分获取资讯与增进理解力：前者只是知道事实，后者是知道事实的来龙去脉和深层意义"
+    },
+    {
+      "text": "A good book does reward you for trying to read it. The best books reward you most of all.",
+      "chapter": 21,
+      "context": "好书值得你投入精力去阅读，最好的书给你最丰厚的回报"
+    },
+    {
+      "text": "The great writers have always been great readers, but that does not mean that they read all the books.",
+      "chapter": 21,
+      "context": "伟大的作家都是伟大的读者，但他们并非什么书都读——重要的是读对的书、读透彻"
+    },
+    {
+      "text": "You must be able to say, with reasonable certainty, 'I understand,' before you can say any one of the following things: 'I agree,' or 'I disagree,' or 'I suspend judgment.'",
+      "chapter": 10,
+      "context": "公正地评断一本书的首要前提是确保你真正理解了作者在说什么"
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Elementary Reading",
+      "nameZh": "基础阅读",
+      "summary": "阅读的第一个层次，关注的核心问题是「这个句子在说什么」。它是识字与基本理解的能力，通常在小学阶段完成。基础阅读是所有更高层次阅读的根基，没有它就无法进入更深入的阅读。",
+      "icon": "🔤"
+    },
+    {
+      "name": "Inspectional Reading",
+      "nameZh": "检视阅读",
+      "summary": "阅读的第二个层次，核心问题是「这本书在谈什么」。在有限时间内通过系统化的略读（看书名、目录、索引、关键章节）和粗浅阅读（从头到尾快速读一遍，不停顿），快速掌握一本书的类型、主题和整体架构。",
+      "icon": "🔍"
+    },
+    {
+      "name": "Analytical Reading",
+      "nameZh": "分析阅读",
+      "summary": "阅读的第三个层次，是不限时间地对一本书进行全盘、完整的深入阅读。分为三个阶段：第一阶段把握结构（分类、透视骨架、列大纲），第二阶段诠释内容（找共识、判断主旨、理解论述），第三阶段公正评判。共有十五条规则。",
+      "icon": "🔬"
+    },
+    {
+      "name": "Syntopical Reading",
+      "nameZh": "主题阅读",
+      "summary": "阅读的第四个也是最高的层次，也称比较阅读。围绕同一主题阅读多本书，建立中立词汇（不偏向任何一位作者的术语），厘清各方争议，进行辩证分析。读者在这个层次上不再是某本书的追随者，而是自主思考的研究者。",
+      "icon": "🕸️"
+    },
+    {
+      "name": "Active Reading",
+      "nameZh": "主动阅读",
+      "summary": "阅读时像棒球场上的捕手一样积极参与，而非像被动的观众。主动阅读的核心在于向书本提出四个基本问题并尝试自己回答：这本书整体在谈什么？细部说了什么？说得有没有道理？跟我有什么关系？",
+      "icon": "🎯"
+    },
+    {
+      "name": "Four Questions of Reading",
+      "nameZh": "阅读的四个基本问题",
+      "summary": "任何超越基础阅读的读者都应该对每本书提出的四个问题：（1）整体来说，这本书在谈什么？（2）作者细部说了什么，怎么说的？（3）这本书说得有道理吗，是全部有道理还是部分有道理？（4）这本书跟你有什么关系？",
+      "icon": "❓"
+    },
+    {
+      "name": "Coming to Terms",
+      "nameZh": "找出共通的词义",
+      "summary": "分析阅读的关键步骤之一。一个字可以有多种词义，而一个词义也可以用不同的字来表达。读者必须与作者就关键字的含义达成一致理解——这就是「找出共通的词义」，它是诠释一本书的基础。",
+      "icon": "🤝"
+    },
+    {
+      "name": "Three Kinds of Note-making",
+      "nameZh": "三种笔记方法",
+      "summary": "对应三个阅读层次的笔记：结构笔记（检视阅读，记录全书架构与类型）、概念笔记（分析阅读，记录作者观点与自己的判断）、辩证笔记（主题阅读，从多本书中摘要不同作者对同一主题的观点）。笔记方法随阅读层次升级而演进。",
+      "icon": "📝"
+    }
+  ],
+  "principles": [
+    {
+      "text": "Reading is active, not passive -- the reader must bring effort and skill to every page",
+      "textZh": "阅读是主动的，不是被动的——读者必须为每一页投入努力和技巧",
+      "icon": "🎯"
+    },
+    {
+      "text": "You must understand before you can judge -- never criticize what you haven't fully grasped",
+      "textZh": "先理解，后评判——永远不要批评你尚未完全理解的东西",
+      "icon": "⚖️"
+    },
+    {
+      "text": "Reading has four cumulative levels -- each higher level includes all lower ones",
+      "textZh": "阅读有四个累积层次——每个更高层次都包含了所有较低层次的技巧",
+      "icon": "🪜"
+    },
+    {
+      "text": "Ask questions while reading -- the four basic questions transform passive reading into active learning",
+      "textZh": "边阅读边提问——四个基本问题能把被动阅读转化为主动学习",
+      "icon": "❓"
+    },
+    {
+      "text": "Different books require different reading strategies -- adapt your approach to the genre",
+      "textZh": "不同的书需要不同的阅读策略——根据书的类型灵活调整你的方法",
+      "icon": "🔧"
+    },
+    {
+      "text": "A book is a teacher in absentia -- treat it as a conversation partner, not a monologue",
+      "textZh": "书是缺席的老师——把它当作对话伙伴，而不是独白",
+      "icon": "🗣️"
+    },
+    {
+      "text": "The goal of reading is not information but understanding -- true growth comes from wrestling with ideas above your level",
+      "textZh": "阅读的目标不是获取资讯而是增进理解——真正的成长来自于与超越你水平的思想搏斗",
+      "icon": "🌱"
+    },
+    {
+      "text": "Mark up your books -- writing in the margins is thinking on paper and the highest respect to the author",
+      "textZh": "在书上做标记——在页边写笔记就是在纸上思考，也是对作者最高的敬意",
+      "icon": "✍️"
+    }
+  ],
+  "essence": [
+    {
+      "chapter": 1,
+      "title": "阅读的活力与艺术",
+      "sentence": "阅读是一种主动的心智活动，读者如同棒球捕手，必须积极参与才能从中获得真正的理解与成长。"
+    },
+    {
+      "chapter": 2,
+      "title": "阅读的层次",
+      "sentence": "阅读分为基础阅读、检视阅读、分析阅读和主题阅读四个渐进层次，每个高层次都包含低层次的所有技巧。"
+    },
+    {
+      "chapter": 3,
+      "title": "阅读的第一个层次：基础阅读",
+      "sentence": "基础阅读是识字与基本理解的能力，经历四个成长阶段，是所有更高层次阅读的不可或缺的基础。"
+    },
+    {
+      "chapter": 4,
+      "title": "阅读的第二个层次：检视阅读",
+      "sentence": "检视阅读通过系统化略读和粗浅阅读，在有限时间内把握一本书的类型、主题和整体架构。"
+    },
+    {
+      "chapter": 5,
+      "title": "如何做一个自我要求的读者",
+      "sentence": "自我要求的读者在阅读时主动提出四个基本问题，并通过做笔记将思考过程外化为可追溯的记录。"
+    },
+    {
+      "chapter": 6,
+      "title": "一本书的分类",
+      "sentence": "分析阅读的第一步是判断这是一本什么类型的书——理论性还是实用性、属于哪个学科领域。"
+    },
+    {
+      "chapter": 7,
+      "title": "透视一本书",
+      "sentence": "用一个简短的句子说出整本书在谈什么，然后列出全书的大纲架构，就像用X光透视骨骼一样。"
+    },
+    {
+      "chapter": 8,
+      "title": "与作者找出共通的词义",
+      "sentence": "诠释一本书的基础是区分作者的「用字」和「词义」，与作者就关键概念达成一致的理解。"
+    },
+    {
+      "chapter": 9,
+      "title": "判断作者的主旨",
+      "sentence": "找出作者的关键句子，理解其中的主旨（命题），再追踪作者如何用论述来支持或推导出这些主旨。"
+    },
+    {
+      "chapter": 10,
+      "title": "公正地评断一本书",
+      "sentence": "只有在确定自己已经理解之后，才有资格说「我同意」「我不同意」或「我暂缓评论」。"
+    },
+    {
+      "chapter": 11,
+      "title": "赞同或反对作者",
+      "sentence": "反对作者时必须有充分的理由，要区分「作者知识不足」「知识错误」「推论无效」和「分析不够完整」四种情况。"
+    },
+    {
+      "chapter": 12,
+      "title": "辅助阅读",
+      "sentence": "外在的辅助工具——评论、参考书、导读——应该在你已经尽力独立阅读之后才使用，否则会妨碍自主理解。"
+    },
+    {
+      "chapter": 13,
+      "title": "如何阅读实用型的书",
+      "sentence": "实用书的核心是「应该怎么做」和「为什么这样做」，读者要判断作者的目标是否值得追求，方法是否可行。"
+    },
+    {
+      "chapter": 14,
+      "title": "如何阅读想象文学",
+      "sentence": "阅读小说和诗歌时不要抗拒作者创造的世界，而要让故事在你身上发挥作用，体验其中的情感与意义。"
+    },
+    {
+      "chapter": 15,
+      "title": "阅读故事、戏剧与诗的一些建议",
+      "sentence": "故事要一气呵成地读完，戏剧要在脑中搭建舞台演出，诗歌要大声朗读并反复品味。"
+    },
+    {
+      "chapter": 16,
+      "title": "如何阅读历史书",
+      "sentence": "历史书既是事实的记录也是作者的诠释，读者要关注「为什么」而不仅仅是「发生了什么」，最好读同一事件的多部著作。"
+    },
+    {
+      "chapter": 17,
+      "title": "如何阅读科学与数学",
+      "sentence": "科学经典即使数学部分读不懂也值得一读，关键是理解科学家提出的问题和论证的逻辑。"
+    },
+    {
+      "chapter": 18,
+      "title": "如何阅读哲学书",
+      "sentence": "阅读哲学最重要的是找出作者的核心问题和基本假设，因为哲学家的结论都建立在这些假设之上。"
+    },
+    {
+      "chapter": 19,
+      "title": "如何阅读社会科学",
+      "sentence": "社会科学最容易被「术语」迷惑，读者要格外注意区分学术概念与日常用语的差别。"
+    },
+    {
+      "chapter": 20,
+      "title": "阅读的第四个层次：主题阅读",
+      "sentence": "主题阅读是围绕一个问题阅读多本书，建立中立词汇，让各方观点在你搭建的框架中辩证对话。"
+    },
+    {
+      "chapter": 21,
+      "title": "阅读与心智的成长",
+      "sentence": "好书是心智的健身器材——只有那些超越你当前理解力的书，才能让你的心智持续成长，而这样的书值得反复阅读。"
+    }
+  ]
+};
+
+
+(function() {
+  const data = typeof distill !== 'undefined' ? distill : {};
+  const quotes = data.quotes || [];
+  const concepts = data.concepts || [];
+  const principles = data.principles || [];
+  const essence = data.essence || [];
+
+  // ── Render Quotes ──
+  const quoteList = document.getElementById('quoteList');
+  if (quotes.length === 0) {
+    quoteList.innerHTML = '<div class="empty-state">No quotes distilled yet.</div>';
+  } else {
+    quotes.forEach(q => {
+      const card = document.createElement('div');
+      card.className = 'quote-card fade-in';
+      card.onclick = function() { this.classList.toggle('expanded'); };
+      card.innerHTML =
+        '<div class="quote-text">' + escHtml(q.text) + '</div>' +
+        '<div class="quote-footer">' +
+          (q.chapter ? '<span class="quote-chapter">Ch.' + q.chapter + '</span>' : '') +
+          '<span class="quote-expand-hint">click to expand</span>' +
+        '</div>' +
+        (q.context ? '<div class="quote-context">' + escHtml(q.context) + '</div>' : '');
+      quoteList.appendChild(card);
+    });
+  }
+
+  // ── Render Concepts ──
+  const conceptGrid = document.getElementById('conceptGrid');
+  if (concepts.length === 0) {
+    conceptGrid.innerHTML = '<div class="empty-state">No concepts distilled yet.</div>';
+  } else {
+    concepts.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'concept-card fade-in';
+      card.innerHTML =
+        '<div class="concept-icon">' + (c.icon || '\u{1F9E0}') + '</div>' +
+        '<div class="concept-name">' + escHtml(c.name) + '</div>' +
+        (c.nameZh ? '<div class="concept-name-zh">' + escHtml(c.nameZh) + '</div>' : '') +
+        '<div class="concept-summary">' + escHtml(c.summary || '') + '</div>' +
+        '<div class="concept-more">hover to read more</div>';
+      conceptGrid.appendChild(card);
+    });
+  }
+
+  // ── Render Principles ──
+  const principleList = document.getElementById('principleList');
+  if (principles.length === 0) {
+    principleList.innerHTML = '<div class="empty-state">No principles distilled yet.</div>';
+  } else {
+    principles.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'principle-item fade-in';
+      item.innerHTML =
+        '<div class="principle-num"></div>' +
+        '<div class="principle-icon">' + (p.icon || '\u{1F4A1}') + '</div>' +
+        '<div class="principle-body">' +
+          '<div class="principle-text">' + escHtml(p.text) + '</div>' +
+          (p.textZh ? '<div class="principle-text-zh">' + escHtml(p.textZh) + '</div>' : '') +
+        '</div>';
+      principleList.appendChild(item);
+    });
+  }
+
+  // ── Render Essence ──
+  const essenceList = document.getElementById('essenceList');
+  if (essence.length === 0) {
+    essenceList.innerHTML = '<div class="empty-state">No chapter essences distilled yet.</div>';
+  } else {
+    essence.forEach(e => {
+      const item = document.createElement('div');
+      item.className = 'essence-item fade-in';
+      item.innerHTML =
+        '<div class="essence-chapter">Ch.' + (e.chapter || '?') + '</div>' +
+        '<div class="essence-body">' +
+          (e.title ? '<div class="essence-title">' + escHtml(e.title) + '</div>' : '') +
+          '<div class="essence-sentence">' + escHtml(e.sentence || '') + '</div>' +
+        '</div>';
+      essenceList.appendChild(item);
+    });
+  }
+
+  // ── Utility ──
+  function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // ── Scroll Progress ──
+  var progressBar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', function() {
+    var h = document.documentElement;
+    var pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    progressBar.style.width = Math.min(pct, 100) + '%';
+  });
+
+  // ── IntersectionObserver Fade-in ──
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // ── Active nav pill tracking ──
+  var sections = ['quotes', 'concepts', 'principles', 'essence'];
+  var navPills = document.querySelectorAll('.nav-pill');
+  var sectionObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        navPills.forEach(function(p) { p.classList.remove('active'); });
+        var pill = document.querySelector('.nav-pill[href="#' + entry.target.id + '"]');
+        if (pill) pill.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -60% 0px' });
+
+  sections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+})();
+
+function scrollToSection(id, el) {
+  var target = document.getElementById(id);
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.querySelectorAll('.nav-pill').forEach(function(p) { p.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人性的弱点 读后蒸馏 / Distill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(108,99,255,0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Progress Bar ── */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  z-index: 9999; transition: width 0.1s linear;
+}
+
+/* ── Hero ── */
+.hero {
+  min-height: 50vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 4rem 2rem 3rem; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(78,205,196,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.back-link {
+  position: absolute; top: 20px; left: 24px;
+  color: var(--text-dim); text-decoration: none; font-size: 0.85rem;
+  z-index: 2; transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent3); }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px var(--glow)); }
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900;
+  background: linear-gradient(135deg, var(--accent4) 0%, var(--accent) 40%, var(--accent3) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-subtitle {
+  font-size: 1rem; color: var(--text-dim); font-weight: 300;
+  margin-top: 0.5rem; max-width: 500px;
+}
+.hero-book {
+  font-size: 0.85rem; color: var(--accent); font-family: var(--font-mono);
+  margin-top: 1rem; letter-spacing: 1px;
+}
+
+/* ── Section Nav ── */
+.section-nav {
+  display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+  padding: 16px 20px; position: sticky; top: 0; z-index: 50;
+  background: rgba(15,17,23,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-pill {
+  padding: 6px 16px; border-radius: 2rem; border: 1px solid var(--border);
+  background: transparent; color: var(--text-dim); font-family: var(--font-sans);
+  font-size: 0.8rem; cursor: pointer; transition: all 0.2s; text-decoration: none;
+}
+.nav-pill:hover, .nav-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 800px; margin: 0 auto; padding: 0 20px 4rem; }
+
+/* ── Section Header ── */
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  margin: 4rem 0 2rem; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-header-icon { font-size: 1.8rem; }
+.section-header h2 { font-size: 1.5rem; font-weight: 700; }
+.section-header .section-label {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  color: var(--accent); letter-spacing: 2px; text-transform: uppercase;
+  margin-left: auto;
+}
+
+/* ── Quotes ── */
+.quote-list { display: flex; flex-direction: column; gap: 16px; }
+.quote-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent4); border-radius: var(--radius);
+  padding: 20px 24px; cursor: pointer; transition: all 0.3s;
+}
+.quote-card:hover { border-color: var(--accent4); transform: translateX(4px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.quote-text {
+  font-size: 1.05rem; font-weight: 400; line-height: 1.9;
+  position: relative; padding-left: 1.2rem;
+}
+.quote-text::before {
+  content: '\201C'; position: absolute; left: -4px; top: -8px;
+  font-size: 2.5rem; color: var(--accent4); opacity: 0.4; font-family: serif;
+}
+.quote-footer { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.quote-chapter {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  background: rgba(108,99,255,0.15); color: var(--accent);
+  padding: 2px 10px; border-radius: 2rem;
+}
+.quote-context {
+  font-size: 0.78rem; color: var(--text-dim);
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease, margin-top 0.3s ease;
+  line-height: 1.6;
+}
+.quote-card.expanded .quote-context { max-height: 200px; margin-top: 10px; }
+.quote-expand-hint {
+  font-size: 0.7rem; color: var(--text-dim); margin-left: auto;
+  font-family: var(--font-mono); opacity: 0.6;
+}
+.quote-card.expanded .quote-expand-hint { display: none; }
+
+/* ── Concepts ── */
+.concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.concept-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; transition: all 0.3s;
+  cursor: default;
+}
+.concept-card:hover { border-color: var(--accent3); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.concept-icon { font-size: 2rem; margin-bottom: 12px; }
+.concept-name { font-weight: 700; font-size: 1rem; margin-bottom: 2px; }
+.concept-name-zh { font-size: 0.8rem; color: var(--accent3); margin-bottom: 10px; }
+.concept-summary {
+  font-size: 0.82rem; color: var(--text-dim); line-height: 1.7;
+  max-height: 3.4rem; overflow: hidden; transition: max-height 0.4s ease;
+}
+.concept-card:hover .concept-summary { max-height: 400px; }
+.concept-more {
+  font-size: 0.7rem; color: var(--accent); margin-top: 6px;
+  font-family: var(--font-mono); transition: opacity 0.2s;
+}
+.concept-card:hover .concept-more { opacity: 0; }
+
+/* ── Principles ── */
+.principle-list { display: flex; flex-direction: column; gap: 12px; counter-reset: principle; }
+.principle-item {
+  display: flex; align-items: flex-start; gap: 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 22px; transition: all 0.3s;
+  counter-increment: principle;
+}
+.principle-item:hover { border-color: var(--accent2); transform: translateX(4px); }
+.principle-num {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent2); min-width: 28px; padding-top: 2px;
+}
+.principle-num::before { content: counter(principle, decimal-leading-zero); }
+.principle-icon { font-size: 1.4rem; flex-shrink: 0; padding-top: 1px; }
+.principle-body { flex: 1; }
+.principle-text { font-size: 0.95rem; font-weight: 500; }
+.principle-text-zh { font-size: 0.82rem; color: var(--text-dim); margin-top: 4px; }
+
+/* ── Essence ── */
+.essence-list { display: flex; flex-direction: column; gap: 2px; }
+.essence-item {
+  display: grid; grid-template-columns: 60px 1fr; gap: 16px;
+  padding: 14px 20px; border-radius: var(--radius);
+  transition: background 0.2s;
+}
+.essence-item:hover { background: var(--card); }
+.essence-chapter {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent); padding-top: 3px; text-align: right;
+}
+.essence-body {}
+.essence-title { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 2px; }
+.essence-sentence { font-size: 0.9rem; line-height: 1.7; }
+
+/* ── Empty State ── */
+.empty-state {
+  text-align: center; padding: 3rem; color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Footer ── */
+.footer {
+  text-align: center; padding: 2rem 0; color: var(--text-dim);
+  font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 3rem;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .hero { min-height: 40vh; padding: 3rem 1.5rem 2rem; }
+  .concept-grid { grid-template-columns: 1fr; }
+  .essence-item { grid-template-columns: 45px 1fr; gap: 10px; }
+  .quote-card { padding: 16px 18px; }
+  .section-header { margin: 3rem 0 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<section class="hero">
+  <a href="index.html" class="back-link">&larr; Back</a>
+  <div class="hero-icon">🧪</div>
+  <h1>Distill</h1>
+  <p class="hero-subtitle">What remains after the last page — the ideas worth carrying forward</p>
+  <div class="hero-book">🤝 人性的弱点</div>
+</section>
+
+<nav class="section-nav">
+  <a class="nav-pill active" href="#quotes" onclick="scrollToSection('quotes',this)">Quotes</a>
+  <a class="nav-pill" href="#concepts" onclick="scrollToSection('concepts',this)">Concepts</a>
+  <a class="nav-pill" href="#principles" onclick="scrollToSection('principles',this)">Principles</a>
+  <a class="nav-pill" href="#essence" onclick="scrollToSection('essence',this)">Essence</a>
+</nav>
+
+<main class="container">
+
+  <!-- Quotes -->
+  <div class="section-header fade-in" id="quotes">
+    <span class="section-header-icon">&#x1F4AC;</span>
+    <h2>Quotes</h2>
+    <span class="section-label">GOLDEN LINES</span>
+  </div>
+  <div class="quote-list" id="quoteList"></div>
+
+  <!-- Concepts -->
+  <div class="section-header fade-in" id="concepts">
+    <span class="section-header-icon">&#x1F9E0;</span>
+    <h2>Concepts</h2>
+    <span class="section-label">MENTAL MODELS</span>
+  </div>
+  <div class="concept-grid" id="conceptGrid"></div>
+
+  <!-- Principles -->
+  <div class="section-header fade-in" id="principles">
+    <span class="section-header-icon">&#x2728;</span>
+    <h2>Principles</h2>
+    <span class="section-label">ACTION RULES</span>
+  </div>
+  <div class="principle-list" id="principleList"></div>
+
+  <!-- Essence -->
+  <div class="section-header fade-in" id="essence">
+    <span class="section-header-icon">&#x1F3AF;</span>
+    <h2>Essence</h2>
+    <span class="section-label">ONE SENTENCE PER CHAPTER</span>
+  </div>
+  <div class="essence-list" id="essenceList"></div>
+
+</main>
+
+<div class="footer">
+  Distilled with the <a href="https://en.wikipedia.org/wiki/Feynman_Technique">Feynman Method</a>
+</div>
+
+<script>
+const distill = {
+  "quotes": [
+    {
+      "text": "Any fool can criticize, condemn and complain — and most fools do. But it takes character and self-control to be understanding and forgiving.",
+      "chapter": 2,
+      "context": "林肯从年轻时热衷讽刺到成熟后绝不批评的转变，说明批评是最廉价的行为"
+    },
+    {
+      "text": "The deepest principle in human nature is the craving to be appreciated.",
+      "chapter": 3,
+      "context": "威廉·詹姆斯指出人类最深层的需求不是食物或金钱，而是被认可"
+    },
+    {
+      "text": "The only way to influence people is to talk about what they want and show them how to get it.",
+      "chapter": 4,
+      "context": "换位思考的本质：要影响一个人，就谈论他想要的东西，并告诉他如何得到"
+    },
+    {
+      "text": "You can make more friends in two months by becoming interested in other people than you can in two years by trying to get people interested in you.",
+      "chapter": 5,
+      "context": "真心关注他人比努力让他人关注自己更有效——前者两个月顶后者两年"
+    },
+    {
+      "text": "A person's name is to that person the sweetest and most important sound in any language.",
+      "chapter": 6,
+      "context": "记住并使用对方的名字，是让对方感到被重视的最简单而有力的方式"
+    },
+    {
+      "text": "The only way to get the best of an argument is to avoid it.",
+      "chapter": 8,
+      "context": "赢得争辩的唯一方式是避免争辩——即使你赢了逻辑，也输了关系"
+    },
+    {
+      "text": "If you are wrong, admit it quickly and emphatically. It is much easier to self-criticize than to bear condemnation from others.",
+      "chapter": 9,
+      "context": "主动认错比被动挨批容易得多——坦然认错反而能赢得对方的宽容和尊重"
+    },
+    {
+      "text": "Begin with praise and honest appreciation. It is always easier to listen to unpleasant things after we have heard some praise of our good points.",
+      "chapter": 13,
+      "context": "牙医先打麻药再钻牙——称赞就是批评前的「麻醉剂」"
+    },
+    {
+      "text": "Give the other person a fine reputation to live up to, and they will make prodigious efforts rather than see you disillusioned.",
+      "chapter": 15,
+      "context": "赋予美誉的力量：当你公开认可一个人的优点，他会拼命证明你是对的"
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Genuine Appreciation",
+      "nameZh": "真诚赞美",
+      "summary": "与阿谀奉承的本质区别在于出发点：阿谀是自私的，为了获取利益；真诚赞美是无私的，发自内心地看到他人的优点并表达出来。施瓦布说「嘉赞以诚，不吝褒扬」——这不是技巧，而是一种看见他人价值的能力。",
+      "icon": "⭐"
+    },
+    {
+      "name": "Perspective Taking",
+      "nameZh": "换位思考",
+      "summary": "亨利·福特的成功秘诀：站在对方角度看问题，理解他的需求和动机，然后展示你的方案如何满足他的需求。90%的人际冲突源于忘记了这条最简单的道理——我们总是从「我想要什么」出发，而不是从「对方想要什么」出发。",
+      "icon": "🔄"
+    },
+    {
+      "name": "The Desire to Be Important",
+      "nameZh": "对重视的渴求",
+      "summary": "杜威提出的人类核心欲望：每个人最深处都渴望被他人重视和认可。这一欲望驱动了从文明创造到犯罪行为的一切——理解它，就掌握了人际关系的万能钥匙。卡耐基全书的所有技巧归根结底都在满足这个需求。",
+      "icon": "👑"
+    },
+    {
+      "name": "Indirect Criticism",
+      "nameZh": "间接批评",
+      "summary": "用「而且」代替「但是」、用提问代替命令、用故事代替说教的批评艺术。施瓦布看到工人违规吸烟时不指着标识批评，而是送每人一支雪茄请他们到外面抽——不说一句批评的话就达到了目的，还赢得了工人的尊重。",
+      "icon": "🪞"
+    },
+    {
+      "name": "Socratic Yes-Response",
+      "nameZh": "苏格拉底式说服术",
+      "summary": "通过提问引导对方不断说「是」，将对方心理推向肯定方向。一旦开口说「不」，自尊心会驱使人固守这个立场。所以说服的第一步不是陈述你的观点，而是找到双方都同意的起点，一步步引向你的结论。",
+      "icon": "✅"
+    },
+    {
+      "name": "Give a Reputation to Live Up To",
+      "nameZh": "赋予美誉",
+      "summary": "莎士比亚说「假定一种美德，即使你没有」。当你公开认可一个人具备某种优点，他会加倍努力去证明你是对的，因为没有人愿意辜负别人的信任。这比直接指出缺点有效得多——前者激发内在动力，后者激发防御本能。",
+      "icon": "🏆"
+    }
+  ],
+  "principles": [
+    {
+      "text": "Never criticize, condemn, or complain",
+      "textZh": "永远不要批评、指责或抱怨——批评是最廉价也最无效的行为，它只会激起防御，永远不能真正改变一个人",
+      "icon": "🚫"
+    },
+    {
+      "text": "Give honest and sincere appreciation",
+      "textZh": "给予真诚的赞美——不是阿谀奉承，而是真心看见他人的优点并大声说出来",
+      "icon": "⭐"
+    },
+    {
+      "text": "Arouse in the other person an eager want",
+      "textZh": "激发对方的主动性——要影响一个人，就谈论他想要的东西，并展示你的方案如何帮他得到",
+      "icon": "🎯"
+    },
+    {
+      "text": "Become genuinely interested in other people",
+      "textZh": "真心关注他人——两个月内你交到的朋友，比两年里试图让别人关注你交到的更多",
+      "icon": "💛"
+    },
+    {
+      "text": "Be a good listener — encourage others to talk about themselves",
+      "textZh": "做一个善于倾听的人——鼓励对方谈论自己，这是你能给予的最大恭维",
+      "icon": "👂"
+    },
+    {
+      "text": "The only way to win an argument is to avoid it",
+      "textZh": "赢得争辩的唯一方式是避免争辩——即使你赢了逻辑，也输了感情和关系",
+      "icon": "🕊️"
+    },
+    {
+      "text": "If you are wrong, admit it quickly and emphatically",
+      "textZh": "如果你错了，立刻坦然认错——自我批评永远比被他人批评更容易承受",
+      "icon": "🤲"
+    },
+    {
+      "text": "Let the other person feel that the idea is theirs",
+      "textZh": "让对方觉得是自己的主意——没有人喜欢被推销，但每个人都喜欢自己做出的决定",
+      "icon": "💡"
+    },
+    {
+      "text": "Begin with praise, then address mistakes indirectly",
+      "textZh": "以称赞开始，间接指出问题——牙医先打麻药再钻牙，称赞就是批评前的麻醉剂",
+      "icon": "🌟"
+    },
+    {
+      "text": "Give the other person a fine reputation to live up to",
+      "textZh": "赋予对方美誉——当你公开认可一个人的优点，他会拼命证明你没有看错人",
+      "icon": "🏆"
+    }
+  ],
+  "essence": [
+    {
+      "chapter": 1,
+      "title": "成书缘起与阅读建议",
+      "sentence": "本书不是用来「读」的而是用来「做」的——卡耐基希望读者把它当作行动手册，每周实践一条原则。"
+    },
+    {
+      "chapter": 2,
+      "title": "想采蜜就请善待蜂巢",
+      "sentence": "批评是最廉价也最无效的行为——从林肯到心理学实验都证明，被批评者只会辩护，永远不会真正改变。"
+    },
+    {
+      "chapter": 3,
+      "title": "人际交往的秘诀：真诚赞美",
+      "sentence": "人类最深层的需求是被重视和认可——真诚的赞美满足这个需求，阿谀奉承则因为虚假而适得其反。"
+    },
+    {
+      "chapter": 4,
+      "title": "换位思考：激发他人的主动性",
+      "sentence": "影响他人的唯一方式是站在对方角度思考，展示你的方案如何帮他得到他想要的东西。"
+    },
+    {
+      "chapter": 5,
+      "title": "真心关注他人与微笑的力量",
+      "sentence": "两个月里真心关注他人交到的朋友，比两年里试图让他人关注自己交到的更多——关键在于把「我」变成「你」。"
+    },
+    {
+      "chapter": 6,
+      "title": "记住名字与善于倾听",
+      "sentence": "名字是一个人最甜蜜的声音，倾听是最高级的恭维——记住名字并让对方多说话，就能赢得任何人的好感。"
+    },
+    {
+      "chapter": 7,
+      "title": "谈论对方兴趣与让人感到重要",
+      "sentence": "在每次互动中都让对方感到自己很重要——谈论他的兴趣、真诚地认可他的价值，这是人际关系的黄金法则。"
+    },
+    {
+      "chapter": 8,
+      "title": "避免争辩与尊重他人意见",
+      "sentence": "即使你在争辩中赢了逻辑，也输了关系——唯一的胜利是避免争辩，让对方保留尊严。"
+    },
+    {
+      "chapter": 9,
+      "title": "坦然认错与友善开始",
+      "sentence": "主动而彻底地认错比被动挨批容易十倍——坦诚反而能赢得对方的宽容，而友善的态度能融化敌意。"
+    },
+    {
+      "chapter": 10,
+      "title": "让对方说「是」与鼓励多说话",
+      "sentence": "用苏格拉底式的提问引导对方不断说「是」，同时让对方多说话——人们只信任自己得出的结论。"
+    },
+    {
+      "chapter": 11,
+      "title": "让对方觉得是自己的主意",
+      "sentence": "没有人喜欢被推销——最高明的说服是引导对方自己得出结论，让他觉得这是自己的主意。"
+    },
+    {
+      "chapter": 12,
+      "title": "激发高尚动机与戏剧化表达",
+      "sentence": "每个人内心都有理想化的自我形象——激发他的高尚动机，用戏剧化的方式呈现事实，比干巴巴的道理更有说服力。"
+    },
+    {
+      "chapter": 13,
+      "title": "以称赞开始与间接批评",
+      "sentence": "先称赞再建议，用「而且」代替「但是」——像牙医先打麻药再钻牙，让批评不再刺痛。"
+    },
+    {
+      "chapter": 14,
+      "title": "先说自己的错与保全面子",
+      "sentence": "在批评对方之前先坦承自己的错误，永远给对方留面子——面子就是一个人的尊严，伤害面子就是制造敌人。"
+    },
+    {
+      "chapter": 15,
+      "title": "鼓励进步与赋予美誉",
+      "sentence": "赋予对方一个值得维护的美誉，鼓励每一点微小进步——人们会拼命证明你没有看错他，而不是证明你的批评是对的。"
+    }
+  ]
+};
+
+
+(function() {
+  const data = typeof distill !== 'undefined' ? distill : {};
+  const quotes = data.quotes || [];
+  const concepts = data.concepts || [];
+  const principles = data.principles || [];
+  const essence = data.essence || [];
+
+  // ── Render Quotes ──
+  const quoteList = document.getElementById('quoteList');
+  if (quotes.length === 0) {
+    quoteList.innerHTML = '<div class="empty-state">No quotes distilled yet.</div>';
+  } else {
+    quotes.forEach(q => {
+      const card = document.createElement('div');
+      card.className = 'quote-card fade-in';
+      card.onclick = function() { this.classList.toggle('expanded'); };
+      card.innerHTML =
+        '<div class="quote-text">' + escHtml(q.text) + '</div>' +
+        '<div class="quote-footer">' +
+          (q.chapter ? '<span class="quote-chapter">Ch.' + q.chapter + '</span>' : '') +
+          '<span class="quote-expand-hint">click to expand</span>' +
+        '</div>' +
+        (q.context ? '<div class="quote-context">' + escHtml(q.context) + '</div>' : '');
+      quoteList.appendChild(card);
+    });
+  }
+
+  // ── Render Concepts ──
+  const conceptGrid = document.getElementById('conceptGrid');
+  if (concepts.length === 0) {
+    conceptGrid.innerHTML = '<div class="empty-state">No concepts distilled yet.</div>';
+  } else {
+    concepts.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'concept-card fade-in';
+      card.innerHTML =
+        '<div class="concept-icon">' + (c.icon || '\u{1F9E0}') + '</div>' +
+        '<div class="concept-name">' + escHtml(c.name) + '</div>' +
+        (c.nameZh ? '<div class="concept-name-zh">' + escHtml(c.nameZh) + '</div>' : '') +
+        '<div class="concept-summary">' + escHtml(c.summary || '') + '</div>' +
+        '<div class="concept-more">hover to read more</div>';
+      conceptGrid.appendChild(card);
+    });
+  }
+
+  // ── Render Principles ──
+  const principleList = document.getElementById('principleList');
+  if (principles.length === 0) {
+    principleList.innerHTML = '<div class="empty-state">No principles distilled yet.</div>';
+  } else {
+    principles.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'principle-item fade-in';
+      item.innerHTML =
+        '<div class="principle-num"></div>' +
+        '<div class="principle-icon">' + (p.icon || '\u{1F4A1}') + '</div>' +
+        '<div class="principle-body">' +
+          '<div class="principle-text">' + escHtml(p.text) + '</div>' +
+          (p.textZh ? '<div class="principle-text-zh">' + escHtml(p.textZh) + '</div>' : '') +
+        '</div>';
+      principleList.appendChild(item);
+    });
+  }
+
+  // ── Render Essence ──
+  const essenceList = document.getElementById('essenceList');
+  if (essence.length === 0) {
+    essenceList.innerHTML = '<div class="empty-state">No chapter essences distilled yet.</div>';
+  } else {
+    essence.forEach(e => {
+      const item = document.createElement('div');
+      item.className = 'essence-item fade-in';
+      item.innerHTML =
+        '<div class="essence-chapter">Ch.' + (e.chapter || '?') + '</div>' +
+        '<div class="essence-body">' +
+          (e.title ? '<div class="essence-title">' + escHtml(e.title) + '</div>' : '') +
+          '<div class="essence-sentence">' + escHtml(e.sentence || '') + '</div>' +
+        '</div>';
+      essenceList.appendChild(item);
+    });
+  }
+
+  // ── Utility ──
+  function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // ── Scroll Progress ──
+  var progressBar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', function() {
+    var h = document.documentElement;
+    var pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    progressBar.style.width = Math.min(pct, 100) + '%';
+  });
+
+  // ── IntersectionObserver Fade-in ──
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // ── Active nav pill tracking ──
+  var sections = ['quotes', 'concepts', 'principles', 'essence'];
+  var navPills = document.querySelectorAll('.nav-pill');
+  var sectionObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        navPills.forEach(function(p) { p.classList.remove('active'); });
+        var pill = document.querySelector('.nav-pill[href="#' + entry.target.id + '"]');
+        if (pill) pill.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -60% 0px' });
+
+  sections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+})();
+
+function scrollToSection(id, el) {
+  var target = document.getElementById(id);
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.querySelectorAll('.nav-pill').forEach(function(p) { p.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+</script>
+</body>
+</html>

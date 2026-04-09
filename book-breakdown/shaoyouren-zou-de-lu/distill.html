@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>少有人走的路 读后蒸馏 / Distill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(108,99,255,0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Progress Bar ── */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  z-index: 9999; transition: width 0.1s linear;
+}
+
+/* ── Hero ── */
+.hero {
+  min-height: 50vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 4rem 2rem 3rem; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(78,205,196,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.back-link {
+  position: absolute; top: 20px; left: 24px;
+  color: var(--text-dim); text-decoration: none; font-size: 0.85rem;
+  z-index: 2; transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent3); }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px var(--glow)); }
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900;
+  background: linear-gradient(135deg, var(--accent4) 0%, var(--accent) 40%, var(--accent3) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-subtitle {
+  font-size: 1rem; color: var(--text-dim); font-weight: 300;
+  margin-top: 0.5rem; max-width: 500px;
+}
+.hero-book {
+  font-size: 0.85rem; color: var(--accent); font-family: var(--font-mono);
+  margin-top: 1rem; letter-spacing: 1px;
+}
+
+/* ── Section Nav ── */
+.section-nav {
+  display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+  padding: 16px 20px; position: sticky; top: 0; z-index: 50;
+  background: rgba(15,17,23,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-pill {
+  padding: 6px 16px; border-radius: 2rem; border: 1px solid var(--border);
+  background: transparent; color: var(--text-dim); font-family: var(--font-sans);
+  font-size: 0.8rem; cursor: pointer; transition: all 0.2s; text-decoration: none;
+}
+.nav-pill:hover, .nav-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 800px; margin: 0 auto; padding: 0 20px 4rem; }
+
+/* ── Section Header ── */
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  margin: 4rem 0 2rem; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-header-icon { font-size: 1.8rem; }
+.section-header h2 { font-size: 1.5rem; font-weight: 700; }
+.section-header .section-label {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  color: var(--accent); letter-spacing: 2px; text-transform: uppercase;
+  margin-left: auto;
+}
+
+/* ── Quotes ── */
+.quote-list { display: flex; flex-direction: column; gap: 16px; }
+.quote-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent4); border-radius: var(--radius);
+  padding: 20px 24px; cursor: pointer; transition: all 0.3s;
+}
+.quote-card:hover { border-color: var(--accent4); transform: translateX(4px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.quote-text {
+  font-size: 1.05rem; font-weight: 400; line-height: 1.9;
+  position: relative; padding-left: 1.2rem;
+}
+.quote-text::before {
+  content: '\201C'; position: absolute; left: -4px; top: -8px;
+  font-size: 2.5rem; color: var(--accent4); opacity: 0.4; font-family: serif;
+}
+.quote-footer { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.quote-chapter {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  background: rgba(108,99,255,0.15); color: var(--accent);
+  padding: 2px 10px; border-radius: 2rem;
+}
+.quote-context {
+  font-size: 0.78rem; color: var(--text-dim);
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease, margin-top 0.3s ease;
+  line-height: 1.6;
+}
+.quote-card.expanded .quote-context { max-height: 200px; margin-top: 10px; }
+.quote-expand-hint {
+  font-size: 0.7rem; color: var(--text-dim); margin-left: auto;
+  font-family: var(--font-mono); opacity: 0.6;
+}
+.quote-card.expanded .quote-expand-hint { display: none; }
+
+/* ── Concepts ── */
+.concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.concept-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; transition: all 0.3s;
+  cursor: default;
+}
+.concept-card:hover { border-color: var(--accent3); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.concept-icon { font-size: 2rem; margin-bottom: 12px; }
+.concept-name { font-weight: 700; font-size: 1rem; margin-bottom: 2px; }
+.concept-name-zh { font-size: 0.8rem; color: var(--accent3); margin-bottom: 10px; }
+.concept-summary {
+  font-size: 0.82rem; color: var(--text-dim); line-height: 1.7;
+  max-height: 3.4rem; overflow: hidden; transition: max-height 0.4s ease;
+}
+.concept-card:hover .concept-summary { max-height: 400px; }
+.concept-more {
+  font-size: 0.7rem; color: var(--accent); margin-top: 6px;
+  font-family: var(--font-mono); transition: opacity 0.2s;
+}
+.concept-card:hover .concept-more { opacity: 0; }
+
+/* ── Principles ── */
+.principle-list { display: flex; flex-direction: column; gap: 12px; counter-reset: principle; }
+.principle-item {
+  display: flex; align-items: flex-start; gap: 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 22px; transition: all 0.3s;
+  counter-increment: principle;
+}
+.principle-item:hover { border-color: var(--accent2); transform: translateX(4px); }
+.principle-num {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent2); min-width: 28px; padding-top: 2px;
+}
+.principle-num::before { content: counter(principle, decimal-leading-zero); }
+.principle-icon { font-size: 1.4rem; flex-shrink: 0; padding-top: 1px; }
+.principle-body { flex: 1; }
+.principle-text { font-size: 0.95rem; font-weight: 500; }
+.principle-text-zh { font-size: 0.82rem; color: var(--text-dim); margin-top: 4px; }
+
+/* ── Essence ── */
+.essence-list { display: flex; flex-direction: column; gap: 2px; }
+.essence-item {
+  display: grid; grid-template-columns: 60px 1fr; gap: 16px;
+  padding: 14px 20px; border-radius: var(--radius);
+  transition: background 0.2s;
+}
+.essence-item:hover { background: var(--card); }
+.essence-chapter {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent); padding-top: 3px; text-align: right;
+}
+.essence-body {}
+.essence-title { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 2px; }
+.essence-sentence { font-size: 0.9rem; line-height: 1.7; }
+
+/* ── Empty State ── */
+.empty-state {
+  text-align: center; padding: 3rem; color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Footer ── */
+.footer {
+  text-align: center; padding: 2rem 0; color: var(--text-dim);
+  font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 3rem;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .hero { min-height: 40vh; padding: 3rem 1.5rem 2rem; }
+  .concept-grid { grid-template-columns: 1fr; }
+  .essence-item { grid-template-columns: 45px 1fr; gap: 10px; }
+  .quote-card { padding: 16px 18px; }
+  .section-header { margin: 3rem 0 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<section class="hero">
+  <a href="index.html" class="back-link">&larr; Back</a>
+  <div class="hero-icon">🧪</div>
+  <h1>Distill</h1>
+  <p class="hero-subtitle">What remains after the last page — the ideas worth carrying forward</p>
+  <div class="hero-book">🛤️ 少有人走的路</div>
+</section>
+
+<nav class="section-nav">
+  <a class="nav-pill active" href="#quotes" onclick="scrollToSection('quotes',this)">Quotes</a>
+  <a class="nav-pill" href="#concepts" onclick="scrollToSection('concepts',this)">Concepts</a>
+  <a class="nav-pill" href="#principles" onclick="scrollToSection('principles',this)">Principles</a>
+  <a class="nav-pill" href="#essence" onclick="scrollToSection('essence',this)">Essence</a>
+</nav>
+
+<main class="container">
+
+  <!-- Quotes -->
+  <div class="section-header fade-in" id="quotes">
+    <span class="section-header-icon">&#x1F4AC;</span>
+    <h2>Quotes</h2>
+    <span class="section-label">GOLDEN LINES</span>
+  </div>
+  <div class="quote-list" id="quoteList"></div>
+
+  <!-- Concepts -->
+  <div class="section-header fade-in" id="concepts">
+    <span class="section-header-icon">&#x1F9E0;</span>
+    <h2>Concepts</h2>
+    <span class="section-label">MENTAL MODELS</span>
+  </div>
+  <div class="concept-grid" id="conceptGrid"></div>
+
+  <!-- Principles -->
+  <div class="section-header fade-in" id="principles">
+    <span class="section-header-icon">&#x2728;</span>
+    <h2>Principles</h2>
+    <span class="section-label">ACTION RULES</span>
+  </div>
+  <div class="principle-list" id="principleList"></div>
+
+  <!-- Essence -->
+  <div class="section-header fade-in" id="essence">
+    <span class="section-header-icon">&#x1F3AF;</span>
+    <h2>Essence</h2>
+    <span class="section-label">ONE SENTENCE PER CHAPTER</span>
+  </div>
+  <div class="essence-list" id="essenceList"></div>
+
+</main>
+
+<div class="footer">
+  Distilled with the <a href="https://en.wikipedia.org/wiki/Feynman_Technique">Feynman Method</a>
+</div>
+
+<script>
+const distill = {
+  "quotes": [
+    {
+      "text": "Life is difficult. This is a great truth, one of the greatest truths.",
+      "chapter": 1,
+      "context": "开篇第一句话，点明全书主旨：承认人生苦难是超越苦难的第一步"
+    },
+    {
+      "text": "Delaying gratification is a process of scheduling the pain and pleasure of life in such a way as to enhance the pleasure by meeting and experiencing the pain first.",
+      "chapter": 2,
+      "context": "解释推迟满足感的本质：通过重新安排痛苦与快乐的顺序来提升人生体验"
+    },
+    {
+      "text": "We cannot solve life’s problems except by solving them.",
+      "chapter": 3,
+      "context": "承担责任的核心命题：除了自己直面问题，没有人能替你解决"
+    },
+    {
+      "text": "The tendency to avoid problems and the emotional suffering inherent in them is the primary basis of all human mental illness.",
+      "chapter": 1,
+      "context": "指出心理疾病的根源不是问题本身，而是逃避问题的倾向"
+    },
+    {
+      "text": "Love is the will to extend one’s self for the purpose of nurturing one’s own or another’s spiritual growth.",
+      "chapter": 6,
+      "context": "派克对爱的经典定义：爱是为促进自己或他人心灵成长而自我拓展的意愿"
+    },
+    {
+      "text": "Genuine love is volitional rather than emotional. The person who truly loves does so because of a decision to love.",
+      "chapter": 6,
+      "context": "区分真爱与激情：真正的爱是意志行为和选择，不仅仅是情感冲动"
+    },
+    {
+      "text": "The truth is that our finest moments are most likely to occur when we are feeling deeply uncomfortable, unhappy, or unfulfilled.",
+      "chapter": 5,
+      "context": "成长往往发生在最不舒适的时刻，痛苦是进化的催化剂"
+    },
+    {
+      "text": "It is in the whole process of meeting and solving problems that life has its meaning.",
+      "chapter": 1,
+      "context": "人生的意义正在于面对问题和解决问题的全过程，而非逃避它们"
+    },
+    {
+      "text": "Mental health is an ongoing process of dedication to reality at all costs.",
+      "chapter": 4,
+      "context": "心理健康的本质是不惜代价忠于事实，不断修订自己的人生地图"
+    },
+    {
+      "text": "Until you value yourself, you won’t value your time. Until you value your time, you will not do anything with it.",
+      "chapter": 9,
+      "context": "自律与自爱的递进关系：先珍视自己，才能珍视时间，才能有所作为"
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Delayed Gratification",
+      "nameZh": "推迟满足感",
+      "summary": "自律的核心工具之一。指重新安排人生中快乐与痛苦的顺序——先面对困难和痛苦，后享受回报与快乐。这种能力通常在童年由父母的爱和关注培养而成，是区分心理成熟与否的关键标志。",
+      "icon": "⏳"
+    },
+    {
+      "name": "Genuine Love vs. Dependency",
+      "nameZh": "真爱 vs. 依赖",
+      "summary": "派克严格区分了真正的爱与依赖/迷恋。「坠入情网」本质上是自我界限暂时崩溃的幻觉，而真爱是一种意志行为——为促进自己或他人心灵成长而主动拓展自我边界。依赖不是爱，它是对自身成长责任的逃避。",
+      "icon": "💎"
+    },
+    {
+      "name": "Life Map (Dedication to Reality)",
+      "nameZh": "人生地图（忠于事实）",
+      "summary": "每个人都根据自己的经验绘制了一份「人生地图」来理解世界。心理健康要求我们不断根据新的事实修订这份地图，即使修订的过程痛苦而艰难。拒绝修订就是拒绝成长，最终导致地图与现实严重脱节。",
+      "icon": "🗺️"
+    },
+    {
+      "name": "Grace",
+      "nameZh": "恩典",
+      "summary": "派克认为在自律和爱之外，存在一种超越常规理解的力量——恩典。它体现在潜意识的智慧、梦境的指引、以及那些「不可思议的好运」中。恩典暗示着一种推动人类心灵进化的更高力量，与热力学的熵增趋势相对抗。",
+      "icon": "✨"
+    },
+    {
+      "name": "Balancing (Giving Up)",
+      "nameZh": "保持平衡（放弃的艺术）",
+      "summary": "成长意味着不断放弃旧的自我认知、舒适区和过时的心理模式。保持平衡是自律的最高形式——既要有坚持的勇气，也要有放手的智慧。每一次真正的成长都伴随着对某种旧事物的告别。",
+      "icon": "⚖️"
+    },
+    {
+      "name": "Neurosis vs. Character Disorder",
+      "nameZh": "神经官能症 vs. 人格障碍",
+      "summary": "面对问题时的两种病态倾向：神经官能症患者为自己揽下过多的责任（「都是我的错」），人格障碍者则将所有责任推给外界（「都是别人的错」）。健康的人格需要在两者之间找到平衡，准确判断责任的归属。",
+      "icon": "🎭"
+    }
+  ],
+  "principles": [
+    {
+      "text": "Problems do not go away by being avoided; they must be worked through or else they remain as barriers to growth",
+      "textZh": "问题不会因为逃避而消失，只有直面并解决它们，才能消除成长的障碍",
+      "icon": "🪨"
+    },
+    {
+      "text": "Discipline is the basic set of tools required to solve life’s problems — without discipline we can solve nothing",
+      "textZh": "自律是解决人生问题的基本工具集——没有自律，我们什么问题都解决不了",
+      "icon": "🔧"
+    },
+    {
+      "text": "Genuine love always requires courage and the willingness to risk rejection, confrontation, or loss",
+      "textZh": "真正的爱总是需要勇气，需要承担被拒绝、被对抗或失去的风险",
+      "icon": "🦁"
+    },
+    {
+      "text": "Mental health demands continuous revision of our mental maps to match ever-changing reality",
+      "textZh": "心理健康要求我们不断修订内心的「地图」，使之与不断变化的现实保持一致",
+      "icon": "🗺️"
+    },
+    {
+      "text": "Falling in love is not an act of will or conscious choice; genuine love, by contrast, is a deliberate act of will",
+      "textZh": "坠入情网不是意志行为，不是有意识的选择；而真正的爱恰恰相反，是深思熟虑的意志行动",
+      "icon": "💡"
+    },
+    {
+      "text": "Taking responsibility means acknowledging that only you have the power to change your situation",
+      "textZh": "承担责任意味着承认：只有你自己有力量改变你的处境",
+      "icon": "🎯"
+    },
+    {
+      "text": "Growth demands giving up old patterns of thinking and comfort — every rebirth requires a small death",
+      "textZh": "成长要求放弃旧的思维模式和舒适区——每一次新生都需要一次小小的「死亡」",
+      "icon": "🌱"
+    },
+    {
+      "text": "The highest form of love is attention — truly listening to another person is an act of self-extension",
+      "textZh": "爱的最高形式是关注——真正倾听他人本身就是一种自我拓展的行动",
+      "icon": "👂"
+    }
+  ],
+  "essence": [
+    {
+      "chapter": 1,
+      "title": "人生苦难重重：自律的起点",
+      "sentence": "承认「人生苦难重重」是超越苦难的第一步，逃避问题是一切心理疾病的根源。"
+    },
+    {
+      "chapter": 2,
+      "title": "推迟满足感：先苦后甜的智慧",
+      "sentence": "自律的第一工具是推迟满足感——重新安排痛苦与快乐的顺序，先直面困难，后享受回报。"
+    },
+    {
+      "chapter": 3,
+      "title": "承担责任：问题是你自己的",
+      "sentence": "神经官能症者揽责过多，人格障碍者推责于人；心理健康的关键在于准确分辨「这是不是我的问题」。"
+    },
+    {
+      "chapter": 4,
+      "title": "忠于事实：修订人生地图",
+      "sentence": "人生地图必须随现实变化不断修订，拒绝修订就是拒绝成长，代价是与现实渐行渐远。"
+    },
+    {
+      "chapter": 5,
+      "title": "保持平衡：放弃与新生",
+      "sentence": "成长的代价是放弃——放弃旧的安全感、过时的自我认知和不再适用的人生假设。"
+    },
+    {
+      "chapter": 6,
+      "title": "爱的定义：坠入情网不是爱",
+      "sentence": "「坠入情网」是自我界限暂时崩溃的幻觉，真爱是为促进心灵成长而主动拓展自我的意志行为。"
+    },
+    {
+      "chapter": 7,
+      "title": "依赖与精神贯注：爱的误区",
+      "sentence": "依赖不是爱而是寄生，精神贯注不是爱而是自我投射，两者都是以「爱」为名的成长逃避。"
+    },
+    {
+      "chapter": 8,
+      "title": "关注与冒险：爱的行动",
+      "sentence": "爱是行动而非感觉——真正倾听他人、愿意被拒绝和受伤，才是爱的真实面目。"
+    },
+    {
+      "chapter": 9,
+      "title": "爱与自律和独立",
+      "sentence": "没有自律的爱是混乱的，没有独立人格的爱是依附的——爱与自律互为支撑、共同成长。"
+    },
+    {
+      "chapter": 10,
+      "title": "成长与信仰：从小宇宙到大宇宙",
+      "sentence": "每个人都有自己的世界观即「信仰」，心灵成长要求我们不断质疑和超越自己的信仰体系。"
+    },
+    {
+      "chapter": 11,
+      "title": "恩典的奇迹：潜意识的智慧",
+      "sentence": "潜意识拥有超越意识的智慧，梦境、直觉和「好运」都可能是恩典运作的方式。"
+    },
+    {
+      "chapter": 12,
+      "title": "恩典的本质：熵与原罪",
+      "sentence": "恩典是一种对抗熵增的神秘力量，推动人类心灵向更高层次的整合与复杂进化。"
+    }
+  ]
+};
+
+
+(function() {
+  const data = typeof distill !== 'undefined' ? distill : {};
+  const quotes = data.quotes || [];
+  const concepts = data.concepts || [];
+  const principles = data.principles || [];
+  const essence = data.essence || [];
+
+  // ── Render Quotes ──
+  const quoteList = document.getElementById('quoteList');
+  if (quotes.length === 0) {
+    quoteList.innerHTML = '<div class="empty-state">No quotes distilled yet.</div>';
+  } else {
+    quotes.forEach(q => {
+      const card = document.createElement('div');
+      card.className = 'quote-card fade-in';
+      card.onclick = function() { this.classList.toggle('expanded'); };
+      card.innerHTML =
+        '<div class="quote-text">' + escHtml(q.text) + '</div>' +
+        '<div class="quote-footer">' +
+          (q.chapter ? '<span class="quote-chapter">Ch.' + q.chapter + '</span>' : '') +
+          '<span class="quote-expand-hint">click to expand</span>' +
+        '</div>' +
+        (q.context ? '<div class="quote-context">' + escHtml(q.context) + '</div>' : '');
+      quoteList.appendChild(card);
+    });
+  }
+
+  // ── Render Concepts ──
+  const conceptGrid = document.getElementById('conceptGrid');
+  if (concepts.length === 0) {
+    conceptGrid.innerHTML = '<div class="empty-state">No concepts distilled yet.</div>';
+  } else {
+    concepts.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'concept-card fade-in';
+      card.innerHTML =
+        '<div class="concept-icon">' + (c.icon || '\u{1F9E0}') + '</div>' +
+        '<div class="concept-name">' + escHtml(c.name) + '</div>' +
+        (c.nameZh ? '<div class="concept-name-zh">' + escHtml(c.nameZh) + '</div>' : '') +
+        '<div class="concept-summary">' + escHtml(c.summary || '') + '</div>' +
+        '<div class="concept-more">hover to read more</div>';
+      conceptGrid.appendChild(card);
+    });
+  }
+
+  // ── Render Principles ──
+  const principleList = document.getElementById('principleList');
+  if (principles.length === 0) {
+    principleList.innerHTML = '<div class="empty-state">No principles distilled yet.</div>';
+  } else {
+    principles.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'principle-item fade-in';
+      item.innerHTML =
+        '<div class="principle-num"></div>' +
+        '<div class="principle-icon">' + (p.icon || '\u{1F4A1}') + '</div>' +
+        '<div class="principle-body">' +
+          '<div class="principle-text">' + escHtml(p.text) + '</div>' +
+          (p.textZh ? '<div class="principle-text-zh">' + escHtml(p.textZh) + '</div>' : '') +
+        '</div>';
+      principleList.appendChild(item);
+    });
+  }
+
+  // ── Render Essence ──
+  const essenceList = document.getElementById('essenceList');
+  if (essence.length === 0) {
+    essenceList.innerHTML = '<div class="empty-state">No chapter essences distilled yet.</div>';
+  } else {
+    essence.forEach(e => {
+      const item = document.createElement('div');
+      item.className = 'essence-item fade-in';
+      item.innerHTML =
+        '<div class="essence-chapter">Ch.' + (e.chapter || '?') + '</div>' +
+        '<div class="essence-body">' +
+          (e.title ? '<div class="essence-title">' + escHtml(e.title) + '</div>' : '') +
+          '<div class="essence-sentence">' + escHtml(e.sentence || '') + '</div>' +
+        '</div>';
+      essenceList.appendChild(item);
+    });
+  }
+
+  // ── Utility ──
+  function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // ── Scroll Progress ──
+  var progressBar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', function() {
+    var h = document.documentElement;
+    var pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    progressBar.style.width = Math.min(pct, 100) + '%';
+  });
+
+  // ── IntersectionObserver Fade-in ──
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // ── Active nav pill tracking ──
+  var sections = ['quotes', 'concepts', 'principles', 'essence'];
+  var navPills = document.querySelectorAll('.nav-pill');
+  var sectionObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        navPills.forEach(function(p) { p.classList.remove('active'); });
+        var pill = document.querySelector('.nav-pill[href="#' + entry.target.id + '"]');
+        if (pill) pill.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -60% 0px' });
+
+  sections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+})();
+
+function scrollToSection(id, el) {
+  var target = document.getElementById(id);
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.querySelectorAll('.nav-pill').forEach(function(p) { p.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>红楼梦 读后蒸馏 / Distill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(108,99,255,0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Progress Bar ── */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  z-index: 9999; transition: width 0.1s linear;
+}
+
+/* ── Hero ── */
+.hero {
+  min-height: 50vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 4rem 2rem 3rem; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(78,205,196,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.back-link {
+  position: absolute; top: 20px; left: 24px;
+  color: var(--text-dim); text-decoration: none; font-size: 0.85rem;
+  z-index: 2; transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent3); }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px var(--glow)); }
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900;
+  background: linear-gradient(135deg, var(--accent4) 0%, var(--accent) 40%, var(--accent3) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-subtitle {
+  font-size: 1rem; color: var(--text-dim); font-weight: 300;
+  margin-top: 0.5rem; max-width: 500px;
+}
+.hero-book {
+  font-size: 0.85rem; color: var(--accent); font-family: var(--font-mono);
+  margin-top: 1rem; letter-spacing: 1px;
+}
+
+/* ── Section Nav ── */
+.section-nav {
+  display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+  padding: 16px 20px; position: sticky; top: 0; z-index: 50;
+  background: rgba(15,17,23,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-pill {
+  padding: 6px 16px; border-radius: 2rem; border: 1px solid var(--border);
+  background: transparent; color: var(--text-dim); font-family: var(--font-sans);
+  font-size: 0.8rem; cursor: pointer; transition: all 0.2s; text-decoration: none;
+}
+.nav-pill:hover, .nav-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 800px; margin: 0 auto; padding: 0 20px 4rem; }
+
+/* ── Section Header ── */
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  margin: 4rem 0 2rem; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-header-icon { font-size: 1.8rem; }
+.section-header h2 { font-size: 1.5rem; font-weight: 700; }
+.section-header .section-label {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  color: var(--accent); letter-spacing: 2px; text-transform: uppercase;
+  margin-left: auto;
+}
+
+/* ── Quotes ── */
+.quote-list { display: flex; flex-direction: column; gap: 16px; }
+.quote-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent4); border-radius: var(--radius);
+  padding: 20px 24px; cursor: pointer; transition: all 0.3s;
+}
+.quote-card:hover { border-color: var(--accent4); transform: translateX(4px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.quote-text {
+  font-size: 1.05rem; font-weight: 400; line-height: 1.9;
+  position: relative; padding-left: 1.2rem;
+}
+.quote-text::before {
+  content: '\201C'; position: absolute; left: -4px; top: -8px;
+  font-size: 2.5rem; color: var(--accent4); opacity: 0.4; font-family: serif;
+}
+.quote-footer { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.quote-chapter {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  background: rgba(108,99,255,0.15); color: var(--accent);
+  padding: 2px 10px; border-radius: 2rem;
+}
+.quote-context {
+  font-size: 0.78rem; color: var(--text-dim);
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease, margin-top 0.3s ease;
+  line-height: 1.6;
+}
+.quote-card.expanded .quote-context { max-height: 200px; margin-top: 10px; }
+.quote-expand-hint {
+  font-size: 0.7rem; color: var(--text-dim); margin-left: auto;
+  font-family: var(--font-mono); opacity: 0.6;
+}
+.quote-card.expanded .quote-expand-hint { display: none; }
+
+/* ── Concepts ── */
+.concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.concept-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; transition: all 0.3s;
+  cursor: default;
+}
+.concept-card:hover { border-color: var(--accent3); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.concept-icon { font-size: 2rem; margin-bottom: 12px; }
+.concept-name { font-weight: 700; font-size: 1rem; margin-bottom: 2px; }
+.concept-name-zh { font-size: 0.8rem; color: var(--accent3); margin-bottom: 10px; }
+.concept-summary {
+  font-size: 0.82rem; color: var(--text-dim); line-height: 1.7;
+  max-height: 3.4rem; overflow: hidden; transition: max-height 0.4s ease;
+}
+.concept-card:hover .concept-summary { max-height: 400px; }
+.concept-more {
+  font-size: 0.7rem; color: var(--accent); margin-top: 6px;
+  font-family: var(--font-mono); transition: opacity 0.2s;
+}
+.concept-card:hover .concept-more { opacity: 0; }
+
+/* ── Principles ── */
+.principle-list { display: flex; flex-direction: column; gap: 12px; counter-reset: principle; }
+.principle-item {
+  display: flex; align-items: flex-start; gap: 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 22px; transition: all 0.3s;
+  counter-increment: principle;
+}
+.principle-item:hover { border-color: var(--accent2); transform: translateX(4px); }
+.principle-num {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent2); min-width: 28px; padding-top: 2px;
+}
+.principle-num::before { content: counter(principle, decimal-leading-zero); }
+.principle-icon { font-size: 1.4rem; flex-shrink: 0; padding-top: 1px; }
+.principle-body { flex: 1; }
+.principle-text { font-size: 0.95rem; font-weight: 500; }
+.principle-text-zh { font-size: 0.82rem; color: var(--text-dim); margin-top: 4px; }
+
+/* ── Essence ── */
+.essence-list { display: flex; flex-direction: column; gap: 2px; }
+.essence-item {
+  display: grid; grid-template-columns: 60px 1fr; gap: 16px;
+  padding: 14px 20px; border-radius: var(--radius);
+  transition: background 0.2s;
+}
+.essence-item:hover { background: var(--card); }
+.essence-chapter {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent); padding-top: 3px; text-align: right;
+}
+.essence-body {}
+.essence-title { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 2px; }
+.essence-sentence { font-size: 0.9rem; line-height: 1.7; }
+
+/* ── Empty State ── */
+.empty-state {
+  text-align: center; padding: 3rem; color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Footer ── */
+.footer {
+  text-align: center; padding: 2rem 0; color: var(--text-dim);
+  font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 3rem;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .hero { min-height: 40vh; padding: 3rem 1.5rem 2rem; }
+  .concept-grid { grid-template-columns: 1fr; }
+  .essence-item { grid-template-columns: 45px 1fr; gap: 10px; }
+  .quote-card { padding: 16px 18px; }
+  .section-header { margin: 3rem 0 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<section class="hero">
+  <a href="index.html" class="back-link">&larr; Back</a>
+  <div class="hero-icon">🧪</div>
+  <h1>Distill</h1>
+  <p class="hero-subtitle">What remains after the last page — the ideas worth carrying forward</p>
+  <div class="hero-book">🏮 红楼梦</div>
+</section>
+
+<nav class="section-nav">
+  <a class="nav-pill active" href="#quotes" onclick="scrollToSection('quotes',this)">Quotes</a>
+  <a class="nav-pill" href="#concepts" onclick="scrollToSection('concepts',this)">Concepts</a>
+  <a class="nav-pill" href="#principles" onclick="scrollToSection('principles',this)">Principles</a>
+  <a class="nav-pill" href="#essence" onclick="scrollToSection('essence',this)">Essence</a>
+</nav>
+
+<main class="container">
+
+  <!-- Quotes -->
+  <div class="section-header fade-in" id="quotes">
+    <span class="section-header-icon">&#x1F4AC;</span>
+    <h2>Quotes</h2>
+    <span class="section-label">GOLDEN LINES</span>
+  </div>
+  <div class="quote-list" id="quoteList"></div>
+
+  <!-- Concepts -->
+  <div class="section-header fade-in" id="concepts">
+    <span class="section-header-icon">&#x1F9E0;</span>
+    <h2>Concepts</h2>
+    <span class="section-label">MENTAL MODELS</span>
+  </div>
+  <div class="concept-grid" id="conceptGrid"></div>
+
+  <!-- Principles -->
+  <div class="section-header fade-in" id="principles">
+    <span class="section-header-icon">&#x2728;</span>
+    <h2>Principles</h2>
+    <span class="section-label">ACTION RULES</span>
+  </div>
+  <div class="principle-list" id="principleList"></div>
+
+  <!-- Essence -->
+  <div class="section-header fade-in" id="essence">
+    <span class="section-header-icon">&#x1F3AF;</span>
+    <h2>Essence</h2>
+    <span class="section-label">ONE SENTENCE PER CHAPTER</span>
+  </div>
+  <div class="essence-list" id="essenceList"></div>
+
+</main>
+
+<div class="footer">
+  Distilled with the <a href="https://en.wikipedia.org/wiki/Feynman_Technique">Feynman Method</a>
+</div>
+
+<script>
+const distill = {
+  "quotes": [
+    {
+      "text": "满纸荒唐言，一把辛酸泪。都云作者痴，谁解其中味。",
+      "chapter": 1,
+      "context": "全书开篇诗，曹雪芹自况之语。表面说的是「荒唐」故事，实则字字血泪，暗示这部小说远非闲书——读懂其中滋味，需要经历过繁华与幻灭的人。"
+    },
+    {
+      "text": "假作真时真亦假，无为有处有还无。",
+      "chapter": 1,
+      "context": "太虚幻境对联，全书哲学纲领。当虚假被当作真实，真实也变得可疑；当虚无中生出存在，存在本身也归于虚无。这句话贯穿红楼梦的真假辩证。"
+    },
+    {
+      "text": "世事洞明皆学问，人情练达即文章。",
+      "chapter": 5,
+      "context": "宁国府上房对联，宝玉见后厌恶不肯在此休息。这副对联代表了世俗的处世哲学，与宝玉追求真性情的天性格格不入，折射出儒家入世与道家出世的根本对立。"
+    },
+    {
+      "text": "一个是阆苑仙葩，一个是美玉无瑕。若说没奇缘，今生偏又遇着他；若说有奇缘，如何心事终虚化？",
+      "chapter": 5,
+      "context": "「枉凝眉」曲词，写尽宝黛之情。两人前世有缘、今生相知，却终究无法相守——这种有缘无分的宿命感，是红楼梦最动人也最悲伤的底色。"
+    },
+    {
+      "text": "女儿是水作的骨肉，男人是泥作的骨肉。我见了女儿，我便清爽；见了男子，便觉浊臭逼人。",
+      "chapter": 2,
+      "context": "宝玉的名言，借冷子兴之口转述。这不仅是宝玉的个人偏好，更是曹雪芹对女性价值的重新定义——在男权社会中，女性代表着清净与真纯，男性反而是污浊的。"
+    },
+    {
+      "text": "花谢花飞花满天，红消香断有谁怜？……侬今葬花人笑痴，他年葬侬知是谁？",
+      "chapter": 27,
+      "context": "黛玉葬花词，红楼梦最经典的诗篇之一。黛玉以落花自喻，哀叹美好事物终将凋零而无人怜惜。宝玉听后痛哭，感悟到黛玉终将如花般逝去，而自己也不过是同样的命运。"
+    },
+    {
+      "text": "质本洁来还洁去，强于污淖陷渠沟。",
+      "chapter": 27,
+      "context": "葬花词中的名句，既是黛玉的人生宣言，也是对晴雯、妙玉等洁身自好之人的隐喻——宁可洁净地消亡，也不愿苟活于污泥之中。"
+    },
+    {
+      "text": "好一似食尽鸟投林，落了片白茫茫大地真干净！",
+      "chapter": 5,
+      "context": "「飞鸟各投林」收尾曲，红楼梦十二支曲的终章。食物吃完了、鸟儿散去了，只留下一片白茫茫的大地——这是对贾府覆亡的终极预言，也是对人世繁华的彻底否定。"
+    },
+    {
+      "text": "机关算尽太聪明，反算了卿卿性命！",
+      "chapter": 5,
+      "context": "「聪明累」曲词，专写王熙凤。凤姐以机巧权术驰骋贾府，最终却被自己的算计所吞噬。这句话成为中国文化中警示过度精明的经典格言。"
+    },
+    {
+      "text": "滴不尽相思血泪抛红豆，开不完春柳春花满画楼。",
+      "chapter": 28,
+      "context": "宝玉在冯紫英宴上唱的「红豆曲」，词句缠绵悱恻，写尽相思之苦。红豆、春柳、春花——每一个意象都是对黛玉的思念，也预示着这段感情终将以泪洗面。"
+    },
+    {
+      "text": "一朝春尽红颜老，花落人亡两不知！",
+      "chapter": 27,
+      "context": "葬花词最末两句，「花落人亡两不知」将人与花的命运合一。春天终将过去，红颜终将老去，到那时花不知人已亡，人不知花已落——这是对生命无常最诗意也最绝望的表达。"
+    },
+    {
+      "text": "开辟鸿蒙，谁为情种？都只为风月情浓。趁着这奈何天、伤怀日、寂寥时，试遣愚衷。因此上，演出这怀金悼玉的「红楼梦」。",
+      "chapter": 5,
+      "context": "「红楼梦引子」，为十二支曲开篇。从开天辟地追问「情」的起源，道出整部红楼梦的创作动机——在无可奈何的时代、伤怀的日子、寂寞的时刻，以文字寄托一片痴情。"
+    },
+    {
+      "text": "寒塘渡鹤影，冷月葬花魂。",
+      "chapter": 76,
+      "context": "中秋夜联诗，湘云出「寒塘渡鹤影」，黛玉对以「冷月葬花魂」。七字诗句写尽二人的命运——湘云如孤鹤漂泊，黛玉如落花归寂。此联被妙玉评为「太过悲凄」，实则精准预言了各自的结局。"
+    },
+    {
+      "text": "可知世上万般，好便是了，了便是好。若不了，便不好；若要好，须是了。",
+      "chapter": 1,
+      "context": "跛足道人的「好了歌」核心哲理。「好」与「了」互为表里——一切美好终将完结，唯有真正放下才能解脱。甄士隐闻此顿悟出家，而贾宝玉在全书末尾才终于领会。"
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Impermanence of Glory",
+      "nameZh": "兴衰无常",
+      "summary": "贾、史、王、薛四大家族从「烈火烹油、鲜花着锦」的极盛走向「忽喇喇似大厦倾」的覆灭。贾府的败落并非一朝一夕，而是从内部腐蚀——子弟不肖、管理混乱、入不敷出、道德沦丧——一步步走向不可挽回的深渊。曹雪芹以亲身经历写出这种由盛转衰的过程，映照世间一切繁华终归虚无的宿命，正如「好了歌」所言：「陋室空堂，当年笏满床」。",
+      "icon": "🏚️"
+    },
+    {
+      "name": "Reality vs. Illusion",
+      "nameZh": "真假辩证",
+      "summary": "「假作真时真亦假，无为有处有还无」是全书的哲学纲领。甄士隐（真事隐）与贾雨村（假语存）的姓名谐音揭示了叙事策略：真实被隐去，假语被保存。大观园是现实中的乌托邦，太虚幻境是虚幻中的真实；通灵宝玉既是顽石也是灵物；宝玉既痴又悟。全书在真假、虚实、有无之间不断辩证，最终指向一个追问：我们所执着的「真实」，是否也不过是一场大梦？",
+      "icon": "🪞"
+    },
+    {
+      "name": "Love vs. Ritual Propriety",
+      "nameZh": "情与礼的冲突",
+      "summary": "宝玉与黛玉以「木石前盟」为心灵契约，彼此以真性情相知相许。然而封建礼教要求的是「金玉良缘」——薛宝钗端庄守礼、符合家族利益。个人真情在家族秩序、社会规范面前被无情碾碎。宝玉的悲剧在于他清醒地看到了这种冲突却无力改变，黛玉的悲剧在于她的纯真之情恰恰是这个体制最不能容忍的东西。「情」与「礼」的对撞，是红楼梦最核心的戏剧张力。",
+      "icon": "💘"
+    },
+    {
+      "name": "Fate & Prophecy",
+      "nameZh": "命运谶语",
+      "summary": "金陵十二钗判词、红楼梦十二支曲、太虚幻境薄命司册页——人物命运在故事第五回便已全部揭晓。读者带着上帝视角阅读，眼睁睁看着谶语一一应验：元春之死、迎春受虐、探春远嫁、惜春出家、湘云守寡……这种「已知结局」的叙事方式制造出独特的审美体验——不是悬念，而是宿命的悲悯。",
+      "icon": "🔮"
+    },
+    {
+      "name": "Women's Tragedy",
+      "nameZh": "千红一哭",
+      "summary": "「千红一窟（哭）、万艳同杯（悲）」——红楼梦本质上是一部女性的挽歌。黛玉泪尽而逝、晴雯含冤夭亡、迎春受虐致死、探春远嫁、妙玉遭劫、鸳鸯殉主、尤二姐吞金、尤三姐自刎、金钏投井……每一位女性都是封建宗法制度的牺牲品。曹雪芹将最深的同情与最美的笔墨给了这些女性，为她们留下了一座纸上的「千红一窟」。",
+      "icon": "🥀"
+    },
+    {
+      "name": "The Grand View Garden as Utopia",
+      "nameZh": "大观园乌托邦",
+      "summary": "大观园是红楼梦中最重要的空间意象——一个由元春省亲而建的封闭花园，成为宝玉和众姐妹短暂的精神伊甸园。在这里，他们结诗社、品茗赏雪、远离仕途经济的污浊。然而大观园注定是暂时的乌托邦：抄检大观园标志着这个理想世界的终结，少女们被逐一遣散、病亡、远嫁，花园最终沦为荒芜之地。乌托邦的建立与崩塌，是全书最动人的结构隐喻。",
+      "icon": "🏡"
+    },
+    {
+      "name": "Enlightenment Through Disillusion",
+      "nameZh": "悟与空",
+      "summary": "红楼梦的佛道思想贯穿始终。从「好了歌」到「飞鸟各投林」，从甄士隐悟道出家到贾宝玉最终遁入空门，全书形成一个巨大的「悟」的弧线。然而曹雪芹的高明在于，他并未将「悟空」简单化为逃避——宝玉必须经历至深之「情」，才能抵达至彻之「悟」。没有在红尘中真正爱过、痛过，就不可能真正放下。悟不是情的否定，而是情的升华。",
+      "icon": "☁️"
+    },
+    {
+      "name": "Poetry as Soul Mirror",
+      "nameZh": "诗如其人",
+      "summary": "红楼梦中的诗词不是装饰，而是人物灵魂的镜像。黛玉的「葬花词」写尽她的敏感与孤高，宝钗的「咏柳絮」暗含她的雍容与野心，湘云的「咏白海棠」展现她的豁达天真，探春的「咏风筝」预示她远嫁的命运。海棠诗社、菊花诗会、芦雪庵联句——每一次诗社活动都是性格的展览，每一首诗都是命运的谶语。",
+      "icon": "📜"
+    }
+  ],
+  "principles": [
+    {
+      "text": "All glory is impermanent — build your worth on character, not on circumstance",
+      "textZh": "一切繁华终将消散——真正的价值在于品格，而非境遇",
+      "icon": "🏛️"
+    },
+    {
+      "text": "Genuine connection requires vulnerability — the masks that protect us also imprison us",
+      "textZh": "真正的联结需要真诚——保护我们的面具同时也在囚禁我们",
+      "icon": "💎"
+    },
+    {
+      "text": "Systems crush individuals — but individual spirit is what gives systems meaning",
+      "textZh": "制度碾压个人——但正是个人的精神赋予制度以意义",
+      "icon": "⚖️"
+    },
+    {
+      "text": "To truly let go, one must first have truly held on — enlightenment without experience is empty",
+      "textZh": "要真正放下，须先真正拿起——没有经历过的顿悟不过是空谈",
+      "icon": "☁️"
+    },
+    {
+      "text": "Excessive cleverness consumes itself — the spider is caught in its own web",
+      "textZh": "机关算尽反误了自身——蜘蛛终被自己的网所困",
+      "icon": "🕸️"
+    },
+    {
+      "text": "Cherish the present gathering, for every feast must end and every garden must fade",
+      "textZh": "珍惜当下的相聚，因为每场宴席终会散去，每座花园终会荒芜",
+      "icon": "🌸"
+    },
+    {
+      "text": "True understanding of another person requires seeing past their role to their soul",
+      "textZh": "真正理解一个人，要看穿角色的外壳，看见灵魂的本色",
+      "icon": "👁️"
+    },
+    {
+      "text": "Rebellion against an unjust order may fail, but silence in its face is a greater defeat",
+      "textZh": "反抗不公的秩序也许会失败，但在不公面前沉默是更大的失败",
+      "icon": "🔥"
+    }
+  ],
+  "essence": [
+    {
+      "chapter": 1,
+      "title": "甄士隐梦幻识通灵 贾雨村风尘怀闺秀",
+      "sentence": "女娲补天遗石幻化通灵宝玉入世历劫，甄士隐资助贾雨村后家败悟道出家——全书以神话开篇，以「好了歌」定下兴衰无常的基调。"
+    },
+    {
+      "chapter": 2,
+      "title": "贾夫人仙逝扬州城 冷子兴演说荣国府",
+      "sentence": "贾敏病逝扬州，冷子兴向贾雨村详述荣宁二府的世系家底——通过旁观者之口，一幅四大家族的全景画卷徐徐展开。"
+    },
+    {
+      "chapter": 3,
+      "title": "贾雨村夤缘复旧职 林黛玉抛父进京都",
+      "sentence": "林黛玉丧母进贾府，初见贾宝玉便觉似曾相识，宝玉因黛玉无玉而摔玉——前世木石之缘在今生的第一面便已注定了彼此的纠缠。"
+    },
+    {
+      "chapter": 4,
+      "title": "薄命女偏逢薄命郎 葫芦僧乱判葫芦案",
+      "sentence": "贾雨村攀附贾府复官，徇私枉法放走打死冯渊的薛蟠——「护官符」揭示四大家族权势滔天，英莲的悲剧命运由此奠定。"
+    },
+    {
+      "chapter": 5,
+      "title": "游幻境指迷十二钗 饮仙醪曲演红楼梦",
+      "sentence": "宝玉梦游太虚幻境，阅金陵十二钗判词，听红楼梦十二支曲——全书人物命运在此回一次性揭晓，奠定了「已知结局」的宿命式叙事。"
+    },
+    {
+      "chapter": 6,
+      "title": "贾宝玉初试云雨情 刘姥姥一进荣国府",
+      "sentence": "刘姥姥初进荣国府打秋风，宝玉与袭人初试云雨——一贫一富、一俗一雅的两条线索交织，展现贾府的奢靡与阶层鸿沟。"
+    },
+    {
+      "chapter": 7,
+      "title": "送宫花贾琏戏熙凤 宴宁府宝玉会秦钟",
+      "sentence": "周瑞家的送宫花，宝玉于宁府结识秦钟——宫花送遍各房，人情冷暖尽在先后之间；宝玉与秦钟的相遇，开启一段少年情谊。"
+    },
+    {
+      "chapter": 8,
+      "title": "比通灵金莺微露意 探宝钗黛玉半含酸",
+      "sentence": "宝钗展示金锁与宝玉通灵玉上的「莫失莫忘」「不离不弃」相呼应，黛玉闻讯含酸——「金玉良缘」首次浮出水面，宝黛钗三角格局初成。"
+    },
+    {
+      "chapter": 9,
+      "title": "恋风流情友入家塾 起嫌疑顽童闹学堂",
+      "sentence": "宝玉与秦钟同入家塾读书，因金荣挑衅引发学堂大闹——家塾混乱折射出贾府管教之松弛，少年们的冲突已暗藏家族衰败的种子。"
+    },
+    {
+      "chapter": 10,
+      "title": "金寡妇贪利权受辱 张太医论病细穷源",
+      "sentence": "金寡妇受辱于族中，张太医为秦可卿诊病——秦可卿的病因讳莫如深，暗线已在水面之下涌动。"
+    },
+    {
+      "chapter": 11,
+      "title": "庆寿辰宁府排家宴 见熙凤贾瑞起淫心",
+      "sentence": "宁府为贾敬庆寿开宴，贾瑞见凤姐起淫心——凤姐的美艳与锋利同时展现，贾瑞的贪念为自己掘开了坟墓。"
+    },
+    {
+      "chapter": 12,
+      "title": "王熙凤毒设相思局 贾天祥正照风月鉴",
+      "sentence": "王熙凤设相思局连番戏弄贾瑞，贾瑞照风月鉴不悟反丧命——风月宝鉴正反两面的隐喻贯穿全书：真相在反面，迷恋正面者必死。"
+    },
+    {
+      "chapter": 13,
+      "title": "秦可卿死封龙禁尉 王熙凤协理宁国府",
+      "sentence": "秦可卿病逝，托梦凤姐嘱其置办祭田义学以保家族长远——秦可卿之死疑云重重，其遗言却是全书最清醒的理财忠告，可惜凤姐未能遵行。"
+    },
+    {
+      "chapter": 14,
+      "title": "林如海捐馆扬州城 贾宝玉路谒北静王",
+      "sentence": "林如海病逝扬州，宝玉路谒北静王水溶——黛玉至此成为彻底的孤女，而北静王赠宝玉鹡鸰珠串，埋下日后交往的伏笔。"
+    },
+    {
+      "chapter": 15,
+      "title": "王凤姐弄权铁槛寺 秦鲸卿得趣馒头庵",
+      "sentence": "凤姐在铁槛寺弄权受贿，逼退婚约致人命——「弄权铁槛寺」是凤姐贪婪害命的关键事件，也是她日后果报的远因。"
+    },
+    {
+      "chapter": 16,
+      "title": "贾元春才选凤藻宫 秦鲸卿夭逝黄泉路",
+      "sentence": "贾元春封妃，贾府大兴土木筹建省亲别墅——一门之荣升至顶点，然而「烈火烹油」之势正是衰败的前奏。"
+    },
+    {
+      "chapter": 17,
+      "title": "大观园试才题对额 荣国府归省庆元宵",
+      "sentence": "贾政率宝玉及清客游览大观园试才题额——宝玉在父亲面前展露诗才，大观园的亭台楼阁一一命名，这座乌托邦正式诞生。"
+    },
+    {
+      "chapter": 18,
+      "title": "大观园试才题对额 荣国府归省庆元宵",
+      "sentence": "元妃省亲，大观园中歌舞升平、题诗赐名——省亲之夜的极盛华美背后，元春含泪说出「不得见人的去处」，道破皇宫如牢笼的真相。"
+    },
+    {
+      "chapter": 19,
+      "title": "情切切良宵花解语 意绵绵静日玉生香",
+      "sentence": "宝玉于黛玉房中「意绵绵静日玉生香」，袭人夜间苦劝宝玉——花解语与玉生香，一边是袭人的忠贞规劝，一边是宝黛间的纯真亲密。"
+    },
+    {
+      "chapter": 20,
+      "title": "王熙凤正言弹妒意 林黛玉俏语谑娇音",
+      "sentence": "凤姐正言弹压赵姨娘的妒意，黛玉以俏语调侃湘云——凤姐的霸气管家与黛玉的伶牙俐齿交相辉映，嬉笑间暗含各人的心事。"
+    },
+    {
+      "chapter": 21,
+      "title": "贤袭人娇嗔箴宝玉 俏平儿软语救贾琏",
+      "sentence": "袭人以娇嗔规劝宝玉收心，平儿软语为贾琏周旋遮掩——两位身边人用各自的方式维护主人，贤与俏的对照中尽显女性智慧。"
+    },
+    {
+      "chapter": 22,
+      "title": "听曲文宝玉悟禅机 制灯谜贾政悲谶语",
+      "sentence": "宝玉听戏文「赤条条来去无牵挂」悟禅机，贾政见灯谜暗含不祥之兆而悲叹——宝玉的参禅似悟非悟，灯谜的谶语却句句应验在日后的命运中。"
+    },
+    {
+      "chapter": 23,
+      "title": "西厢记妙词通戏语 牡丹亭艳曲警芳心",
+      "sentence": "宝黛共读《西厢记》互以曲词传情，黛玉独听《牡丹亭》「如花美眷、似水流年」而心动神摇——两部经典戏曲唤醒了青春的觉醒与对爱情的向往。"
+    },
+    {
+      "chapter": 24,
+      "title": "醉金刚轻财尚义侠 痴女儿遗帕惹相思",
+      "sentence": "醉金刚倪二仗义借银，痴女儿小红遗帕传情——底层人物的侠义与痴情，为贾府的锦绣故事增添了一抹质朴的暖色。"
+    },
+    {
+      "chapter": 25,
+      "title": "魇魔法姊弟逢五鬼 红楼梦通灵遇双真",
+      "sentence": "赵姨娘勾结马道婆用魇魔法害宝玉凤姐，癞头和尚与跛足道人持通灵玉解救——正邪之争在神秘力量间展开，通灵宝玉的护身功能首次显现。"
+    },
+    {
+      "chapter": 26,
+      "title": "蜂腰桥设言传心事 潇湘馆春困发幽情",
+      "sentence": "小红在蜂腰桥传话被宝钗撞见机智脱身，黛玉夜访怡红院被拒门外暗自垂泪——一个丫鬟的机敏与一位小姐的敏感，在春夜中各有各的心事。"
+    },
+    {
+      "chapter": 27,
+      "title": "滴翠亭杨妃戏彩蝶 埋香冢飞燕泣残红",
+      "sentence": "宝钗扑蝶于滴翠亭嫁祸黛玉，黛玉葬花吟出「花谢花飞花满天」——宝钗的圆滑与黛玉的真情形成鲜明对照，葬花词成为红楼梦最动人的诗篇。"
+    },
+    {
+      "chapter": 28,
+      "title": "蒋玉菡情赠茜香罗 薛宝钗羞笼红麝串",
+      "sentence": "蒋玉菡赠宝玉茜香罗暗结情缘，宝钗因元春赐礼与宝玉相同而羞笼红麝串——茜香罗伏袭人日后嫁蒋玉菡之线，金玉之说因宫中赐礼再添一笔。"
+    },
+    {
+      "chapter": 29,
+      "title": "享福人福深还祷福 痴情女情重愈斟情",
+      "sentence": "贾母携众人到清虚观打醮祈福，张道士提亲被拒，宝黛因金麒麟再起争执——求福反生事端，宝黛间「不是冤家不聚头」的深情以吵闹方式呈现。"
+    },
+    {
+      "chapter": 30,
+      "title": "宝钗借扇机带双敲 龄官划蔷痴及局外",
+      "sentence": "宝钗借扇子之机暗讽宝黛，龄官在蔷薇架下痴画「蔷」字——宝钗的机锋不露痕迹，龄官的痴情令宝玉初悟「各人有各人的眼泪」。"
+    },
+    {
+      "chapter": 31,
+      "title": "撕扇子作千金一笑 因麒麟伏白首双星",
+      "sentence": "晴雯撕扇博宝玉千金一笑，湘云拾得金麒麟伏白首双星之谶——晴雯的率真与湘云的豁达，在这两件小事中闪耀着各自最动人的光彩。"
+    },
+    {
+      "chapter": 32,
+      "title": "诉肺腑心迷活宝玉 含耻辱情烈死金钏",
+      "sentence": "宝玉对黛玉诉肺腑「你放心」，金钏因被王夫人羞辱跳井身亡——宝黛感情的最高峰与金钏的惨死并置，极乐与极悲在同一回中碰撞。"
+    },
+    {
+      "chapter": 33,
+      "title": "手足眈眈小动唇舌 不肖种种大承笞挞",
+      "sentence": "贾环进谗言，忠顺王府索要蒋玉菡，贾政怒极笞挞宝玉——父子冲突的总爆发，两种价值观的正面对撞：仕途经济对阵性灵自由。"
+    },
+    {
+      "chapter": 34,
+      "title": "情中情因情感妹妹 错里错以错劝哥哥",
+      "sentence": "宝玉挨打后黛玉心疼哭红双眼，宝钗送药时亦露真情——宝玉遣晴雯送旧帕给黛玉，两块旧帕胜过千言万语，宝黛之情在无声中升华。"
+    },
+    {
+      "chapter": 35,
+      "title": "白玉钏亲尝莲叶羹 黄金莺巧结梅花络",
+      "sentence": "白玉钏含泪侍奉宝玉莲叶羹，黄金莺巧手编结梅花络——两位丫鬟的细腻心思折射出各自主人的影子，日常生活的雅致中暗含深情。"
+    },
+    {
+      "chapter": 36,
+      "title": "绣鸳鸯梦兆绛芸轩 识分定情悟梨香院",
+      "sentence": "宝玉午睡梦呓「和尚道士的话如何信得」，袭人在旁听闻心惊——宝玉在梦中否定金玉良缘，表明心中唯有黛玉；梨香院中龄官对宝玉的冷淡，让他悟出各人缘分不同。"
+    },
+    {
+      "chapter": 37,
+      "title": "秋爽斋偶结海棠社 蘅芜苑夜拟菊花题",
+      "sentence": "探春发起在秋爽斋结海棠诗社，众人各取别号，连夜拟定菊花题——诗社的成立标志着大观园的黄金时代，少男少女们以诗才相竞，这是他们最纯粹、最快乐的时光。"
+    },
+    {
+      "chapter": 38,
+      "title": "林潇湘魁夺菊花诗 薛蘅芜讽和螃蟹咏",
+      "sentence": "菊花诗会上黛玉以「孤标傲世偕谁隐」夺魁，宝钗咏螃蟹讽世获赞——诗如其人，黛玉的孤高与宝钗的犀利在笔墨间展现得淋漓尽致。"
+    },
+    {
+      "chapter": 39,
+      "title": "村姥姥是信口开河 情哥哥偏寻根究底",
+      "sentence": "刘姥姥二进荣国府编故事逗贾母开心，宝玉听「茗玉小姐」之名偏要寻根究底——村妪的乡野故事与公子的痴心追问，形成了雅俗之间的妙趣横生。"
+    },
+    {
+      "chapter": 40,
+      "title": "史太君两宴大观园 金鸳鸯三宣牙牌令",
+      "sentence": "贾母携刘姥姥游大观园两宴，鸳鸯行酒令妙趣横生——刘姥姥以粗俗之态反衬贾府之雅，这场宴席是大观园生活最热闹也最完整的一幅群像。"
+    },
+    {
+      "chapter": 41,
+      "title": "栊翠庵茶品梅花雪 怡红院劫遇母蝗虫",
+      "sentence": "妙玉于栊翠庵以珍器品茶待宝钗黛玉，刘姥姥醉卧怡红院——妙玉的洁癖雅好与刘姥姥的浑朴天真形成极致反差，雅与俗的碰撞令人莞尔。"
+    },
+    {
+      "chapter": 42,
+      "title": "蘅芜君兰言解疑癖 潇湘子雅谑补馀香",
+      "sentence": "宝钗语重心长劝黛玉不要看杂书，黛玉感其真诚心生亲近——这是钗黛关系的转折点，宝钗放下机锋以姐姐身份关怀黛玉，二人冰释前嫌结为金兰。"
+    },
+    {
+      "chapter": 43,
+      "title": "闲取乐偶攒金庆寿 不了情暂撮土为香",
+      "sentence": "凤姐生日众人凑份子庆贺，贾宝玉却偷偷溜出城祭奠金钏——热闹的寿宴与孤独的祭奠形成尖锐对比，宝玉对逝者的真情超越了世俗的欢庆。"
+    },
+    {
+      "chapter": 44,
+      "title": "变生不测凤姐泼醋 喜出望外平儿理妆",
+      "sentence": "贾琏偷情被凤姐撞破大闹，平儿受屈后被宝玉细心安慰理妆——凤姐的泼辣、贾琏的荒唐、平儿的委屈，在一场闹剧中尽显众生相。"
+    },
+    {
+      "chapter": 45,
+      "title": "金兰契互剖金兰语 风雨夕闷制风雨词",
+      "sentence": "黛玉与宝钗推心置腹互诉衷肠，秋雨夜黛玉独自写下「秋窗风雨夕」——金兰之契的温暖与秋夜独处的凄凉，是黛玉人生中温情与孤寂并存的缩影。"
+    },
+    {
+      "chapter": 46,
+      "title": "尴尬人难免尴尬事 鸳鸯女誓绝鸳鸯偶",
+      "sentence": "贾赦逼迫鸳鸯做妾，鸳鸯在贾母面前剪发誓绝——鸳鸯以刚烈之举捍卫尊严，贾母震怒护鸳鸯，却也暴露了主子对奴婢命运的绝对支配权。"
+    },
+    {
+      "chapter": 47,
+      "title": "呆霸王调情遭苦打 冷郎君惧祸走他乡",
+      "sentence": "薛蟠调戏柳湘莲被狠揍，柳湘莲惧祸远走他乡——呆霸王的荒唐与冷郎君的侠气形成对照，柳湘莲的出走为日后与尤三姐的悲剧埋下伏笔。"
+    },
+    {
+      "chapter": 48,
+      "title": "滥情人情误思游艺 慕雅女雅集苦吟诗",
+      "sentence": "薛蟠外出经商，香菱入大观园随黛玉学诗——香菱苦学诗艺的真挚令人动容，这个苦命女子在诗中找到了短暂的精神自由。"
+    },
+    {
+      "chapter": 49,
+      "title": "琉璃世界白雪红梅 脂粉香娃割腥啖膻",
+      "sentence": "众姐妹聚齐大观园赏雪景如琉璃世界，湘云与宝玉烤鹿肉大快朵颐——白雪红梅的极美画面与湘云的豪爽���真，是大观园最令人怀念的欢乐时光。"
+    },
+    {
+      "chapter": 50,
+      "title": "芦雪广争联即景诗 暖香坞雅制春灯谜",
+      "sentence": "芦雪庵联诗众人争先恐后，暖香坞中又制春灯谜——雪中联句是诗社最精彩的一次集体创作，每人的才思与性情在字句间竞相绽放。"
+    },
+    {
+      "chapter": 51,
+      "title": "薛小妹新编怀古诗 胡庸医乱用虎狼药",
+      "sentence": "薛宝琴新编十首怀古诗暗含谜底，庸医胡君荣给晴雯乱开虎狼药——宝琴之才与庸医之昧并置，美好与荒唐同在一个屋檐下。"
+    },
+    {
+      "chapter": 52,
+      "title": "俏平儿情掩虾须镯 勇晴雯病补雀金裘",
+      "sentence": "平儿暗中遮掩虾须镯失窃之事，晴雯带病连夜补雀金裘——平儿的宽厚与晴雯的刚烈，在细微之处展现了两位女子的非凡品格。"
+    },
+    {
+      "chapter": 53,
+      "title": "宁国府除夕祭宗祠 荣国府元宵开夜宴",
+      "sentence": "宁国府除夕祭宗祠肃穆庄严，荣国府元宵开夜宴灯火辉煌——年节的盛大仪式是家族荣耀的最后巡礼，表面的繁华已难掩入不敷出的窘境。"
+    },
+    {
+      "chapter": 54,
+      "title": "史太君破陈腐旧套 王熙凤效戏彩斑衣",
+      "sentence": "贾母批评才子佳人小说的陈腐套路，凤姐插科打诨效彩斑衣博老太太欢心——贾母的审美见识与凤姐的伶俐孝心，为元宵夜宴增添了最生动的一幕。"
+    },
+    {
+      "chapter": 55,
+      "title": "辱亲女愚妾争闲气 欺幼主刁奴蓄险心",
+      "sentence": "凤姐病倒后探春代理家政，赵姨娘闹事被顶回——探春的才干与赵姨娘的愚蠢形成鲜明对比，家政管理的权力交接暴露出贾府内部的重重矛盾。"
+    },
+    {
+      "chapter": 56,
+      "title": "敏探春兴利除宿弊 时宝钗小惠全大体",
+      "sentence": "探春兴利除弊推行大观园改革，宝钗从旁辅佐以小惠笼络人心——两位女子联手整顿的才能令须眉汗颜，然而再好的改革也难挽大厦将倾。"
+    },
+    {
+      "chapter": 57,
+      "title": "慧紫鹃情辞试忙玉 慈姨妈爱语慰痴颦",
+      "sentence": "紫鹃试探宝玉谎称黛玉要回苏州，宝玉闻言急痴疯癫——一句试探之语引发的疯病，彻底坐实了宝玉对黛玉刻骨铭心的深情。"
+    },
+    {
+      "chapter": 58,
+      "title": "杏子阴假凤泣虚凰 茜纱窗真情揆痴理",
+      "sentence": "梨香院小戏子解散，藕官为菂官烧纸被发现——「假凤虚凰」的故事映射出戏中戏外的真假之辩，情之所至不分男女角色。"
+    },
+    {
+      "chapter": 59,
+      "title": "柳叶渚边嗔莺咤燕 绛云轩里召将飞符",
+      "sentence": "婆子们在园中争吵、丫鬟们互相攻讦——大观园的管理日益混乱，底层仆役的争斗折射出整个家族秩序的瓦解。"
+    },
+    {
+      "chapter": 60,
+      "title": "茉莉粉替去蔷薇硝 玫瑰露引来茯苓霜",
+      "sentence": "茉莉粉与蔷薇硝之争、玫瑰露与茯苓霜之案——细碎的物品纠纷牵出错综复杂的人际关系网，家务琐事中暗藏派系角力。"
+    },
+    {
+      "chapter": 61,
+      "title": "投鼠忌器宝玉瞒赃 判冤决狱平儿行权",
+      "sentence": "宝玉为保护众人瞒下偷窃之事，平儿运用智慧化解纷争——「投鼠忌器」的策略与平儿的柔中有刚，在一桩小案中展现了非凡的处世智慧。"
+    },
+    {
+      "chapter": 62,
+      "title": "憨湘云醉眠芍药裀 呆香菱情解石榴裙",
+      "sentence": "湘云醉卧芍药花丛，香菱斗草弄脏石榴裙——湘云醉眠芍药裀是红楼梦最美的画面之一，少女的天真烂漫在花间定格为永恒的瞬间。"
+    },
+    {
+      "chapter": 63,
+      "title": "寿怡红群芳开夜宴 死金丹独艳理亲丧",
+      "sentence": "怡红院群芳夜宴抽花签占命运，贾敬服丹暴亡——花签上的诗句句句成谶，生日的欢宴与族长的暴死在同一夜并行，乐极生悲。"
+    },
+    {
+      "chapter": 64,
+      "title": "幽淑女悲题五美吟 浪荡子情遗九龙珮",
+      "sentence": "黛玉感伤作「五美吟」咏叹古代薄命女子，贾琏偷偷勾搭尤二姐——黛玉的高洁情怀与贾琏的荒淫无度形成刺目对照。"
+    },
+    {
+      "chapter": 65,
+      "title": "贾二舍偷娶尤二姨 尤三姐思嫁柳二郎",
+      "sentence": "贾琏瞒着凤姐偷娶尤二姐，尤三姐心属柳湘莲矢志不嫁他人——二姐之柔弱与三姐之刚烈，两种女性命运在同一个屋檐下分道扬镳。"
+    },
+    {
+      "chapter": 66,
+      "title": "情小妹耻情归地府 冷二郎一冷入空门",
+      "sentence": "柳湘莲悔婚退还鸳鸯剑，尤三姐持剑自刎，湘莲悔悟出家——尤三姐以死明志、柳湘莲斩情入空门，一对有情人以最决绝的方式诠释了「情」字的重量。"
+    },
+    {
+      "chapter": 67,
+      "title": "见土仪颦卿思故里 闻秘事凤姐讯家童",
+      "sentence": "黛玉见到家乡土特产触发思乡之情，凤姐探知贾琏偷娶之事——一个是无家可归的孤女之悲，一个是后院起火的泼妇之怒，两条线索各自推进。"
+    },
+    {
+      "chapter": 68,
+      "title": "苦尤娘赚入大观园 酸凤姐大闹宁国府",
+      "sentence": "凤姐将尤二姐赚入大观园表面和善暗中折磨，大闹宁国府逼贾琏就范——凤姐的手段从阳谋变为阴谋，笑脸之下是置人于死地的毒计。"
+    },
+    {
+      "chapter": 69,
+      "title": "弄小巧用借剑杀人 觉大限吞生金自逝",
+      "sentence": "凤姐借秋桐之手折磨尤二姐，尤二姐吞金自尽——凤姐「借剑杀人」之计登峰造极，尤二姐的惨死是凤姐罪孽簿上最沉重的一笔。"
+    },
+    {
+      "chapter": 70,
+      "title": "林黛玉重建桃花社 史湘云偶填柳絮词",
+      "sentence": "黛玉重建桃花社，湘云填柳絮词「且住，且住，莫使春光别去」——诗社的重建是对逝去美好时光的最后挽留，柳絮词中「好风频借力，送我上青云」与「莫使春光别去」道尽两种人生态度。"
+    },
+    {
+      "chapter": 71,
+      "title": "嫌隙人有心生嫌隙 鸳鸯女无意遇鸳鸯",
+      "sentence": "贾母八旬大寿，尤氏受辱于邢夫人，鸳鸯撞见司棋私情——寿宴的热闹下暗流涌动，嫌隙、猜忌、丑闻在暗处此起彼伏。"
+    },
+    {
+      "chapter": 72,
+      "title": "王熙凤恃强羞说病 来旺妇倚势霸成亲",
+      "sentence": "凤姐强撑病体不肯示弱，来旺妇倚势为子强娶丫鬟——凤姐的逞强已是强弩之末，仆人的飞扬跋扈折射出主子权威的日渐空虚。"
+    },
+    {
+      "chapter": 73,
+      "title": "痴丫头误拾绣春囊 懦小姐不问累金凤",
+      "sentence": "傻丫头误拾绣春囊引发轩然大波，懦弱的迎春不敢追问累金凤去向——绣春囊事件成为抄检大观园的导火索，风暴即将降临。"
+    },
+    {
+      "chapter": 74,
+      "title": "惑奸谗抄检大观园 矢孤介杜绝宁国府",
+      "sentence": "王夫人令凤姐抄检大观园，探春含泪怒斥「自杀自灭」——抄检是大观园乌托邦的终结号角，探春的预言「百足之虫死而不僵」道破家族衰亡的本质。"
+    },
+    {
+      "chapter": 75,
+      "title": "开夜宴异兆发悲音 赏中秋新词得佳谶",
+      "sentence": "中秋夜宴贾府勉强团聚，笛声凄清中贾母落泪——「异兆发悲音」，这个中秋已不是团圆而是告别，衰败的气息笼罩在每一个人头上。"
+    },
+    {
+      "chapter": 76,
+      "title": "凸碧堂品笛感凄清 凹晶馆联诗悲寂寞",
+      "sentence": "湘云与黛玉在凹晶馆联诗至「寒塘渡鹤影，冷月葬花魂」——中秋月下两个孤女的绝唱，七字之中写尽各自命运，妙玉续诗亦难掩悲凉。"
+    },
+    {
+      "chapter": 77,
+      "title": "俏丫鬟抱屈夭风流 美优伶斩情归水月",
+      "sentence": "晴雯被逐出大观园含冤病亡，芳官等人被迫出家——王夫人的清洗如秋风扫落叶，最美最真的女孩们率先被这个体制所摧毁。"
+    },
+    {
+      "chapter": 78,
+      "title": "老学士闲征姽婳词 痴公子杜撰芙蓉诔",
+      "sentence": "宝玉悲痛中撰写「芙蓉女儿诔」祭奠晴雯——这篇长诔是宝玉对晴雯的挽歌，也是对一切纯真被毁灭的控诉，黛玉建议改「红绡帐里」为「茜纱窗下」，暗中自伤。"
+    },
+    {
+      "chapter": 79,
+      "title": "薛文龙悔娶河东狮 贾迎春误嫁中山狼",
+      "sentence": "薛蟠娶了泼悍的夏金桂如引狼入室，迎春被孙绍祖强娶——两桩婚姻都是悲剧的开端，「中山狼」的比喻精准预示了迎春的惨死。"
+    },
+    {
+      "chapter": 80,
+      "title": "美香菱屈受贪夫棒 王道士胡诌妒妇方",
+      "sentence": "香菱在夏金桂的折磨下受尽苦楚，王道士胡诌治妒方——从甄英莲到香菱，这个苦命女子一生颠沛，在每一任主人手中都逃不脱被欺凌的命运。"
+    },
+    {
+      "chapter": 81,
+      "title": "占旷野金兰契互剖金兰语 坐含香风韵雅制灯谜",
+      "sentence": "宝玉重回家塾读书，贾府开始为宝玉择亲——后四十回开篇，叙事节奏转换，家族为宝玉的婚事暗中筹谋。"
+    },
+    {
+      "chapter": 82,
+      "title": "老学究讲义警顽心 病潇湘痴魂惊恶梦",
+      "sentence": "宝玉在学中被迫研习时文，黛玉夜梦被逼另嫁而惊醒痛哭——宝玉的不自由与黛玉的不安全感，在各自的困境中痛苦地呼应。"
+    },
+    {
+      "chapter": 83,
+      "title": "省宫闱贾元妃染恙 闹闺阃薛宝钗吞声",
+      "sentence": "元春在宫中染恙，宝钗在家中默默忍受委屈——皇妃的病象与才女的隐忍，两条高墙内的女子各有各的不自由。"
+    },
+    {
+      "chapter": 84,
+      "title": "试文字宝玉始提亲 探惊风贾环重结怨",
+      "sentence": "贾政考校宝玉文章后开始议亲，贾环从中作梗——婚事的筹谋正式启动，宝黛钗三人的命运之网越收越紧。"
+    },
+    {
+      "chapter": 85,
+      "title": "贾存周报升郎中任 薛文龙复惹放流刑",
+      "sentence": "贾政升任郎中赴外任，薛蟠再惹官司——一边是仕途的小升迁，一边是薛家的大祸事，四大家族的命运此消彼长。"
+    },
+    {
+      "chapter": 86,
+      "title": "受私贿老官翻案牍 寄闲情淑女解琴书",
+      "sentence": "贾雨村徇私翻案收受贿赂，黛玉抚琴寄托幽情——官场的腐败与闺阁的清雅形成讽刺性对照，黛玉以琴音诉说无人能懂的心事。"
+    },
+    {
+      "chapter": 87,
+      "title": "感秋深抚琴悲往事 坐禅寂走火入邪魔",
+      "sentence": "黛玉秋夜抚琴感伤往事弦断音绝，妙玉坐禅走火入魔——两位清高女子各以自己的方式走向精神的极端，琴断与入魔都是内心崩塌的征兆。"
+    },
+    {
+      "chapter": 88,
+      "title": "博庭欢宝玉赞孤儿 正家法贾珍鞭悍仆",
+      "sentence": "宝玉逗弄贾兰讨贾母欢心，贾珍在家中惩治悍仆——日常的天伦之乐与家法的严厉并存，贾府维持着表面的秩序。"
+    },
+    {
+      "chapter": 89,
+      "title": "人亡物在公子填词 蛇影杯弓颦卿绝粒",
+      "sentence": "宝玉为晴雯等逝去之人填写悼词，黛玉听闻宝玉议亲的谣言绝食抗争——物在人亡的悲痛与谣言引发的绝望，将宝玉和黛玉推向各自的深渊。"
+    },
+    {
+      "chapter": 90,
+      "title": "失绵衣贫女耐嗷嘈 送果品小郎惊叵测",
+      "sentence": "薛家贫女挨冻受饿艰难度日，贾府送来的礼物引发薛蝌的惊疑——贫富悬殊在亲族之间呈现出残酷的一面，薛家的衰落已不可掩饰。"
+    },
+    {
+      "chapter": 91,
+      "title": "纵淫心宝蟾工设计 布疑阵宝玉妄谈禅",
+      "sentence": "宝蟾设计引诱薛蝌，宝玉对黛玉大谈禅理却似是而非——一边是肉欲的算计，一边是空灵的妄谈，真假混杂、雅俗交织。"
+    },
+    {
+      "chapter": 92,
+      "title": "评女传巧姐慕贤良 玩母珠贾政参聚散",
+      "sentence": "巧姐读列女传慕贤良之德，贾政把玩母珠有感聚散无常——小辈的教育与长辈的感悟，为日后巧姐的命运与贾府的结局埋下伏笔。"
+    },
+    {
+      "chapter": 93,
+      "title": "甄家仆投靠贾家门 水月庵掀翻风月案",
+      "sentence": "甄家败落后仆人投靠贾府，水月庵的丑闻被揭发——甄家的败落是贾家的前车之鉴，「真」家先倒，「假」家还能撑多久？"
+    },
+    {
+      "chapter": 94,
+      "title": "宴海棠贾母赏花妖 失宝玉通灵知奇祸",
+      "sentence": "海棠花冬日反常开放被视为妖异之兆，通灵宝玉不翼而飞——花妖玉失，两件怪事接连发生，贾府上下惊惶不安，大祸临头的征兆已不可忽视。"
+    },
+    {
+      "chapter": 95,
+      "title": "因讹成实元妃薨逝 以假混真宝玉疯颠",
+      "sentence": "元妃薨逝的消息传来举府悲恸，宝玉因失玉而神志疯癫——皇宫中最大的靠山倒塌，宝玉的灵性随通灵玉的消失而丧失，家族与个人同时坠入深渊。"
+    },
+    {
+      "chapter": 96,
+      "title": "瞒消息凤姐设奇谋 泄机关颦儿迷本性",
+      "sentence": "凤姐设「掉包计」瞒宝玉以宝钗代黛玉成婚——这是全书最残酷的一幕策划：为了家族利益，凤姐以欺骗的方式将宝玉推向他不爱的人，同时判了黛玉的死刑。"
+    },
+    {
+      "chapter": 97,
+      "title": "林黛玉焚稿断痴情 薛宝钗出闺成大礼",
+      "sentence": "宝玉拜堂之夜，黛玉焚烧诗稿泪尽而逝——一边是洞房花烛的喧闹，一边是潇湘馆的寂灭。黛玉烧毁诗稿是对这个世界最决绝的告别，「质本洁来还洁去」在此应验。"
+    },
+    {
+      "chapter": 98,
+      "title": "苦绛珠魂归离恨天 病神瑛泪洒相思地",
+      "sentence": "宝玉得知黛玉已死痛不欲生，绛珠仙子魂归离恨天——「苦绛珠魂归离恨天」，黛玉还尽了前世欠下的眼泪债，而宝玉从此活在没有黛玉的荒凉人世。"
+    },
+    {
+      "chapter": 99,
+      "title": "守官箴恶奴同破例 阅邸报老舅自担惊",
+      "sentence": "贾政在外任上手下犯事，邸报传来令贾府旧友自危——外任的贪腐丑闻开始反噬贾家的政治根基，风雨欲来已势不可挡。"
+    },
+    {
+      "chapter": 100,
+      "title": "破好事香菱结深恨 悲远嫁宝玉感离情",
+      "sentence": "香菱在薛家饱受金桂欺凌，宝玉送别探春远嫁感伤离情——一个受尽苦难的女子与一个远嫁他乡的小姐，各自的命运让宝玉深感无力。"
+    },
+    {
+      "chapter": 101,
+      "title": "大观园月夜感幽魂 散花寺神签惊异兆",
+      "sentence": "凤姐夜游大观园撞见鬼魂悚然惊惧，散花寺求签得到不祥之兆——大观园已成为幽魂出没之地，凤姐的恐惧预示着她自己的末日将临。"
+    },
+    {
+      "chapter": 102,
+      "title": "宁国府骨肉病灾祲 大观园符水驱妖孽",
+      "sentence": "宁国府接连有人生病见鬼，请道士驱邪画符——曾经鼎盛的宁府沦为妖氛笼罩之地，符水驱邪不过是回光返照。"
+    },
+    {
+      "chapter": 103,
+      "title": "施毒计金桂自焚身 昧真禅雨村空遇旧",
+      "sentence": "夏金桂害人反害己服毒身亡，贾雨村偶遇甄士隐的旧迹而不悟——恶人自食其果，而贾雨村面对真相仍然执迷不悟，虚实之间的讽刺又添一笔。"
+    },
+    {
+      "chapter": 104,
+      "title": "醉金刚小鳅生大浪 痴公子馀痛触前情",
+      "sentence": "醉金刚倪二再次仗义出手，宝玉触景生情追忆往事——底层侠客的义气始终如一，而宝玉在物是人非中越陷越深。"
+    },
+    {
+      "chapter": 105,
+      "title": "锦衣军查抄宁国府 骢马使弹劾平安州",
+      "sentence": "锦衣军奉旨查抄宁国府，贾府的政治靠山彻底坍塌——抄家是全书的高潮转折，四大家族的繁华在一纸诏令下灰飞烟灭。"
+    },
+    {
+      "chapter": 106,
+      "title": "王熙凤致祸抱羞惭 贾太君祷天消祸患",
+      "sentence": "凤姐因抄家受惊羞惭病重，贾母祷告上天愿以己身消灾——凤姐的权势彻底崩塌，贾母以老迈之躯试图为家族做最后的挣扎。"
+    },
+    {
+      "chapter": 107,
+      "title": "散馀资贾母明大义 复世职政老沐天恩",
+      "sentence": "贾母散尽私房钱明大义，朝廷念旧勋恢复贾政世职——老太太的慷慨与朝廷的恩赦给了贾府一线生机，但元气已伤、大势已去。"
+    },
+    {
+      "chapter": 108,
+      "title": "强欢笑蘅芜庆生辰 死缠绵潇湘闻鬼哭",
+      "sentence": "宝钗生日勉强欢庆却处处冷清，潇湘馆传来鬼哭之声——宝钗的生辰对比往日的热闹何等凄凉，黛玉虽死而魂魄犹在潇湘馆中哀泣。"
+    },
+    {
+      "chapter": 109,
+      "title": "候芳魂五儿承错爱 还孽债迎女返真元",
+      "sentence": "五儿顶替晴雯服侍宝玉，迎春在孙家受虐致死——「承错爱」与「返真元」，一个丫鬟接替了另一个的位置，一个小姐却再也无法逃脱命运的碾压。"
+    },
+    {
+      "chapter": 110,
+      "title": "史太君寿终归地府 王凤姐力诎失人心",
+      "sentence": "贾母寿终正寝，凤姐力不从心失去众人拥戴——家族的精神支柱与权力中枢先后倒塌，贾府真正进入了群龙无首的末路。"
+    },
+    {
+      "chapter": 111,
+      "title": "鸳鸯女殉主登太虚 狗彘奴欺天招伙盗",
+      "sentence": "鸳鸯在贾母灵前自缢殉主登太虚幻境，贼人趁乱盗窃贾府——忠仆殉主的壮烈与贼人趁火打劫的卑鄙，在同一个夜晚并存，极尽人间悲凉。"
+    },
+    {
+      "chapter": 112,
+      "title": "活冤孽妙尼遭大劫 死雠仇赵妾赴冥曹",
+      "sentence": "妙玉被强盗劫走遭受大劫，赵姨娘受恶报惨死——「欲洁何曾洁，云空未必空」的判词在妙玉身上应验，赵姨娘一生作恶终得报应。"
+    },
+    {
+      "chapter": 113,
+      "title": "忏宿冤凤姐托村妪 释旧憾情婢感痴郎",
+      "sentence": "凤姐临终将巧姐托付给刘姥姥，紫鹃决意为黛玉守节——凤姐最后的母爱托付给了最不起眼的村妇，紫鹃的忠贞为黛玉的故事画上了最温暖的句号。"
+    },
+    {
+      "chapter": 114,
+      "title": "王熙凤历幻返金陵 甄应嘉蒙恩还玉阙",
+      "sentence": "凤姐魂返金陵、王熙凤之死尘埃落定，甄应嘉蒙皇恩回京——「机关算尽太聪明，反算了卿卿性命」终于应验，与此同时「真」家开始复兴，真假轮回再转一圈。"
+    },
+    {
+      "chapter": 115,
+      "title": "惑偏私惜春矢素志 证同类宝玉失相知",
+      "sentence": "惜春决意出家为尼矢志不改，宝玉与甄宝玉相见却话不投机——惜春以冷决斩断尘缘，而「真」宝玉的世俗使宝玉意识到世间再无知己。"
+    },
+    {
+      "chapter": 116,
+      "title": "得通灵幻境悟仙缘 送慈柩故乡全孝道",
+      "sentence": "通灵宝玉失而复得，宝玉梦游太虚幻境重见金陵十二钗册页——与第五回遥相呼应，宝玉再入幻境已非懵懂少年，册页上的谶语如今都已成为血淋淋的现实。"
+    },
+    {
+      "chapter": 117,
+      "title": "阻超凡佳人双护玉 欣聚党恶子独承家",
+      "sentence": "宝钗与袭人联手劝阻宝玉出家之念，贾环等不肖子弟趁乱谋夺家产——两位女子拼力挽留宝玉的身体，却挡不住他灵魂的远去；恶子夺产则是家族溃烂的最终写照。"
+    },
+    {
+      "chapter": 118,
+      "title": "记微嫌舅兄欺弱女 惊谜语妻妾谏痴人",
+      "sentence": "宝玉对宝钗说出「你们的话我都明白，可我的心你们不明白」，决意赴考后了断尘缘——这是宝玉最后的表态：他愿意完成世俗的义务，但内心已彻底超脱。"
+    },
+    {
+      "chapter": 119,
+      "title": "中乡魁宝玉却尘缘 沐皇恩贾家延世泽",
+      "sentence": "宝玉高中乡魁后披着大红猩猩毡斗篷向贾政拜别，遁入茫茫雪地出家——这是红楼梦最震撼的结尾画面：白雪地上一个红色身影渐行渐远，繁华落尽，归于虚空。"
+    },
+    {
+      "chapter": 120,
+      "title": "甄士隐详说太虚情 贾雨村归结红楼梦",
+      "sentence": "甄士隐在太虚幻境向贾雨村解说前因后果，全书以「落了片白茫茫大地真干净」作结——首尾呼应，真事隐去、假语存焉，一场大梦终于醒来，万境归空。"
+    }
+  ]
+};
+
+
+(function() {
+  const data = typeof distill !== 'undefined' ? distill : {};
+  const quotes = data.quotes || [];
+  const concepts = data.concepts || [];
+  const principles = data.principles || [];
+  const essence = data.essence || [];
+
+  // ── Render Quotes ──
+  const quoteList = document.getElementById('quoteList');
+  if (quotes.length === 0) {
+    quoteList.innerHTML = '<div class="empty-state">No quotes distilled yet.</div>';
+  } else {
+    quotes.forEach(q => {
+      const card = document.createElement('div');
+      card.className = 'quote-card fade-in';
+      card.onclick = function() { this.classList.toggle('expanded'); };
+      card.innerHTML =
+        '<div class="quote-text">' + escHtml(q.text) + '</div>' +
+        '<div class="quote-footer">' +
+          (q.chapter ? '<span class="quote-chapter">Ch.' + q.chapter + '</span>' : '') +
+          '<span class="quote-expand-hint">click to expand</span>' +
+        '</div>' +
+        (q.context ? '<div class="quote-context">' + escHtml(q.context) + '</div>' : '');
+      quoteList.appendChild(card);
+    });
+  }
+
+  // ── Render Concepts ──
+  const conceptGrid = document.getElementById('conceptGrid');
+  if (concepts.length === 0) {
+    conceptGrid.innerHTML = '<div class="empty-state">No concepts distilled yet.</div>';
+  } else {
+    concepts.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'concept-card fade-in';
+      card.innerHTML =
+        '<div class="concept-icon">' + (c.icon || '\u{1F9E0}') + '</div>' +
+        '<div class="concept-name">' + escHtml(c.name) + '</div>' +
+        (c.nameZh ? '<div class="concept-name-zh">' + escHtml(c.nameZh) + '</div>' : '') +
+        '<div class="concept-summary">' + escHtml(c.summary || '') + '</div>' +
+        '<div class="concept-more">hover to read more</div>';
+      conceptGrid.appendChild(card);
+    });
+  }
+
+  // ── Render Principles ──
+  const principleList = document.getElementById('principleList');
+  if (principles.length === 0) {
+    principleList.innerHTML = '<div class="empty-state">No principles distilled yet.</div>';
+  } else {
+    principles.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'principle-item fade-in';
+      item.innerHTML =
+        '<div class="principle-num"></div>' +
+        '<div class="principle-icon">' + (p.icon || '\u{1F4A1}') + '</div>' +
+        '<div class="principle-body">' +
+          '<div class="principle-text">' + escHtml(p.text) + '</div>' +
+          (p.textZh ? '<div class="principle-text-zh">' + escHtml(p.textZh) + '</div>' : '') +
+        '</div>';
+      principleList.appendChild(item);
+    });
+  }
+
+  // ── Render Essence ──
+  const essenceList = document.getElementById('essenceList');
+  if (essence.length === 0) {
+    essenceList.innerHTML = '<div class="empty-state">No chapter essences distilled yet.</div>';
+  } else {
+    essence.forEach(e => {
+      const item = document.createElement('div');
+      item.className = 'essence-item fade-in';
+      item.innerHTML =
+        '<div class="essence-chapter">Ch.' + (e.chapter || '?') + '</div>' +
+        '<div class="essence-body">' +
+          (e.title ? '<div class="essence-title">' + escHtml(e.title) + '</div>' : '') +
+          '<div class="essence-sentence">' + escHtml(e.sentence || '') + '</div>' +
+        '</div>';
+      essenceList.appendChild(item);
+    });
+  }
+
+  // ── Utility ──
+  function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // ── Scroll Progress ──
+  var progressBar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', function() {
+    var h = document.documentElement;
+    var pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    progressBar.style.width = Math.min(pct, 100) + '%';
+  });
+
+  // ── IntersectionObserver Fade-in ──
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // ── Active nav pill tracking ──
+  var sections = ['quotes', 'concepts', 'principles', 'essence'];
+  var navPills = document.querySelectorAll('.nav-pill');
+  var sectionObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        navPills.forEach(function(p) { p.classList.remove('active'); });
+        var pill = document.querySelector('.nav-pill[href="#' + entry.target.id + '"]');
+        if (pill) pill.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -60% 0px' });
+
+  sections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+})();
+
+function scrollToSection(id, el) {
+  var target = document.getElementById(id);
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.querySelectorAll('.nav-pill').forEach(function(p) { p.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+</script>
+</body>
+</html>
