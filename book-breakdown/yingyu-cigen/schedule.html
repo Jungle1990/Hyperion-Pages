@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英语词根与单词的说文解字 学习日程 / Schedule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(var(--accent-rgb),0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+  --new-color: #4ecdc4;
+  --review-color: #6c63ff;
+  --heavy-color: #ff6b6b;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Progress Bar ── */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  z-index: 9999; transition: width 0.1s linear;
+}
+
+/* ── Hero ── */
+.hero {
+  min-height: 50vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 4rem 2rem 3rem; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(var(--accent-rgb),0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(var(--accent3-rgb),0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.back-link {
+  position: absolute; top: 20px; left: 24px;
+  color: var(--text-dim); text-decoration: none; font-size: 0.85rem;
+  z-index: 2; transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent3); }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px var(--glow)); }
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900;
+  background: linear-gradient(135deg, var(--accent4) 0%, var(--accent) 40%, var(--accent3) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-subtitle {
+  font-size: 1rem; color: var(--text-dim); font-weight: 300;
+  margin-top: 0.5rem; max-width: 560px;
+}
+.hero-book {
+  font-size: 0.85rem; color: var(--accent); font-family: var(--font-mono);
+  margin-top: 1rem; letter-spacing: 1px;
+}
+
+/* ── Section Nav ── */
+.section-nav {
+  display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+  padding: 16px 20px; position: sticky; top: 0; z-index: 50;
+  background: rgba(var(--bg-rgb),0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-pill {
+  padding: 6px 16px; border-radius: 2rem; border: 1px solid var(--border);
+  background: transparent; color: var(--text-dim); font-family: var(--font-sans);
+  font-size: 0.8rem; cursor: pointer; transition: all 0.2s; text-decoration: none;
+}
+.nav-pill:hover, .nav-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 860px; margin: 0 auto; padding: 0 20px 4rem; }
+
+/* ── Section Header ── */
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  margin: 4rem 0 2rem; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-header-icon { font-size: 1.8rem; }
+.section-header h2 { font-size: 1.5rem; font-weight: 700; }
+.section-header .section-label {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  color: var(--accent); letter-spacing: 2px; text-transform: uppercase;
+  margin-left: auto;
+}
+
+/* ── Overview Stats ── */
+.overview-stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px; margin-bottom: 2rem;
+}
+.stat-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; text-align: center;
+  transition: all 0.3s;
+}
+.stat-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+.stat-num {
+  font-size: 2.2rem; font-weight: 900; font-family: var(--font-mono);
+  background: linear-gradient(135deg, var(--accent4), var(--accent3));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.stat-label { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; }
+
+/* ── Config Panel ── */
+.config-panel {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; margin-bottom: 2rem;
+}
+.config-row {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.config-row:last-child { margin-bottom: 0; }
+.config-label {
+  font-size: 0.85rem; color: var(--text-dim); min-width: 140px;
+}
+.config-slider {
+  flex: 1; min-width: 120px;
+  -webkit-appearance: none; appearance: none;
+  height: 6px; border-radius: 3px;
+  background: var(--border); outline: none;
+}
+.config-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--accent); cursor: pointer;
+  border: 2px solid var(--bg);
+}
+.config-slider::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--accent); cursor: pointer;
+  border: 2px solid var(--bg);
+}
+.config-value {
+  font-family: var(--font-mono); font-size: 0.9rem;
+  color: var(--accent3); min-width: 70px; text-align: right;
+}
+.config-date {
+  font-family: var(--font-mono); font-size: 0.85rem;
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--text); padding: 6px 12px; border-radius: 8px;
+}
+
+/* ── Forgetting Curve ── */
+.curve-container {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; margin-bottom: 2rem;
+  position: relative;
+}
+.curve-canvas { width: 100%; height: 280px; display: block; }
+.curve-legend {
+  display: flex; justify-content: center; gap: 24px; margin-top: 16px;
+  font-size: 0.8rem; color: var(--text-dim);
+}
+.curve-legend-item { display: flex; align-items: center; gap: 6px; }
+.curve-legend-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+}
+
+/* ── Daily Timeline ── */
+.timeline { display: flex; flex-direction: column; gap: 12px; }
+.day-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 22px; transition: all 0.3s;
+  display: grid; grid-template-columns: 60px 1fr auto; gap: 16px; align-items: start;
+}
+.day-card:hover { border-color: var(--accent); transform: translateX(4px); }
+.day-card.completed { opacity: 0.5; }
+.day-card.completed:hover { opacity: 0.8; }
+.day-card.today { border-color: var(--accent3); box-shadow: 0 0 20px rgba(78,205,196,0.15); }
+.day-num {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent); text-align: center;
+}
+.day-num-big {
+  font-size: 1.8rem; font-weight: 900; line-height: 1;
+  background: linear-gradient(135deg, var(--accent), var(--accent3));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.day-date { font-size: 0.7rem; color: var(--text-dim); margin-top: 2px; }
+.day-content { min-width: 0; }
+.day-tasks { display: flex; flex-direction: column; gap: 6px; }
+.day-task {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.85rem; line-height: 1.5;
+}
+.task-badge {
+  font-family: var(--font-mono); font-size: 0.65rem;
+  padding: 2px 8px; border-radius: 2rem; flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+.task-badge.new {
+  background: rgba(78,205,196,0.15); color: var(--accent3);
+  border: 1px solid rgba(78,205,196,0.3);
+}
+.task-badge.review {
+  background: rgba(108,99,255,0.15); color: var(--accent);
+  border: 1px solid rgba(108,99,255,0.3);
+}
+.task-time {
+  font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-dim);
+  margin-left: auto; flex-shrink: 0;
+}
+.day-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.day-total {
+  font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700;
+  color: var(--accent4);
+}
+.day-check {
+  width: 24px; height: 24px; border-radius: 6px;
+  border: 2px solid var(--border); background: transparent;
+  cursor: pointer; transition: all 0.2s; display: flex;
+  align-items: center; justify-content: center;
+  color: transparent; font-size: 14px;
+}
+.day-check:hover { border-color: var(--accent3); }
+.day-check.checked {
+  background: var(--accent3); border-color: var(--accent3); color: #fff;
+}
+
+/* ── Week Separator ── */
+.week-sep {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 0; color: var(--text-dim); font-size: 0.75rem;
+  font-family: var(--font-mono); letter-spacing: 1px;
+}
+.week-sep::before, .week-sep::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── Progress Summary ── */
+.progress-bar-container {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 24px; margin-bottom: 2rem;
+}
+.progress-label {
+  display: flex; justify-content: space-between; margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+.progress-track {
+  height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; border-radius: 4px; transition: width 0.5s ease;
+  background: linear-gradient(90deg, var(--accent3), var(--accent));
+}
+
+/* ── Info Box ── */
+.info-box {
+  background: rgba(var(--accent-rgb),0.08); border: 1px solid rgba(var(--accent-rgb),0.2);
+  border-radius: var(--radius); padding: 20px 24px; margin-bottom: 2rem;
+  font-size: 0.85rem; color: var(--text-dim); line-height: 1.8;
+}
+.info-box strong { color: var(--accent3); }
+.info-box .interval-list {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;
+}
+.info-box .interval-tag {
+  background: rgba(var(--accent-rgb),0.15); color: var(--accent);
+  padding: 2px 10px; border-radius: 2rem; font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Footer ── */
+.footer {
+  text-align: center; padding: 2rem 0; color: var(--text-dim);
+  font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 3rem;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .hero { min-height: 40vh; padding: 3rem 1.5rem 2rem; }
+  .overview-stats { grid-template-columns: repeat(2, 1fr); }
+  .day-card { grid-template-columns: 50px 1fr auto; padding: 14px 16px; gap: 12px; }
+  .config-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .config-value { min-width: auto; text-align: left; }
+  .curve-canvas { height: 200px; }
+}
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<section class="hero">
+  <a href="index.html" class="back-link">&larr; Back</a>
+  <div class="hero-icon">&#x1F4C5;</div>
+  <h1>Schedule</h1>
+  <p class="hero-subtitle">Spaced-repetition learning plan with Ebbinghaus forgetting curve</p>
+  <div class="hero-book">🌿 英语词根与单词的说文解字</div>
+</section>
+
+<nav class="section-nav">
+  <a class="nav-pill active" href="#overview" onclick="scrollToSection('overview',this)">Overview</a>
+  <a class="nav-pill" href="#curve" onclick="scrollToSection('curve',this)">Forgetting Curve</a>
+  <a class="nav-pill" href="#config" onclick="scrollToSection('config',this)">Settings</a>
+  <a class="nav-pill" href="#timeline" onclick="scrollToSection('timeline',this)">Daily Plan</a>
+</nav>
+
+<main class="container">
+
+  <!-- Overview -->
+  <div class="section-header fade-in" id="overview">
+    <span class="section-header-icon">&#x1F4CA;</span>
+    <h2>Overview</h2>
+    <span class="section-label">DASHBOARD</span>
+  </div>
+
+  <div class="progress-bar-container fade-in">
+    <div class="progress-label">
+      <span id="progressText">0 / 0 days completed</span>
+      <span id="progressPct" style="font-family:var(--font-mono);color:var(--accent3)">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="overview-stats fade-in" id="statsContainer"></div>
+
+  <!-- Forgetting Curve -->
+  <div class="section-header fade-in" id="curve">
+    <span class="section-header-icon">&#x1F4C9;</span>
+    <h2>Ebbinghaus Forgetting Curve</h2>
+    <span class="section-label">MEMORY RETENTION</span>
+  </div>
+
+  <div class="info-box fade-in">
+    According to Ebbinghaus's research, memory retention drops exponentially without review.
+    <strong>Spaced repetition</strong> at optimal intervals can raise retention from ~20% to ~90%.
+    <br>Review intervals used in this schedule:
+    <div class="interval-list" id="intervalList"></div>
+  </div>
+
+  <div class="curve-container fade-in">
+    <canvas class="curve-canvas" id="curveCanvas"></canvas>
+    <div class="curve-legend">
+      <div class="curve-legend-item"><div class="curve-legend-dot" style="background:var(--accent2)"></div> Without review</div>
+      <div class="curve-legend-item"><div class="curve-legend-dot" style="background:var(--accent3)"></div> With spaced review</div>
+      <div class="curve-legend-item"><div class="curve-legend-dot" style="background:var(--accent4)"></div> Review points</div>
+    </div>
+  </div>
+
+  <!-- Config -->
+  <div class="section-header fade-in" id="config">
+    <span class="section-header-icon">&#x2699;&#xFE0F;</span>
+    <h2>Settings</h2>
+    <span class="section-label">CUSTOMIZE</span>
+  </div>
+
+  <div class="config-panel fade-in">
+    <div class="config-row">
+      <span class="config-label">New chapters / day</span>
+      <input type="range" class="config-slider" id="paceSlider" min="1" max="3" step="1" value="1">
+      <span class="config-value" id="paceValue">1</span>
+    </div>
+    <div class="config-row">
+      <span class="config-label">Start date</span>
+      <input type="date" class="config-date" id="startDate">
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="section-header fade-in" id="timeline">
+    <span class="section-header-icon">&#x1F5D3;&#xFE0F;</span>
+    <h2>Daily Plan</h2>
+    <span class="section-label">DAY BY DAY</span>
+  </div>
+
+  <div class="timeline" id="timelineContainer"></div>
+
+</main>
+
+<div class="footer">
+  Scheduled with <a href="https://en.wikipedia.org/wiki/Spaced_repetition">Spaced Repetition</a> &amp;
+  <a href="https://en.wikipedia.org/wiki/Forgetting_curve">Ebbinghaus Forgetting Curve</a>
+</div>
+
+<script>
+const meta = {
+  "title": "英语词根与单词的说文解字",
+  "titleEn": "English Word Roots: Shuowen Jiezi",
+  "author": "李平武",
+  "icon": "🌿",
+  "slug": "yingyu-cigen",
+  "methodLabel": "FEYNMAN METHOD",
+  "stats": [
+    {
+      "num": "22",
+      "label": "Chapters"
+    },
+    {
+      "num": "3",
+      "label": "Parts"
+    },
+    {
+      "num": "450+",
+      "label": "Roots"
+    }
+  ]
+};
+
+const schedule = {
+  "defaultMinutesPerDay": 45,
+  "defaultPace": 1,
+  "reviewIntervals": [
+    1,
+    3,
+    7,
+    14,
+    30
+  ],
+  "chapters": [
+    {
+      "num": 1,
+      "estimatedMinutes": 20,
+      "difficulty": "easy",
+      "type": "theory"
+    },
+    {
+      "num": 2,
+      "estimatedMinutes": 30,
+      "difficulty": "medium",
+      "type": "theory"
+    },
+    {
+      "num": 3,
+      "estimatedMinutes": 25,
+      "difficulty": "medium",
+      "type": "theory"
+    },
+    {
+      "num": 4,
+      "estimatedMinutes": 35,
+      "difficulty": "medium",
+      "type": "theory"
+    },
+    {
+      "num": 5,
+      "estimatedMinutes": 25,
+      "difficulty": "medium",
+      "type": "theory"
+    },
+    {
+      "num": 6,
+      "estimatedMinutes": 30,
+      "difficulty": "hard",
+      "type": "theory"
+    },
+    {
+      "num": 7,
+      "estimatedMinutes": 30,
+      "difficulty": "hard",
+      "type": "theory"
+    },
+    {
+      "num": 8,
+      "estimatedMinutes": 40,
+      "difficulty": "hard",
+      "type": "theory"
+    },
+    {
+      "num": 9,
+      "estimatedMinutes": 30,
+      "difficulty": "hard",
+      "type": "theory"
+    },
+    {
+      "num": 10,
+      "estimatedMinutes": 40,
+      "difficulty": "hard",
+      "type": "theory"
+    },
+    {
+      "num": 11,
+      "estimatedMinutes": 50,
+      "difficulty": "hard",
+      "type": "roots"
+    },
+    {
+      "num": 12,
+      "estimatedMinutes": 50,
+      "difficulty": "hard",
+      "type": "roots"
+    },
+    {
+      "num": 13,
+      "estimatedMinutes": 50,
+      "difficulty": "hard",
+      "type": "roots"
+    },
+    {
+      "num": 14,
+      "estimatedMinutes": 55,
+      "difficulty": "hard",
+      "type": "roots"
+    },
+    {
+      "num": 15,
+      "estimatedMinutes": 55,
+      "difficulty": "hard",
+      "type": "roots"
+    },
+    {
+      "num": 16,
+      "estimatedMinutes": 50,
+      "difficulty": "hard",
+      "type": "roots"
+    },
+    {
+      "num": 17,
+      "estimatedMinutes": 50,
+      "difficulty": "hard",
+      "type": "roots"
+    },
+    {
+      "num": 18,
+      "estimatedMinutes": 50,
+      "difficulty": "hard",
+      "type": "roots"
+    },
+    {
+      "num": 19,
+      "estimatedMinutes": 40,
+      "difficulty": "medium",
+      "type": "reference"
+    },
+    {
+      "num": 20,
+      "estimatedMinutes": 40,
+      "difficulty": "medium",
+      "type": "reference"
+    },
+    {
+      "num": 21,
+      "estimatedMinutes": 35,
+      "difficulty": "medium",
+      "type": "reference"
+    },
+    {
+      "num": 22,
+      "estimatedMinutes": 30,
+      "difficulty": "easy",
+      "type": "review"
+    }
+  ]
+};
+
+const chapterManifest = [
+  {
+    "num": 1,
+    "slug": "ch01",
+    "title": "什么是词根",
+    "titleEn": "What Is a Root?",
+    "icon": "🧬"
+  },
+  {
+    "num": 2,
+    "slug": "ch02",
+    "title": "英语词汇中的词根",
+    "titleEn": "Roots in English Vocabulary",
+    "icon": "🏛️"
+  },
+  {
+    "num": 3,
+    "slug": "ch03",
+    "title": "词根的形态与含义之由来",
+    "titleEn": "Origin of Root Forms & Meanings",
+    "icon": "🔍"
+  },
+  {
+    "num": 4,
+    "slug": "ch04",
+    "title": "从词根看词缀",
+    "titleEn": "Affixes Through the Lens of Roots",
+    "icon": "🔗"
+  },
+  {
+    "num": 5,
+    "slug": "ch05",
+    "title": "从词素角度反思构词法",
+    "titleEn": "Morpheme-Based Word Formation",
+    "icon": "🧱"
+  },
+  {
+    "num": 6,
+    "slug": "ch06",
+    "title": "形：词根与派生词的词形",
+    "titleEn": "Form: Root & Derived Word Shapes",
+    "icon": "✍️"
+  },
+  {
+    "num": 7,
+    "slug": "ch07",
+    "title": "音：词根与派生词的重音",
+    "titleEn": "Sound: Root Pronunciation & Stress",
+    "icon": "🔊"
+  },
+  {
+    "num": 8,
+    "slug": "ch08",
+    "title": "义：词根与派生词的词义",
+    "titleEn": "Meaning: Root Semantics & Word Meaning",
+    "icon": "💡"
+  },
+  {
+    "num": 9,
+    "slug": "ch09",
+    "title": "性：词根与派生词的词性",
+    "titleEn": "Properties: Root Attributes & POS",
+    "icon": "🏷️"
+  },
+  {
+    "num": 10,
+    "slug": "ch10",
+    "title": "单根词与同形词根辨别",
+    "titleEn": "Single-Root Words & Homograph Roots",
+    "icon": "⚖️"
+  },
+  {
+    "num": 11,
+    "slug": "ch11",
+    "title": "词根1-15: ag~cap",
+    "titleEn": "Roots 1-15: ag to cap",
+    "icon": "📖"
+  },
+  {
+    "num": 12,
+    "slug": "ch12",
+    "title": "词根16-30: ced~dict",
+    "titleEn": "Roots 16-30: ced to dict",
+    "icon": "📖"
+  },
+  {
+    "num": 13,
+    "slug": "ch13",
+    "title": "词根31-45: duc~grad",
+    "titleEn": "Roots 31-45: duc to grad",
+    "icon": "📖"
+  },
+  {
+    "num": 14,
+    "slug": "ch14",
+    "title": "词根46-60: graph~manu",
+    "titleEn": "Roots 46-60: graph to manu",
+    "icon": "📖"
+  },
+  {
+    "num": 15,
+    "slug": "ch15",
+    "title": "词根61-75: medi~pend",
+    "titleEn": "Roots 61-75: medi to pend",
+    "icon": "📖"
+  },
+  {
+    "num": 16,
+    "slug": "ch16",
+    "title": "词根76-90: pon~sist",
+    "titleEn": "Roots 76-90: pon to sist",
+    "icon": "📖"
+  },
+  {
+    "num": 17,
+    "slug": "ch17",
+    "title": "词根91-105: soci~tract",
+    "titleEn": "Roots 91-105: soci to tract",
+    "icon": "📖"
+  },
+  {
+    "num": 18,
+    "slug": "ch18",
+    "title": "词根106-120: tribute~voc",
+    "titleEn": "Roots 106-120: tribute to voc",
+    "icon": "📖"
+  },
+  {
+    "num": 19,
+    "slug": "ch19",
+    "title": "常用词根 A-F",
+    "titleEn": "Common Roots A-F",
+    "icon": "📚"
+  },
+  {
+    "num": 20,
+    "slug": "ch20",
+    "title": "常用词根 G-P",
+    "titleEn": "Common Roots G-P",
+    "icon": "📚"
+  },
+  {
+    "num": 21,
+    "slug": "ch21",
+    "title": "常用词根 Q-Z",
+    "titleEn": "Common Roots Q-Z",
+    "icon": "📚"
+  },
+  {
+    "num": 22,
+    "slug": "ch22",
+    "title": "综合练习与复习",
+    "titleEn": "Review Exercises & Practice",
+    "icon": "📝"
+  }
+];
+
+
+(function() {
+  var sched = typeof schedule !== 'undefined' ? schedule : {};
+  var chapters = typeof chapterManifest !== 'undefined' ? chapterManifest : [];
+  var bookMeta = typeof meta !== 'undefined' ? meta : {};
+
+  var INTERVALS = sched.reviewIntervals || [1, 3, 7, 14, 30];
+  var REVIEW_RATIO = 0.3;
+  var chapData = sched.chapters || [];
+  var storageKey = 'schedule_' + (bookMeta.slug || 'book');
+
+  // ── Load saved state ──
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem(storageKey)) || {}; }
+    catch(e) { return {}; }
+  }
+  function saveState(s) { localStorage.setItem(storageKey, JSON.stringify(s)); }
+
+  var state = loadState();
+  if (!state.completed) state.completed = {};
+  if (!state.pace) state.pace = sched.defaultPace || 1;
+  if (!state.startDate) {
+    var d = new Date(); state.startDate = d.toISOString().slice(0, 10);
+  }
+
+  // ── Init config ──
+  var paceSlider = document.getElementById('paceSlider');
+  var paceValue = document.getElementById('paceValue');
+  var startDateInput = document.getElementById('startDate');
+
+  paceSlider.value = state.pace;
+  paceValue.textContent = state.pace;
+  startDateInput.value = state.startDate;
+
+  paceSlider.oninput = function() {
+    state.pace = parseInt(this.value);
+    paceValue.textContent = state.pace;
+    saveState(state);
+    rebuild();
+  };
+  startDateInput.onchange = function() {
+    state.startDate = this.value;
+    saveState(state);
+    rebuild();
+  };
+
+  // ── Render intervals ──
+  var intervalList = document.getElementById('intervalList');
+  INTERVALS.forEach(function(d) {
+    var tag = document.createElement('span');
+    tag.className = 'interval-tag';
+    tag.textContent = '+' + d + ' day' + (d > 1 ? 's' : '');
+    intervalList.appendChild(tag);
+  });
+
+  // ── Build schedule ──
+  function buildSchedule(pace) {
+    var days = [];
+    var totalChapters = chapData.length;
+    var dayIndex = 0;
+
+    // Assign new chapters to days
+    var chapterDay = {};
+    for (var i = 0; i < totalChapters; i++) {
+      var dayNum = Math.floor(i / pace);
+      if (!days[dayNum]) days[dayNum] = { newChapters: [], reviews: [] };
+      days[dayNum].newChapters.push(chapData[i]);
+      chapterDay[chapData[i].num] = dayNum;
+    }
+
+    // Add review sessions
+    for (var ci = 0; ci < totalChapters; ci++) {
+      var ch = chapData[ci];
+      var studyDay = chapterDay[ch.num];
+      for (var ri = 0; ri < INTERVALS.length; ri++) {
+        var reviewDay = studyDay + INTERVALS[ri];
+        if (!days[reviewDay]) days[reviewDay] = { newChapters: [], reviews: [] };
+        days[reviewDay].reviews.push({
+          num: ch.num,
+          title: getChapterTitle(ch.num),
+          round: ri + 1,
+          minutes: Math.ceil((ch.estimatedMinutes || 30) * REVIEW_RATIO)
+        });
+      }
+    }
+
+    // Fill empty days and compute totals
+    var maxDay = days.length;
+    var result = [];
+    for (var d = 0; d < maxDay; d++) {
+      var day = days[d] || { newChapters: [], reviews: [] };
+      var totalMin = 0;
+      day.newChapters.forEach(function(c) { totalMin += (c.estimatedMinutes || 30); });
+      day.reviews.forEach(function(r) { totalMin += r.minutes; });
+      day.totalMinutes = totalMin;
+      day.dayNum = d + 1;
+      if (totalMin > 0) result.push(day);
+    }
+    return result;
+  }
+
+  function getChapterTitle(num) {
+    for (var i = 0; i < chapters.length; i++) {
+      if (chapters[i].num === num) return chapters[i].title || ('Ch.' + num);
+    }
+    return 'Ch.' + num;
+  }
+
+  function getChapterIcon(num) {
+    for (var i = 0; i < chapters.length; i++) {
+      if (chapters[i].num === num) return chapters[i].icon || '';
+    }
+    return '';
+  }
+
+  function formatDate(startStr, dayOffset) {
+    var d = new Date(startStr);
+    d.setDate(d.getDate() + dayOffset);
+    var m = d.getMonth() + 1;
+    var day = d.getDate();
+    var weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return m + '/' + day + ' ' + weekdays[d.getDay()];
+  }
+
+  function isToday(startStr, dayOffset) {
+    var d = new Date(startStr);
+    d.setDate(d.getDate() + dayOffset);
+    var today = new Date();
+    return d.toDateString() === today.toDateString();
+  }
+
+  // ── Render ──
+  function rebuild() {
+    var pace = state.pace;
+    var plan = buildSchedule(pace);
+    var totalDays = plan.length;
+    var totalHours = 0;
+    plan.forEach(function(d) { totalHours += d.totalMinutes; });
+    totalHours = Math.round(totalHours / 60 * 10) / 10;
+    var newStudyDays = 0;
+    plan.forEach(function(d) { if (d.newChapters.length > 0) newStudyDays++; });
+
+    // Stats
+    var statsContainer = document.getElementById('statsContainer');
+    statsContainer.innerHTML = '';
+    var stats = [
+      { num: totalDays, label: 'Total Days' },
+      { num: totalHours + 'h', label: 'Total Time' },
+      { num: chapData.length, label: 'Chapters' },
+      { num: INTERVALS.length, label: 'Review Rounds' }
+    ];
+    stats.forEach(function(s) {
+      var card = document.createElement('div');
+      card.className = 'stat-card fade-in';
+      card.innerHTML = '<div class="stat-num">' + s.num + '</div><div class="stat-label">' + s.label + '</div>';
+      statsContainer.appendChild(card);
+    });
+
+    // Progress
+    var completedCount = 0;
+    plan.forEach(function(d) {
+      if (state.completed['d' + d.dayNum]) completedCount++;
+    });
+    var pct = totalDays > 0 ? Math.round(completedCount / totalDays * 100) : 0;
+    document.getElementById('progressText').textContent = completedCount + ' / ' + totalDays + ' days completed';
+    document.getElementById('progressPct').textContent = pct + '%';
+    document.getElementById('progressFill').style.width = pct + '%';
+
+    // Timeline
+    var container = document.getElementById('timelineContainer');
+    container.innerHTML = '';
+    var prevWeek = -1;
+
+    plan.forEach(function(day) {
+      var dayOffset = day.dayNum - 1;
+      var weekNum = Math.floor(dayOffset / 7) + 1;
+
+      if (weekNum !== prevWeek) {
+        var sep = document.createElement('div');
+        sep.className = 'week-sep fade-in';
+        sep.textContent = 'WEEK ' + weekNum;
+        container.appendChild(sep);
+        prevWeek = weekNum;
+      }
+
+      var card = document.createElement('div');
+      card.className = 'day-card fade-in';
+      if (state.completed['d' + day.dayNum]) card.classList.add('completed');
+      if (isToday(state.startDate, dayOffset)) card.classList.add('today');
+
+      var dayNumHtml = '<div class="day-num"><div class="day-num-big">' + day.dayNum + '</div>' +
+        '<div class="day-date">' + formatDate(state.startDate, dayOffset) + '</div></div>';
+
+      var tasksHtml = '<div class="day-content"><div class="day-tasks">';
+      day.newChapters.forEach(function(ch) {
+        var icon = getChapterIcon(ch.num);
+        tasksHtml += '<div class="day-task">' +
+          '<span class="task-badge new">NEW</span>' +
+          '<span>' + icon + ' Ch.' + ch.num + ' ' + escHtml(getChapterTitle(ch.num)) + '</span>' +
+          '<span class="task-time">' + (ch.estimatedMinutes || 30) + ' min</span></div>';
+      });
+      day.reviews.forEach(function(r) {
+        tasksHtml += '<div class="day-task">' +
+          '<span class="task-badge review">R' + r.round + '</span>' +
+          '<span>Ch.' + r.num + ' ' + escHtml(r.title) + '</span>' +
+          '<span class="task-time">' + r.minutes + ' min</span></div>';
+      });
+      tasksHtml += '</div></div>';
+
+      var rightHtml = '<div class="day-right">' +
+        '<div class="day-total">' + day.totalMinutes + ' min</div>' +
+        '<button class="day-check' + (state.completed['d' + day.dayNum] ? ' checked' : '') +
+        '" data-day="' + day.dayNum + '">&#x2713;</button></div>';
+
+      card.innerHTML = dayNumHtml + tasksHtml + rightHtml;
+      container.appendChild(card);
+    });
+
+    // Re-bind check buttons
+    container.querySelectorAll('.day-check').forEach(function(btn) {
+      btn.onclick = function() {
+        var dayKey = 'd' + this.getAttribute('data-day');
+        state.completed[dayKey] = !state.completed[dayKey];
+        saveState(state);
+        this.classList.toggle('checked');
+        this.closest('.day-card').classList.toggle('completed');
+        // Update progress
+        var cc = 0;
+        plan.forEach(function(d) { if (state.completed['d' + d.dayNum]) cc++; });
+        var p = totalDays > 0 ? Math.round(cc / totalDays * 100) : 0;
+        document.getElementById('progressText').textContent = cc + ' / ' + totalDays + ' days completed';
+        document.getElementById('progressPct').textContent = p + '%';
+        document.getElementById('progressFill').style.width = p + '%';
+      };
+    });
+
+    // Re-observe fade-in
+    observeAll();
+  }
+
+  // ── Draw Forgetting Curve ──
+  function drawCurve() {
+    var canvas = document.getElementById('curveCanvas');
+    var dpr = window.devicePixelRatio || 1;
+    var rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    var ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    var W = rect.width, H = rect.height;
+    var pad = { top: 30, right: 20, bottom: 40, left: 50 };
+    var gW = W - pad.left - pad.right;
+    var gH = H - pad.top - pad.bottom;
+
+    // Get computed colors
+    var styles = getComputedStyle(document.documentElement);
+    var textDim = styles.getPropertyValue('--text-dim').trim() || '#8888a0';
+    var accent2 = styles.getPropertyValue('--accent2').trim() || '#ff6b6b';
+    var accent3 = styles.getPropertyValue('--accent3').trim() || '#4ecdc4';
+    var accent4 = styles.getPropertyValue('--accent4').trim() || '#ffe66d';
+    var borderCol = styles.getPropertyValue('--border').trim() || '#2a2d3a';
+
+    var maxDays = INTERVALS[INTERVALS.length - 1] + 5;
+    var xScale = function(d) { return pad.left + (d / maxDays) * gW; };
+    var yScale = function(r) { return pad.top + (1 - r) * gH; };
+
+    // Grid lines
+    ctx.strokeStyle = borderCol;
+    ctx.lineWidth = 0.5;
+    for (var y = 0; y <= 100; y += 20) {
+      ctx.beginPath();
+      ctx.moveTo(pad.left, yScale(y / 100));
+      ctx.lineTo(W - pad.right, yScale(y / 100));
+      ctx.stroke();
+    }
+
+    // Axes labels
+    ctx.fillStyle = textDim;
+    ctx.font = '11px JetBrains Mono, monospace';
+    ctx.textAlign = 'right';
+    for (var y = 0; y <= 100; y += 20) {
+      ctx.fillText(y + '%', pad.left - 8, yScale(y / 100) + 4);
+    }
+    ctx.textAlign = 'center';
+    for (var d = 0; d <= maxDays; d += 5) {
+      ctx.fillText('D' + d, xScale(d), H - pad.bottom + 20);
+    }
+
+    // Forgetting curve without review: R(t) = e^(-t/S), S=1.5 (fast decay)
+    ctx.strokeStyle = accent2;
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    for (var t = 0; t <= maxDays; t += 0.2) {
+      var r = Math.exp(-t / 1.84);
+      var x = xScale(t), y = yScale(r);
+      if (t === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Forgetting curve WITH review (sawtooth pattern)
+    ctx.strokeStyle = accent3;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    var reviewPoints = [];
+    var stability = 1.84;
+    var lastReview = 0;
+    var retention = 1.0;
+
+    for (var t = 0; t <= maxDays; t += 0.2) {
+      // Check if this is a review point
+      for (var ri = 0; ri < INTERVALS.length; ri++) {
+        if (Math.abs(t - INTERVALS[ri]) < 0.15 && t > lastReview + 0.5) {
+          reviewPoints.push({ day: INTERVALS[ri], retention: retention });
+          retention = 0.95 - ri * 0.01;
+          stability = stability * 1.8;
+          lastReview = t;
+          break;
+        }
+      }
+      retention = Math.exp(-(t - lastReview) / stability);
+      if (lastReview > 0) retention = Math.min(retention, 0.95 - 0.01);
+      else retention = Math.exp(-t / 1.84);
+      var x = xScale(t), y = yScale(Math.max(retention, 0));
+      if (t === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Redraw with proper sawtooth
+    ctx.clearRect(pad.left, pad.top, gW, gH);
+    // Redraw grid
+    ctx.strokeStyle = borderCol;
+    ctx.lineWidth = 0.5;
+    for (var y = 0; y <= 100; y += 20) {
+      ctx.beginPath();
+      ctx.moveTo(pad.left, yScale(y / 100));
+      ctx.lineTo(W - pad.right, yScale(y / 100));
+      ctx.stroke();
+    }
+
+    // No-review curve (dashed)
+    ctx.strokeStyle = accent2;
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    for (var t = 0; t <= maxDays; t += 0.2) {
+      var r = Math.exp(-t / 1.84);
+      var x = xScale(t), yy = yScale(r);
+      if (t === 0) ctx.moveTo(x, yy); else ctx.lineTo(x, yy);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // With-review curve (sawtooth)
+    ctx.strokeStyle = accent3;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+
+    var segments = [{ start: 0, end: INTERVALS[0], S: 1.84, baseR: 1.0 }];
+    for (var ri = 0; ri < INTERVALS.length; ri++) {
+      var nextEnd = ri < INTERVALS.length - 1 ? INTERVALS[ri + 1] : maxDays;
+      segments.push({
+        start: INTERVALS[ri],
+        end: nextEnd,
+        S: 1.84 * Math.pow(2, ri + 1),
+        baseR: 0.95
+      });
+    }
+
+    var rpList = [];
+    for (var si = 0; si < segments.length; si++) {
+      var seg = segments[si];
+      for (var t = seg.start; t <= seg.end; t += 0.2) {
+        var elapsed = t - seg.start;
+        var r = seg.baseR * Math.exp(-elapsed / seg.S);
+        var x = xScale(t), yy = yScale(r);
+        if (si === 0 && t === 0) ctx.moveTo(x, yy); else ctx.lineTo(x, yy);
+      }
+      if (si < segments.length - 1) {
+        var reviewDay = INTERVALS[si];
+        var elapsed2 = reviewDay - seg.start;
+        var rAtReview = seg.baseR * Math.exp(-elapsed2 / seg.S);
+        rpList.push({ day: reviewDay, retention: rAtReview });
+      }
+    }
+    ctx.stroke();
+
+    // Review points (circles)
+    rpList.forEach(function(rp) {
+      ctx.beginPath();
+      ctx.arc(xScale(rp.day), yScale(0.95), 6, 0, Math.PI * 2);
+      ctx.fillStyle = accent4;
+      ctx.fill();
+      ctx.strokeStyle = accent4;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Vertical dashed line
+      ctx.setLineDash([3, 3]);
+      ctx.strokeStyle = accent4;
+      ctx.lineWidth = 1;
+      ctx.globalAlpha = 0.4;
+      ctx.beginPath();
+      ctx.moveTo(xScale(rp.day), yScale(rp.retention));
+      ctx.lineTo(xScale(rp.day), yScale(0.95));
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+    });
+
+    // Labels
+    ctx.fillStyle = textDim;
+    ctx.font = '12px Noto Sans SC, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Days after learning', W / 2, H - 5);
+    ctx.save();
+    ctx.translate(14, H / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Retention %', 0, 0);
+    ctx.restore();
+  }
+
+  // ── Utility ──
+  function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // ── IntersectionObserver ──
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  function observeAll() {
+    document.querySelectorAll('.fade-in:not(.visible)').forEach(function(el) {
+      observer.observe(el);
+    });
+  }
+
+  // Scroll progress bar
+  window.addEventListener('scroll', function() {
+    var h = document.documentElement;
+    var pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    document.getElementById('progress-bar').style.width = Math.min(pct, 100) + '%';
+  });
+
+  // Active nav tracking
+  var navSections = ['overview', 'curve', 'config', 'timeline'];
+  var navPills = document.querySelectorAll('.nav-pill');
+  var sectionObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        navPills.forEach(function(p) { p.classList.remove('active'); });
+        var pill = document.querySelector('.nav-pill[href="#' + entry.target.id + '"]');
+        if (pill) pill.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -60% 0px' });
+  navSections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) sectionObs.observe(el);
+  });
+
+  // ── Init ──
+  rebuild();
+  drawCurve();
+  window.addEventListener('resize', drawCurve);
+})();
+
+function scrollToSection(id, el) {
+  var target = document.getElementById(id);
+  if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.nav-pill').forEach(function(p) { p.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+</script>
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+  <span class="theme-toggle-icon" id="themeIcon"></span>
+</button>
+<style>
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
+</body>
+</html>

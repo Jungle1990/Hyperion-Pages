@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interleaved Review · 英语词根与单词的说文解字 | Book Breakdown</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --glow: rgba(var(--accent-rgb), 0.15);
+    --radius: 14px;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: #fff; }
+
+/* ── Compact Hero ── */
+.hero { padding: 3rem 2rem 2rem; text-align: center; position: relative; }
+.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 20%, rgba(var(--accent-rgb),0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(var(--accent2-rgb),0.06) 0%, transparent 50%); pointer-events: none; }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px rgba(var(--accent-rgb),0.3)); }
+.hero h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 900; margin-bottom: 0.3rem; }
+.hero-en { font-size: 1rem; color: var(--text-dim); font-weight: 300; margin-bottom: 0.5rem; }
+.hero-badge { display: inline-block; padding: 0.4rem 1.2rem; border: 1px solid var(--accent4); border-radius: 2rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; }
+.back-link { position: absolute; top: 1.5rem; left: 1.5rem; text-decoration: none; color: var(--text-dim); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; transition: color 0.3s; }
+.back-link:hover { color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Mode Selector ── */
+.mode-bar { display: flex; justify-content: center; gap: 12px; margin: 2rem 0; flex-wrap: wrap; }
+.mode-btn { padding: 10px 24px; border: 1px solid var(--border); border-radius: 2rem; background: transparent; color: var(--text-dim); font-family: var(--font-sans); font-size: 0.9rem; cursor: pointer; transition: all 0.3s; }
+.mode-btn:hover { border-color: var(--accent); color: var(--text); }
+.mode-btn.active { border-color: var(--accent); background: rgba(var(--accent-rgb),0.15); color: var(--accent); }
+
+/* ── Score Tracker ── */
+.score-bar { display: flex; align-items: center; justify-content: center; gap: 2rem; margin-bottom: 2rem; padding: 1rem; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); }
+.score-label { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim); letter-spacing: 1px; }
+.score-num { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; }
+.score-correct { color: var(--accent3); }
+.score-total { color: var(--text-dim); }
+.score-pct { color: var(--accent4); font-size: 1.2rem; }
+.reset-btn { padding: 6px 16px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.3s; letter-spacing: 1px; }
+.reset-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+/* ── Quiz Cards ── */
+.quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; }
+.quiz-card:hover { border-color: var(--accent); }
+.quiz-card.correct { border-color: var(--accent3); }
+.quiz-card.incorrect { border-color: var(--accent2); }
+.quiz-chapter-tag { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 8px; display: inline-block; padding: 2px 10px; border-radius: 4px; }
+.quiz-chapter-tag.hidden { background: rgba(var(--accent-rgb),0.15); color: var(--accent); }
+.quiz-chapter-tag.visible { background: rgba(var(--accent3-rgb),0.15); color: var(--accent3); }
+.quiz-question { font-weight: 500; margin-bottom: 12px; font-size: 1rem; }
+.quiz-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7; padding-top: 0; border-top: none; }
+.quiz-card.open .quiz-answer { padding-top: 12px; border-top: 1px solid var(--border); }
+.quiz-toggle { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent3); letter-spacing: 1px; }
+
+/* Chapter-ID mode */
+.chapter-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.ch-pick-btn { padding: 4px 12px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+.ch-pick-btn:hover { border-color: var(--accent); color: var(--text); }
+.ch-pick-btn.correct { border-color: var(--accent3); color: var(--accent3); background: rgba(var(--accent3-rgb),0.1); }
+.ch-pick-btn.wrong { border-color: var(--accent2); color: var(--accent2); background: rgba(var(--accent2-rgb),0.1); }
+
+/* ── Spaced Review ── */
+.section-header { margin: 3rem 0 1.5rem; }
+.section-badge { display: inline-block; font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.section-title { font-size: 1.4rem; font-weight: 700; }
+.schedule-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+.schedule-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; transition: all 0.3s; }
+.schedule-card:hover { border-color: var(--accent4); }
+.schedule-interval { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 1px; margin-bottom: 6px; }
+.schedule-date { font-size: 0.85rem; color: var(--text-dim); }
+
+/* ── Footer ── */
+.footer { text-align: center; padding: 4rem 0; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+
+/* ── Empty State ── */
+.empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-dim); }
+.empty-state-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 768px) {
+    .score-bar { flex-wrap: wrap; gap: 1rem; }
+    .schedule-grid { grid-template-columns: repeat(3, 1fr); }
+}
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
+</style>
+</head>
+<body>
+
+<section class="hero">
+    <a href="index.html" class="back-link">← 返回目录</a>
+    <div class="hero-icon">🔀</div>
+    <h1>Interleaved Review · 交叉复习</h1>
+    <div class="hero-en">English Word Roots: Shuowen Jiezi</div>
+    <div class="hero-badge">SPACED PRACTICE</div>
+</section>
+
+<div class="container">
+    <div class="mode-bar" id="modeBar">
+        <button class="mode-btn active" data-mode="random">🎲 Random Quiz · 随机测验</button>
+        <button class="mode-btn" data-mode="chapter-id">🔍 Chapter ID · 章节识别</button>
+    </div>
+    <div class="score-bar" id="scoreBar" style="display:none">
+        <div><div class="score-label">CORRECT</div><div class="score-num score-correct" id="scoreCorrect">0</div></div>
+        <div><div class="score-label">TOTAL</div><div class="score-num score-total" id="scoreTotal">0</div></div>
+        <div><div class="score-label">ACCURACY</div><div class="score-num score-pct" id="scorePct">—</div></div>
+        <button class="reset-btn" id="resetBtn">RESET</button>
+    </div>
+    <div id="quizContainer"></div>
+
+    <div class="section-header fade-in">
+        <div class="section-badge">SPACED REVIEW SCHEDULE</div>
+        <div class="section-title">间隔复习计划</div>
+    </div>
+    <div class="schedule-grid" id="scheduleGrid"></div>
+</div>
+
+<div class="footer">
+    Book Breakdown · Interleaved Review · 英语词根与单词的说文解字
+</div>
+
+<script>
+const meta = {
+  "title": "英语词根与单词的说文解字",
+  "titleEn": "English Word Roots: Shuowen Jiezi",
+  "author": "李平武",
+  "icon": "🌿",
+  "slug": "yingyu-cigen",
+  "methodLabel": "FEYNMAN METHOD",
+  "stats": [
+    {
+      "num": "22",
+      "label": "Chapters"
+    },
+    {
+      "num": "3",
+      "label": "Parts"
+    },
+    {
+      "num": "450+",
+      "label": "Roots"
+    }
+  ]
+};
+const allQuizData = [
+  {
+    "chapterNum": 1,
+    "chapterTitle": "什么是词根",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "visible、manuscript、collect 这三个单词的词根分别是什么？各是什么意思？",
+        "answer": "visible 的词根是 vis = to see(看)；manuscript 的词根是 manu = hand(手)；collect 的词根是 lect = to choose(选)。这三个词根都是粘附词根，不能独立使用，但各自拥有稳定的形态和明确的含义。"
+      },
+      {
+        "id": "q2",
+        "question": "为什么说词素构词理论比传统的单词构词理论「更高明」？请用一个类比解释。",
+        "answer": "就像原子论比分子论更能揭示物质结构的本质。传统构词法以单词为基础，只能看到 unfriendly = un + friendly 这个层面；词素构词法以词素为基础，能进一步看到 visible = vis(看) + -ible(能...的)，把那些被认为「不可分析」的单词也拆解开来。前者看的是分子，后者看到了原子。"
+      },
+      {
+        "id": "q3",
+        "question": "自由词根和粘附词根的本质区别是什么？各举两个例子。",
+        "answer": "本质区别在于能否独立构词。自由词根(free root)可以独立作为单词使用，如 friend、wash；粘附词根(bound root)不能独立使用，必须与其他词素结合，如 vis(看)、manu(手)。二者都是带有主要词汇信息的最小词素，只是独立性不同。"
+      },
+      {
+        "id": "q4",
+        "question": "作者为什么特意提到汉语中的偏旁？这和英语词根有什么关系？",
+        "answer": "作者指出汉语也有两种词根：能独立成字的(人、手、心)和不能独立的偏旁(亻、扌、忄)。这与英语的自由词根和粘附词根完全对应。这说明词素构词理论具有跨语言的普适性，中国读者可以借助对汉字偏旁的理解来类比英语粘附词根，降低认知门槛。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 2,
+    "chapterTitle": "英语词汇中的词根",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么说英语是「世界上词汇量最大、语源成分最复杂的语言」？",
+        "answer": "英语经历了多次语言融合：古英语时期以日耳曼语为主体；中古英语时期诺曼征服带来大量拉丁语和古法语词；文艺复兴时期拉丁词和希腊词再次大规模涌入；之后又吸收了50多种外来语成分。总词汇量已超100万，还在不断增加。这种多源头融合造就了独一无二的复杂性。"
+      },
+      {
+        "id": "q2",
+        "question": "state、establish、constitution 这三个单词的共同词根是什么？这说明了什么现象？",
+        "answer": "它们的共同词根是 st(at) = 站(to stand)。这说明古典语源词汇中普遍存在「同根词」现象——多个单词共享同一个词根。st(at)在一部8万词条的词典中有200多个同根词，说明词根数量有限但孳生力极强。"
+      },
+      {
+        "id": "q3",
+        "question": "美国宪法序言的词根分析揭示了什么关于本族语词和古典语词的规律？",
+        "answer": "序言38个不同用词中：15个本族语词分析出16个自由词根，全是简单熟悉的基本词(we, the, in, do)；23个古典语词分析出17个粘附词根，词形复杂、词义生僻(如 vid=看, mun=服务, fens=打)。说明本族语词对读者「宽厚」，无需专门学习；古典语词才是阅读障碍，但它们的词根数量有限(22个词只有17个词根)，可以系统掌握。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 3,
+    "chapterTitle": "词根的形态与含义之由来",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "拉丁动词 amo(我爱) 的词干是什么？英语中由这个词干派生出了哪些单词？",
+        "answer": "词干是 am。由它派生出的英语单词包括：amatory(恋爱的)、amicable(友好的)、amorous(色情的)、enamour(使迷恋)。尽管这些词分别来自拉丁词 amatorius, amicabilis, amorosus, enamourer，但在输入英语、改造正字后，词干 am 始终保持不变。"
+      },
+      {
+        "id": "q2",
+        "question": "英语吸收外来语的「整机输入」和「零件组装」有什么区别？请各举一例。",
+        "answer": "「整机输入」是直接引进外来语词并改造正字：如拉丁 insularis → 英语 insular(岛屿的)，保持词干 insul 不变，改造词尾。「零件组装」是利用外来语词素按英语规则创造新词：如取拉丁词干 insul(岛) + 英语后缀 -in(素) → insulin(胰岛素)，这是古典语中不存在的新造词。两种方式中词干(词根)都是稳定的核心。"
+      },
+      {
+        "id": "q3",
+        "question": "为什么说粘附词根的含义具有「统一性与单一性」？这对学习有什么意义？",
+        "answer": "因为每个粘附词根的含义都来自古典语基本词的单一本义。比如 am 只有「爱」一个核心义，虽然同根词 amatory, amicable, amorous 词义各异，但都能追溯到「爱」这个锚点。这种统一性意味着：只要记住词根的核心含义，就能从这个起点出发，推理并理解所有同根词的词义，大大提高词汇学习的效率。"
+      },
+      {
+        "id": "q4",
+        "question": "作者说把粘附词根排除在词素之外「好比把偏旁赶出汉字大家庭」，你怎么理解这个类比？",
+        "answer": "汉字偏旁(如亻、扌、忄)不能独立成字，但它们有稳定的形态和明确的含义(亻=人、扌=手、忄=心)，是构成汉字不可或缺的基本单位。同样，英语粘附词根(如 vis, am, log)不能独立成词，但有稳定的形态和单纯的含义，是构成英语单词的基本词素。否认它们的地位，就像否认偏旁在汉字中的地位一样荒谬。这个类比对中国读者特别有说服力。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 4,
+    "chapterTitle": "从词根看词缀",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "请解释 provide 这个单词中包含哪些词素，各是什么类型？",
+        "answer": "provide = pro-(原生前缀，意为 forward/向前) + vid(粘附词根，意为 to see/看) + -e(原生后缀)。字面义是「向前看」，引申为「预见需要并提供」。pro- 是介词性原生前缀，vid 是粘附词根，-e 是词尾。三个词素都来自古典语(拉丁语)。"
+      },
+      {
+        "id": "q2",
+        "question": "同样是 ex-，为什么 exceed 中的 ex- 和 ex-president 中的 ex- 性质不同？",
+        "answer": "在 exceed 中，ex- 是原生前缀(= out, 出)，只与粘附词根 ceed(走)结合，是古典语中的原始搭配。在 ex-president 中，ex- 是派生前缀(= former, 前)，与自由词根(完整单词)president 结合。前者保留了古典语的原始含义，后者是被英语同化后获得的新含义。判断依据：看它搭配的是粘附词根还是自由词根/单词。"
+      },
+      {
+        "id": "q3",
+        "question": "用费曼检验：请用自己的话向一个完全不懂语言学的朋友解释「原生词缀」是什么。",
+        "answer": "参考答案：你知道 un-happy 里面的 un- 吗？那种能直接插到英语单词前面的零件，叫「派生词缀」。但英语里还有一种零件，它只能跟「外来的核心部件」(粘附词根)一起用。比如 visible 里面的 -ible、provide 里面的 pro-，它们是从拉丁语和希腊语随着外来词「打包进口」的。这种只能跟进口核心部件搭配的零件，就叫「原生词缀」。英语70%的词汇都是这样用进口零件组装的，所以学会认这些零件非常重要。"
+      },
+      {
+        "id": "q4",
+        "question": "请拆解 circumlocution(迂回说法) 的构词过程，标出每个词素及其含义。",
+        "answer": "circumlocution = circum-(原生前缀 = around, 围绕) + locut(粘附词根 = to speak, 说) + -ion(名词性原生后缀 = the act of, 表行为)。字面义是「绕着圈子说话的行为」，即迂回说法、委婉话。这是一个典型的「原生前缀 + 粘附词根 + 原生后缀」结构的原始派生词。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 5,
+    "chapterTitle": "从词素角度反思构词法",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "请解释 act 这个词如何在零级派生中出现了两次，每次的身份有何不同？",
+        "answer": "第一次：粘附词根 act(做) + 零原生词缀 → act(n. 行为)，这是粘附词根构词产生的简单词(Primary Word)，act在这里从一个不能独立的拉丁词根「出生」为一个英语单词。第二次：act(n. 行为，自由词根) + 零派生词缀 → act(v. 扮演)，这是自由词根构词产生的转化词(Conversed Word)，act在这里从名词「转行」为动词。两次都是零级派生，但前者是「出生」，后者是「转行」。"
+      },
+      {
+        "id": "q2",
+        "question": "manuscript(手稿) 和 blackboard(黑板) 都是两个成分合在一起的词，为什么一个叫「原始复合词」，另一个叫「合成词」？",
+        "answer": "区别在于组成成分的性质。manuscript = manu(手，粘附词根) + script(写，粘附词根)，两个成分都不能独立作为英语单词使用，所以是「原始复合词」(Primitive Compound)。blackboard = black(黑，自由词根) + board(板，自由词根)，两个成分都是独立的英语单词，所以是「合成词」(Compound Word)。前者是零级派生中的粘附词根构词，后者是自由词根构词。"
+      },
+      {
+        "id": "q3",
+        "question": "为什么说词素构词法比传统构词法「视野更广」？传统构词法有什么看不到的？",
+        "answer": "传统构词法以单词为基础，只能解释用现成英语单词构成的词(如 un+friendly, black+board, hope→hopeless)。但对于 television、manuscript、visible 这类包含粘附词根的词，传统构词法束手无策——它会把 visible 看成一个「不可分析的」整体。词素构词法以最小有义单位(词素)为基础，新开辟了简单词、原始复合词和原生词三大研究领域，能解释几乎所有英语单词的构造，包括那些外来借词中数以万计的古典语源词汇。"
+      },
+      {
+        "id": "q4",
+        "question": "请对 television(电视) 进行完整的词素分析，说明它属于哪个级别的派生。",
+        "answer": "television = tele-(原生前缀 = far, 远) + vis(粘附词根 = to see, 看) + -ion(名词性原生后缀 = the state of, 表状态)。字面义是「远距离观看的状态/能力」= 电视。它属于一级派生中的「原生前缀 + 粘附词根 + 原生后缀 → 前后缀原生词」类型。这是一个传统构词法无法解释但词素构词法可以清晰分析的典型例子。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 6,
+    "chapterTitle": "形：词根与派生词的词形",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么 ad- + fect = affect 而不是 adfect？这反映了词根与词缀怎样的关系？",
+        "answer": "这是前缀同化现象。前缀ad-的尾字母d被词根fect的首字母f同化，变成了af-。这反映了词根在构词中的主导地位——前缀必须向词根妥协，调整自己的形态以适应词根的读音。这是拉丁构词规律在英语中的遗迹。"
+      },
+      {
+        "id": "q2",
+        "question": "include 这个词为什么末尾有一个不发音的 -e？去掉它会怎样？",
+        "answer": "include = in-(内) + clud(关) + -e(默音字母)。词末默音-e的作用是使词根clud中的u读长音[u:]，构成开音节。如果去掉-e，u就在闭音节中读短音，影响词根原有的音值。这个-e是为了保持读音而增加的。"
+      },
+      {
+        "id": "q3",
+        "question": "absorb 的名词形式为什么是 absorption 而不是 absorbion？",
+        "answer": "这是拉丁词干变化的规律在英语中的遗迹。当拉丁语源的原始派生词加-ion等后缀时，词根尾辅音字母会发生变化。这里 b 变成了 pt（absorb → absorpt + ion）。类似的还有 produce → productive（c → ct）、decide → decision（d → s）。"
+      },
+      {
+        "id": "q4",
+        "question": "如何快速判断一个词根来自本族语还是古典语？",
+        "answer": "有几条线索：1) 自由词根（能独立成词的）多是本族语，粘附词根多是古典语；2) 含wr-、th等组合的多是本族语；3) 含ch读[k]、j-开头的多是拉丁词根；4) 含ph、rh、y、z等的多是希腊词根。但这些只是参考线索，不是绝对规律。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 7,
+    "chapterTitle": "音：词根与派生词的重音",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么 expand 中的 ex- 轻读，而 ex-husband 中的 ex- 重读？",
+        "answer": "因为 expand 中的 ex- 是原生前缀，与粘附词根 pand 融为一体，前缀只起辅助作用故轻读。而 ex-husband 中的 ex- 是派生前缀（意为「前」），它与自由词根 husband 结合时保持独立语义，因此与词根一起重读。前缀重读与否可以作为区分原生前缀（一级派生词）和派生前缀（二级派生词）的标志。"
+      },
+      {
+        "id": "q2",
+        "question": "contract 作动词和名词时重音位置有何不同？为什么？",
+        "answer": "作动词时重音在第二音节（词根）：con'tract（缔结）；作名词时重音在第一音节（前缀）：'contract（契约）。这是因为双音节前缀原生词通过零派生转化词类时，重音前移是在提醒读者：词类已经发生了转化！类似的还有 pro'gress(v.) → 'progress(n.)、re'cord(v.) → 'record(n.)。"
+      },
+      {
+        "id": "q3",
+        "question": "为什么 grammar 的重音在第一音节，而 grammarian 的重音移到了第二音节？",
+        "answer": "因为后缀 -ian 有一个特殊能力：它总是使重音落在自己前面一个音节上。所以 'grammar 加上 -ian 后变成 gram'marian，重音被吸引到 -mar- 上。类似的后缀还有 -ic（'period → peri'odic）、-ion（'celebrate → cele'bration）、-ity（'popular → popu'larity）。"
+      },
+      {
+        "id": "q4",
+        "question": "employee 这个词的重音为什么不在词根上？这违反了「词根重读」规则吗？",
+        "answer": "employee 的重音落在后缀 -ee 上（employ'ee）。这是七种例外之一：-ee、-ese、-esque、-ette 这四个后缀在派生词中总是重读，会「喧宾夺主」夺走词根的重音。这确实违反了基本规律，但它们数量有限，属于可以记住的特例。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 8,
+    "chapterTitle": "义：词根与派生词的词义",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "为什么 president 的意思是「总统」而不是「坐在前面的人」？请还原造词逻辑。",
+        "answer": "president = pre-(在...前) + sid(坐) + -ent(者)，字面含义是「坐在前面的人」。造词意图是：在古罗马元老院开会时，坐在最前面的人就是主持大事的人。从「坐在前面」到「主持者」到「主席、总统」，词义经历了由具体动作到社会角色的引申过程。这是一个需要领会造词意图的隐性词。"
+      },
+      {
+        "id": "q2",
+        "question": "villain 从「村民」变成「恶棍」经历了怎样的词义演变？这属于哪种演变方式？",
+        "answer": "villain = vill(农舍) + -ain(人)，本义是「村民」。在中世纪封建制度下，村民被蔑视为「农奴」，词义首次贬降。后来「农奴」的负面含义继续加深，最终贬降为「恶棍、坏蛋」。这属于词义贬降（两次贬降），反映了封建社会中的阶级偏见。"
+      },
+      {
+        "id": "q3",
+        "question": "为什么 salary（工资）跟盐（salt）有关？这告诉我们什么？",
+        "answer": "salary = sal(盐) + -ary(物)，字面含义是「盐钱」。在古罗马时代，士兵的食宿由国家包办，只发一些津贴用来买腌肉和调味的盐。这笔「盐钱」就是他们唯一的「工资」。这告诉我们：理解这类派生词需要历史文化背景知识，字面含义藏在背景故事里。类似的词还有candidate（穿白袍者→候选人）。"
+      },
+      {
+        "id": "q4",
+        "question": "confuse 这个词如何从字面含义推导出「混淆」的意思？",
+        "answer": "confuse = con-(一起) + fus(熔化) + -e，字面含义是「熔化在一起」。当不同的东西被熔化在一起时，就无法分辨它们各自是什么了——这就是「分辨不清」，引申为「混淆」。字面含义与实用词义之间只隔着一层薄纱：「熔合」→「分不清」→「混淆」。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 9,
+    "chapterTitle": "性：词根与派生词的词性",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "同一个词根 ident（相同的），为什么加 -fy 变成动词 identify，加 -ity 变成名词 identity？",
+        "answer": "因为有后缀参与构词时，后缀的语法属性决定了派生词的词性。-fy 的语义等值是 to cause to be（使...成为），是动词性后缀，所以 ident + -fy = 使相同 = identify (v.)。-ity 的语义等值是 the quality of（...的性质），是名词性后缀，所以 ident + -ity = 相同的性质 = identity (n.)。同一词根配不同后缀，词性完全改变。"
+      },
+      {
+        "id": "q2",
+        "question": "breast-feed 为什么是动词而不是名词？请用「等值短语」法分析。",
+        "answer": "breast(n. 胸部) + feed(v. 喂)。等值短语是「to feed with breast milk」（用乳房喂奶）。在这个短语中，feed 是动词中心词，breast 是名词宾语（或方式限定语）。短语的句法功能由中心词 feed 决定，所以整个短语等值于动词。因此 breast-feed 是动词，意为「母乳喂养」。"
+      },
+      {
+        "id": "q3",
+        "question": "postwar 为什么是形容词而不是名词？war 明明是名词啊。",
+        "answer": "postwar = post-(after, 介词) + war(n. 战争)。等值短语是「after the war」（战争之后）。介词+名词宾语构成的短语，在句法功能上相当于形容词或副词，用来修饰其他名词。所以 postwar 是形容词，意为「战后的」。名词 war 虽然是名词性的，但它在这里处于介词宾语的位置，受介词 post- 的制约，不能决定整体词性。"
+      },
+      {
+        "id": "q4",
+        "question": "副词性词素在制约力排序中最弱，那它在派生词中起什么作用？",
+        "answer": "副词性词素（如 retro-「向后」、pre-「预先」、re-「再次」）通常充当状语，修饰或限定动词。它不改变词性，只添加方向、时间、程度等辅助信息。例如：retro-(向后,副词) + grad(步,动词) = retrograde(v. 退步)，副词修饰动词，词性由动词决定。副词虽弱，但它是「润色大师」，让动词更加精确。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 10,
+    "chapterTitle": "单根词与同形词根辨别",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "在action和overact中，act分别是词根还是单根词？如何判断？",
+        "answer": "在action中，act是词根（含义为「做」），因为-ion是原生后缀。在overact中，act是单根词（含义为「表演」），因为over-是派生前缀。判断方法是看与之结合的词缀属性：原生词缀配词根，派生词缀配单根词。action = act「做」+ -ion = 行为；overact = over- + act「表演」= 表演过度。"
+      },
+      {
+        "id": "q2",
+        "question": "scrib和script都表示「写」，它们是什么关系？为什么形态不同？",
+        "answer": "它们是一对同源异形根（allomorphs），都来自拉丁动词scribere。scrib来自现在词干，script来自分词词干。形态变化符合「尾辅音b→pt」的规则（规则一）。例如：describe（描写）用scrib，description（描写名词）用script。理解了异形根规则，看似无关的两个形式就变成了「亲家」。"
+      },
+      {
+        "id": "q3",
+        "question": "centipede的ped和pedagogy的ped长得一样，含义相同吗？",
+        "answer": "不相同，它们是异源同形根。centipede中的ped₁来自拉丁名词pedis，意为foot（脚），centipede = centi(百) + ped(脚) = 百脚虫。pedagogy中的ped₂来自希腊名词paidos，意为boy（男孩），pedagogy = ped(男孩) + agog(引导) + -y = 引导儿童的学问 = 教育学。两者原属不同语种，词义也完全不同。"
+      },
+      {
+        "id": "q4",
+        "question": "为什么英语中「水」这个概念有三个词根 water、hydr、aqu？",
+        "answer": "因为英语词汇有三大源头：本族语（日耳曼语）、希腊语和拉丁语。每种语源都贡献了自己表达「水」的基本词根：water是本族语自由词根（日常用语），hydr是希腊粘附词根（如hydrogen氢气、dehydrate脱水），aqu是拉丁粘附词根（如aquarium水族馆、aqueduct引水渠）。异源同义词根现象是英语词汇多源性的直接体现。"
+      },
+      {
+        "id": "q5",
+        "question": "geography中的-o-是不是词根的一部分？如何处理这个「多余成分」？",
+        "answer": "geography = ge(地) + -o- + -graphy(描写学)。这个-o-是连接字母，出现在希腊词根ge（以元音结尾）和后缀-graphy之间。对于ge这样以元音结尾的词根，后面的-o-既不属于词干（不像anthropo-那样可以归入词根），也不宜并入后缀（不像-ify那样習惯连用），所以保留为真正的连接字母。这属于约20%不能消化归属的情况。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 11,
+    "chapterTitle": "词根1-15: ag~cap",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "单词 transaction 中的词根是什么？整个词的字面含义是什么？",
+        "answer": "词根是 act（做），trans- 是前缀表示「穿过」，-ion 是名词后缀。字面意思是「穿过做」，即办穿所有环节的事 → 交易。"
+      },
+      {
+        "id": "q2",
+        "question": "accident 和 incident 都含有哪个词根？两个词的前缀有什么不同，导致词义有何差异？",
+        "answer": "都含词根 cid（= to fall 降落）。accident 的前缀 ac-(= to, 向)表示「降落到头上」→ 意外事故；incident 的前缀 in-(= on, 在...上)表示「落在上面」→ （附带发生的）事件。"
+      },
+      {
+        "id": "q3",
+        "question": "receive、accept、capture 这三个词共享的词根含义是什么？它们的词根形式为什么不同？",
+        "answer": "共享词根含义为 to take（取）。capture 用的是分词词干 capt；accept 用的是法语化的非重读形式 cept；receive 用的是法语化的重读形式 ceive。它们都来自拉丁动词 capere。"
+      },
+      {
+        "id": "q4",
+        "question": "请拆解 magnanimous 这个词，说出它的词根和字面意思。",
+        "answer": "magn(= great 大) + anim(= spirit 精神) + -ous(形容词后缀) = 「精神伟大的」→ 宽宏大量的。词根 anim 表示生命或精神。"
+      },
+      {
+        "id": "q5",
+        "question": "discern 和 secret 共享同一个词根吗？如果是，该词根的含义是什么？",
+        "answer": "是的，它们共享词根 cern/cret（= to separate 分离）。discern = dis-(分开) + cern(分离) → 分辨、辨别；secret = se-(离开) + cret(分离) → 被分离开的 → 秘密的。cern 是现在词干，cret 是分词词干。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 12,
+    "chapterTitle": "词根16-30: ced~dict",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "exclaim 和 dictionary 分别含有哪个词根？这两个词根有什么共同点？",
+        "answer": "exclaim 含词根 claim（喊叫），dictionary 含词根 dict（说）。共同点是它们都与人类的「发声表达」有关，但 claim 更原始（喊叫），dict 更文明（说话）。"
+      },
+      {
+        "id": "q2",
+        "question": "请解释为什么 culture（文化）和 agriculture（农业）共享同一个词根。",
+        "answer": "它们共享词根 cult（= to till 耕作）。agriculture = agri(田地)+cult(耕)+ure → 耕田 → 农业。culture = cult(耕)+ure → 耕耘（精神世界）→ 文化。文化就是对精神世界的「耕耘」，从物质层面的耕作引申到精神层面。"
+      },
+      {
+        "id": "q3",
+        "question": "current（水流）和 cure（治疗）都含有 cur，它们是同源词吗？为什么？",
+        "answer": "不是同源词。current 的 cur 表示 to run（跑），水流就是「在跑」的水。cure 的 cur 表示 care（关心），治疗就是「关心照料」。它们是异源同形根，拼写相同但含义和来源完全不同。"
+      },
+      {
+        "id": "q4",
+        "question": "拆解 incredible 这个词，说出它的构成和字面意思。",
+        "answer": "in-(不) + cred(相信) + -ible(能...的) = 不能相信的 → 难以置信的。词根 cred 来自拉丁语 credere（相信），同族词还有 credit（信用）、credential（证书）。"
+      },
+      {
+        "id": "q5",
+        "question": "include 和 exclude 的词根相同吗？前缀如何改变词义？",
+        "answer": "词根相同，都是 clud/clus（= to close 关闭）。include = in-(向内)+clud(关) → 关进来 → 包含。exclude = ex-(向外)+clud(关) → 关到外面 → 排除。conclude = con-(完全)+clud(关) → 完全关上 → 结束。前缀决定了「关」的方向。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 13,
+    "chapterTitle": "词根31-45: duc~grad",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "education 的词根是什么？它的字面意思揭示了什么样的教育理念？",
+        "answer": "词根是 duc（引导）。e-(= ex- 向外) + duc(引导) + -ation(名词) = 「向外引导」。这揭示了一种启发式教育理念：教育不是向学生灌输知识，而是把学生内在的潜能「引出来」。"
+      },
+      {
+        "id": "q2",
+        "question": "factory、effect、difficult 这三个词共享什么词根？词根的含义是什么？",
+        "answer": "共享词根 fac/fact/fect（= to do/make 做）。factory = fact(做)+ory(地方) → 做东西的地方 → 工厂。effect = ef(出)+fect(做) → 做出来的 → 效果。difficult = dif(否定)+fic(做)+ult → 不容易做的 → 困难的。"
+      },
+      {
+        "id": "q3",
+        "question": "transfer、differ、infer 共享词根 fer。fer 的含义是什么？三个前缀分别怎样改变了词义？",
+        "answer": "fer = to carry（搬运）。trans-(穿过)+fer → 搬过去 → 转移。dif-(分开)+fer → 搬向不同方向 → 不同。in-(向内)+fer → 搬入内心（推理）→ 推断。前缀决定了「搬运」的方向和方式。"
+      },
+      {
+        "id": "q4",
+        "question": "请拆解 recognize 这个词，说出它的词根和字面意思。",
+        "answer": "re-(再) + co-(= con- 完全) + gniz(= gnos 知) + e → 再次完全知道 → 重新认出 → 认识。词根 gnos/gnit/gniz 来自拉丁语和希腊语，意思是 to know（知道）。"
+      },
+      {
+        "id": "q5",
+        "question": "progress 和 graduate 共享什么词根？它们的字面意思有什么关联？",
+        "answer": "共享词根 grad/gress（= to step 迈步）。progress = pro(向前)+gress(迈步) → 向前迈步 → 进步。graduate = grad(步)+u+ate → 一步步走完（学业）→ 毕业。progress强调「向前迈步」的过程，graduate强调「走完全程」的结果。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 14,
+    "chapterTitle": "词根46-60: graph~manu",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "photograph 由哪两个希腊词根组成？字面意思是什么？",
+        "answer": "photo(= light 光) + graph(= to write 书写) = 「用光书写」→ 照片。照相就是用光在胶片或传感器上「写下」影像。类似的组合还有 telegram(远方的文字)和 diagram(穿行线条的图)。"
+      },
+      {
+        "id": "q2",
+        "question": "inject、reject、project 共享词根 ject，它的含义是什么？三个词的字面意思分别是什么？",
+        "answer": "ject = to throw（投掷）。inject = in(向内)+ject(扔) → 往里扔 → 注射。reject = re(回)+ject(扔) → 扔回去 → 拒绝。project = pro(向前)+ject(扔) → 往前扔 → 投射/项目。"
+      },
+      {
+        "id": "q3",
+        "question": "elect（选举）和 legal（合法的）中的 leg 是同一个词根吗？请解释。",
+        "answer": "不是同一个词根，而是异源同形根。elect 中的 leg(= lect)来自拉丁语 legere，意思是 to choose（选择）。legal 中的 leg 来自拉丁语 lex(legis)，意思是 law（法律）。两个词根拼写相似但来源和含义不同。"
+      },
+      {
+        "id": "q4",
+        "question": "请拆解 manufacture 这个词，说出它的两个词根和字面意思。",
+        "answer": "manu(= hand 手) + fact(= to make 做) + ure(名词后缀) = 「用手做」→ 制造。这个词保留了工业革命之前手工制作的痕迹。man 是词根（手），fact 也是词根（做），两个词根组合在一起。"
+      },
+      {
+        "id": "q5",
+        "question": "exit 和 transit 中隐藏着一个很短的词根，它是什么？分别拆解这两个词。",
+        "answer": "隐藏的词根是 it（= to go 走）。exit = ex(出) + it(走) → 走出去 → 出口。transit = trans(穿过) + it(走) → 穿过走 → 运输/过境。这个词根只有两个字母，很容易被忽略。同族词还有 circuit(环+走→电路)和 ambition(周围+走→野心)。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 15,
+    "chapterTitle": "词根61-75: medi~pend",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "command、demand、recommend 共享什么词根？这个词根的含义和三个词的字面意思分别是什么？",
+        "answer": "共享词根 mand/mend（= to entrust 委托）。command = com(加强)+mand(委托) → 强力委托 → 命令。demand = de(向下)+mand(委托) → 向下委托 → 要求。recommend = re(再)+com(加强)+mend(委托) → 再次强力委托 → 推荐。"
+      },
+      {
+        "id": "q2",
+        "question": "nation（国家）和 nature（自然）共享什么词根？为什么「国家」和「自然」有共同的词源？",
+        "answer": "共享词根 nat（= to be born 出生）。nation = nat(出生)+ion → 出生在同一个地方的人 → 国家/民族。nature = nat(出生)+ure → 天生的特性 → 自然。它们都和「出生」有关——国家是由同一出生地的人群构成，自然是天生如此的世界。"
+      },
+      {
+        "id": "q3",
+        "question": "emotion（情感）的词根是什么？请解释为什么「情感」和「运动」有关。",
+        "answer": "词根是 mot（= to move 运动）。emotion = e(出)+mot(运动)+ion → 被搅动出来的东西 → 情感。古人认为情感就是内心的运动——被外界触动后心灵「动」了。这与中文里的「感动」「激动」「冲动」等词的构造逻辑完全一致。"
+      },
+      {
+        "id": "q4",
+        "question": "mortgage 的字面意思是什么？它由哪两个部分构成？",
+        "answer": "mort(= death 死亡) + gage(= pledge 承诺) = 「死亡的承诺」→ 抵押贷款。这个名字的寓意是：要么你还清贷款（承诺「死」了=终结了），要么你还不上贷款（抵押物被银行收走=「死」了）。无论哪种结局，都有一方面「死亡」。"
+      },
+      {
+        "id": "q5",
+        "question": "passion（激情）和 patient（耐心/病人）共享什么词根？为什么「激情」和「耐心」有相同的词源？",
+        "answer": "共享词根 pati/pass（= to suffer/endure 承受）。passion = pass(承受)+ion → 内心的强烈承受 → 激情（也有「受难」之义）。patient = pati(承受)+ent → 承受的人 → 病人（承受病痛）/ 有耐心的（承受等待）。激情和耐心看似相反，但本质上都是一种「承受」——一个承受内心的煎熬，一个承受外在的等待。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 16,
+    "chapterTitle": "词根76-90: pon~sist",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "depend、expense、suspend 共享什么词根？这个词根为什么有「悬挂」「称量」「支付」三个意思？",
+        "answer": "共享词根 pend/pens。三义来源于古罗马市场的连贯动作：悬挂天平→称量货物→按重量支付。depend = de(下)+pend(挂) → 悬挂于下 → 依赖。expense = ex(出)+pens(付) → 付出去 → 花费。suspend = sus(下)+pend(挂) → 挂起来 → 暂停。"
+      },
+      {
+        "id": "q2",
+        "question": "express 和 impress 的词根相同，为什么意思不同？",
+        "answer": "词根都是 press(= to press 压)，但前缀不同。express = ex(出)+press(压) → 往外压 → 把想法从心里压出来 → 表达。impress = im(向内)+press(压) → 往里压 → 在心上压下印记 → 给人留下印象。前缀决定了「压」的方向：往外压是表达，往里压是印象。"
+      },
+      {
+        "id": "q3",
+        "question": "bankrupt（破产）这个词的字面意思是什么？它和 bank（银行）有什么关系？",
+        "answer": "bankrupt = bank(板凳、长凳) + rupt(破、断) → 板凳被打断。中世纪意大利的钱商在长凳(banco)上做生意，破产后长凳会被打断(rupta)。bank(银行)也来自意大利语banco(长凳)——银行家原本就是坐在长凳上做买卖的人。"
+      },
+      {
+        "id": "q4",
+        "question": "compose、oppose、expose 共享词根 pos。这个词根是什么意思？三个词如何通过前缀区分？",
+        "answer": "pos = to put/place（放置）。compose = com(一起)+pos(放) → 放到一起 → 组成/作曲。oppose = op(对着)+pos(放) → 对着放 → 反对。expose = ex(向外)+pos(放) → 放到外面 → 暴露。三个词的核心动作都是「放」，前缀决定放的方向。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 17,
+    "chapterTitle": "词根91-105: soci~tract",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "expect、inspect、respect、suspect 共享什么词根？分别解释四个前缀如何改变「看」的方向。",
+        "answer": "共享词根 spec/spect（= to look 看）。expect = ex(向外)+spect → 向外望 → 期待。inspect = in(向内)+spect → 向内看 → 检查。respect = re(再次)+spect → 再看一眼 → 尊重（值得再看的人值得尊重）。suspect = su(从下)+spect → 从下偷偷看 → 怀疑。"
+      },
+      {
+        "id": "q2",
+        "question": "inspire 的词根是什么？为什么「呼吸」和「灵感」有关？",
+        "answer": "词根是 spir（= to breathe 呼吸）。inspire = in(向内)+spir(呼吸) → 向内吹气。古人认为灵感是神灵向人体内「吹入一口气」赋予的——有了「灵气」就有了灵感。同理，expire(到期/死亡)= ex(向外)+spir(呼吸) → 呼出最后一口气；spirit(精神)= spir(呼吸)+it → 呼吸的能力 → 精神/灵魂。"
+      },
+      {
+        "id": "q3",
+        "question": "insect（昆虫）的词根是什么？这个词的字面意思描述了昆虫的什么特征？",
+        "answer": "词根是 sect（= to cut 切）。insect = in(进)+sect(切) → 被切进去的/切成段的。这个词描述了昆虫身体的显著特征：被明显地「切」成头、胸、腹三段，中间有深深的缢痕。这是昆虫区别于其他动物的标志性特征。"
+      },
+      {
+        "id": "q4",
+        "question": "请比较 insist、resist、consist、persist 的词根和前缀，解释为什么同一个「站」字产生了不同含义。",
+        "answer": "共享词根 sist（= to stand 站立）。insist = in(在...上)+sist(站) → 站在某一点上不动 → 坚持。resist = re(回)+sist(站) → 站回来对抗 → 抵抗。consist = con(一起)+sist(站) → 站在一起的 → 由...组成。persist = per(始终)+sist(站) → 始终站着不倒 → 坚持不懈。assist = as(在旁)+sist(站) → 站在旁边 → 帮助。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 18,
+    "chapterTitle": "词根106-120: tribute~voc",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "extend（延伸）和 contain（包含）中的 ten/tend 是同一个词根吗？如何区分？",
+        "answer": "不是同一个词根。extend 中的 tend（= to stretch 伸展）和 contain 中的 tain（= to hold 握持）是两个不同的词根。extend = ex(向外)+tend(伸) → 向外伸展 → 延伸。contain = con(一起)+tain(握) → 一起握着 → 包含。辨别方法：带 tain 变体的多属「握持」族，带 tens/tend 形式的多属「伸展」族。"
+      },
+      {
+        "id": "q2",
+        "question": "convert、reverse、advertise 共享什么词根？请分别解释三个词的字面含义。",
+        "answer": "共享词根 vert/vers（= to turn 转）。convert = con(完全)+vert(转) → 完全转过来 → 转变/改变信仰。reverse = re(回)+vers(转) → 转回去 → 反转/颠倒。advertise = ad(向)+vert(转)+ise → 让人转过来看 → 做广告。"
+      },
+      {
+        "id": "q3",
+        "question": "provide（提供）的词根是什么？为什么「看见」和「提供」有关联？",
+        "answer": "词根是 vid（= to see 看见）。provide = pro(预先)+vid(看) → 预先看到（需要什么）→ 提前准备好 → 提供。因为提供好的服务或物资，关键在于「预见」需求——能提前看到别人需要什么，就能及时提供。同族词 provident(有远见的)保留了这层含义。"
+      },
+      {
+        "id": "q4",
+        "question": "revolution（革命）和 evolve（进化）共享什么词根？两个词的字面意思分别是什么？",
+        "answer": "共享词根 volv/volut（= to roll 滚动）。revolution = re(反复)+volut(滚)+ion → 反复翻滚 → 天翻地覆 → 革命（原义指天体公转）。evolve = e(出)+volv(滚) → 滚出来 → 逐渐展开 → 进化。revolution是剧烈的翻转，evolve是缓慢的展开——一个是天翻地覆的变革，一个是渐进的发展。"
+      },
+      {
+        "id": "q5",
+        "question": "学完120个词根，大约能覆盖多少个英语单词？词根学习法的核心优势是什么？",
+        "answer": "120个词根平均每个可派生40-50个单词，总计约5400个直接派生词。加上前缀和后缀的组合，实际可覆盖8000-10000个单词，超过大学英语六级的词汇量要求。核心优势是：从「死记硬背」变为「举一反三」——遇到生词只需拆解词根+前缀+后缀就能推断词义，实现了从「记忆」到「理解」的质变。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 19,
+    "chapterTitle": "常用词根 A-F",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "词根 greg 的含义是什么？请用aggregate、segregate、gregarious三个词说明它如何构词。",
+        "answer": "greg = flock（群）。aggregate = ad- + greg + -ate，「使成群」→ 聚集；segregate = se-（分开）+ greg + -ate，「使离群」→ 隔离；gregarious = greg + -arious，「喜欢群居的」→ 合群的。三个词的核心都是「群」这个概念。"
+      },
+      {
+        "id": "q2",
+        "question": "拉丁词根 aqu（水）和希腊词根 hydr（水）各自构成了哪些常见英语单词？它们的使用场景有何不同？",
+        "answer": "aqu：aquarium（水族馆）、aqueduct（水渠）、aquatic（水上的）——偏日常。hydr：hydrogen（氢=生成水的元素）、hydrant（消防栓）、dehydrate（脱水）——偏科技。拉丁词根进入日常语言，希腊词根多出现在科学术语中。"
+      },
+      {
+        "id": "q3",
+        "question": "作者为什么说可以把第三部分的材料「当作练习本」来使用？请举例说明具体操作方法。",
+        "answer": "因为每个词根条目下既有你已认识的词，也有生词。操作方法：以arm（武装）为例，你已经认识army（军队）和armor（盔甲），通过这两个词记住词根arm的形和义。然后遇到armada、armistice等生词，就成了「寻根问底」的练习题——armada = arm + -ada（集合名词后缀）= 舰队；armistice = arm + -i- + st（站）+ -ice = 停止武装 = 停战。"
+      },
+      {
+        "id": "q4",
+        "question": "请用费曼方法解释：为什么知道 lun = moon（月亮）就能理解 lunatic（疯子）这个词？",
+        "answer": "lunatic = lun（月亮）+ -atic（形容词后缀→名词化）。古人相信月亮（尤其满月）会让人精神失常，所以「受月亮影响的人」就是「疯子」。这个词背后藏着一个文化故事：词根给出字面含义（月亮相关），文化背景解释了从「月亮」到「疯狂」的跳跃。类似的还有 malaria = mal（坏）+ aria（空气），古人以为疟疾是坏空气引起的。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 20,
+    "chapterTitle": "常用词根 G-P",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "词根 phon（声音）和 phot（光）分别构成了哪些常见科技词汇？它们体现了希腊词根的什么特点？",
+        "answer": "phon：telephone（远+声=电话）、microphone（小+声=麦克风）、symphony（共+声=交响乐）、phonetics（语音学）。phot：photograph（光+写=照片）、photon（光子）、photosynthesis（光+合成=光合作用）。它们体现了希腊词根在科技术语中的统治地位——现代科学发明需要新名词时，几乎都从希腊词根中组装。"
+      },
+      {
+        "id": "q2",
+        "question": "请区分两个同形词根 sol：一个来自 solem（太阳），一个来自 solus（单独）。各举三个同根词。",
+        "answer": "sol = sun（太阳）：solar（太阳的）、solstice（至日：太阳站住）、parasol（阳伞：防+太阳）。sol = alone（单独）：solo（独奏）、solitary（孤独的）、solitude（独处）。区分方法：看词义是否与「光/热/天体」有关（太阳），还是与「孤立/一个人」有关（单独）。"
+      },
+      {
+        "id": "q3",
+        "question": "为什么 atom 的字面意思是「不可切割的」？这和词根 tom（切）有什么关系？",
+        "answer": "atom = a-（否定前缀：不）+ tom（切割）= 不可切割的。古希腊哲学家德谟克利特认为物质由最小的、不可再分的微粒组成，因此命名为 atomos（不可分割的）。同族词：anatomy = ana-（向上）+ tom = 向上切开 = 解剖；tome = 一卷（从大部头著作中「切」出的一部分）。虽然后来发现原子其实可以再分（发现了质子、中子、电子），但名字已经沿用至今。"
+      },
+      {
+        "id": "q4",
+        "question": "用「词海垂钓」的方法，以词根 vert/vers（转）为鱼饵，尝试列出尽可能多的同根词。",
+        "answer": "挂前缀：convert（共同转→转变）、revert（回转→恢复）、invert（向内转→倒置）、divert（分开转→转移）、avert（离开转→避免）、pervert（彻底转→歪曲）、subvert（从下转→颠覆）。挂后缀：versatile（能转的→多才多艺的）、version（转的结果→版本）、reverse（往回转→逆转）、universe（一个方向转→宇宙：万物归一）、controversy（相对着转→争论）、anniversary（年+转→周年纪念）。这就是词海垂钓的威力——一个词根能钓出一串鱼。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 21,
+    "chapterTitle": "常用词根 Q-Z",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "请对 quintessence（精髓）进行完整的「说文解字」分析，包括词根含义和文化背景。",
+        "answer": "quintessence = quint（五）+ ess（存在）+ -ence（名词后缀）。字面义是「第五存在/第五要素」。文化背景：亚里士多德认为构成世界的基本元素有四个（土、水、火、气），而天体由更纯净的「第五元素」（拉丁语 quinta essentia）构成。因此quintessence引申为「最精纯的部分」→「精髓；完美典范」。"
+      },
+      {
+        "id": "q2",
+        "question": "解释为什么 rival（竞争者）和 river（河流）有关系？词根 riv 是如何连接这两个含义的？",
+        "answer": "riv = 河流（拉丁语 rivus）。rival 的字面义是「共用同一条河流（灌溉水源）的人」。在古罗马农业社会，两家人如果共用同一条灌溉水渠，就不可避免地会为水源分配产生争执，所以「同河人」变成了「竞争对手」。这是一个从具体（共享河流）到抽象（竞争关系）的语义演变典例。"
+      },
+      {
+        "id": "q3",
+        "question": "在林肯葛底斯堡演说的开头句中，找出至少5个包含拉丁/希腊词根的词，并分析它们的词根。",
+        "answer": "1) continent = con-（共同）+ tin（持有）→ 连在一起的大陆；2) nation = nat（出生）→ 同一出生地的人 = 国家；3) conceived = con-（共同）+ ceiv（取、拿）→ 构想；4) liberty = liber（自由）→ 自由；5) dedicated = de-（加强）+ dic（说、宣告）→ 奉献；6) proposition = pro-（向前）+ posit（放置）→ 命题；7) equal = equ（平等）→ 平等的。几乎每个关键词都有一个古典词根在支撑。"
+      },
+      {
+        "id": "q4",
+        "question": "请用「拆词三步法」分析 ostracism（放逐）的构词过程和文化背景。",
+        "answer": "① 后缀：-ism = 主义/制度/行为；② 前缀：无明显前缀；③ 词根：ostrac = 贝壳/碎陶片（希腊语 ostrakon）。字面义：「碎陶片制度」。文化背景：古希腊雅典民主制度中，全体公民用陶片投票决定是否将某人驱逐出城邦5-10年。每人在碎陶片上写下想要放逐的人名，票数超过6000则执行流放。所以「碎陶片行为」→「放逐；排斥」。现代英语中ostracize表示「排斥某人」。"
+      },
+      {
+        "id": "q5",
+        "question": "为什么 hydrogen（氢）的字面意思是「生成水的元素」？请用词根分析解释。",
+        "answer": "hydrogen = hydr（水，希腊语hydor）+ gen（产生，希腊语genos）= 生成水的元素。18世纪化学家拉瓦锡发现氢气燃烧后生成水，因此用希腊词根命名为hydrogen——「产水者」。同理：oxygen = oxy（酸）+ gen = 产酸者（拉瓦锡误以为氧是所有酸的共同成分）；nitrogen = nitr（硝石）+ gen = 产硝石者。这三个元素名完美展示了希腊词根在科学命名中的地位。"
+      }
+    ]
+  },
+  {
+    "chapterNum": 22,
+    "chapterTitle": "综合练习与复习",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "全书的三大部分分别解决了词根学习中的什么问题？用一句话概括每个部分的核心价值。",
+        "answer": "Part 1（理论基础）：解决「词根是什么、为什么重要」的认知问题——让你理解词根学习的底层逻辑。Part 2（120个核心词根详解）：解决「怎么用词根分析单词」的方法问题——通过详尽的说文解字示范让你掌握拆词技术。Part 3（330个常用词根简介）：解决「词根覆盖面不够」的广度问题——让你的词根武器库从120扩展到450。"
+      },
+      {
+        "id": "q2",
+        "question": "作者为什么要把汉字偏旁和英语词根进行类比？这个类比对中国英语学习者意味着什么？",
+        "answer": "作者指出许慎《说文解字》用540个部首编排9353个字，和英语用几百个词根构成数万单词的原理相同。类比意义：1）中国人从小就习惯了「拆字」思维（见「氵」知道和水有关），这种认知模式可以直接迁移到英语词根分析上；2）普通中国人对偏旁部首的熟悉度远超英美人对词根的了解，这是我们的天然优势；3）词根法不是外来的「新方法」，而是我们自己的「老传统」在英语上的新应用。"
+      },
+      {
+        "id": "q3",
+        "question": "请用具体例子说明「六步循环学习法」：选一个你刚学到的词根，走完全部六步。",
+        "answer": "以 mut（变化）为例：① 认出词根：在 commute 中识别出 mut；② 拆解词形：com-（共同/完全）+ mut（变化）+ -e；③ 猜测词义：「完全变化」→ 交换（原义）→ 通勤（每天在家和公司之间「交换」位置）；④ 查典验证：commute v. 通勤；减刑（原义：交换/减轻）✓；⑤ 收入词族：mut词族 = mutual（相互的）、commute（通勤）、transmute（变质）、immutable（不可改变的）、permutation（排列组合）；⑥ 反复运用：以后遇到 mutable、mutation、mutant 自动识别为 mut 词族。"
+      },
+      {
+        "id": "q4",
+        "question": "如果只用一个比喻向完全不懂英语词根的朋友解释「词根」的概念，你会怎么说？（费曼检验）",
+        "answer": "参考答案：词根就像乐高积木的「基础板」。一个基础板（词根）可以搭配不同的小零件（前缀和后缀），拼出各种各样的模型（单词）。比如「struct」这个基础板代表「建造」，前面加上 con-（一起）就是 construct（建设），加上 de-（拆掉）就是 destroy（其实是destruct→破坏），加上 in-（指导）就是 instruct（教导=在脑子里建房子）。所有用了同一块基础板的模型，核心意思都和「建造」有关。学会几百块基础板，就能认出几千甚至上万个模型。"
+      }
+    ]
+  }
+];
+const chapterManifest = [
+  {
+    "num": 1,
+    "slug": "ch01",
+    "title": "什么是词根",
+    "titleEn": "What Is a Root?",
+    "icon": "🧬"
+  },
+  {
+    "num": 2,
+    "slug": "ch02",
+    "title": "英语词汇中的词根",
+    "titleEn": "Roots in English Vocabulary",
+    "icon": "🏛️"
+  },
+  {
+    "num": 3,
+    "slug": "ch03",
+    "title": "词根的形态与含义之由来",
+    "titleEn": "Origin of Root Forms & Meanings",
+    "icon": "🔍"
+  },
+  {
+    "num": 4,
+    "slug": "ch04",
+    "title": "从词根看词缀",
+    "titleEn": "Affixes Through the Lens of Roots",
+    "icon": "🔗"
+  },
+  {
+    "num": 5,
+    "slug": "ch05",
+    "title": "从词素角度反思构词法",
+    "titleEn": "Morpheme-Based Word Formation",
+    "icon": "🧱"
+  },
+  {
+    "num": 6,
+    "slug": "ch06",
+    "title": "形：词根与派生词的词形",
+    "titleEn": "Form: Root & Derived Word Shapes",
+    "icon": "✍️"
+  },
+  {
+    "num": 7,
+    "slug": "ch07",
+    "title": "音：词根与派生词的重音",
+    "titleEn": "Sound: Root Pronunciation & Stress",
+    "icon": "🔊"
+  },
+  {
+    "num": 8,
+    "slug": "ch08",
+    "title": "义：词根与派生词的词义",
+    "titleEn": "Meaning: Root Semantics & Word Meaning",
+    "icon": "💡"
+  },
+  {
+    "num": 9,
+    "slug": "ch09",
+    "title": "性：词根与派生词的词性",
+    "titleEn": "Properties: Root Attributes & POS",
+    "icon": "🏷️"
+  },
+  {
+    "num": 10,
+    "slug": "ch10",
+    "title": "单根词与同形词根辨别",
+    "titleEn": "Single-Root Words & Homograph Roots",
+    "icon": "⚖️"
+  },
+  {
+    "num": 11,
+    "slug": "ch11",
+    "title": "词根1-15: ag~cap",
+    "titleEn": "Roots 1-15: ag to cap",
+    "icon": "📖"
+  },
+  {
+    "num": 12,
+    "slug": "ch12",
+    "title": "词根16-30: ced~dict",
+    "titleEn": "Roots 16-30: ced to dict",
+    "icon": "📖"
+  },
+  {
+    "num": 13,
+    "slug": "ch13",
+    "title": "词根31-45: duc~grad",
+    "titleEn": "Roots 31-45: duc to grad",
+    "icon": "📖"
+  },
+  {
+    "num": 14,
+    "slug": "ch14",
+    "title": "词根46-60: graph~manu",
+    "titleEn": "Roots 46-60: graph to manu",
+    "icon": "📖"
+  },
+  {
+    "num": 15,
+    "slug": "ch15",
+    "title": "词根61-75: medi~pend",
+    "titleEn": "Roots 61-75: medi to pend",
+    "icon": "📖"
+  },
+  {
+    "num": 16,
+    "slug": "ch16",
+    "title": "词根76-90: pon~sist",
+    "titleEn": "Roots 76-90: pon to sist",
+    "icon": "📖"
+  },
+  {
+    "num": 17,
+    "slug": "ch17",
+    "title": "词根91-105: soci~tract",
+    "titleEn": "Roots 91-105: soci to tract",
+    "icon": "📖"
+  },
+  {
+    "num": 18,
+    "slug": "ch18",
+    "title": "词根106-120: tribute~voc",
+    "titleEn": "Roots 106-120: tribute to voc",
+    "icon": "📖"
+  },
+  {
+    "num": 19,
+    "slug": "ch19",
+    "title": "常用词根 A-F",
+    "titleEn": "Common Roots A-F",
+    "icon": "📚"
+  },
+  {
+    "num": 20,
+    "slug": "ch20",
+    "title": "常用词根 G-P",
+    "titleEn": "Common Roots G-P",
+    "icon": "📚"
+  },
+  {
+    "num": 21,
+    "slug": "ch21",
+    "title": "常用词根 Q-Z",
+    "titleEn": "Common Roots Q-Z",
+    "icon": "📚"
+  },
+  {
+    "num": 22,
+    "slug": "ch22",
+    "title": "综合练习与复习",
+    "titleEn": "Review Exercises & Practice",
+    "icon": "📝"
+  }
+];
+
+(function() {
+    const container = document.getElementById('quizContainer');
+    const scoreBar = document.getElementById('scoreBar');
+
+    if (typeof allQuizData === 'undefined' || !allQuizData || !allQuizData.length) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔀</div><div>No quiz data available yet.</div></div>';
+        return;
+    }
+
+    // Flatten and shuffle questions
+    let questions = [];
+    allQuizData.forEach(ch => {
+        (ch.questions || []).forEach(q => {
+            questions.push({ ...q, chapterNum: ch.chapterNum, chapterTitle: ch.chapterTitle });
+        });
+    });
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    let shuffled = shuffle([...questions]);
+    let mode = 'random';
+    let correct = 0, total = 0;
+
+    function updateScore() {
+        document.getElementById('scoreCorrect').textContent = correct;
+        document.getElementById('scoreTotal').textContent = total;
+        document.getElementById('scorePct').textContent = total > 0 ? Math.round(correct / total * 100) + '%' : '—';
+    }
+
+    function renderQuiz() {
+        scoreBar.style.display = mode === 'chapter-id' ? 'flex' : 'none';
+        container.innerHTML = '';
+        shuffled = shuffle([...questions]);
+        correct = 0; total = 0; updateScore();
+
+        shuffled.forEach((q, i) => {
+            const card = document.createElement('div');
+            card.className = 'quiz-card fade-in';
+
+            if (mode === 'random') {
+                const chTag = `<span class="quiz-chapter-tag hidden">CH.${String(q.chapterNum).padStart(2, '0')}</span>`;
+                card.innerHTML = `
+                    ${chTag}
+                    <div class="quiz-question">${q.question}</div>
+                    <div class="quiz-answer"><div>${q.answer}</div><div style="margin-top:8px;font-family:var(--font-mono);font-size:0.75rem;color:var(--accent3)">— Chapter ${q.chapterNum}: ${q.chapterTitle}</div></div>
+                    <div class="quiz-toggle">CLICK TO REVEAL</div>`;
+                card.addEventListener('click', function() {
+                    if (this.classList.contains('open')) return;
+                    this.classList.add('open');
+                    const ans = this.querySelector('.quiz-answer');
+                    ans.style.maxHeight = ans.scrollHeight + 'px';
+                    this.querySelector('.quiz-toggle').textContent = '';
+                    const tag = this.querySelector('.quiz-chapter-tag');
+                    tag.className = 'quiz-chapter-tag visible';
+                });
+            } else {
+                // Chapter-ID mode
+                card.innerHTML = `
+                    <span class="quiz-chapter-tag hidden">WHICH CHAPTER?</span>
+                    <div class="quiz-question">${q.question}</div>
+                    <div class="chapter-picker" id="picker-${i}"></div>
+                    <div class="quiz-answer"><div>${q.answer}</div></div>`;
+                card.style.cursor = 'default';
+
+                // Build chapter picker after insertion
+                setTimeout(() => {
+                    const picker = document.getElementById('picker-' + i);
+                    if (!picker) return;
+                    const chNums = [...new Set(questions.map(x => x.chapterNum))].sort((a, b) => a - b);
+                    chNums.forEach(num => {
+                        const btn = document.createElement('button');
+                        btn.className = 'ch-pick-btn';
+                        btn.textContent = 'Ch.' + num;
+                        btn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            if (picker.dataset.answered) return;
+                            picker.dataset.answered = 'true';
+                            total++;
+                            if (num === q.chapterNum) {
+                                correct++;
+                                btn.classList.add('correct');
+                                card.classList.add('correct');
+                            } else {
+                                btn.classList.add('wrong');
+                                card.classList.add('incorrect');
+                                // Highlight correct
+                                picker.querySelectorAll('.ch-pick-btn').forEach(b => {
+                                    if (b.textContent === 'Ch.' + q.chapterNum) b.classList.add('correct');
+                                });
+                            }
+                            updateScore();
+                            // Reveal answer
+                            card.classList.add('open');
+                            const ans = card.querySelector('.quiz-answer');
+                            ans.style.maxHeight = ans.scrollHeight + 'px';
+                            const tag = card.querySelector('.quiz-chapter-tag');
+                            tag.className = 'quiz-chapter-tag visible';
+                            tag.textContent = 'CH.' + String(q.chapterNum).padStart(2, '0');
+                        });
+                        picker.appendChild(btn);
+                    });
+                }, 0);
+            }
+            container.appendChild(card);
+        });
+
+        // Observe fade-ins
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        container.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+    }
+
+    // Mode buttons
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            mode = this.dataset.mode;
+            renderQuiz();
+        });
+    });
+
+    // Reset
+    document.getElementById('resetBtn').addEventListener('click', renderQuiz);
+
+    // Spaced review schedule
+    (function() {
+        const grid = document.getElementById('scheduleGrid');
+        const intervals = [
+            { label: 'TODAY', days: 0 },
+            { label: '+1 DAY', days: 1 },
+            { label: '+3 DAYS', days: 3 },
+            { label: '+7 DAYS', days: 7 },
+            { label: '+14 DAYS', days: 14 },
+            { label: '+30 DAYS', days: 30 },
+        ];
+        const now = new Date();
+        intervals.forEach(iv => {
+            const d = new Date(now);
+            d.setDate(d.getDate() + iv.days);
+            const dateStr = d.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+            const card = document.createElement('div');
+            card.className = 'schedule-card fade-in';
+            card.innerHTML = `<div class="schedule-interval">${iv.label}</div><div class="schedule-date">${dateStr}</div>`;
+            grid.appendChild(card);
+        });
+    })();
+
+    renderQuiz();
+
+    // Global fade-in observer for schedule cards
+    const obs2 = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs2.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.schedule-grid .fade-in').forEach(el => obs2.observe(el));
+})();
+</script>
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+  <span class="theme-toggle-icon" id="themeIcon"></span>
+</button>
+<style>
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
+</body>
+</html>
