@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Part 3 综合练习：词根实战训练场 · Part 3 Comprehensive Exercises: Root Analysis in Action | Chapter 21</title>
+<title>有效性错觉 · The Illusion of Validity | Chapter 20</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -137,6 +137,18 @@ section { padding: 80px 0; }
 
 /* ── Block CSS (injected per block) ── */
 
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
 /* Block: comparison */
 .comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
 .comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
@@ -151,33 +163,6 @@ section { padding: 80px 0; }
 .comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
 .comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
 @media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
-
-
-/* Block: pipeline */
-.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
-.pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(var(--accent-rgb),0.3); }
-.pipe-node.highlight { background: linear-gradient(135deg, var(--accent2), #ef4444); }
-.pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
-.pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
-@media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
-
-
-/* Block: tips-grid */
-.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
-.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
-.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
-.tip-card:hover::before { transform: scaleX(1); }
-.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
-.tip-icon { font-size: 2rem; margin-bottom: 12px; }
-.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
-.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
-.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
-
-
-/* Block: insight-box */
-.insight-box { background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent3-rgb),0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
-.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
-.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
 
 
 /* Block: bar-chart */
@@ -259,10 +244,10 @@ section { padding: 80px 0; }
 <!-- ── Hero ── -->
 <section class="hero" id="sec-hero">
     <div class="hero-content">
-        <div class="hero-chapter">Chapter 21 / 22 · Part III · 330个常用词根简介 330 Common Roots Overview</div>
-        <div class="hero-icon">🏋️</div>
-        <h1 class="hero-title">Part 3 综合练习：词根实战训练场</h1>
-        <p class="hero-sub">330个词根不是用来「看」的，而是用来「拆」的——在练习中把词根知识转化为拆词直觉</p>
+        <div class="hero-chapter">Chapter 20 / 38 · Part III · 过度自信 — 我们以为自己知道的远多于实际知道的</div>
+        <div class="hero-icon">🎰</div>
+        <h1 class="hero-title">有效性错觉</h1>
+        <p class="hero-sub">Confidence is a feeling born from coherence, not from the probability that your judgment is correct</p>
     </div>
     <div class="scroll-hint">
         <span></span>
@@ -287,64 +272,81 @@ section { padding: 80px 0; }
     </section>
 
     <!-- ── Sections (assembled from blocks) ── -->
-    <!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+    <!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
 <section id="sec-block1" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第一类练习：识别词根及含义</div>
-    <div class="tips-grid" id="tipsGrid-block1"></div>
+    <div class="section-title">军官选拔：有效性错觉的亲身体验</div>
+    <div class="comparison-grid">
+        <div class="comparison-side con">
+            <div class="comparison-icon">👁️</div>
+            <div class="comparison-label">主观体验</div>
+            <div class="comparison-title">我看得一清二楚</div>
+            <div class="comparison-text">在压力下每个人的本性暴露无遗
+印象如天空的颜色一样直接鲜明
+有人像强势领导者，有人像懦弱的傻瓜
+连贯的故事让我们充满信心
+「他前途无量」说得毫不犹豫</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side pro">
+            <div class="comparison-icon">📊</div>
+            <div class="comparison-label">实际反馈</div>
+            <div class="comparison-title">几乎无法预测</div>
+            <div class="comparison-text">每隔几个月的反馈会议结果千篇一律
+预测只比盲目猜测稍好一点儿
+知道这一事实并没有影响评估方式
+也没有动摇对具体预测的信心
+这是穆勒-莱尔错觉的认知版本</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">最出乎意料的发现：我们对一般规则的了解（无法预测）并未影响对个案的信心。正如尼斯贝特和博吉达所证明的：人们通常不愿从一般中推断特殊。</div></div>
 </section>
 
-<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<!-- Block: bar-chart — Horizontal bar chart -->
 <section id="sec-block2" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第二类练习：一目了然的说文解字</div>
-    <div class="tips-grid" id="tipsGrid-block2"></div>
+    <div class="section-title">选股技能的冷酷数据</div>
+    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;">判断技能存在的标准是个体成就差异的一致性。如果年度排名相关为0，成功就完全是运气——但从业者的主观体验是他们在做「明智的、有根据的猜测」。</p>
+    <div class="bar-chart" id="barChart-block2"></div>
 </section>
 
 <!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
 <section id="sec-block3" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第三类练习：词义跳跃的文化密码</div>
+    <div class="section-title">刺猬 vs 狐狸：专家预测的两种风格</div>
     <div class="comparison-grid">
-        <div class="comparison-side hard">
-            <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+        <div class="comparison-side con">
+            <div class="comparison-icon">🦔</div>
+            <div class="comparison-label">刺猬型专家</div>
+            <div class="comparison-title">知道一件大事</div>
+            <div class="comparison-text">对世界有一套理论
+在合乎逻辑的框架内解释一切
+对自己的预测充满信心
+不愿承认错误（「时机不对」「近乎正确」）
+固执己见、毫不含糊
+电视制片人最爱</div>
         </div>
         <div class="comparison-vs">VS</div>
-        <div class="comparison-side smart">
-            <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+        <div class="comparison-side pro">
+            <div class="comparison-icon">🦊</div>
+            <div class="comparison-label">狐狸型专家</div>
+            <div class="comparison-title">知道很多小事</div>
+            <div class="comparison-text">不相信一件大事推动历史
+认识到现实来自多种力量的相互作用
+承认运气的作用，接受不确定性
+预测仍然很差，但比刺猬好
+不适合电视辩论
+更接近合理的思考方式</div>
         </div>
     </div>
-    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">词义从词根含义到现代用法的跳跃，背后往往藏着一段文化故事。学会追踪这些故事，不仅加深记忆，还能让词汇学习变成一场文化探险。</div></div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">泰特洛克收集了84000多份预测——专家的准确率还不如将三种结果均分概率。知道更多的人反而更不可靠，因为技能错觉更强、自信心爆棚。名气越大的专家预测越夸张。</div></div>
 </section>
 
-<!-- Block: insight-box — Highlighted insight/quote card -->
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
 <section id="sec-block4" class="fade-in">
-    <div class="insight-box">
-        <div class="insight-title">📜 林肯葛底斯堡演说中的词根</div>
-        <div class="insight-content"></div>
-    </div>
-</section>
-
-<!-- Block: pipeline — Flow diagram with connected nodes -->
-<section id="sec-block5" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">拆词三步法实操</div>
-    <div class="pipeline-flow" id="pipeline-block5"></div>
-    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;"></div>
-</section>
-
-<!-- Block: bar-chart — Horizontal bar chart -->
-<section id="sec-block6" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">四类练习的难度递增</div>
-    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
-    <div class="bar-chart" id="barChart-block6"></div>
+    <div class="section-title">支撑技能错觉的四根支柱</div>
+    <div class="tips-grid" id="tipsGrid-block4"></div>
 </section>
 
 
@@ -393,198 +395,108 @@ const feynmanSteps = [
   {
     "step": 1,
     "title": "选择概念",
-    "desc": "第三部分练习分为四大题型：1）识别词根并说出含义；2）对词义与词根关系明显的词进行「说文解字」；3）探究词义与词根含义相距较远的词的文化背景；4）在英文原著段落中识别和分析词根。"
+    "desc": "有效性错觉：即使知道自己的预测「比随机猜测好不了多少」，仍然对每个具体预测充满信心——因为观察产生了连贯的印象。技能错觉：在选股等领域，从业者认为自己运用了高超技能，但业绩的年度相关系数为0——成功完全是运气。自信是一种感觉，反映信息的连贯性，而非判断的准确性。"
   },
   {
     "step": 2,
-    "title": "讲给外行听",
-    "desc": "这就像一场词根的「实弹演习」。前面学了450个词根理论，现在要把它们用在真实单词上。就像学了武术套路之后的实战对练——不是比划比划就行，而是要真的能拆、能猜、能验证。"
+    "title": "以教代学",
+    "desc": "想象你观察一群士兵翻墙：有人勇于担当，有人退缩，有人暴躁。你对每个人形成了清晰的印象——如同看到天空的颜色一样直接。你觉得自己「看透了」每个人的领导力。但反馈反复告诉你：预测几乎无效。关键悖论是——知道「一般规则」（我们无法预测）并不影响「具体信心」（这个人我看得准）。这就像穆勒-莱尔错觉——知道线条等长不影响你看到它们不等长。"
   },
   {
     "step": 3,
-    "title": "找出漏洞",
-    "desc": "练习暴露了三个常见问题：一是词根含义和现代词义之间的跳跃（如mirror来自mir「惊异」，因为古人觉得镜子里的影像令人惊异）；二是同根词的词形变化规律（元音弱化、辅音同化）；三是前缀变体的识别（ad-在不同辅音前变成ac-, af-, ag-等）。"
+    "title": "查漏补缺",
+    "desc": "金融领域提供了最大规模的技能错觉案例。25位财富顾问8年业绩的年度排名相关系数均值为0.01——即0，完全是掷骰子。奥登的研究更残酷：散户卖出的股票比买入的年收益率高3.2个百分点。泰特洛克20年研究84000个预测发现：专家预测准确率不如随机均分三种结果。「知道更多的人反而更不可靠，因为技能错觉更强。」"
   },
   {
     "step": 4,
-    "title": "简化再简化",
-    "desc": "拆词三步法：1）从后往前切——先认后缀定词性；2）从前往后切——再认前缀定方向；3）中间剩下的就是词根——查表定核心含义。"
+    "title": "简化精炼",
+    "desc": "有效性错觉 = 连贯的故事产生自信，但自信不等于准确。技能错觉 = 在不可预测的世界中把运气当技能。两种错觉受到专业文化的有力支持——质疑基本假设威胁到生计和自尊。问题不在于专家是否训练有素，而在于他们的世界是否可预测。"
   }
 ];
 const takeaways = [
   {
-    "icon": "🔍",
-    "title": "识别词根是基础",
-    "text": "第一类练习训练最基本的能力：在单词中快速定位词根。aggregation→greg、capitation→capit、cosmonaut→cosm+naut。"
+    "icon": "🎰",
+    "title": "自信不等于准确",
+    "desc": "判断的主观置信度不是对该判断正确概率的合理评估。自信是一种感觉，反映的是信息的连贯性和处理信息时的认知轻松——高度自信只意味着此人构建了一个连贯的故事。"
   },
   {
-    "icon": "✏️",
-    "title": "说文解字是核心",
-    "text": "第二类练习巩固「前缀+词根+后缀」的拆解公式。agriculture = agr(田) + culture(耕种) = 农业。"
+    "icon": "🎲",
+    "title": "技能 vs 运气的判定标准",
+    "desc": "判断是否有技能，看个体成就差异的一致性。25位财富顾问8年业绩排名相关为0——这是掷骰子比赛而非技能比赛。但从业者和上司都不愿面对这个事实。"
   },
   {
-    "icon": "🔮",
-    "title": "文化背景是进阶",
-    "text": "第三类练习揭示词义跳跃：mirror（镜子）←mir（惊异）：古人惊异于镜中倒影。这些故事让词根记忆从枯燥变有趣。"
-  },
-  {
-    "icon": "📜",
-    "title": "原著实战是终极",
-    "text": "第四类练习证明：在马克思、培根、林肯、丘吉尔、奥威尔、狄更斯的文章中，你的词根知识大有用武之地。"
-  },
-  {
-    "icon": "🏋️",
-    "title": "三步拆词法",
-    "text": "从后切后缀（定词性）→ 从前切前缀（定方向）→ 中间即词根（定核心义）。反复练习直到形成直觉。"
+    "icon": "🌍",
+    "title": "问题在于世界而非专家",
+    "desc": "预测错误不可避免，因为世界是不可预测的。问题不在于专家是否训练有素，而在于他们的世界是否可预测。短期趋势可以预测，但可预测与不可预测之间没有明确界限。"
   }
 ];
 const quiz = [
   {
-    "id": "q1",
-    "question": "请对 quintessence（精髓）进行完整的「说文解字」分析，包括词根含义和文化背景。",
-    "answer": "quintessence = quint（五）+ ess（存在）+ -ence（名词后缀）。字面义是「第五存在/第五要素」。文化背景：亚里士多德认为构成世界的基本元素有四个（土、水、火、气），而天体由更纯净的「第五元素」（拉丁语 quinta essentia）构成。因此quintessence引申为「最精纯的部分」→「精髓；完美典范」。"
+    "question": "为什么卡尼曼将自己在以色列军队的经历比做穆勒-莱尔错觉？这两种错觉有什么相同和不同？",
+    "answer": "相同点：两者都是即使知道真相也无法消除的错觉。穆勒-莱尔错觉中你知道两条线等长但仍看到不等长；军队经历中你知道预测几乎无效但仍对每个具体预测充满信心。不同点：面对穆勒-莱尔错觉你可以改变行为（不相信眼睛，用尺子量）；但认知错觉更顽固——知道预测无效的事实并没有改变评估方式或动摇信心。在金融公司看到的反应更极端：高管理智上接受了业绩排名相关为0的事实，但第二天一切照旧，信息被丢入记忆的死角。"
   },
   {
-    "id": "q2",
-    "question": "解释为什么 rival（竞争者）和 river（河流）有关系？词根 riv 是如何连接这两个含义的？",
-    "answer": "riv = 河流（拉丁语 rivus）。rival 的字面义是「共用同一条河流（灌溉水源）的人」。在古罗马农业社会，两家人如果共用同一条灌溉水渠，就不可避免地会为水源分配产生争执，所以「同河人」变成了「竞争对手」。这是一个从具体（共享河流）到抽象（竞争关系）的语义演变典例。"
+    "question": "奥登的研究发现散户卖出的股票比买入的年收益率高3.2个百分点——这意味着什么？为什么散户的自信是一种错觉？",
+    "answer": "这意味着大多数散户积极交易的结果比什么都不做更差——他们系统性地卖出了好股票、买入了坏股票。他们的自信是错觉因为：(1)他们以为自己掌握了买家不知道的信息，但买卖双方通常拥有相同信息；(2)他们把分析公司的技能（看损益表、评估管理层）与交易获利的能力混为一谈——而在高效市场中关键问题是「股价是否已包含你知道的信息」；(3)最活跃的交易者业绩最差，而交易最少的投资者收益最高。对大多数散户来说，洗个澡什么都不做是更好的策略。"
   },
   {
-    "id": "q3",
-    "question": "在林肯葛底斯堡演说的开头句中，找出至少5个包含拉丁/希腊词根的词，并分析它们的词根。",
-    "answer": "1) continent = con-（共同）+ tin（持有）→ 连在一起的大陆；2) nation = nat（出生）→ 同一出生地的人 = 国家；3) conceived = con-（共同）+ ceiv（取、拿）→ 构想；4) liberty = liber（自由）→ 自由；5) dedicated = de-（加强）+ dic（说、宣告）→ 奉献；6) proposition = pro-（向前）+ posit（放置）→ 命题；7) equal = equ（平等）→ 平等的。几乎每个关键词都有一个古典词根在支撑。"
-  },
-  {
-    "id": "q4",
-    "question": "请用「拆词三步法」分析 ostracism（放逐）的构词过程和文化背景。",
-    "answer": "① 后缀：-ism = 主义/制度/行为；② 前缀：无明显前缀；③ 词根：ostrac = 贝壳/碎陶片（希腊语 ostrakon）。字面义：「碎陶片制度」。文化背景：古希腊雅典民主制度中，全体公民用陶片投票决定是否将某人驱逐出城邦5-10年。每人在碎陶片上写下想要放逐的人名，票数超过6000则执行流放。所以「碎陶片行为」→「放逐；排斥」。现代英语中ostracize表示「排斥某人」。"
-  },
-  {
-    "id": "q5",
-    "question": "为什么 hydrogen（氢）的字面意思是「生成水的元素」？请用词根分析解释。",
-    "answer": "hydrogen = hydr（水，希腊语hydor）+ gen（产生，希腊语genos）= 生成水的元素。18世纪化学家拉瓦锡发现氢气燃烧后生成水，因此用希腊词根命名为hydrogen——「产水者」。同理：oxygen = oxy（酸）+ gen = 产酸者（拉瓦锡误以为氧是所有酸的共同成分）；nitrogen = nitr（硝石）+ gen = 产硝石者。这三个元素名完美展示了希腊词根在科学命名中的地位。"
+    "question": "泰特洛克研究中为什么「知道更多的人反而更不可靠」？这与「刺猬」和「狐狸」的区分有什么关系？",
+    "answer": "知道更多的人倾向于成为「刺猬」——他们有一套解释一切的理论，知识量支撑了更强的技能错觉和更大的自信。但在不可预测的世界中，自信只反映了故事的连贯性而非判断的准确性。知识越多→故事越连贯→自信越强→预测越极端→错误越大。相比之下，「狐狸」知道很多小事，不相信一件大事推动历史，承认运气和不确定性——他们的预测仍然很差但比刺猬好。讽刺的是，电视台更喜欢刺猬（固执己见、观点鲜明），观众也更喜欢确定性——结果是最不可靠的预测者获得了最大的话语权。"
   }
 ];
-const preQuiz = [
+const chapterNav = {"prev": {"num": 19, "title": "理解的错觉", "href": "ch19.html"}, "next": {"num": 21, "title": "直觉与公式", "href": "ch21.html"}};
+window.barData_block2 = [
   {
-    "question": "如果你在阅读英文原著时遇到一个生词，你第一反应是查词典，还是先尝试用词根词缀分析它？",
-    "hint": "想想哪种方式更有助于长期记忆"
+    "label": "25位顾问年度排名相关",
+    "width": 1,
+    "value": "r = 0.01（即0）",
+    "color": "#ff6b6b"
   },
   {
-    "question": "你认为 mirror（镜子）和 miracle（奇迹）之间有什么联系？",
-    "hint": "它们看起来像不像同族词？找找共同的字母序列"
-  }
-];
-const chapterNav = {"prev": {"num": 20, "title": "常用词根 G-P", "href": "ch20.html"}, "next": {"num": 22, "title": "综合练习与复习", "href": "ch22.html"}};
-window.tipsData_block1 = [
-  {
-    "icon": "🔍",
-    "title": "aggregation → greg = 群",
-    "desc": "ag-(=ad-) + greg(群) + -ation(名词) = 聚集物"
+    "label": "散户卖出vs买入年收益差",
+    "width": 32,
+    "value": "-3.2百分点",
+    "color": "#6c63ff"
   },
   {
-    "icon": "🔍",
-    "title": "armament → arm = 武装",
-    "desc": "arm(武装) + -ament(名词) = 军备；装备"
+    "label": "共同基金低于市场比例",
+    "width": 66,
+    "value": ">2/3",
+    "color": "#ff6b6b"
   },
   {
-    "icon": "🔍",
-    "title": "capitation → capit = 头",
-    "desc": "capit(头) + -ation(名词) = 人头税（按「头」收税）"
+    "label": "基金业绩年度相关",
+    "width": 5,
+    "value": "接近0",
+    "color": "#ffe66d"
   },
   {
-    "icon": "🔍",
-    "title": "cosmonaut → cosm = 宇宙",
-    "desc": "cosm(宇宙) + -o- + naut(水手) = 宇宙水手 = 宇航员"
-  },
-  {
-    "icon": "🔍",
-    "title": "denominate → nomin = 名字",
-    "desc": "de-(加强) + nomin(名) + -ate(动词) = 给…命名"
-  },
-  {
-    "icon": "🔍",
-    "title": "demonstrate → monstr = 显示",
-    "desc": "de-(加强) + monstr(显示) + -ate(动词) = 论证，表明"
-  },
-  {
-    "icon": "🔍",
-    "title": "heritage → her = 继承",
-    "desc": "her(继承) + -it- + -age(名词) = 遗产；传统"
-  },
-  {
-    "icon": "🔍",
-    "title": "pseudonym → onym = 名字",
-    "desc": "pseud(假) + -o- + nym(名) = 假名；笔名"
-  }
-];
-window.tipsData_block2 = [
-  {
-    "icon": "✏️",
-    "title": "aerology = aer(空气) + logy(学)",
-    "desc": "→ 大气学，气象学"
-  },
-  {
-    "icon": "✏️",
-    "title": "agriculture = agr(田) + culture(耕种)",
-    "desc": "→ 农业"
-  },
-  {
-    "icon": "✏️",
-    "title": "triangle = tri(三) + angl(角)",
-    "desc": "→ 三角形"
-  },
-  {
-    "icon": "✏️",
-    "title": "dentist = dent(齿) + ist(人)",
-    "desc": "→ 牙医"
-  },
-  {
-    "icon": "✏️",
-    "title": "telephone = tele(远) + phon(声)",
-    "desc": "→ 远声 = 电话"
-  },
-  {
-    "icon": "✏️",
-    "title": "computer = com(全面) + put(想) + er(物)",
-    "desc": "→ 全面计算的机器 = 计算机"
-  },
-  {
-    "icon": "✏️",
-    "title": "umbrella = umbr(影) + ella(小)",
-    "desc": "→ 小影子 = 伞"
-  },
-  {
-    "icon": "✏️",
-    "title": "society = soci(同伴) + ety(状态)",
-    "desc": "→ 同伴的集合 = 社会"
-  }
-];
-window.pipeData_block5 = [];
-window.barData_block6 = [
-  {
-    "label": "第一类：识别词根",
+    "label": "男性vs女性投资收益",
     "width": 40,
-    "value": "直接在单词中找出词根并说出含义",
-    "color": "success"
+    "value": "女性更高",
+    "color": "#4ecdc4"
+  }
+];
+window.tipsData_block4 = [
+  {
+    "icon": "🔗",
+    "title": "连贯性带来自信",
+    "desc": "系统1从有限信息中构建最连贯的故事→故事越连贯，主观信心越强→但信心反映的是故事的质量而非判断的准确性"
   },
   {
-    "label": "第二类：说文解字（明显）",
-    "width": 60,
-    "value": "词义与词根含义关系一目了然",
-    "color": "success"
+    "icon": "🛠️",
+    "title": "技能体验的混淆",
+    "desc": "选股者确实运用了评估公司的技能（分析损益表、评估管理层），但拥有这些技能不能确保交易成功——关键在于股价是否已包含公司信息"
   },
   {
-    "label": "第三类：说文解字（隐晦）",
-    "width": 80,
-    "value": "需要查找文化背景才能理解词义跳跃",
-    "color": "warning"
+    "icon": "🏛️",
+    "title": "专业文化的保护",
+    "desc": "质疑技能错觉威胁到生计和自尊→公司和行业的奖金机制假设技能存在→统计事实与个人印象冲突时被忽略"
   },
   {
-    "label": "第四类：原著实战",
-    "width": 95,
-    "value": "在真实语境中识别并分析多个词根",
-    "color": "danger"
+    "icon": "🧠",
+    "title": "认知错觉比视觉错觉更顽固",
+    "desc": "穆勒-莱尔错觉可以被你的行为纠正（不相信眼睛），但有效性错觉不能——知道预测无效的事实并不改变你对具体预测的感受和行为"
   }
 ];
 
@@ -731,26 +643,6 @@ function toggleQuiz(card) {
 
 /* ── Block JS (injected per block) ── */
 
-// Block: bar-chart
-(function() {
-    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
-        const blockId = container.id.replace('barChart-', '');
-        const dataVar = window['barData_' + blockId];
-        if (!dataVar) return;
-        dataVar.forEach(bar => {
-            const div = document.createElement('div');
-            div.className = 'bar-row fade-in';
-            const colorClass = bar.warning ? 'danger' : 'success';
-            div.innerHTML = `
-                <div class="bar-label">${bar.label}</div>
-                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
-                <div class="bar-value">${bar.value || ''}</div>`;
-            container.appendChild(div);
-        });
-    });
-})();
-
-
 // Block: tips-grid
 (function() {
     document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
@@ -771,32 +663,21 @@ function toggleQuiz(card) {
 })();
 
 
-// Block: pipeline
+// Block: bar-chart
 (function() {
-    document.querySelectorAll('[id^="pipeline-"]').forEach(container => {
-        const blockId = container.id.replace('pipeline-', '');
-        const dataVar = window['pipeData_' + blockId];
+    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
+        const blockId = container.id.replace('barChart-', '');
+        const dataVar = window['barData_' + blockId];
         if (!dataVar) return;
-        const pipeData = dataVar;
-        pipeData.forEach((node, i) => {
-            if (i > 0) {
-                const arrow = document.createElement('div');
-                arrow.className = 'pipe-arrow';
-                arrow.textContent = '→';
-                container.appendChild(arrow);
-            }
-            const wrapper = document.createElement('div');
-            const nodeDiv = document.createElement('div');
-            nodeDiv.className = 'pipe-node' + (node.bottleneck ? ' highlight' : '');
-            nodeDiv.textContent = node.cmd || node.name || '';
-            wrapper.appendChild(nodeDiv);
-            if (node.annotation || node.data) {
-                const dataDiv = document.createElement('div');
-                dataDiv.className = 'pipe-data';
-                dataDiv.textContent = node.annotation || node.data;
-                wrapper.appendChild(dataDiv);
-            }
-            container.appendChild(wrapper);
+        dataVar.forEach(bar => {
+            const div = document.createElement('div');
+            div.className = 'bar-row fade-in';
+            const colorClass = bar.warning ? 'danger' : 'success';
+            div.innerHTML = `
+                <div class="bar-label">${bar.label}</div>
+                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
+                <div class="bar-value">${bar.value || ''}</div>`;
+            container.appendChild(div);
         });
     });
 })();

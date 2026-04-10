@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>思考，快与慢 读后蒸馏 / Distill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(var(--accent-rgb),0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Progress Bar ── */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  z-index: 9999; transition: width 0.1s linear;
+}
+
+/* ── Hero ── */
+.hero {
+  min-height: 50vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 4rem 2rem 3rem; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(var(--accent-rgb),0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(var(--accent3-rgb),0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.back-link {
+  position: absolute; top: 20px; left: 24px;
+  color: var(--text-dim); text-decoration: none; font-size: 0.85rem;
+  z-index: 2; transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent3); }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px var(--glow)); }
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900;
+  background: linear-gradient(135deg, var(--accent4) 0%, var(--accent) 40%, var(--accent3) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-subtitle {
+  font-size: 1rem; color: var(--text-dim); font-weight: 300;
+  margin-top: 0.5rem; max-width: 500px;
+}
+.hero-book {
+  font-size: 0.85rem; color: var(--accent); font-family: var(--font-mono);
+  margin-top: 1rem; letter-spacing: 1px;
+}
+
+/* ── Section Nav ── */
+.section-nav {
+  display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+  padding: 16px 20px; position: sticky; top: 0; z-index: 50;
+  background: rgba(var(--bg-rgb),0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-pill {
+  padding: 6px 16px; border-radius: 2rem; border: 1px solid var(--border);
+  background: transparent; color: var(--text-dim); font-family: var(--font-sans);
+  font-size: 0.8rem; cursor: pointer; transition: all 0.2s; text-decoration: none;
+}
+.nav-pill:hover, .nav-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 800px; margin: 0 auto; padding: 0 20px 4rem; }
+
+/* ── Section Header ── */
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  margin: 4rem 0 2rem; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-header-icon { font-size: 1.8rem; }
+.section-header h2 { font-size: 1.5rem; font-weight: 700; }
+.section-header .section-label {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  color: var(--accent); letter-spacing: 2px; text-transform: uppercase;
+  margin-left: auto;
+}
+
+/* ── Quotes ── */
+.quote-list { display: flex; flex-direction: column; gap: 16px; }
+.quote-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent4); border-radius: var(--radius);
+  padding: 20px 24px; cursor: pointer; transition: all 0.3s;
+}
+.quote-card:hover { border-color: var(--accent4); transform: translateX(4px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.quote-text {
+  font-size: 1.05rem; font-weight: 400; line-height: 1.9;
+  position: relative; padding-left: 1.2rem;
+}
+.quote-text::before {
+  content: '\201C'; position: absolute; left: -4px; top: -8px;
+  font-size: 2.5rem; color: var(--accent4); opacity: 0.4; font-family: serif;
+}
+.quote-footer { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.quote-chapter {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  background: rgba(var(--accent-rgb),0.15); color: var(--accent);
+  padding: 2px 10px; border-radius: 2rem;
+}
+.quote-context {
+  font-size: 0.78rem; color: var(--text-dim);
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease, margin-top 0.3s ease;
+  line-height: 1.6;
+}
+.quote-card.expanded .quote-context { max-height: 200px; margin-top: 10px; }
+.quote-expand-hint {
+  font-size: 0.7rem; color: var(--text-dim); margin-left: auto;
+  font-family: var(--font-mono); opacity: 0.6;
+}
+.quote-card.expanded .quote-expand-hint { display: none; }
+
+/* ── Concepts ── */
+.concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.concept-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; transition: all 0.3s;
+  cursor: default;
+}
+.concept-card:hover { border-color: var(--accent3); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.concept-icon { font-size: 2rem; margin-bottom: 12px; }
+.concept-name { font-weight: 700; font-size: 1rem; margin-bottom: 2px; }
+.concept-name-zh { font-size: 0.8rem; color: var(--accent3); margin-bottom: 10px; }
+.concept-summary {
+  font-size: 0.82rem; color: var(--text-dim); line-height: 1.7;
+  max-height: 3.4rem; overflow: hidden; transition: max-height 0.4s ease;
+}
+.concept-card:hover .concept-summary { max-height: 400px; }
+.concept-more {
+  font-size: 0.7rem; color: var(--accent); margin-top: 6px;
+  font-family: var(--font-mono); transition: opacity 0.2s;
+}
+.concept-card:hover .concept-more { opacity: 0; }
+
+/* ── Principles ── */
+.principle-list { display: flex; flex-direction: column; gap: 12px; counter-reset: principle; }
+.principle-item {
+  display: flex; align-items: flex-start; gap: 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 22px; transition: all 0.3s;
+  counter-increment: principle;
+}
+.principle-item:hover { border-color: var(--accent2); transform: translateX(4px); }
+.principle-num {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent2); min-width: 28px; padding-top: 2px;
+}
+.principle-num::before { content: counter(principle, decimal-leading-zero); }
+.principle-icon { font-size: 1.4rem; flex-shrink: 0; padding-top: 1px; }
+.principle-body { flex: 1; }
+.principle-text { font-size: 0.95rem; font-weight: 500; }
+.principle-text-zh { font-size: 0.82rem; color: var(--text-dim); margin-top: 4px; }
+
+/* ── Essence ── */
+.essence-list { display: flex; flex-direction: column; gap: 2px; }
+.essence-item {
+  display: grid; grid-template-columns: 60px 1fr; gap: 16px;
+  padding: 14px 20px; border-radius: var(--radius);
+  transition: background 0.2s;
+}
+.essence-item:hover { background: var(--card); }
+.essence-chapter {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent); padding-top: 3px; text-align: right;
+}
+.essence-body {}
+.essence-title { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 2px; }
+.essence-sentence { font-size: 0.9rem; line-height: 1.7; }
+
+/* ── Empty State ── */
+.empty-state {
+  text-align: center; padding: 3rem; color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Footer ── */
+.footer {
+  text-align: center; padding: 2rem 0; color: var(--text-dim);
+  font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 3rem;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .hero { min-height: 40vh; padding: 3rem 1.5rem 2rem; }
+  .concept-grid { grid-template-columns: 1fr; }
+  .essence-item { grid-template-columns: 45px 1fr; gap: 10px; }
+  .quote-card { padding: 16px 18px; }
+  .section-header { margin: 3rem 0 1.5rem; }
+}
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<section class="hero">
+  <a href="index.html" class="back-link">&larr; Back</a>
+  <div class="hero-icon">🧪</div>
+  <h1>Distill</h1>
+  <p class="hero-subtitle">What remains after the last page — the ideas worth carrying forward</p>
+  <div class="hero-book">🧠 思考，快与慢</div>
+</section>
+
+<nav class="section-nav">
+  <a class="nav-pill active" href="#quotes" onclick="scrollToSection('quotes',this)">Quotes</a>
+  <a class="nav-pill" href="#concepts" onclick="scrollToSection('concepts',this)">Concepts</a>
+  <a class="nav-pill" href="#principles" onclick="scrollToSection('principles',this)">Principles</a>
+  <a class="nav-pill" href="#essence" onclick="scrollToSection('essence',this)">Essence</a>
+</nav>
+
+<main class="container">
+
+  <!-- Quotes -->
+  <div class="section-header fade-in" id="quotes">
+    <span class="section-header-icon">&#x1F4AC;</span>
+    <h2>Quotes</h2>
+    <span class="section-label">GOLDEN LINES</span>
+  </div>
+  <div class="quote-list" id="quoteList"></div>
+
+  <!-- Concepts -->
+  <div class="section-header fade-in" id="concepts">
+    <span class="section-header-icon">&#x1F9E0;</span>
+    <h2>Concepts</h2>
+    <span class="section-label">MENTAL MODELS</span>
+  </div>
+  <div class="concept-grid" id="conceptGrid"></div>
+
+  <!-- Principles -->
+  <div class="section-header fade-in" id="principles">
+    <span class="section-header-icon">&#x2728;</span>
+    <h2>Principles</h2>
+    <span class="section-label">ACTION RULES</span>
+  </div>
+  <div class="principle-list" id="principleList"></div>
+
+  <!-- Essence -->
+  <div class="section-header fade-in" id="essence">
+    <span class="section-header-icon">&#x1F3AF;</span>
+    <h2>Essence</h2>
+    <span class="section-label">ONE SENTENCE PER CHAPTER</span>
+  </div>
+  <div class="essence-list" id="essenceList"></div>
+
+</main>
+
+<div class="footer">
+  Distilled with the <a href="https://en.wikipedia.org/wiki/Feynman_Technique">Feynman Method</a>
+</div>
+
+<script>
+const distill = {
+  "quotes": [
+    {
+      "text": "Nothing in life is as important as you think it is while you are thinking about it.",
+      "chapter": 38,
+      "context": "聚焦错觉——当你思考某件事时，它的重要性就被放大了，这是一切判断偏差的缩影"
+    },
+    {
+      "text": "A reliable way to make people believe in falsehoods is frequent repetition, because familiarity is not easily distinguished from truth.",
+      "chapter": 5,
+      "context": "认知轻松的危险面——重复曝光创造熟悉感，而大脑把熟悉感误认为真实性"
+    },
+    {
+      "text": "We can be blind to the obvious, and we are also blind to our blindness.",
+      "chapter": 1,
+      "context": "双重盲目——我们不仅看不见自己的认知偏差，甚至看不见自己看不见这个事实"
+    },
+    {
+      "text": "The confidence that individuals have in their beliefs depends mostly on the quality of the story they can tell about what they see, even if they see little.",
+      "chapter": 19,
+      "context": "WYSIATI的精髓——信心取决于故事的连贯性，而非证据的充分性"
+    },
+    {
+      "text": "Losses loom larger than gains.",
+      "chapter": 26,
+      "context": "前景理论的核心命题——用五个词概括了人类决策行为的根本不对称性"
+    },
+    {
+      "text": "The world makes much less sense than you think. The coherence comes mostly from the way your mind works.",
+      "chapter": 19,
+      "context": "叙事谬误——世界的「秩序感」主要是你的大脑编织的故事，而非现实固有的结构"
+    },
+    {
+      "text": "We are prone to overestimate how much we understand about the world and to underestimate the role of chance in events.",
+      "chapter": 19,
+      "context": "事后诸葛亮偏差——回看历史时一切似乎都是必然的，但那只是记忆在重新编排剧本"
+    },
+    {
+      "text": "The illusion that we understand the past fosters overconfidence in our ability to predict the future.",
+      "chapter": 20,
+      "context": "理解的错觉与预测的错觉形成闭环——对过去的虚假理解喂养了对未来的虚假信心"
+    },
+    {
+      "text": "Odd as it may seem, I am my remembering self, and the experiencing self, who does my living, is like a stranger to me.",
+      "chapter": 35,
+      "context": "全书最令人不安的个人反思——「我」是那个编故事的记忆自我，而真正在活着的体验自我对我而言却是个陌生人"
+    },
+    {
+      "text": "Our comforting conviction that the world makes sense rests on a secure foundation: our almost unlimited ability to ignore our ignorance.",
+      "chapter": 19,
+      "context": "人类心智最精妙的自我保护机制——无限的忽视无知的能力让世界看起来井然有序"
+    },
+    {
+      "text": "The premise of this book is that it is easier to recognize other people's mistakes than our own.",
+      "chapter": 1,
+      "context": "卡尼曼对本书的温和承诺——不是要你变得理性，而是让你能识别他人（和制度）的错误"
+    },
+    {
+      "text": "A person who has not made peace with his losses is likely to accept gambles that would be unacceptable to him otherwise.",
+      "chapter": 32,
+      "context": "沉没成本与赌徒心态——未接受损失的人会冒更大的风险试图翻本"
+    }
+  ],
+  "concepts": [
+    {
+      "name": "System 1 & System 2",
+      "nameZh": "系统1与系统2",
+      "summary": "大脑的双重加工模型。系统1是自动化的直觉引擎，持续运转，快速产生印象、感觉和判断倾向；系统2是需要注意力的慎思引擎，能进行逻辑推理和自我控制，但它生性懒惰，通常只是给系统1的输出盖章认可。思维的质量，取决于系统2能否在关键时刻识别出系统1正在犯错并接管控制权。",
+      "icon": "🧠"
+    },
+    {
+      "name": "Prospect Theory",
+      "nameZh": "前景理论",
+      "summary": "取代期望效用理论的描述性决策理论。三大支柱：（1）参照点依赖——价值是相对于现状的变化量而非绝对水平；（2）损失厌恶——失去的痛苦约为等量获得的快乐的两倍；（3）边际递减——无论收益还是损失，每多一单位的心理冲击都在减弱（价值函数呈S形曲线）。前景理论解释了从赌场行为到保险购买的大量「非理性」经济现象。",
+      "icon": "📈"
+    },
+    {
+      "name": "WYSIATI (What You See Is All There Is)",
+      "nameZh": "所见即所有",
+      "summary": "系统1的根本运作原则：它只用当前可用的信息构建最连贯的解释，从不追问「还有什么我不知道的？」。这解释了为什么少量信息反而能增强信心（故事越简单越连贯），为什么第一印象如此顽固（后续信息被纳入已有框架），以及为什么框架效应如此强大（不同表述激活不同信息子集）。",
+      "icon": "👁"
+    },
+    {
+      "name": "Anchoring",
+      "nameZh": "锚定效应",
+      "summary": "任何先前接触到的数字都会影响后续的数量估计，即使这个数字明显无关（如轮盘赌的结果）。锚定通过两条路径起作用：系统1将锚值作为暗示激活相关记忆，系统2则从锚值出发进行调整但调整总是不充分。这意味着在谈判、定价和法律判决中，先出数字的一方拥有隐性优势。",
+      "icon": "⚓"
+    },
+    {
+      "name": "Loss Aversion",
+      "nameZh": "损失厌恶",
+      "summary": "人类对损失的心理敏感度约为同等收益的1.5-2.5倍。这一不对称性是前景理论的核心，也是大量行为模式的统一解释：拒绝有利赌局、持有亏损股票、高估已有物品（禀赋效应）、偏好现状（现状偏差）、对涨价比降价更敏感。损失厌恶是进化馈赠——对威胁的过度反应在生存层面是理性的。",
+      "icon": "💔"
+    },
+    {
+      "name": "Cognitive Ease",
+      "nameZh": "认知轻松",
+      "summary": "信息加工的流畅程度影响判断：字体更清晰的陈述被认为更可信，重复听到的话被认为更正确，押韵的格言被认为更深刻，心情好的时候直觉更活跃。认知轻松是系统1的「一切正常」信号——它关闭了怀疑和审慎思考，创造出一种虚幻的熟悉感与真实感。",
+      "icon": "😌"
+    },
+    {
+      "name": "Peak-End Rule",
+      "nameZh": "峰终定律",
+      "summary": "记忆自我对一段体验的回顾性评价不是所有时刻感受的平均值，而是主要由两个时刻决定：体验的高峰（最强或最弱的时刻）和结尾。持续时间对回忆评价几乎没有影响（持续时间忽视）。冷水实验证明，人们宁愿选择总痛苦量更大但结尾稍好的体验。这意味着体验自我和记忆自我对「好的体验」的定义根本不同。",
+      "icon": "🏔️"
+    },
+    {
+      "name": "Framing Effect",
+      "nameZh": "框架效应",
+      "summary": "逻辑上等价的信息因措辞不同而导致截然不同的偏好选择。「90%的存活率」和「10%的死亡率」在数学上完全相同，但前者让人更倾向于接受手术。框架效应是对理性选择理论最严厉的挑战——如果偏好取决于问题的表述方式而非实质内容，那么「稳定偏好」这一经济学基石就不存在。",
+      "icon": "🖼️"
+    }
+  ],
+  "principles": [
+    {
+      "text": "Slow down at decision points — when the stakes are high, deliberately engage System 2 before trusting your gut feeling",
+      "textZh": "在关键决策点减速——当赌注很高时，先刻意启动系统2，再决定是否信任你的直觉",
+      "icon": "🐢"
+    },
+    {
+      "text": "Ask 'What don't I know?' — WYSIATI means your confidence is built on the story you can tell, not the evidence you have; actively seek disconfirming information",
+      "textZh": "追问「我不知道什么？」——WYSIATI意味着你的信心建立在故事的连贯性上而非证据的充分性上；主动搜索反面证据",
+      "icon": "❓"
+    },
+    {
+      "text": "Take the outside view — before estimating time, cost, or success probability for your project, look at the base rate of similar projects",
+      "textZh": "采用外部视角——在估算你的项目的时间、成本或成功概率之前，先查看同类项目的基率统计",
+      "icon": "🔭"
+    },
+    {
+      "text": "Reframe losses as costs — loss aversion makes losses feel twice as painful; reframing a loss as a necessary cost of doing business disarms its emotional grip",
+      "textZh": "将损失重新定义为成本——损失厌恶让损失显得加倍痛苦；将其重构为「做生意的必要成本」可以解除情绪绑架",
+      "icon": "🔄"
+    },
+    {
+      "text": "Use algorithms over intuition for predictable decisions — in low-validity environments, even simple formulas consistently outperform expert judgment",
+      "textZh": "在可预测性决策中用算法代替直觉——在低效度环境中，即使简单公式也持续优于专家判断",
+      "icon": "🤖"
+    },
+    {
+      "text": "Conduct a premortem — before launching a plan, imagine it has failed spectacularly and ask 'Why did it fail?'; this legitimizes dissent and surfaces hidden risks",
+      "textZh": "进行「事前验尸」——在启动计划前，想象它已经彻底失败，问「它为什么会失败？」；这能合法化质疑并暴露隐藏风险",
+      "icon": "💀"
+    },
+    {
+      "text": "Adopt broad framing for risk — evaluate risky choices as part of a portfolio, not one at a time; a policy of always accepting small favorable gambles dominates timid risk-aversion",
+      "textZh": "对风险采用宽框架——把风险决策作为组合来评估而非逐个审视；「总是接受小额有利赌局」的政策优于胆怯的逐次规避",
+      "icon": "🛡️"
+    },
+    {
+      "text": "Beware the anchoring trap — in negotiations and estimates, the first number on the table exerts gravitational pull; if you can't set the anchor, explicitly challenge it",
+      "textZh": "警惕锚定陷阱——在谈判和估算中，第一个出现的数字具有引力效应；如果你不能设定锚点，就要明确质疑它",
+      "icon": "⚓"
+    },
+    {
+      "text": "Design for the remembering self — endings matter disproportionately; invest more effort in how experiences conclude than in how they begin",
+      "textZh": "为记忆自我做设计——结尾的重要性不成比例地高；在体验的收尾上投入比在开场上更多的努力",
+      "icon": "🏔️"
+    },
+    {
+      "text": "Distrust coherent narratives of the past — hindsight makes everything seem inevitable; the world is far more random and unpredictable than your memory suggests",
+      "textZh": "不要相信对过去的连贯叙事——后见之明让一切看起来都是必然的；世界远比你的记忆所暗示的更随机、更不可预测",
+      "icon": "🌫️"
+    }
+  ],
+  "essence": [
+    {
+      "chapter": 1,
+      "title": "故事中的角色",
+      "sentence": "引入系统1（快速直觉）和系统2（慢速审慎）这对双主角——我们的心智生活就是这两个虚拟角色之间的互动剧。"
+    },
+    {
+      "chapter": 2,
+      "title": "注意力与努力",
+      "sentence": "系统2的运作需要注意力，而注意力是稀缺资源——瞳孔会放大，心率会加速，你无法同时做两件费力的事。"
+    },
+    {
+      "chapter": 3,
+      "title": "懒惰的掌控者",
+      "sentence": "系统2是懒惰的，它倾向于接受系统1的建议而非费力验证——自控力和认知努力共享同一个有限的「心理能量池」。"
+    },
+    {
+      "chapter": 4,
+      "title": "关联机器",
+      "sentence": "系统1是一台联想机器：一个词、一个画面就能激活一连串关联反应（包括身体反应），这种「启动效应」在你毫不知情时塑造着你的行为和判断。"
+    },
+    {
+      "chapter": 5,
+      "title": "认知轻松",
+      "sentence": "信息处理越流畅，你就越觉得它是真的、好的、熟悉的——重复、清晰的字体、好心情都能制造虚假的真实感。"
+    },
+    {
+      "chapter": 6,
+      "title": "常态、意外及原因",
+      "sentence": "系统1维护着一个关于「正常世界」的模型，对偏离预期的事件会自动搜索因果解释——这让我们成为天生的因果推理者，但也容易在随机事件中看到虚假的规律。"
+    },
+    {
+      "chapter": 7,
+      "title": "妄下结论的机器",
+      "sentence": "系统1在证据不足时也会跳到结论（WYSIATI），光环效应、确认偏差和过度信赖第一印象都源于此。"
+    },
+    {
+      "chapter": 8,
+      "title": "判断是如何发生的",
+      "sentence": "系统1天生擅长「强度匹配」——它能在完全不同的维度之间进行直觉翻译，这就是为什么你能「看到」一个人的智力水平。"
+    },
+    {
+      "chapter": 9,
+      "title": "回答一个更简单的问题",
+      "sentence": "当面对困难问题时，系统1会悄悄将其替换为一个更简单的问题（启发式替代），你回答的其实不是被问的那个问题。"
+    },
+    {
+      "chapter": 10,
+      "title": "小数定律",
+      "sentence": "我们的统计直觉极差：从小样本中看到并不存在的模式，对随机波动赋予因果解释，仿佛「小数定律」与大数定律一样可靠。"
+    },
+    {
+      "chapter": 11,
+      "title": "锚定",
+      "sentence": "判断会被先前接触到的任何数字「锚定」——哪怕这个数字来自轮盘赌，它也会拉偏你对完全不相关问题的估计。"
+    },
+    {
+      "chapter": 12,
+      "title": "可得性的科学",
+      "sentence": "我们用「想到相关案例的容易程度」来判断频率和概率——容易想到的就被认为更常见，媒体因此系统性扭曲了我们的风险地图。"
+    },
+    {
+      "chapter": 13,
+      "title": "可得性、情感和风险",
+      "sentence": "公众对风险的感知由情感和可得性驱动，而非统计数据——恐惧会催生需求，需求会驱动政策，形成一个「可得性级联」的自我放大循环。"
+    },
+    {
+      "chapter": 14,
+      "title": "汤姆的专业",
+      "sentence": "当个案信息（汤姆像个计算机迷）与基率信息（人文专业学生远多于计算机专业学生）冲突时，人们几乎总是忽略基率、追随直觉相似性。"
+    },
+    {
+      "chapter": 15,
+      "title": "琳达问题：少即是多",
+      "sentence": "「琳达是银行出纳员兼女权主义者」听起来比「琳达是银行出纳员」更像琳达——但合取不可能比单项更可能，代表性启发式在此击败了基本逻辑。"
+    },
+    {
+      "chapter": 16,
+      "title": "原因胜过统计",
+      "sentence": "因果叙事比统计证据更有说服力——一个生动的故事能让人改变行为，而枯燥的基率数据几乎毫无影响。"
+    },
+    {
+      "chapter": 17,
+      "title": "回归均值",
+      "sentence": "极端表现之后的回归是统计必然而非因果结果——但人类天生用因果思维解释回归，于是误以为批评有效而表扬有害。"
+    },
+    {
+      "chapter": 18,
+      "title": "驯服直觉性预测",
+      "sentence": "直觉预测总是过于极端和过于自信；用基率锚定、用证据微调的「回归式预测」虽然感觉乏味，但准确得多。"
+    },
+    {
+      "chapter": 19,
+      "title": "理解的错觉",
+      "sentence": "事后诸葛亮让我们以为过去是可理解且必然的，这种「理解的错觉」喂养了我们对预测未来的虚假信心。"
+    },
+    {
+      "chapter": 20,
+      "title": "有效性错觉",
+      "sentence": "即使反复收到「你的预测并不准确」的反馈，主观信心依然不受动摇——低有效性环境中的「技能错觉」有着惊人的韧性。"
+    },
+    {
+      "chapter": 21,
+      "title": "直觉与公式",
+      "sentence": "在几乎所有研究中，简单的线性公式都优于或至少等于临床专家的直觉判断——机械一致性胜过人类的变异性。"
+    },
+    {
+      "chapter": 22,
+      "title": "专家直觉何时可信？",
+      "sentence": "专家直觉只有在两个条件同时满足时才值得信赖：环境足够规则以支持学习，且专家有机会通过长期练习积累经验。"
+    },
+    {
+      "chapter": 23,
+      "title": "外部视角",
+      "sentence": "规划谬误的解药是外部视角：不要问「我的项目需要多久」，而要问「像这类项目通常需要多久」。"
+    },
+    {
+      "chapter": 24,
+      "title": "资本主义的引擎",
+      "sentence": "乐观偏差让创业者高估成功概率、低估困难——个人层面这是代价高昂的错觉，但对整个经济体系而言，这种非理性的勇气是创新的引擎。"
+    },
+    {
+      "chapter": 25,
+      "title": "伯努利的错误",
+      "sentence": "伯努利用总财富的效用函数来解释风险态度，但这忽略了一个关键事实：心理价值由参照点决定，同样的最终财富可以是收益也可以是损失。"
+    },
+    {
+      "chapter": 26,
+      "title": "前景理论",
+      "sentence": "前景理论用三个原理重写了决策理论：参照点依赖、损失厌恶（损失的权重是收益的约两倍）和边际递减的S形价值函数。"
+    },
+    {
+      "chapter": 27,
+      "title": "禀赋效应",
+      "sentence": "你愿意为买入一个马克杯付的价格远低于你愿意接受的卖出价格——拥有即意味着害怕失去，损失厌恶在所有权中化身为禀赋效应。"
+    },
+    {
+      "chapter": 28,
+      "title": "负面事件",
+      "sentence": "坏事比好事的心理冲击更大、更持久——「负面主导」是损失厌恶在情感领域的推广，它解释了为什么一次争吵能抵消五次善意互动。"
+    },
+    {
+      "chapter": 29,
+      "title": "四重模式",
+      "sentence": "概率与收益/损失的交叉产生四种风险态度：高概率收益时规避、低概率收益时追求（买彩票）、高概率损失时追求（孤注一掷）、低概率损失时规避（买保险）。"
+    },
+    {
+      "chapter": 30,
+      "title": "罕见事件",
+      "sentence": "罕见事件在决策权重中被过度加权——当它们被生动地想象或刚刚发生时更是如此，这解释了恐怖主义为何能制造与其实际威胁不成比例的恐慌。"
+    },
+    {
+      "chapter": 31,
+      "title": "风险政策",
+      "sentence": "逐个评估风险决策会让损失厌恶主导你的选择；采用宽框架的「风险政策」——对一类决策统一制定规则——可以中和损失厌恶的非理性影响。"
+    },
+    {
+      "chapter": 32,
+      "title": "记分",
+      "sentence": "心理账户让金钱失去了可替代性：人们对不同来源的钱适用不同的规则，沉没成本谬误和「翻本」赌博都源于不愿在心理账本上「确认」一笔损失。"
+    },
+    {
+      "chapter": 33,
+      "title": "逆转",
+      "sentence": "单独评价和联合评价会导致偏好逆转——你认为更有价值的选项在另一种评价模式下可能变得更不受欢迎，这证明偏好是建构的而非揭示的。"
+    },
+    {
+      "chapter": 34,
+      "title": "框架与现实",
+      "sentence": "同一医学数据说「存活率90%」比说「死亡率10%」更让人接受手术——理性行为者不应受到等价表述的影响，但几乎所有人都会。"
+    },
+    {
+      "chapter": 35,
+      "title": "两个自我",
+      "sentence": "体验自我活在当下但没有话语权，记忆自我编写故事并做出决定——你选择重复的假期是记忆自我喜欢的，而非体验自我最享受的。"
+    },
+    {
+      "chapter": 36,
+      "title": "人生是个故事",
+      "sentence": "记忆自我服从峰终定律和持续时间忽视——一场漫长幸福的婚姻如果以痛苦收场，在回忆中就会被「毁掉」，仿佛那些年的快乐从未存在。"
+    },
+    {
+      "chapter": 37,
+      "title": "体验幸福",
+      "sentence": "金钱在年收入约$75,000之后不再显著提升日常情感体验（体验幸福），但对生活满意度（评价幸福）的提升没有上限。"
+    },
+    {
+      "chapter": 38,
+      "title": "思考人生",
+      "sentence": "当你被问到「你的人生幸福吗」时，你其实在用聚焦错觉回答一个被替换过的问题——你此刻想到了什么，什么就显得最重要。"
+    }
+  ]
+};
+
+
+(function() {
+  const data = typeof distill !== 'undefined' ? distill : {};
+  const quotes = data.quotes || [];
+  const concepts = data.concepts || [];
+  const principles = data.principles || [];
+  const essence = data.essence || [];
+
+  // ── Render Quotes ──
+  const quoteList = document.getElementById('quoteList');
+  if (quotes.length === 0) {
+    quoteList.innerHTML = '<div class="empty-state">No quotes distilled yet.</div>';
+  } else {
+    quotes.forEach(q => {
+      const card = document.createElement('div');
+      card.className = 'quote-card fade-in';
+      card.onclick = function() { this.classList.toggle('expanded'); };
+      card.innerHTML =
+        '<div class="quote-text">' + escHtml(q.text) + '</div>' +
+        '<div class="quote-footer">' +
+          (q.chapter ? '<span class="quote-chapter">Ch.' + q.chapter + '</span>' : '') +
+          '<span class="quote-expand-hint">click to expand</span>' +
+        '</div>' +
+        (q.context ? '<div class="quote-context">' + escHtml(q.context) + '</div>' : '');
+      quoteList.appendChild(card);
+    });
+  }
+
+  // ── Render Concepts ──
+  const conceptGrid = document.getElementById('conceptGrid');
+  if (concepts.length === 0) {
+    conceptGrid.innerHTML = '<div class="empty-state">No concepts distilled yet.</div>';
+  } else {
+    concepts.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'concept-card fade-in';
+      card.innerHTML =
+        '<div class="concept-icon">' + (c.icon || '\u{1F9E0}') + '</div>' +
+        '<div class="concept-name">' + escHtml(c.name) + '</div>' +
+        (c.nameZh ? '<div class="concept-name-zh">' + escHtml(c.nameZh) + '</div>' : '') +
+        '<div class="concept-summary">' + escHtml(c.summary || '') + '</div>' +
+        '<div class="concept-more">hover to read more</div>';
+      conceptGrid.appendChild(card);
+    });
+  }
+
+  // ── Render Principles ──
+  const principleList = document.getElementById('principleList');
+  if (principles.length === 0) {
+    principleList.innerHTML = '<div class="empty-state">No principles distilled yet.</div>';
+  } else {
+    principles.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'principle-item fade-in';
+      item.innerHTML =
+        '<div class="principle-num"></div>' +
+        '<div class="principle-icon">' + (p.icon || '\u{1F4A1}') + '</div>' +
+        '<div class="principle-body">' +
+          '<div class="principle-text">' + escHtml(p.text) + '</div>' +
+          (p.textZh ? '<div class="principle-text-zh">' + escHtml(p.textZh) + '</div>' : '') +
+        '</div>';
+      principleList.appendChild(item);
+    });
+  }
+
+  // ── Render Essence ──
+  const essenceList = document.getElementById('essenceList');
+  if (essence.length === 0) {
+    essenceList.innerHTML = '<div class="empty-state">No chapter essences distilled yet.</div>';
+  } else {
+    essence.forEach(e => {
+      const item = document.createElement('div');
+      item.className = 'essence-item fade-in';
+      item.innerHTML =
+        '<div class="essence-chapter">Ch.' + (e.chapter || '?') + '</div>' +
+        '<div class="essence-body">' +
+          (e.title ? '<div class="essence-title">' + escHtml(e.title) + '</div>' : '') +
+          '<div class="essence-sentence">' + escHtml(e.sentence || '') + '</div>' +
+        '</div>';
+      essenceList.appendChild(item);
+    });
+  }
+
+  // ── Utility ──
+  function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // ── Scroll Progress ──
+  var progressBar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', function() {
+    var h = document.documentElement;
+    var pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    progressBar.style.width = Math.min(pct, 100) + '%';
+  });
+
+  // ── IntersectionObserver Fade-in ──
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // ── Active nav pill tracking ──
+  var sections = ['quotes', 'concepts', 'principles', 'essence'];
+  var navPills = document.querySelectorAll('.nav-pill');
+  var sectionObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        navPills.forEach(function(p) { p.classList.remove('active'); });
+        var pill = document.querySelector('.nav-pill[href="#' + entry.target.id + '"]');
+        if (pill) pill.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -60% 0px' });
+
+  sections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+})();
+
+function scrollToSection(id, el) {
+  var target = document.getElementById(id);
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.querySelectorAll('.nav-pill').forEach(function(p) { p.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+</script>
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+  <span class="theme-toggle-icon" id="themeIcon"></span>
+</button>
+<style>
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
+</body>
+</html>

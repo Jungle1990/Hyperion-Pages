@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Part 3 综合练习：词根实战训练场 · Part 3 Comprehensive Exercises: Root Analysis in Action | Chapter 21</title>
+<title>体验幸福 · Experienced Well-Being | Chapter 37</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -137,6 +137,18 @@ section { padding: 80px 0; }
 
 /* ── Block CSS (injected per block) ── */
 
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
 /* Block: comparison */
 .comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
 .comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
@@ -153,6 +165,12 @@ section { padding: 80px 0; }
 @media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
 
 
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent3-rgb),0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
 /* Block: pipeline */
 .pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
 .pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(var(--accent-rgb),0.3); }
@@ -160,24 +178,6 @@ section { padding: 80px 0; }
 .pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
 .pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
 @media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
-
-
-/* Block: tips-grid */
-.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
-.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
-.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
-.tip-card:hover::before { transform: scaleX(1); }
-.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
-.tip-icon { font-size: 2rem; margin-bottom: 12px; }
-.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
-.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
-.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
-
-
-/* Block: insight-box */
-.insight-box { background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent3-rgb),0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
-.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
-.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
 
 
 /* Block: bar-chart */
@@ -259,10 +259,10 @@ section { padding: 80px 0; }
 <!-- ── Hero ── -->
 <section class="hero" id="sec-hero">
     <div class="hero-content">
-        <div class="hero-chapter">Chapter 21 / 22 · Part III · 330个常用词根简介 330 Common Roots Overview</div>
-        <div class="hero-icon">🏋️</div>
-        <h1 class="hero-title">Part 3 综合练习：词根实战训练场</h1>
-        <p class="hero-sub">330个词根不是用来「看」的，而是用来「拆」的——在练习中把词根知识转化为拆词直觉</p>
+        <div class="hero-chapter">Chapter 37 / 38 · Part V · 两个自我 — 体验自我与记忆自我的分裂</div>
+        <div class="hero-icon">😊</div>
+        <h1 class="hero-title">体验幸福</h1>
+        <p class="hero-sub">Measuring happiness moment by moment — the U-index, the income saturation point, and what really makes us feel good</p>
     </div>
     <div class="scroll-hint">
         <span></span>
@@ -287,64 +287,65 @@ section { padding: 80px 0; }
     </section>
 
     <!-- ── Sections (assembled from blocks) ── -->
-    <!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+    <!-- Block: pipeline — Flow diagram with connected nodes -->
 <section id="sec-block1" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第一类练习：识别词根及含义</div>
-    <div class="tips-grid" id="tipsGrid-block1"></div>
+    <div class="section-title">日重现法（DRM）：测量体验幸福的新工具</div>
+    <div class="pipeline-flow" id="pipeline-block1"></div>
+    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;">从传统调查到瞬时情绪测量</div>
 </section>
 
-<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<!-- Block: bar-chart — Horizontal bar chart -->
 <section id="sec-block2" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第二类练习：一目了然的说文解字</div>
-    <div class="tips-grid" id="tipsGrid-block2"></div>
+    <div class="section-title">各种活动的U指数：什么让你不开心？</div>
+    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
+    <div class="bar-chart" id="barChart-block2"></div>
 </section>
 
 <!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
 <section id="sec-block3" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第三类练习：词义跳跃的文化密码</div>
+    <div class="section-title">金钱与幸福：两种效应的分裂</div>
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
+            <div class="comparison-label">体验幸福（日常情绪）</div>
             <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-text">收入 < 75000美元：收入增加确实改善情绪
+收入 > 75000美元：体验幸福达到饱和，不再增长
+原因：收入越高，享受小乐趣的能力越低
+证据：想到财富的学生吃巧克力时表情更不开心
+赤贫加剧一切不幸的体验效果</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
+            <div class="comparison-label">生活满意度（记忆自我的评价）</div>
             <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-text">收入增加持续提升生活满意度
+没有明显的饱和点
+教育程度高 → 满意度高（但压力也大）
+各国GDP与满意度高度相关（r=0.84）
+「你对人生的想法」与「你每天的感受」是两码事</div>
         </div>
     </div>
-    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">词义从词根含义到现代用法的跳跃，背后往往藏着一段文化故事。学会追踪这些故事，不仅加深记忆，还能让词汇学习变成一场文化探险。</div></div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">结论如同结肠镜实验一样清晰：生活评价与实际体验相关但并不相同。贫穷确实让人痛苦，富有提升满意度，但（平均而言）不能增强日常情绪。</div></div>
 </section>
 
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block4" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">📜 林肯葛底斯堡演说中的词根</div>
-        <div class="insight-content"></div>
+        <div class="insight-title">🎯 </div>
+        <div class="insight-content">情绪状态在很大程度上取决于我们关注的事情。要享受吃东西的快乐，你必须意识到自己在品尝食物。法国女性和美国女性进食时间大致相同，但法国女性的专注力是美国女性的两倍——美国人吃饭时同时做其他事，从中获得的快乐就减少了。幸福的最可靠预测因素不是收入或教育，而是：是否与亲朋好友联系过。可以略微夸张地说：幸福是与你爱的人和爱你的人共度时光的感受。</div>
     </div>
 </section>
 
-<!-- Block: pipeline — Flow diagram with connected nodes -->
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
 <section id="sec-block5" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">拆词三步法实操</div>
-    <div class="pipeline-flow" id="pipeline-block5"></div>
-    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;"></div>
-</section>
-
-<!-- Block: bar-chart — Horizontal bar chart -->
-<section id="sec-block6" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">四类练习的难度递增</div>
-    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
-    <div class="bar-chart" id="barChart-block6"></div>
+    <div class="section-title">提升幸福的个人与社会策略</div>
+    <div class="tips-grid" id="tipsGrid-block5"></div>
 </section>
 
 
@@ -393,198 +394,154 @@ const feynmanSteps = [
   {
     "step": 1,
     "title": "选择概念",
-    "desc": "第三部分练习分为四大题型：1）识别词根并说出含义；2）对词义与词根关系明显的词进行「说文解字」；3）探究词义与词根含义相距较远的词的文化背景；4）在英文原著段落中识别和分析词根。"
+    "desc": "如何测量体验自我的幸福而非记忆自我的满意度？日重现法是什么？U指数如何量化不愉快的时间？收入与幸福的关系是线性的吗？体验幸福和生活满意度是同一回事吗？"
   },
   {
     "step": 2,
-    "title": "讲给外行听",
-    "desc": "这就像一场词根的「实弹演习」。前面学了450个词根理论，现在要把它们用在真实单词上。就像学了武术套路之后的实战对练——不是比划比划就行，而是要真的能拆、能猜、能验证。"
+    "title": "以教代学",
+    "desc": "传统的幸福测量问的是「综合考虑，你对生活有多满意？」——这是记忆自我的判断。但从结肠镜和冷手实验中我们知道记忆自我不可靠。于是卡尼曼团队开发了「日重现法」：让受试者像剪辑电影一样回顾昨天每段经历的情绪。U指数 = 处于不愉快状态的时间百分比。结果：美国女性约19%的时间不愉快，法国16%，丹麦14%。"
   },
   {
     "step": 3,
-    "title": "找出漏洞",
-    "desc": "练习暴露了三个常见问题：一是词根含义和现代词义之间的跳跃（如mirror来自mir「惊异」，因为古人觉得镜子里的影像令人惊异）；二是同根词的词形变化规律（元音弱化、辅音同化）；三是前缀变体的识别（ad-在不同辅音前变成ac-, af-, ag-等）。"
+    "title": "查漏补缺",
+    "desc": "让人意外的发现：美国女性带孩子时的不开心程度比做家务还高（U指数24% vs 18%）！法国女性与孩子相处时间更少但更享受。注意力是关键——法国女性进食时的专注力是美国女性的两倍，因而获得更多快乐。最反直觉的发现：家庭收入超过75000美元后，体验幸福不再增长——但生活满意度继续上升。"
   },
   {
     "step": 4,
-    "title": "简化再简化",
-    "desc": "拆词三步法：1）从后往前切——先认后缀定词性；2）从前往后切——再认前缀定方向；3）中间剩下的就是词根——查表定核心含义。"
+    "title": "简化精炼",
+    "desc": "体验幸福和生活满意度是两码事。教育提升生活评价但增加压力；疾病严重影响体验但较少影响评价；宗教减轻压力但不缓解抑郁。收入超过75000美元后只提升「你对人生的想法」而非「你每天的感受」。提高幸福最简单的方法：掌控时间，减少通勤，多与喜欢的人一起做喜欢的事。幸福是与爱你的人共度时光的感受。"
   }
 ];
 const takeaways = [
   {
-    "icon": "🔍",
-    "title": "识别词根是基础",
-    "text": "第一类练习训练最基本的能力：在单词中快速定位词根。aggregation→greg、capitation→capit、cosmonaut→cosm+naut。"
+    "icon": "📊",
+    "title": "U指数：不愉快时间的客观测量",
+    "text": "U指数 = 处于不愉快状态的时间百分比。美国女性约19%，法国16%，丹麦14%。它基于时间而非评价量表，能直接度量人群的情绪痛苦。"
   },
   {
-    "icon": "✏️",
-    "title": "说文解字是核心",
-    "text": "第二类练习巩固「前缀+词根+后缀」的拆解公式。agriculture = agr(田) + culture(耕种) = 农业。"
+    "icon": "👶",
+    "title": "照顾孩子比想象中更消耗情绪",
+    "text": "美国女性照顾孩子的U指数（24%）高于做家务（18%）。但带孩子对生活满意度的负面影响较小——体验幸福和生活评价又一次分道扬镳。"
   },
   {
-    "icon": "🔮",
-    "title": "文化背景是进阶",
-    "text": "第三类练习揭示词义跳跃：mirror（镜子）←mir（惊异）：古人惊异于镜中倒影。这些故事让词根记忆从枯燥变有趣。"
+    "icon": "💰",
+    "title": "75000美元是体验幸福的饱和点",
+    "text": "收入超过75000美元（高成本地区），日常情绪不再改善。更高收入确实能买到更多快乐，但同时削弱了享受小乐趣的能力。"
   },
   {
-    "icon": "📜",
-    "title": "原著实战是终极",
-    "text": "第四类练习证明：在马克思、培根、林肯、丘吉尔、奥威尔、狄更斯的文章中，你的词根知识大有用武之地。"
+    "icon": "🎯",
+    "title": "注意力决定当下的苦乐",
+    "text": "当下心情取决于此刻关注什么。专注进食时更快乐，专注通勤时更痛苦。坠入爱河时堵车也开心，悲伤时看喜剧也闷闷不乐。"
   },
   {
-    "icon": "🏋️",
-    "title": "三步拆词法",
-    "text": "从后切后缀（定词性）→ 从前切前缀（定方向）→ 中间即词根（定核心义）。反复练习直到形成直觉。"
+    "icon": "❤️",
+    "title": "幸福 = 与爱你的人共度时光",
+    "text": "除了健康，对当天情绪最好的预测因素是是否与亲朋好友联系过。收入、教育、职位都不如社交关系重要。"
   }
 ];
 const quiz = [
   {
     "id": "q1",
-    "question": "请对 quintessence（精髓）进行完整的「说文解字」分析，包括词根含义和文化背景。",
-    "answer": "quintessence = quint（五）+ ess（存在）+ -ence（名词后缀）。字面义是「第五存在/第五要素」。文化背景：亚里士多德认为构成世界的基本元素有四个（土、水、火、气），而天体由更纯净的「第五元素」（拉丁语 quinta essentia）构成。因此quintessence引申为「最精纯的部分」→「精髓；完美典范」。"
+    "question": "日重现法与传统的生活满意度调查有什么根本区别？",
+    "answer": "传统调查问「综合考虑，你对生活有多满意？」——这启动记忆自我的整体判断，容易受当下心情（如复印机上的硬币）和显著事件的影响。日重现法让受试者像剪辑电影场景一样回顾昨天的每段经历，分别为多种情绪打分，并记录时间。这测量的是体验自我的幸福——基于实际度过的时间和当时的感受，而非事后的整体评价。两者测量的是幸福的不同层面。"
   },
   {
     "id": "q2",
-    "question": "解释为什么 rival（竞争者）和 river（河流）有关系？词根 riv 是如何连接这两个含义的？",
-    "answer": "riv = 河流（拉丁语 rivus）。rival 的字面义是「共用同一条河流（灌溉水源）的人」。在古罗马农业社会，两家人如果共用同一条灌溉水渠，就不可避免地会为水源分配产生争执，所以「同河人」变成了「竞争对手」。这是一个从具体（共享河流）到抽象（竞争关系）的语义演变典例。"
+    "question": "为什么家庭收入超过75000美元后日常情绪不再改善？",
+    "answer": "合理的解释是「享乐适应」的一种形式：收入越高，享受生活小乐趣的能力越低。有证据支持：实验中让学生在吃巧克力时想到财富，他们的表情就变得不那么快乐。更高收入确实可以买到更多快乐体验（度假、歌剧、改善居住环境），但这些额外快乐被享受简单事物能力的下降所抵消，净效果为0。注意：这只是体验幸福的饱和——更高收入仍然持续提升生活满意度（记忆自我的评价）。"
   },
   {
     "id": "q3",
-    "question": "在林肯葛底斯堡演说的开头句中，找出至少5个包含拉丁/希腊词根的词，并分析它们的词根。",
-    "answer": "1) continent = con-（共同）+ tin（持有）→ 连在一起的大陆；2) nation = nat（出生）→ 同一出生地的人 = 国家；3) conceived = con-（共同）+ ceiv（取、拿）→ 构想；4) liberty = liber（自由）→ 自由；5) dedicated = de-（加强）+ dic（说、宣告）→ 奉献；6) proposition = pro-（向前）+ posit（放置）→ 命题；7) equal = equ（平等）→ 平等的。几乎每个关键词都有一个古典词根在支撑。"
+    "question": "为什么赤贫者的幸福状况不仅仅是「收入低」那么简单？",
+    "answer": "赤贫加剧了生活中所有其他不幸的体验效果。以头痛为例：收入前2/3的人群中，头痛使悲伤和忧虑从19%升至38%（增加19%）。但最贫穷的1/10人群中，同样的头痛使比例从38%升至70%（增加32%）——基线水平更高，增长幅度也更大。离婚、孤独等负面事件也呈现同样模式。此外，周末对赤贫者体验幸福的有益影响也小得多。赤贫本质上是一种放大器，让每种不幸都变得更加难以忍受。"
   },
   {
     "id": "q4",
-    "question": "请用「拆词三步法」分析 ostracism（放逐）的构词过程和文化背景。",
-    "answer": "① 后缀：-ism = 主义/制度/行为；② 前缀：无明显前缀；③ 词根：ostrac = 贝壳/碎陶片（希腊语 ostrakon）。字面义：「碎陶片制度」。文化背景：古希腊雅典民主制度中，全体公民用陶片投票决定是否将某人驱逐出城邦5-10年。每人在碎陶片上写下想要放逐的人名，票数超过6000则执行流放。所以「碎陶片行为」→「放逐；排斥」。现代英语中ostracize表示「排斥某人」。"
-  },
-  {
-    "id": "q5",
-    "question": "为什么 hydrogen（氢）的字面意思是「生成水的元素」？请用词根分析解释。",
-    "answer": "hydrogen = hydr（水，希腊语hydor）+ gen（产生，希腊语genos）= 生成水的元素。18世纪化学家拉瓦锡发现氢气燃烧后生成水，因此用希腊词根命名为hydrogen——「产水者」。同理：oxygen = oxy（酸）+ gen = 产酸者（拉瓦锡误以为氧是所有酸的共同成分）；nitrogen = nitr（硝石）+ gen = 产硝石者。这三个元素名完美展示了希腊词根在科学命名中的地位。"
+    "question": "如果你是政策制定者，如何利用U指数来改善社会幸福？",
+    "answer": "U指数的核心优势是基于客观的时间测量：如果一个群体的U指数从20%降到18%，就意味着情绪痛苦总时间减少了1/10。政策优先级：1）应对抑郁症和赤贫——少数人承受大部分痛苦；2）提高交通便利性——通勤的U指数最高（29%）；3）为职业女性提供托儿服务——照顾孩子的U指数意外地高（24%）；4）为老年人提供社交机会——社交是最可靠的幸福预测因素。即使只降低1%也意味着避免数百万小时的痛苦。"
   }
 ];
-const preQuiz = [
+const chapterNav = {"prev": {"num": 36, "title": "人生是个故事", "href": "ch36.html"}, "next": {"num": 38, "title": "思考人生", "href": "ch38.html"}};
+window.pipeData_block1 = [
   {
-    "question": "如果你在阅读英文原著时遇到一个生词，你第一反应是查词典，还是先尝试用词根词缀分析它？",
-    "hint": "想想哪种方式更有助于长期记忆"
+    "cmd": "传统方法",
+    "annotation": "「你对生活有多满意？」——记忆自我的判断"
   },
   {
-    "question": "你认为 mirror（镜子）和 miracle（奇迹）之间有什么联系？",
-    "hint": "它们看起来像不像同族词？找找共同的字母序列"
+    "cmd": "体验抽样法",
+    "annotation": "手机随机提示，记录此刻的感受和活动（精确但烦琐）"
+  },
+  {
+    "cmd": "日重现法",
+    "annotation": "回顾昨天每段经历，像电影场景一样分解",
+    "bottleneck": true
+  },
+  {
+    "cmd": "情绪评分",
+    "annotation": "为每段经历的多种情绪强度打分（0-6）"
+  },
+  {
+    "cmd": "U指数计算",
+    "annotation": "不愉快时间占比 = 消极情绪 > 所有积极情绪的时段比例"
   }
 ];
-const chapterNav = {"prev": {"num": 20, "title": "常用词根 G-P", "href": "ch20.html"}, "next": {"num": 22, "title": "综合练习与复习", "href": "ch22.html"}};
-window.tipsData_block1 = [
+window.barData_block2 = [
   {
-    "icon": "🔍",
-    "title": "aggregation → greg = 群",
-    "desc": "ag-(=ad-) + greg(群) + -ation(名词) = 聚集物"
+    "label": "早上通勤",
+    "value": 29,
+    "color": "#ff6b6b"
   },
   {
-    "icon": "🔍",
-    "title": "armament → arm = 武装",
-    "desc": "arm(武装) + -ament(名词) = 军备；装备"
+    "label": "工作",
+    "value": 27,
+    "color": "#ff6b6b"
   },
   {
-    "icon": "🔍",
-    "title": "capitation → capit = 头",
-    "desc": "capit(头) + -ation(名词) = 人头税（按「头」收税）"
+    "label": "照顾孩子",
+    "value": 24,
+    "color": "#ffe66d"
   },
   {
-    "icon": "🔍",
-    "title": "cosmonaut → cosm = 宇宙",
-    "desc": "cosm(宇宙) + -o- + naut(水手) = 宇宙水手 = 宇航员"
+    "label": "做家务",
+    "value": 18,
+    "color": "#ffe66d"
   },
   {
-    "icon": "🔍",
-    "title": "denominate → nomin = 名字",
-    "desc": "de-(加强) + nomin(名) + -ate(动词) = 给…命名"
+    "label": "社交",
+    "value": 12,
+    "color": "#4ecdc4"
   },
   {
-    "icon": "🔍",
-    "title": "demonstrate → monstr = 显示",
-    "desc": "de-(加强) + monstr(显示) + -ate(动词) = 论证，表明"
+    "label": "看电视",
+    "value": 12,
+    "color": "#4ecdc4"
   },
   {
-    "icon": "🔍",
-    "title": "heritage → her = 继承",
-    "desc": "her(继承) + -it- + -age(名词) = 遗产；传统"
-  },
-  {
-    "icon": "🔍",
-    "title": "pseudonym → onym = 名字",
-    "desc": "pseud(假) + -o- + nym(名) = 假名；笔名"
+    "label": "性生活",
+    "value": 5,
+    "color": "#6c63ff"
   }
 ];
-window.tipsData_block2 = [
+window.tipsData_block5 = [
   {
-    "icon": "✏️",
-    "title": "aerology = aer(空气) + logy(学)",
-    "desc": "→ 大气学，气象学"
+    "icon": "⏰",
+    "title": "掌控你的时间",
+    "text": "如何利用时间是人生中最可控的事情之一。减少通勤，花更多时间与喜欢的人一起做喜欢的事"
   },
   {
-    "icon": "✏️",
-    "title": "agriculture = agr(田) + culture(耕种)",
-    "desc": "→ 农业"
+    "icon": "🏃",
+    "title": "用积极活动替代被动休闲",
+    "text": "将看电视的时间（U指数12%）用于社交和锻炼——这些活动带来的积极情绪更持久"
   },
   {
-    "icon": "✏️",
-    "title": "triangle = tri(三) + angl(角)",
-    "desc": "→ 三角形"
+    "icon": "🏥",
+    "title": "优先应对抑郁和赤贫",
+    "text": "少数人承受大部分痛苦。降低U指数1%就意味着避免数百万小时的痛苦。优先事项：抑郁症治疗、消除赤贫"
   },
   {
-    "icon": "✏️",
-    "title": "dentist = dent(齿) + ist(人)",
-    "desc": "→ 牙医"
-  },
-  {
-    "icon": "✏️",
-    "title": "telephone = tele(远) + phon(声)",
-    "desc": "→ 远声 = 电话"
-  },
-  {
-    "icon": "✏️",
-    "title": "computer = com(全面) + put(想) + er(物)",
-    "desc": "→ 全面计算的机器 = 计算机"
-  },
-  {
-    "icon": "✏️",
-    "title": "umbrella = umbr(影) + ella(小)",
-    "desc": "→ 小影子 = 伞"
-  },
-  {
-    "icon": "✏️",
-    "title": "society = soci(同伴) + ety(状态)",
-    "desc": "→ 同伴的集合 = 社会"
-  }
-];
-window.pipeData_block5 = [];
-window.barData_block6 = [
-  {
-    "label": "第一类：识别词根",
-    "width": 40,
-    "value": "直接在单词中找出词根并说出含义",
-    "color": "success"
-  },
-  {
-    "label": "第二类：说文解字（明显）",
-    "width": 60,
-    "value": "词义与词根含义关系一目了然",
-    "color": "success"
-  },
-  {
-    "label": "第三类：说文解字（隐晦）",
-    "width": 80,
-    "value": "需要查找文化背景才能理解词义跳跃",
-    "color": "warning"
-  },
-  {
-    "label": "第四类：原著实战",
-    "width": 95,
-    "value": "在真实语境中识别并分析多个词根",
-    "color": "danger"
+    "icon": "🍽️",
+    "title": "专注于当下体验",
+    "text": "吃饭时专心品尝，与人交谈时全神贯注。法国女性的经验：同样的时间投入，双倍的专注力带来更多快乐"
   }
 ];
 
@@ -731,26 +688,6 @@ function toggleQuiz(card) {
 
 /* ── Block JS (injected per block) ── */
 
-// Block: bar-chart
-(function() {
-    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
-        const blockId = container.id.replace('barChart-', '');
-        const dataVar = window['barData_' + blockId];
-        if (!dataVar) return;
-        dataVar.forEach(bar => {
-            const div = document.createElement('div');
-            div.className = 'bar-row fade-in';
-            const colorClass = bar.warning ? 'danger' : 'success';
-            div.innerHTML = `
-                <div class="bar-label">${bar.label}</div>
-                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
-                <div class="bar-value">${bar.value || ''}</div>`;
-            container.appendChild(div);
-        });
-    });
-})();
-
-
 // Block: tips-grid
 (function() {
     document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
@@ -765,6 +702,26 @@ function toggleQuiz(card) {
                 <div class="tip-title">${tip.title}</div>
                 <div class="tip-desc">${tip.text || tip.desc || ''}</div>
                 ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: bar-chart
+(function() {
+    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
+        const blockId = container.id.replace('barChart-', '');
+        const dataVar = window['barData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(bar => {
+            const div = document.createElement('div');
+            div.className = 'bar-row fade-in';
+            const colorClass = bar.warning ? 'danger' : 'success';
+            div.innerHTML = `
+                <div class="bar-label">${bar.label}</div>
+                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
+                <div class="bar-value">${bar.value || ''}</div>`;
             container.appendChild(div);
         });
     });

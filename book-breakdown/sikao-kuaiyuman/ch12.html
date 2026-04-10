@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Part 3 综合练习：词根实战训练场 · Part 3 Comprehensive Exercises: Root Analysis in Action | Chapter 21</title>
+<title>可得性的科学 · The Science of Availability | Chapter 12</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -137,6 +137,31 @@ section { padding: 80px 0; }
 
 /* ── Block CSS (injected per block) ── */
 
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
 /* Block: comparison */
 .comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
 .comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
@@ -160,37 +185,6 @@ section { padding: 80px 0; }
 .pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
 .pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
 @media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
-
-
-/* Block: tips-grid */
-.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
-.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
-.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
-.tip-card:hover::before { transform: scaleX(1); }
-.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
-.tip-icon { font-size: 2rem; margin-bottom: 12px; }
-.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
-.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
-.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
-
-
-/* Block: insight-box */
-.insight-box { background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent3-rgb),0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
-.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
-.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
-
-
-/* Block: bar-chart */
-.bar-chart { display: flex; flex-direction: column; gap: 12px; }
-.bar-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 1rem; }
-.bar-label { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; color: var(--text-dim); }
-.bar-track { height: 32px; background: rgba(var(--text-rgb),0.03); border-radius: 0.5rem; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 0.5rem; display: flex; align-items: center; padding-left: 0.75rem; font-size: 0.75rem; font-family: var(--font-mono); color: #fff; transition: width 1.5s ease-out; }
-.bar-fill.success { background: linear-gradient(90deg, var(--accent3), #2dd4bf); }
-.bar-fill.danger { background: linear-gradient(90deg, var(--accent2), #ef4444); }
-.bar-fill.neutral { background: linear-gradient(90deg, var(--accent), #8b5cf6); }
-.bar-fill.warning { background: linear-gradient(90deg, var(--accent4), var(--warning)); }
-.bar-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; }
 
 
 /* ── Responsive ── */
@@ -259,10 +253,10 @@ section { padding: 80px 0; }
 <!-- ── Hero ── -->
 <section class="hero" id="sec-hero">
     <div class="hero-content">
-        <div class="hero-chapter">Chapter 21 / 22 · Part III · 330个常用词根简介 330 Common Roots Overview</div>
-        <div class="hero-icon">🏋️</div>
-        <h1 class="hero-title">Part 3 综合练习：词根实战训练场</h1>
-        <p class="hero-sub">330个词根不是用来「看」的，而是用来「拆」的——在练习中把词根知识转化为拆词直觉</p>
+        <div class="hero-chapter">Chapter 12 / 38 · Part II · 启发式与偏差 — 直觉判断为何系统性出错</div>
+        <div class="hero-icon">🔍</div>
+        <h1 class="hero-title">可得性的科学</h1>
+        <p class="hero-sub">You judge the world not by what is true, but by what comes to mind easily</p>
     </div>
     <div class="scroll-hint">
         <span></span>
@@ -287,64 +281,73 @@ section { padding: 80px 0; }
     </section>
 
     <!-- ── Sections (assembled from blocks) ── -->
-    <!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+    <!-- Block: analogy — 2-column comparison card -->
 <section id="sec-block1" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第一类练习：识别词根及含义</div>
-    <div class="tips-grid" id="tipsGrid-block1"></div>
-</section>
-
-<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
-<section id="sec-block2" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">第二类练习：一目了然的说文解字</div>
-    <div class="tips-grid" id="tipsGrid-block2"></div>
+    <div class="section-title">核心类比：大脑的搜索引擎</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">🔍</div>
+            <div class="analogy-label">搜索引擎</div>
+            <div class="analogy-desc">搜索速度受索引和热门程度影响
+最近被频繁访问的页面排在前面
+搜索结果不等于真实重要性
+加载速度影响用户对结果的信任</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">🧠</div>
+            <div class="analogy-label">大脑的可得性</div>
+            <div class="analogy-desc">提取速度受情感强度和近期经历影响
+最近经历、生动画面的事例排在前面
+容易想到不等于频繁发生
+回忆流畅性影响判断的自信程度</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">你不需要真的想出任何例子——大脑瞬间就能感知到「搜索结果多不多」。看到XUZONLCJM和TAPCERHOB两组字母，你立刻知道后者能组成更多单词。</div></div>
 </section>
 
 <!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
-<section id="sec-block3" class="fade-in">
+<section id="sec-block2" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第三类练习：词义跳跃的文化密码</div>
+    <div class="section-title">施瓦茨悖论：列出越多反而越不信</div>
     <div class="comparison-grid">
-        <div class="comparison-side hard">
-            <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+        <div class="comparison-side pro">
+            <div class="comparison-icon">✅</div>
+            <div class="comparison-label">列出6个果断行为</div>
+            <div class="comparison-title">轻松流畅</div>
+            <div class="comparison-text">容易想到→感觉自己很果断
+提取体验愉快
+流畅性支持结论
+判断：我是个果断的人</div>
         </div>
         <div class="comparison-vs">VS</div>
-        <div class="comparison-side smart">
-            <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+        <div class="comparison-side con">
+            <div class="comparison-icon">😰</div>
+            <div class="comparison-label">列出12个果断行为</div>
+            <div class="comparison-title">艰难吃力</div>
+            <div class="comparison-text">后几个很难想到→感觉自己不果断
+提取体验困难超出预期
+困难感否定结论
+判断：我并不是果断的人</div>
         </div>
     </div>
-    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">词义从词根含义到现代用法的跳跃，背后往往藏着一段文化故事。学会追踪这些故事，不仅加深记忆，还能让词汇学习变成一场文化探险。</div></div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">提取速度快比提取数量多带来更好的体验。同样道理：列出12个优柔寡断行为后，人们反而认为自己很果断！</div></div>
 </section>
 
-<!-- Block: insight-box — Highlighted insight/quote card -->
-<section id="sec-block4" class="fade-in">
-    <div class="insight-box">
-        <div class="insight-title">📜 林肯葛底斯堡演说中的词根</div>
-        <div class="insight-content"></div>
-    </div>
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">可得性偏差的三大来源</div>
+    <div class="tips-grid" id="tipsGrid-block3"></div>
 </section>
 
 <!-- Block: pipeline — Flow diagram with connected nodes -->
-<section id="sec-block5" class="fade-in">
+<section id="sec-block4" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">拆词三步法实操</div>
-    <div class="pipeline-flow" id="pipeline-block5"></div>
-    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;"></div>
-</section>
-
-<!-- Block: bar-chart — Horizontal bar chart -->
-<section id="sec-block6" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">四类练习的难度递增</div>
-    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
-    <div class="bar-chart" id="barChart-block6"></div>
+    <div class="section-title">何时由感觉驱动，何时由内容驱动</div>
+    <div class="pipeline-flow" id="pipeline-block4"></div>
+    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;">影响判断依据的六个条件</div>
 </section>
 
 
@@ -393,198 +396,103 @@ const feynmanSteps = [
   {
     "step": 1,
     "title": "选择概念",
-    "desc": "第三部分练习分为四大题型：1）识别词根并说出含义；2）对词义与词根关系明显的词进行「说文解字」；3）探究词义与词根含义相距较远的词的文化背景；4）在英文原著段落中识别和分析词根。"
+    "desc": "可得性启发式：人们以「想到事例的容易程度」来判断某类事件的频率或概率。施瓦茨的关键发现——提取的流畅性（感觉）比提取的数量（内容）更能影响判断。"
   },
   {
     "step": 2,
-    "title": "讲给外行听",
-    "desc": "这就像一场词根的「实弹演习」。前面学了450个词根理论，现在要把它们用在真实单词上。就像学了武术套路之后的实战对练——不是比划比划就行，而是要真的能拆、能猜、能验证。"
+    "title": "以教代学",
+    "desc": "想象大脑是一个搜索引擎：当你搜索「飞机事故」，如果最近有一条头条新闻，搜索结果瞬间弹出——你就觉得飞机事故「经常发生」。但如果搜索「室内污染致死」，半天搜不到结果——你就觉得这事「很少发生」。大脑用搜索速度代替了真实频率。"
   },
   {
     "step": 3,
-    "title": "找出漏洞",
-    "desc": "练习暴露了三个常见问题：一是词根含义和现代词义之间的跳跃（如mirror来自mir「惊异」，因为古人觉得镜子里的影像令人惊异）；二是同根词的词形变化规律（元音弱化、辅音同化）；三是前缀变体的识别（ad-在不同辅音前变成ac-, af-, ag-等）。"
+    "title": "查漏补缺",
+    "desc": "施瓦茨的实验揭示了一个反直觉的发现：列出12个果断行为的人反而认为自己不够果断，因为后几个例子很难想到。关键是「无法解释的不可得性」——当提取困难超出预期时才会影响判断。如果给了解释（如背景音乐），流畅性效应就消失了。"
   },
   {
     "step": 4,
-    "title": "简化再简化",
-    "desc": "拆词三步法：1）从后往前切——先认后缀定词性；2）从前往后切——再认前缀定方向；3）中间剩下的就是词根——查表定核心含义。"
+    "title": "简化精炼",
+    "desc": "可得性启发式的核心：大脑用「想到的难易程度」替代了「实际有多少」。系统1关注感觉（流畅性），系统2关注内容（数量）。心情好、认知负荷重、有权力感的人更依赖流畅性；认真投入的人更关注内容本身。"
   }
 ];
 const takeaways = [
   {
     "icon": "🔍",
-    "title": "识别词根是基础",
-    "text": "第一类练习训练最基本的能力：在单词中快速定位词根。aggregation→greg、capitation→capit、cosmonaut→cosm+naut。"
+    "title": "用搜索速度替代真实频率",
+    "desc": "可得性启发式让大脑用「想到的难易程度」代替「实际发生的频率」——这通常有效，但在媒体报道、个人经历偏差等情况下会导致严重误判。"
   },
   {
-    "icon": "✏️",
-    "title": "说文解字是核心",
-    "text": "第二类练习巩固「前缀+词根+后缀」的拆解公式。agriculture = agr(田) + culture(耕种) = 农业。"
+    "icon": "🎯",
+    "title": "流畅性胜过数量",
+    "desc": "施瓦茨的关键发现：人们更受「提取时的轻松感」而非「提取到的例子数量」影响。要求列出12个果断例子反而让人觉得自己不果断。"
   },
   {
-    "icon": "🔮",
-    "title": "文化背景是进阶",
-    "text": "第三类练习揭示词义跳跃：mirror（镜子）←mir（惊异）：古人惊异于镜中倒影。这些故事让词根记忆从枯燥变有趣。"
-  },
-  {
-    "icon": "📜",
-    "title": "原著实战是终极",
-    "text": "第四类练习证明：在马克思、培根、林肯、丘吉尔、奥威尔、狄更斯的文章中，你的词根知识大有用武之地。"
-  },
-  {
-    "icon": "🏋️",
-    "title": "三步拆词法",
-    "text": "从后切后缀（定词性）→ 从前切前缀（定方向）→ 中间即词根（定核心义）。反复练习直到形成直觉。"
+    "icon": "⚖️",
+    "title": "消除偏差的钥匙",
+    "desc": "在团队合作中，记住每个人都高估自己的贡献——贡献合计常超过100%。仅仅知道这一偏差的存在，就是化解团队矛盾的第一步。"
   }
 ];
 const quiz = [
   {
-    "id": "q1",
-    "question": "请对 quintessence（精髓）进行完整的「说文解字」分析，包括词根含义和文化背景。",
-    "answer": "quintessence = quint（五）+ ess（存在）+ -ence（名词后缀）。字面义是「第五存在/第五要素」。文化背景：亚里士多德认为构成世界的基本元素有四个（土、水、火、气），而天体由更纯净的「第五元素」（拉丁语 quinta essentia）构成。因此quintessence引申为「最精纯的部分」→「精髓；完美典范」。"
+    "question": "为什么列出12个自己果断的行为后，人们反认为自己不够果断？",
+    "answer": "因为前几个例子容易想到，但后面越来越难。这种超出预期的困难感被系统1解读为「如果我真的果断，不应该这么难想到例子」，于是得出相反结论。关键是「无法解释的不可得性」——当提取困难有了合理解释（如被告知背景音乐影响记忆），这种效应就消失了。"
   },
   {
-    "id": "q2",
-    "question": "解释为什么 rival（竞争者）和 river（河流）有关系？词根 riv 是如何连接这两个含义的？",
-    "answer": "riv = 河流（拉丁语 rivus）。rival 的字面义是「共用同一条河流（灌溉水源）的人」。在古罗马农业社会，两家人如果共用同一条灌溉水渠，就不可避免地会为水源分配产生争执，所以「同河人」变成了「竞争对手」。这是一个从具体（共享河流）到抽象（竞争关系）的语义演变典例。"
+    "question": "可得性偏差如何导致夫妻对家务贡献的分歧？",
+    "answer": "每个人对自己做家务的场景（倒垃圾、做饭、打扫）记忆鲜明，因为是自己亲身经历的。但对伴侣做家务的场景记忆模糊——你不在场或没注意。可得性差异导致双方都觉得自己做得更多，贡献合计超过100%。有趣的是，人们也高估自己引发争吵的比例，说明偏差不只是自利性的。"
   },
   {
-    "id": "q3",
-    "question": "在林肯葛底斯堡演说的开头句中，找出至少5个包含拉丁/希腊词根的词，并分析它们的词根。",
-    "answer": "1) continent = con-（共同）+ tin（持有）→ 连在一起的大陆；2) nation = nat（出生）→ 同一出生地的人 = 国家；3) conceived = con-（共同）+ ceiv（取、拿）→ 构想；4) liberty = liber（自由）→ 自由；5) dedicated = de-（加强）+ dic（说、宣告）→ 奉献；6) proposition = pro-（向前）+ posit（放置）→ 命题；7) equal = equ（平等）→ 平等的。几乎每个关键词都有一个古典词根在支撑。"
-  },
-  {
-    "id": "q4",
-    "question": "请用「拆词三步法」分析 ostracism（放逐）的构词过程和文化背景。",
-    "answer": "① 后缀：-ism = 主义/制度/行为；② 前缀：无明显前缀；③ 词根：ostrac = 贝壳/碎陶片（希腊语 ostrakon）。字面义：「碎陶片制度」。文化背景：古希腊雅典民主制度中，全体公民用陶片投票决定是否将某人驱逐出城邦5-10年。每人在碎陶片上写下想要放逐的人名，票数超过6000则执行流放。所以「碎陶片行为」→「放逐；排斥」。现代英语中ostracize表示「排斥某人」。"
-  },
-  {
-    "id": "q5",
-    "question": "为什么 hydrogen（氢）的字面意思是「生成水的元素」？请用词根分析解释。",
-    "answer": "hydrogen = hydr（水，希腊语hydor）+ gen（产生，希腊语genos）= 生成水的元素。18世纪化学家拉瓦锡发现氢气燃烧后生成水，因此用希腊词根命名为hydrogen——「产水者」。同理：oxygen = oxy（酸）+ gen = 产酸者（拉瓦锡误以为氧是所有酸的共同成分）；nitrogen = nitr（硝石）+ gen = 产硝石者。这三个元素名完美展示了希腊词根在科学命名中的地位。"
+    "question": "为什么权力感强的人更容易受可得性偏差影响？",
+    "answer": "权力感让人更信任自己的直觉和内在感受（「我只需要知道我的感受就好」——布什语），减少了系统2的审查和质疑。有权力感的人更多地「跟着感觉走」，更依赖提取的流畅性而非提取的内容。仅仅提醒人们回想自己拥有权力的时刻，就能增强他们对直觉的信赖。"
   }
 ];
-const preQuiz = [
+const chapterNav = {"prev": {"num": 11, "title": "锚定", "href": "ch11.html"}, "next": {"num": 13, "title": "可得性、情感和风险", "href": "ch13.html"}};
+window.tipsData_block3 = [
   {
-    "question": "如果你在阅读英文原著时遇到一个生词，你第一反应是查词典，还是先尝试用词根词缀分析它？",
-    "hint": "想想哪种方式更有助于长期记忆"
+    "icon": "⭐",
+    "title": "显著性偏差",
+    "desc": "名人离婚、政客丑闻备受关注，你因此高估这类事件的频率——事件越醒目，越容易想到"
   },
   {
-    "question": "你认为 mirror（镜子）和 miracle（奇迹）之间有什么联系？",
-    "hint": "它们看起来像不像同族词？找找共同的字母序列"
+    "icon": "📺",
+    "title": "戏剧性偏差",
+    "desc": "飞机失事报道暂时提高你对飞行危险的感知——那段时间世界变得更加「危险」"
+  },
+  {
+    "icon": "👤",
+    "title": "自我中心偏差",
+    "desc": "夫妻各自高估自己做家务的比例，贡献合计超过100%——自己的努力比对方的更容易回忆"
   }
 ];
-const chapterNav = {"prev": {"num": 20, "title": "常用词根 G-P", "href": "ch20.html"}, "next": {"num": 22, "title": "综合练习与复习", "href": "ch22.html"}};
-window.tipsData_block1 = [
+window.pipeData_block4 = [
   {
-    "icon": "🔍",
-    "title": "aggregation → greg = 群",
-    "desc": "ag-(=ad-) + greg(群) + -ation(名词) = 聚集物"
+    "title": "认知负荷重",
+    "desc": "同时执行其他脑力任务→更依赖流畅性感觉",
+    "icon": "🏋️"
   },
   {
-    "icon": "🔍",
-    "title": "armament → arm = 武装",
-    "desc": "arm(武装) + -ament(名词) = 军备；装备"
+    "title": "心情愉悦",
+    "desc": "刚回忆快乐往事→「跟着感觉走」",
+    "icon": "😊"
   },
   {
-    "icon": "🔍",
-    "title": "capitation → capit = 头",
-    "desc": "capit(头) + -ation(名词) = 人头税（按「头」收税）"
+    "title": "抑郁程度低",
+    "desc": "抑郁量表得分低的人更信任直觉",
+    "icon": "📊"
   },
   {
-    "icon": "🔍",
-    "title": "cosmonaut → cosm = 宇宙",
-    "desc": "cosm(宇宙) + -o- + naut(水手) = 宇宙水手 = 宇航员"
+    "title": "新手身份",
+    "desc": "非专家更依赖流畅性，专家更关注内容",
+    "icon": "🎓"
   },
   {
-    "icon": "🔍",
-    "title": "denominate → nomin = 名字",
-    "desc": "de-(加强) + nomin(名) + -ate(动词) = 给…命名"
+    "title": "直觉信念强",
+    "desc": "相信直觉的人更受提取轻松度影响",
+    "icon": "💫"
   },
   {
-    "icon": "🔍",
-    "title": "demonstrate → monstr = 显示",
-    "desc": "de-(加强) + monstr(显示) + -ate(动词) = 论证，表明"
-  },
-  {
-    "icon": "🔍",
-    "title": "heritage → her = 继承",
-    "desc": "her(继承) + -it- + -age(名词) = 遗产；传统"
-  },
-  {
-    "icon": "🔍",
-    "title": "pseudonym → onym = 名字",
-    "desc": "pseud(假) + -o- + nym(名) = 假名；笔名"
-  }
-];
-window.tipsData_block2 = [
-  {
-    "icon": "✏️",
-    "title": "aerology = aer(空气) + logy(学)",
-    "desc": "→ 大气学，气象学"
-  },
-  {
-    "icon": "✏️",
-    "title": "agriculture = agr(田) + culture(耕种)",
-    "desc": "→ 农业"
-  },
-  {
-    "icon": "✏️",
-    "title": "triangle = tri(三) + angl(角)",
-    "desc": "→ 三角形"
-  },
-  {
-    "icon": "✏️",
-    "title": "dentist = dent(齿) + ist(人)",
-    "desc": "→ 牙医"
-  },
-  {
-    "icon": "✏️",
-    "title": "telephone = tele(远) + phon(声)",
-    "desc": "→ 远声 = 电话"
-  },
-  {
-    "icon": "✏️",
-    "title": "computer = com(全面) + put(想) + er(物)",
-    "desc": "→ 全面计算的机器 = 计算机"
-  },
-  {
-    "icon": "✏️",
-    "title": "umbrella = umbr(影) + ella(小)",
-    "desc": "→ 小影子 = 伞"
-  },
-  {
-    "icon": "✏️",
-    "title": "society = soci(同伴) + ety(状态)",
-    "desc": "→ 同伴的集合 = 社会"
-  }
-];
-window.pipeData_block5 = [];
-window.barData_block6 = [
-  {
-    "label": "第一类：识别词根",
-    "width": 40,
-    "value": "直接在单词中找出词根并说出含义",
-    "color": "success"
-  },
-  {
-    "label": "第二类：说文解字（明显）",
-    "width": 60,
-    "value": "词义与词根含义关系一目了然",
-    "color": "success"
-  },
-  {
-    "label": "第三类：说文解字（隐晦）",
-    "width": 80,
-    "value": "需要查找文化背景才能理解词义跳跃",
-    "color": "warning"
-  },
-  {
-    "label": "第四类：原著实战",
-    "width": 95,
-    "value": "在真实语境中识别并分析多个词根",
-    "color": "danger"
+    "title": "权力感强",
+    "desc": "感觉有权力的人更信任自己的直觉判断",
+    "icon": "👑"
   }
 ];
 
@@ -730,26 +638,6 @@ function toggleQuiz(card) {
 })();
 
 /* ── Block JS (injected per block) ── */
-
-// Block: bar-chart
-(function() {
-    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
-        const blockId = container.id.replace('barChart-', '');
-        const dataVar = window['barData_' + blockId];
-        if (!dataVar) return;
-        dataVar.forEach(bar => {
-            const div = document.createElement('div');
-            div.className = 'bar-row fade-in';
-            const colorClass = bar.warning ? 'danger' : 'success';
-            div.innerHTML = `
-                <div class="bar-label">${bar.label}</div>
-                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
-                <div class="bar-value">${bar.value || ''}</div>`;
-            container.appendChild(div);
-        });
-    });
-})();
-
 
 // Block: tips-grid
 (function() {

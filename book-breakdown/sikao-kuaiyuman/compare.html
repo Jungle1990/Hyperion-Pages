@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>思考，快与慢 Edition Compare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(108,99,255,0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+  --v1-color: #ff6b6b;
+  --v2-color: #4ecdc4;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Progress Bar ── */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--v1-color), var(--v2-color));
+  z-index: 9999; transition: width 0.1s linear;
+}
+
+/* ── Hero ── */
+.hero {
+  min-height: 50vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 4rem 2rem 3rem; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(255,107,107,0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(78,205,196,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.back-link {
+  position: absolute; top: 20px; left: 24px;
+  color: var(--text-dim); text-decoration: none; font-size: 0.85rem;
+  z-index: 2; transition: color 0.2s;
+}
+.back-link:hover { color: var(--accent3); }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px var(--glow)); }
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900;
+  background: linear-gradient(135deg, var(--v1-color) 0%, var(--accent) 50%, var(--v2-color) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-subtitle {
+  font-size: 1rem; color: var(--text-dim); font-weight: 300;
+  margin-top: 0.5rem; max-width: 600px;
+}
+.hero-book {
+  font-size: 0.85rem; color: var(--accent); font-family: var(--font-mono);
+  margin-top: 1rem; letter-spacing: 1px;
+}
+
+/* ── Edition Badges ── */
+.edition-badges {
+  display: flex; gap: 24px; margin-top: 1.5rem; flex-wrap: wrap; justify-content: center;
+}
+.edition-badge {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 24px; min-width: 200px;
+  text-align: center; transition: all 0.3s;
+}
+.edition-badge.v1 { border-top: 3px solid var(--v1-color); }
+.edition-badge.v2 { border-top: 3px solid var(--v2-color); }
+.edition-label {
+  font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.edition-badge.v1 .edition-label { color: var(--v1-color); }
+.edition-badge.v2 .edition-label { color: var(--v2-color); }
+.edition-title { font-size: 0.9rem; font-weight: 500; }
+.edition-meta { font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; }
+
+/* ── Section Nav ── */
+.section-nav {
+  display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+  padding: 16px 20px; position: sticky; top: 0; z-index: 50;
+  background: rgba(15,17,23,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-pill {
+  padding: 6px 16px; border-radius: 2rem; border: 1px solid var(--border);
+  background: transparent; color: var(--text-dim); font-family: var(--font-sans);
+  font-size: 0.8rem; cursor: pointer; transition: all 0.2s; text-decoration: none;
+}
+.nav-pill:hover, .nav-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 900px; margin: 0 auto; padding: 0 20px 4rem; }
+
+/* ── Section Header ── */
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  margin: 4rem 0 2rem; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-header-icon { font-size: 1.8rem; }
+.section-header h2 { font-size: 1.5rem; font-weight: 700; }
+.section-header .section-label {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  color: var(--accent); letter-spacing: 2px; text-transform: uppercase;
+  margin-left: auto;
+}
+
+/* ── Stats Summary ── */
+.stats-row {
+  display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 2rem;
+}
+.stat-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; flex: 1; min-width: 140px;
+  text-align: center;
+}
+.stat-num {
+  font-size: 2rem; font-weight: 900; font-family: var(--font-mono);
+  background: linear-gradient(135deg, var(--v1-color), var(--v2-color));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.stat-label { font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; }
+
+/* ── Chapter Title Table ── */
+.title-table {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  background: var(--card); border-radius: var(--radius); overflow: hidden;
+  border: 1px solid var(--border);
+}
+.title-table th {
+  background: rgba(108,99,255,0.1); padding: 12px 16px;
+  font-size: 0.75rem; font-family: var(--font-mono);
+  letter-spacing: 1px; text-transform: uppercase; text-align: left;
+  color: var(--text-dim); border-bottom: 1px solid var(--border);
+}
+.title-table th.v1-col { color: var(--v1-color); }
+.title-table th.v2-col { color: var(--v2-color); }
+.title-table td {
+  padding: 10px 16px; font-size: 0.85rem;
+  border-bottom: 1px solid rgba(42,45,58,0.5);
+  vertical-align: top;
+}
+.title-table tr:last-child td { border-bottom: none; }
+.title-table tr:hover td { background: rgba(108,99,255,0.04); }
+.ch-num {
+  font-family: var(--font-mono); color: var(--accent); font-size: 0.75rem;
+  min-width: 40px;
+}
+.title-changed { position: relative; }
+.title-changed::after {
+  content: ''; position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 6px; height: 6px; border-radius: 50%; background: var(--accent4);
+}
+
+/* ── Diff Cards ── */
+.diff-list { display: flex; flex-direction: column; gap: 20px; }
+.diff-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden; transition: all 0.3s;
+}
+.diff-card:hover { border-color: var(--accent); box-shadow: 0 4px 24px rgba(0,0,0,0.3); }
+.diff-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.diff-chapter {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  background: rgba(108,99,255,0.15); color: var(--accent);
+  padding: 2px 10px; border-radius: 2rem; flex-shrink: 0;
+}
+.diff-topic { font-weight: 600; font-size: 0.95rem; flex: 1; }
+.diff-toggle {
+  color: var(--text-dim); font-size: 1.2rem; transition: transform 0.3s;
+}
+.diff-card.expanded .diff-toggle { transform: rotate(180deg); }
+.diff-body {
+  max-height: 0; overflow: hidden; transition: max-height 0.4s ease;
+}
+.diff-card.expanded .diff-body { max-height: 1000px; }
+.diff-versions {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+}
+.diff-version {
+  padding: 16px 20px; font-size: 0.85rem; line-height: 1.8;
+}
+.diff-version.v1 {
+  border-right: 1px solid var(--border);
+  background: rgba(255,107,107,0.03);
+}
+.diff-version.v2 {
+  background: rgba(78,205,196,0.03);
+}
+.diff-version-label {
+  font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 1px;
+  text-transform: uppercase; margin-bottom: 8px; font-weight: 700;
+}
+.diff-version.v1 .diff-version-label { color: var(--v1-color); }
+.diff-version.v2 .diff-version-label { color: var(--v2-color); }
+.diff-version-text { color: var(--text); }
+.diff-analysis {
+  padding: 14px 20px; font-size: 0.8rem; color: var(--text-dim);
+  background: rgba(108,99,255,0.04); border-top: 1px solid var(--border);
+  line-height: 1.7;
+}
+.diff-analysis::before {
+  content: '分析'; font-family: var(--font-mono); font-size: 0.65rem;
+  color: var(--accent4); letter-spacing: 1px; display: block; margin-bottom: 4px;
+}
+
+/* ── Structural Changes ── */
+.structural-list { display: flex; flex-direction: column; gap: 16px; }
+.structural-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent4); border-radius: var(--radius);
+  padding: 20px 24px; transition: all 0.3s;
+}
+.structural-card:hover { transform: translateX(4px); }
+.structural-type {
+  font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent4);
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;
+}
+.structural-desc { font-size: 0.9rem; line-height: 1.8; }
+
+/* ── Summary ── */
+.summary-box {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px 32px;
+  font-size: 0.95rem; line-height: 2;
+}
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Footer ── */
+.footer {
+  text-align: center; padding: 2rem 0; color: var(--text-dim);
+  font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 3rem;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .hero { min-height: 40vh; padding: 3rem 1.5rem 2rem; }
+  .edition-badges { flex-direction: column; align-items: center; }
+  .diff-versions { grid-template-columns: 1fr; }
+  .diff-version.v1 { border-right: none; border-bottom: 1px solid var(--border); }
+  .title-table { font-size: 0.8rem; }
+  .stats-row { flex-direction: column; }
+}
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<section class="hero">
+  <a href="index.html" class="back-link">&larr; Back</a>
+  <div class="hero-icon">&#x1F50D;</div>
+  <h1>Edition Compare</h1>
+  <p class="hero-subtitle">Side-by-side analysis of two editions &mdash; translation, structure, and content differences</p>
+  <div class="hero-book">🧠 思考，快与慢</div>
+  <div class="edition-badges" id="editionBadges"></div>
+</section>
+
+<nav class="section-nav">
+  <a class="nav-pill active" href="#overview" onclick="scrollToSection('overview',this)">Overview</a>
+  <a class="nav-pill" href="#titles" onclick="scrollToSection('titles',this)">Titles</a>
+  <a class="nav-pill" href="#diffs" onclick="scrollToSection('diffs',this)">Differences</a>
+  <a class="nav-pill" href="#structural" onclick="scrollToSection('structural',this)">Structure</a>
+  <a class="nav-pill" href="#summary" onclick="scrollToSection('summary',this)">Summary</a>
+</nav>
+
+<main class="container">
+
+  <!-- Overview -->
+  <div class="section-header fade-in" id="overview">
+    <span class="section-header-icon">&#x1F4CA;</span>
+    <h2>Overview</h2>
+    <span class="section-label">AT A GLANCE</span>
+  </div>
+  <div class="stats-row" id="statsRow"></div>
+
+  <!-- Chapter Titles -->
+  <div class="section-header fade-in" id="titles">
+    <span class="section-header-icon">&#x1F4D6;</span>
+    <h2>Chapter Titles</h2>
+    <span class="section-label">TITLE COMPARISON</span>
+  </div>
+  <div class="fade-in" id="titleTableWrap"></div>
+
+  <!-- Translation Differences -->
+  <div class="section-header fade-in" id="diffs">
+    <span class="section-header-icon">&#x1F50E;</span>
+    <h2>Translation Differences</h2>
+    <span class="section-label">KEY PASSAGES</span>
+  </div>
+  <div class="diff-list" id="diffList"></div>
+
+  <!-- Structural Changes -->
+  <div class="section-header fade-in" id="structural">
+    <span class="section-header-icon">&#x1F3D7;</span>
+    <h2>Structural Changes</h2>
+    <span class="section-label">REORGANIZATION</span>
+  </div>
+  <div class="structural-list" id="structuralList"></div>
+
+  <!-- Summary -->
+  <div class="section-header fade-in" id="summary">
+    <span class="section-header-icon">&#x1F4DD;</span>
+    <h2>Summary</h2>
+    <span class="section-label">VERDICT</span>
+  </div>
+  <div class="summary-box fade-in" id="summaryBox"></div>
+
+</main>
+
+<div class="footer">
+  Compared with <a href="https://en.wikipedia.org/wiki/Feynman_Technique">Feynman Method</a>
+</div>
+
+<script>
+const compare = {
+  "v1": {
+    "year": 2012,
+    "title": "思考,快与慢",
+    "subtitle": "社会思想的一部里程碑式著作",
+    "translators": [
+      "胡晓姣",
+      "李爱民",
+      "何梦莹"
+    ],
+    "publisher": "中信出版社"
+  },
+  "v2": {
+    "year": 2024,
+    "title": "思考，快与慢",
+    "subtitle": "第二版",
+    "translators": [
+      "赵佳颖"
+    ],
+    "publisher": "中信出版社"
+  },
+  "chapterTitles": [
+    {
+      "ch": 1,
+      "v1": "一张愤怒的脸和一道乘法题",
+      "v2": "故事中的角色"
+    },
+    {
+      "ch": 2,
+      "v1": "注意力和努力",
+      "v2": "注意力与努力"
+    },
+    {
+      "ch": 3,
+      "v1": "惰性思维与延迟满足的矛盾",
+      "v2": "懒惰的控制者"
+    },
+    {
+      "ch": 4,
+      "v1": "联想的奇迹",
+      "v2": "关联机器"
+    },
+    {
+      "ch": 5,
+      "v1": "你的直觉有可能只是错觉",
+      "v2": "认知轻松"
+    },
+    {
+      "ch": 6,
+      "v1": "意料之外与情理之中",
+      "v2": "规范、惊讶与原因"
+    },
+    {
+      "ch": 7,
+      "v1": "字母「B」与数字「13」",
+      "v2": "妄下结论的机器"
+    },
+    {
+      "ch": 8,
+      "v1": "我们究竟是如何作出判断的",
+      "v2": "判断是如何产生的"
+    },
+    {
+      "ch": 9,
+      "v1": "目标问题与启发性问题",
+      "v2": "回答一个更简单的问题"
+    },
+    {
+      "ch": 10,
+      "v1": "大数法则与小数定律",
+      "v2": "小数定律"
+    },
+    {
+      "ch": 11,
+      "v1": "锚定效应在生活中随处可见",
+      "v2": "锚定"
+    },
+    {
+      "ch": 12,
+      "v1": "科学地利用可得性启发法",
+      "v2": "可得性的科学"
+    },
+    {
+      "ch": 13,
+      "v1": "焦虑情绪与风险政策的设计",
+      "v2": "可得性、情绪与风险"
+    },
+    {
+      "ch": 14,
+      "v1": "汤姆的专业",
+      "v2": "汤姆的专业"
+    },
+    {
+      "ch": 15,
+      "v1": "琳达问题的社会效应",
+      "v2": "琳达问题：少即是多"
+    },
+    {
+      "ch": 16,
+      "v1": "因果关系比统计学信息更具说服力",
+      "v2": "原因胜过统计数据"
+    },
+    {
+      "ch": 17,
+      "v1": "所有表现都会回归平均值",
+      "v2": "回归均值"
+    },
+    {
+      "ch": 18,
+      "v1": "如何让直觉性预测更恰当有效",
+      "v2": "驾驭直觉性预测"
+    },
+    {
+      "ch": 19,
+      "v1": "「知道」的错觉",
+      "v2": "理解的错觉"
+    },
+    {
+      "ch": 20,
+      "v1": "未来是不可预测的",
+      "v2": "有效性错觉"
+    },
+    {
+      "ch": 21,
+      "v1": "直觉判断与公式运算，孰优孰劣",
+      "v2": "直觉与公式"
+    },
+    {
+      "ch": 22,
+      "v1": "什么时候可以相信专家的直觉",
+      "v2": "专家直觉：何时可信"
+    },
+    {
+      "ch": 23,
+      "v1": "努力提升你自己的判断力",
+      "v2": "外部视角"
+    },
+    {
+      "ch": 24,
+      "v1": "乐观主义是一柄双刃剑",
+      "v2": "资本主义的引擎"
+    },
+    {
+      "ch": 25,
+      "v1": "事关风险与财富的抉择",
+      "v2": "伯努利的错误"
+    },
+    {
+      "ch": 26,
+      "v1": "更人性化的前景理论",
+      "v2": "前景理论"
+    },
+    {
+      "ch": 27,
+      "v1": "禀赋效应与市场交易",
+      "v2": "禀赋效应"
+    },
+    {
+      "ch": 28,
+      "v1": "公平性—Loss aversion的天平",
+      "v2": "坏事件"
+    },
+    {
+      "ch": 29,
+      "v1": "对结果可能性的权衡",
+      "v2": "四重模式"
+    },
+    {
+      "ch": 30,
+      "v1": "被过分关注的罕见事件",
+      "v2": "罕见事件"
+    },
+    {
+      "ch": 31,
+      "v1": "能带来长远收益的风险政策",
+      "v2": "风险政策"
+    },
+    {
+      "ch": 32,
+      "v1": "心理账户是如何影响我们的选择的",
+      "v2": "心理账户"
+    },
+    {
+      "ch": 33,
+      "v1": "评估结果的逆转",
+      "v2": "逆转"
+    },
+    {
+      "ch": 34,
+      "v1": "善用框架效应，让生活更美好",
+      "v2": "框架与现实"
+    },
+    {
+      "ch": 35,
+      "v1": "体验效用与决策效用的不一致",
+      "v2": "两个自我"
+    },
+    {
+      "ch": 36,
+      "v1": "人生如戏",
+      "v2": "人生如戏"
+    },
+    {
+      "ch": 37,
+      "v1": "你有多幸福",
+      "v2": "体验幸福"
+    },
+    {
+      "ch": 38,
+      "v1": "思考生活",
+      "v2": "思考人生"
+    }
+  ],
+  "translationDiffs": [
+    {
+      "chapter": 1,
+      "topic": "章节标题风格",
+      "v1": "「一张愤怒的脸和一道乘法题」",
+      "v2": "「故事中的角色」",
+      "analysis": "V1采用描述性长标题，概括章节具体内容；V2采用更简洁的概念性标题，更接近英文原版「The Characters of the Story」。这一差异贯穿全书38章。"
+    },
+    {
+      "chapter": 1,
+      "topic": "小节标题「两个系统」的引出",
+      "v1": "「行为与注意力」",
+      "v2": "「两个系统」",
+      "analysis": "V1将第一个小节标题译为「行为与注意力」，偏向总结该段落的行为讨论；V2直译为「两个系统」（Two Systems），更准确对应原文结构。"
+    },
+    {
+      "chapter": 1,
+      "topic": "对系统1和系统2的角色化描述",
+      "v1": "「读者可将此书视为有两个人物的心理剧」",
+      "v2": "「我别出心裁地将其塑造成两个角色，你可以将本书当作一部心理剧来看」",
+      "analysis": "V2对作者的主动性表达更强（「别出心裁」），且对「角色」概念的强调更明确，更贴近原文中Kahneman的第一人称叙述风格。"
+    },
+    {
+      "chapter": 4,
+      "topic": "associative memory/machine 核心术语",
+      "v1": "「联想记忆」",
+      "v2": "「关联记忆」/「关联机器」",
+      "analysis": "V1将associative译为「联想」，偏向日常用语理解；V2改为「关联」，更精确地对应心理学术语中association（联结/关联）的含义。V2还使用「关联机器」（associative machine）作为章节标题，强调系统1的机械性运作特征。"
+    },
+    {
+      "chapter": 7,
+      "topic": "WYSIATI核心概念翻译",
+      "v1": "「眼见即为事实」",
+      "v2": "「所见即一切」",
+      "analysis": "V1将What You See Is All There Is译为「眼见即为事实」，强调「事实」的判断性质；V2译为「所见即一切」，更忠实于原文中All There Is的完备性含义——强调的是人们把看到的当作全部信息，而非判断其为事实。V2的翻译在语义上更准确。"
+    },
+    {
+      "chapter": 7,
+      "topic": "confirmation bias 术语",
+      "v1": "「确认偏误」",
+      "v2": "「确认偏差」",
+      "analysis": "V1用「偏误」暗示一种错误行为，V2用「偏差」则更中性、更符合心理学术语中bias的标准译法。学术文献中「偏差」是更通行的译法。"
+    },
+    {
+      "chapter": 7,
+      "topic": "positive test strategy 术语",
+      "v1": "「积极测试策略」",
+      "v2": "「正向检验策略」",
+      "analysis": "V1将positive译为「积极」，容易被误读为褒义；V2译为「正向」更中性准确，test strategy译为「检验策略」也比「测试策略」更符合方法论语境。"
+    },
+    {
+      "chapter": 10,
+      "topic": "county 地理行政区划译名",
+      "v1": "「县」",
+      "v2": "「郡」",
+      "analysis": "V1将美国的county译为中国行政概念「县」；V2改用「郡」，更接近美国county的行政级别和含义。在美国语境下，county与中国的「县」在行政层级上并不完全对应，「郡」更为准确。"
+    },
+    {
+      "chapter": 10,
+      "topic": "Howard Wainer 人名音译",
+      "v1": "「霍华德·维纳」",
+      "v2": "「霍华德·魏纳」",
+      "analysis": "V2更新了人名音译。Wainer的发音更接近「魏纳」而非「维纳」（Wiener才译为维纳）。V2的音译更准确。"
+    },
+    {
+      "chapter": 10,
+      "topic": "sampling variability 术语",
+      "v1": "「样本变差」",
+      "v2": "「抽样变异性」",
+      "analysis": "V1的「样本变差」不够精确，容易与其他统计概念混淆；V2的「抽样变异性」是统计学中sampling variability的标准译法，更规范准确。"
+    },
+    {
+      "chapter": 15,
+      "topic": "between-subjects / within-subject 实验设计术语",
+      "v1": "「受试者组间实验」/「受试者组内设计」",
+      "v2": "「被试间设计」/「被试内设计」",
+      "analysis": "V2使用了心理学实验方法论的标准术语「被试间/被试内」，这是中文心理学教材中的规范表达。V1的「受试者组间/组内」虽然语义正确，但不够规范。"
+    },
+    {
+      "chapter": 15,
+      "topic": "extensional variable 术语",
+      "v1": "「总体变量」",
+      "v2": "「求和变量」",
+      "analysis": "V1译为「总体变量」有歧义，可能被误解为population variable；V2译为「求和变量」更准确地传达了extensional（可加性/求和性质）的含义，即概率或经济价值的可加性。"
+    },
+    {
+      "chapter": 15,
+      "topic": "joint evaluation / separate evaluation 术语",
+      "v1": "「综合评估」/「单一评估」",
+      "v2": "「联合评估」/「单独评估」",
+      "analysis": "V1的「综合」和「单一」未能精确对应实验范式的含义；V2的「联合」和「单独」更忠实于joint和separate的原义——联合评估指同时呈现两个选项进行比较，单独评估指分别呈现。这是行为决策领域的规范术语。"
+    },
+    {
+      "chapter": 15,
+      "topic": "Müller-Lyer illusion 翻译",
+      "v1": "「缪勒–莱耶错觉」",
+      "v2": "「穆勒-莱尔错觉」",
+      "analysis": "V2的音译更接近德语原发音Müller-Lyer。「穆勒」比「缪勒」更常见于中文心理学文献中。"
+    },
+    {
+      "chapter": 19,
+      "topic": "章节核心概念：illusion of understanding",
+      "v1": "「『知道』的错觉」",
+      "v2": "「理解的错觉」",
+      "analysis": "V1将该章标题聚焦于「知道」一词，虽然章内有大量关于「知道」一词的讨论，但原文标题The Illusion of Understanding指的是对理解力本身的错觉。V2直译为「理解的错觉」更全面地涵盖了后见之明偏差、叙事谬误等内容。"
+    },
+    {
+      "chapter": 34,
+      "topic": "Richard Thaler 人名翻译",
+      "v1": "「理查德·泰勒」",
+      "v2": "「理查德·塞勒」",
+      "analysis": "Thaler在2017年获得诺贝尔经济学奖后，中文媒体统一使用「塞勒」作为标准译名。V1出版时（2012年）使用「泰勒」，V2更新为目前通用的「塞勒」。"
+    },
+    {
+      "chapter": 35,
+      "topic": "duration neglect 术语",
+      "v1": "「过程忽视」",
+      "v2": "「时长忽视」",
+      "analysis": "V1将duration neglect译为「过程忽视」，语义有偏差——neglect的对象是duration（时长），而非process（过程）。V2的「时长忽视」直接准确地对应了原文含义。"
+    },
+    {
+      "chapter": 35,
+      "topic": "diminishing sensitivity 术语",
+      "v1": "「降低敏感度」",
+      "v2": "「敏感性递减」",
+      "analysis": "V1的「降低敏感度」是动宾短语，暗示主动行为；V2的「敏感性递减」是名词短语，描述一种客观现象，更符合前景理论中该概念作为价值函数性质的用法。"
+    },
+    {
+      "chapter": 35,
+      "topic": "cold hand experiment 实验名称",
+      "v1": "「冰手方式」",
+      "v2": "「冷手情境」",
+      "analysis": "V1的「冰手方式」既不通顺也不准确；V2的「冷手情境」更自然地描述了cold-hand experiment的实验设定，且V2还附注了专业术语「冷加压」。"
+    },
+    {
+      "chapter": 38,
+      "topic": "miswanting 术语",
+      "v1": "「错误想法(miswanting)」",
+      "v2": "「误求」",
+      "analysis": "V1保留英文并附加松散的中文解释「错误想法」，未能准确传达miswanting的含义（错误地想要某物）；V2创造性地译为「误求」，简洁优雅，精确对应mis-wanting（误+求），是更成功的术语翻译。"
+    },
+    {
+      "chapter": 7,
+      "topic": "理性指数与神经科学内容",
+      "v1": "（未涉及此内容）",
+      "v2": "「作者对20名受试者进行了排名，并给排名起了一个引人注目的名字：理性指数」",
+      "analysis": "V2在第7章WYSIATI部分增加了大量原文引用和学术文献标注，反映了V2对原文完整性的更高追求。V1在部分章节存在删减或简化的情况。"
+    }
+  ],
+  "structuralChanges": [
+    {
+      "aspect": "学术文献引用方式",
+      "observation": "V1几乎不在正文中引用学术文献出处；V2在正文中大量嵌入完整的学术引用（作者、论文标题、期刊名、年份、页码）。例如V2第1章就嵌入了Evans(2008)、Stanovich and West(2000)、Wegner(2003)等多处引用。这使V2的学术性显著增强。"
+    },
+    {
+      "aspect": "章节标题体系",
+      "observation": "V1的章节标题多为描述性长句（如「善用框架效应，让生活更美好」），试图总结章节要点；V2的标题简短概念化（如「框架与现实」），更接近英文原版风格。V2的译法让读者自行探索内容，而非预设结论。"
+    },
+    {
+      "aspect": "小节标题的翻译差异",
+      "observation": "V1和V2在同一章内的小节标题也有明显差异。例如第1章：V1「行为与注意力」→ V2「两个系统」；V1「两个虚拟出来的角色」→ V2「有用的虚构」。V2的小节标题通常更贴近英文原文。"
+    },
+    {
+      "aspect": "心理学专业术语统一化",
+      "observation": "V2全面对齐了中文心理学学术界的标准术语体系：被试间/被试内设计、确认偏差、正向检验策略、联合/单独评估、时长忽视、冷手情境等。V1的术语翻译不够统一，部分采用口语化或非标准表达。"
+    },
+    {
+      "aspect": "人名音译的更新",
+      "observation": "V2更新了多个人名的音译以符合最新通行标准：Thaler从「泰勒」改为「塞勒」（2017年诺奖后统一）、Wainer从「维纳」改为「魏纳」、Fischhoff从「费斯科霍夫」改为「费什霍夫」、Redelmeier从「雷德梅尔」改为「雷德曼尔」。"
+    },
+    {
+      "aspect": "章末小结板块",
+      "observation": "V2的章末「谈谈XX」小结板块比V1更完整、更丰富。例如V2第7章末尾有4条完整的对话式小结（谈谈妄下结论），以对话句形式帮助读者内化概念；V1对应部分则较简略。"
+    },
+    {
+      "aspect": "译文流畅度与现代化",
+      "observation": "V2整体语言更现代、流畅。例如V1「按部就班的运算过程便是慢思考」→ V2「一步步进行计算时，你经历的是慢思考」；V1「你必须先了解它的观点究竟是什么意思」→ V2「你必须首先知道，如果这个说法是正确的，它表达的是什么意思」。V2的句式更自然，逻辑层次更清晰。"
+    },
+    {
+      "aspect": "图表编号规范化",
+      "observation": "V1使用简单的「图1」「图14」「图15」连续编号方式；V2使用「图1-1」「图34-1」「图35-1」的章节-序号格式。V2的编号方式更规范，便于跨章引用和交叉参考。"
+    }
+  ],
+  "summary": "2024年第二版在译者赵佳颖的修订下，全面提升了术语的学术规范性，将associative memory改译为「关联记忆」、WYSIATI改译为「所见即一切」、duration neglect改译为「时长忽视」等核心概念显著改善；同时嵌入了大量原版学术文献引用，章节标题采用更贴近英文原版的简洁风格。总体而言，V2是一次系统性的学术规范化升级，在术语精确度、文献完整性和行文流畅度上均有明显改善，更适合希望深入理解原著的读者。"
+};
+
+
+(function() {
+  var data = typeof compare !== 'undefined' ? compare : {};
+  var v1 = data.v1 || {};
+  var v2 = data.v2 || {};
+  var chapterTitles = data.chapterTitles || [];
+  var translationDiffs = data.translationDiffs || [];
+  var structuralChanges = data.structuralChanges || [];
+  var summaryText = data.summary || '';
+
+  function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
+  }
+
+  // ── Edition Badges ──
+  var badges = document.getElementById('editionBadges');
+  badges.innerHTML =
+    '<div class="edition-badge v1">' +
+      '<div class="edition-label">1st Edition</div>' +
+      '<div class="edition-title">' + esc(v1.title) + '</div>' +
+      '<div class="edition-meta">' + esc((v1.translators || []).join(', ') || v1.translator || '') + (v1.year ? ' (' + v1.year + ')' : '') + '</div>' +
+    '</div>' +
+    '<div class="edition-badge v2">' +
+      '<div class="edition-label">2nd Edition</div>' +
+      '<div class="edition-title">' + esc(v2.title) + '</div>' +
+      '<div class="edition-meta">' + esc((v2.translators || []).join(', ') || v2.translator || '') + (v2.year ? ' (' + v2.year + ')' : '') + '</div>' +
+    '</div>';
+
+  // ── Stats ──
+  var titleChanges = chapterTitles.filter(function(t) { return t.v1 !== t.v2; }).length;
+  var statsRow = document.getElementById('statsRow');
+  statsRow.innerHTML =
+    '<div class="stat-card fade-in"><div class="stat-num">' + chapterTitles.length + '</div><div class="stat-label">Chapters</div></div>' +
+    '<div class="stat-card fade-in"><div class="stat-num">' + titleChanges + '</div><div class="stat-label">Title Changes</div></div>' +
+    '<div class="stat-card fade-in"><div class="stat-num">' + translationDiffs.length + '</div><div class="stat-label">Key Differences</div></div>' +
+    '<div class="stat-card fade-in"><div class="stat-num">' + structuralChanges.length + '</div><div class="stat-label">Structural Changes</div></div>';
+
+  // ── Chapter Title Table ──
+  var wrap = document.getElementById('titleTableWrap');
+  if (chapterTitles.length === 0) {
+    wrap.innerHTML = '<div class="empty-state">No chapter title data.</div>';
+  } else {
+    var rows = chapterTitles.map(function(t) {
+      var changed = t.v1 !== t.v2;
+      return '<tr>' +
+        '<td class="ch-num">Ch.' + (t.ch || t.num) + '</td>' +
+        '<td' + (changed ? ' class="title-changed"' : '') + '>' + esc(t.v1) + '</td>' +
+        '<td' + (changed ? ' class="title-changed"' : '') + '>' + esc(t.v2) + '</td>' +
+      '</tr>';
+    }).join('');
+    wrap.innerHTML =
+      '<table class="title-table">' +
+        '<thead><tr><th style="width:50px">#</th><th class="v1-col">1st Edition</th><th class="v2-col">2nd Edition</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody>' +
+      '</table>';
+  }
+
+  // ── Translation Diffs ──
+  var diffList = document.getElementById('diffList');
+  if (translationDiffs.length === 0) {
+    diffList.innerHTML = '<div class="empty-state">No translation differences recorded.</div>';
+  } else {
+    translationDiffs.forEach(function(d) {
+      var card = document.createElement('div');
+      card.className = 'diff-card fade-in';
+      card.innerHTML =
+        '<div class="diff-header" onclick="this.parentElement.classList.toggle(\'expanded\')">' +
+          '<span class="diff-chapter">Ch.' + (d.chapter || '?') + '</span>' +
+          '<span class="diff-topic">' + esc(d.topic) + '</span>' +
+          '<span class="diff-toggle">&#x25BC;</span>' +
+        '</div>' +
+        '<div class="diff-body">' +
+          '<div class="diff-versions">' +
+            '<div class="diff-version v1">' +
+              '<div class="diff-version-label">1st Edition</div>' +
+              '<div class="diff-version-text">' + esc(d.v1) + '</div>' +
+            '</div>' +
+            '<div class="diff-version v2">' +
+              '<div class="diff-version-label">2nd Edition</div>' +
+              '<div class="diff-version-text">' + esc(d.v2) + '</div>' +
+            '</div>' +
+          '</div>' +
+          (d.analysis ? '<div class="diff-analysis">' + esc(d.analysis) + '</div>' : '') +
+        '</div>';
+      diffList.appendChild(card);
+    });
+  }
+
+  // ── Structural Changes ──
+  var structList = document.getElementById('structuralList');
+  if (structuralChanges.length === 0) {
+    structList.innerHTML = '<div class="empty-state">No structural changes identified.</div>';
+  } else {
+    structuralChanges.forEach(function(s) {
+      var card = document.createElement('div');
+      card.className = 'structural-card fade-in';
+      card.innerHTML =
+        '<div class="structural-type">' + esc(s.aspect || s.type || 'change') + '</div>' +
+        '<div class="structural-desc">' + esc(s.observation || s.description) + '</div>';
+      structList.appendChild(card);
+    });
+  }
+
+  // ── Summary ──
+  var summaryBox = document.getElementById('summaryBox');
+  summaryBox.textContent = summaryText || 'No summary available.';
+
+  // ── Scroll Progress ──
+  var progressBar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', function() {
+    var h = document.documentElement;
+    var pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    progressBar.style.width = Math.min(pct, 100) + '%';
+  });
+
+  // ── IntersectionObserver Fade-in ──
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(function(el) { observer.observe(el); });
+
+  // ── Active nav pill tracking ──
+  var sections = ['overview', 'titles', 'diffs', 'structural', 'summary'];
+  var navPills = document.querySelectorAll('.nav-pill');
+  var sectionObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        navPills.forEach(function(p) { p.classList.remove('active'); });
+        var pill = document.querySelector('.nav-pill[href="#' + entry.target.id + '"]');
+        if (pill) pill.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -60% 0px' });
+  sections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+})();
+
+function scrollToSection(id, el) {
+  var target = document.getElementById(id);
+  if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.nav-pill').forEach(function(p) { p.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+</script>
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+  <span class="theme-toggle-icon" id="themeIcon"></span>
+</button>
+<style>
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
+</body>
+</html>

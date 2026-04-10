@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Part 3 综合练习：词根实战训练场 · Part 3 Comprehensive Exercises: Root Analysis in Action | Chapter 21</title>
+<title>框架与现实 · Frames and Reality | Chapter 34</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -137,6 +137,18 @@ section { padding: 80px 0; }
 
 /* ── Block CSS (injected per block) ── */
 
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
 /* Block: comparison */
 .comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
 .comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
@@ -153,6 +165,12 @@ section { padding: 80px 0; }
 @media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
 
 
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent3-rgb),0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
 /* Block: pipeline */
 .pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
 .pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(var(--accent-rgb),0.3); }
@@ -160,24 +178,6 @@ section { padding: 80px 0; }
 .pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
 .pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
 @media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
-
-
-/* Block: tips-grid */
-.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
-.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
-.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
-.tip-card:hover::before { transform: scaleX(1); }
-.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
-.tip-icon { font-size: 2rem; margin-bottom: 12px; }
-.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
-.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
-.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
-
-
-/* Block: insight-box */
-.insight-box { background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent3-rgb),0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
-.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
-.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
 
 
 /* Block: bar-chart */
@@ -259,10 +259,10 @@ section { padding: 80px 0; }
 <!-- ── Hero ── -->
 <section class="hero" id="sec-hero">
     <div class="hero-content">
-        <div class="hero-chapter">Chapter 21 / 22 · Part III · 330个常用词根简介 330 Common Roots Overview</div>
-        <div class="hero-icon">🏋️</div>
-        <h1 class="hero-title">Part 3 综合练习：词根实战训练场</h1>
-        <p class="hero-sub">330个词根不是用来「看」的，而是用来「拆」的——在练习中把词根知识转化为拆词直觉</p>
+        <div class="hero-chapter">Chapter 34 / 38 · Part IV · 选择 — 决策中的非理性力量</div>
+        <div class="hero-icon">🖼️</div>
+        <h1 class="hero-title">框架与现实</h1>
+        <p class="hero-sub">The same reality, described differently, yields different choices — framing as the ultimate cognitive illusion</p>
     </div>
     <div class="scroll-hint">
         <span></span>
@@ -287,64 +287,67 @@ section { padding: 80px 0; }
     </section>
 
     <!-- ── Sections (assembled from blocks) ── -->
-    <!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+    <!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
 <section id="sec-block1" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第一类练习：识别词根及含义</div>
-    <div class="tips-grid" id="tipsGrid-block1"></div>
-</section>
-
-<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
-<section id="sec-block2" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">第二类练习：一目了然的说文解字</div>
-    <div class="tips-grid" id="tipsGrid-block2"></div>
-</section>
-
-<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
-<section id="sec-block3" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">第三类练习：词义跳跃的文化密码</div>
+    <div class="section-title">亚洲疾病问题：框架逆转风险偏好</div>
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
+            <div class="comparison-label">拯救框架（收益区）</div>
             <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-text">方案A：确定拯救200人
+方案B：1/3概率拯救600人，2/3概率无人获救
+
+结果：绝大多数人选择方案A
+心理：确定的收益 → 风险厌恶
+情绪：「拯救生命」唤起积极联想</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
+            <div class="comparison-label">死亡框架（损失区）</div>
             <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-text">方案A'：确定400人死亡
+方案B'：1/3概率无人死亡，2/3概率600人死亡
+
+结果：绝大多数人选择方案B'
+心理：确定的损失 → 风险寻求
+情绪：「死亡」唤起恐惧和厌恶</div>
         </div>
     </div>
-    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">词义从词根含义到现代用法的跳跃，背后往往藏着一段文化故事。学会追踪这些故事，不仅加深记忆，还能让词汇学习变成一场文化探险。</div></div>
-</section>
-
-<!-- Block: insight-box — Highlighted insight/quote card -->
-<section id="sec-block4" class="fade-in">
-    <div class="insight-box">
-        <div class="insight-title">📜 林肯葛底斯堡演说中的词根</div>
-        <div class="insight-content"></div>
-    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">方案A = 方案A'，方案B = 方案B'——客观结果完全相同。公共健康专业人士同样受框架效应影响。被告知不一致后，受试者通常陷入沉默——系统2找不到道德直觉来解决冲突。</div></div>
 </section>
 
 <!-- Block: pipeline — Flow diagram with connected nodes -->
-<section id="sec-block5" class="fade-in">
+<section id="sec-block2" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">拆词三步法实操</div>
-    <div class="pipeline-flow" id="pipeline-block5"></div>
-    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;"></div>
+    <div class="section-title">框架效应的神经机制</div>
+    <div class="pipeline-flow" id="pipeline-block2"></div>
+    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;">fMRI研究揭示的三个脑区反应模式</div>
+</section>
+
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">好框架 vs 坏框架：寻找更理性的描述</div>
+    <div class="tips-grid" id="tipsGrid-block3"></div>
 </section>
 
 <!-- Block: bar-chart — Horizontal bar chart -->
-<section id="sec-block6" class="fade-in">
+<section id="sec-block4" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">四类练习的难度递增</div>
+    <div class="section-title">默认选项的巨大威力：器官捐献率</div>
     <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
-    <div class="bar-chart" id="barChart-block6"></div>
+    <div class="bar-chart" id="barChart-block4"></div>
+</section>
+
+<!-- Block: insight-box — Highlighted insight/quote card -->
+<section id="sec-block5" class="fade-in">
+    <div class="insight-box">
+        <div class="insight-title">💡 </div>
+        <div class="insight-content">经济学家谢林向学生提出：「富人的孩子应该比穷人的孩子得到更多免税额吗？」学生：绝对不行！谢林反转框架：「没有孩子的穷人应该和没有孩子的富人缴纳同等的附加税吗？」学生同样反对。但两个答案在逻辑上不能同时成立。这揭示了一个深刻的事实：我们的道德直觉依附于问题的框架，而不是现实本身。当你面临真正的问题——「每个家庭应该缴纳多少税」——直觉就哑然失声了。</div>
+    </div>
 </section>
 
 
@@ -393,198 +396,139 @@ const feynmanSteps = [
   {
     "step": 1,
     "title": "选择概念",
-    "desc": "第三部分练习分为四大题型：1）识别词根并说出含义；2）对词义与词根关系明显的词进行「说文解字」；3）探究词义与词根含义相距较远的词的文化背景；4）在英文原著段落中识别和分析词根。"
+    "desc": "什么是框架效应？为什么逻辑等价的描述会引发不同的决策？哪些脑区参与了框架效应的产生和抵制？如何区分好框架和坏框架？默认选项为何有巨大的影响力？"
   },
   {
     "step": 2,
-    "title": "讲给外行听",
-    "desc": "这就像一场词根的「实弹演习」。前面学了450个词根理论，现在要把它们用在真实单词上。就像学了武术套路之后的实战对练——不是比划比划就行，而是要真的能拆、能猜、能验证。"
+    "title": "以教代学",
+    "desc": "「意大利队赢了」和「法国队输了」逻辑上完全等价——描述同一个世界状态。但在系统1中，它们唤起截然不同的联想：前者让人想到意大利队的努力，后者让人想到法国队的失败和齐达内的头撞。框架效应就是这样运作的——你的偏好不是忠于现实，而是忠于对现实的描述。"
   },
   {
     "step": 3,
-    "title": "找出漏洞",
-    "desc": "练习暴露了三个常见问题：一是词根含义和现代词义之间的跳跃（如mirror来自mir「惊异」，因为古人觉得镜子里的影像令人惊异）；二是同根词的词形变化规律（元音弱化、辅音同化）；三是前缀变体的识别（ad-在不同辅音前变成ac-, af-, ag-等）。"
+    "title": "查漏补缺",
+    "desc": "「亚洲疾病问题」是框架效应的经典案例：「拯救200人」（确定选项受青睐）与「400人死亡」（赌博受青睐）描述的是完全相同的方案。即使是公共健康专业人士也无法抵御。更震撼的是：当人们被告知自己在两种框架中的选择不一致时，他们的反应是「令人尴尬的沉默」——系统2找不到道德直觉来打破僵局。"
   },
   {
     "step": 4,
-    "title": "简化再简化",
-    "desc": "拆词三步法：1）从后往前切——先认后缀定词性；2）从前往后切——再认前缀定方向；3）中间剩下的就是词根——查表定核心含义。"
+    "title": "简化精炼",
+    "desc": "框架效应证明，我们的偏好依附于对现实的描述而非现实本身。三个关键发现：1）杏仁核在「随心而为」时活跃（系统1驱动），前额叶在「理性」受试者中更活跃；2）某些框架更好——「丢现金」比「丢戏票」引导更理性的决策，「加仑/英里」比「英里/加仑」更准确；3）默认选项的威力巨大——器官捐献的退出式 vs 加入式框架导致近100% vs 4%的捐献率。"
   }
 ];
 const takeaways = [
   {
-    "icon": "🔍",
-    "title": "识别词根是基础",
-    "text": "第一类练习训练最基本的能力：在单词中快速定位词根。aggregation→greg、capitation→capit、cosmonaut→cosm+naut。"
+    "icon": "🖼️",
+    "title": "偏好忠于框架，而非忠于现实",
+    "text": "逻辑等价的描述引发不同的选择——「拯救200人」vs「400人死亡」，「90%存活率」vs「10%死亡率」——我们的偏好取决于对现实的描述方式。"
   },
   {
-    "icon": "✏️",
-    "title": "说文解字是核心",
-    "text": "第二类练习巩固「前缀+词根+后缀」的拆解公式。agriculture = agr(田) + culture(耕种) = 农业。"
+    "icon": "🧠",
+    "title": "杏仁核驱动框架依从",
+    "text": "fMRI研究表明：随框架做选择时杏仁核（情绪）活跃，抵制框架时前扣带回（冲突）活跃，「理性」个体的前额叶最活跃。"
   },
   {
-    "icon": "🔮",
-    "title": "文化背景是进阶",
-    "text": "第三类练习揭示词义跳跃：mirror（镜子）←mir（惊异）：古人惊异于镜中倒影。这些故事让词根记忆从枯燥变有趣。"
+    "icon": "📝",
+    "title": "好框架和坏框架的区别",
+    "text": "并非所有框架同样有效。「丢现金」比「丢戏票」更好（破除沉没成本），「加仑/英里」比「英里/加仑」更好（避免数学错觉），较宽框架和较包容的心理账户通常更理性。"
   },
   {
-    "icon": "📜",
-    "title": "原著实战是终极",
-    "text": "第四类练习证明：在马克思、培根、林肯、丘吉尔、奥威尔、狄更斯的文章中，你的词根知识大有用武之地。"
+    "icon": "✅",
+    "title": "默认选项是最强大的框架",
+    "text": "器官捐献率从4%到近100%的差异仅因默认选项不同。这不是情绪而是懒惰——系统2不愿耗费脑力思考，于是接受不需要行动的默认选项。"
   },
   {
-    "icon": "🏋️",
-    "title": "三步拆词法",
-    "text": "从后切后缀（定词性）→ 从前切前缀（定方向）→ 中间即词根（定核心义）。反复练习直到形成直觉。"
+    "icon": "🤫",
+    "title": "框架揭示道德直觉的空洞",
+    "text": "谢林的税法问题和亚洲疾病问题证明：面对不一致决策，人们的系统2找不到道德直觉来打破僵局——短暂的沉默暴露了直觉的空洞。"
   }
 ];
 const quiz = [
   {
     "id": "q1",
-    "question": "请对 quintessence（精髓）进行完整的「说文解字」分析，包括词根含义和文化背景。",
-    "answer": "quintessence = quint（五）+ ess（存在）+ -ence（名词后缀）。字面义是「第五存在/第五要素」。文化背景：亚里士多德认为构成世界的基本元素有四个（土、水、火、气），而天体由更纯净的「第五元素」（拉丁语 quinta essentia）构成。因此quintessence引申为「最精纯的部分」→「精髓；完美典范」。"
+    "question": "为什么说「意大利队赢了」和「法国队输了」在系统1中意思不同？",
+    "answer": "从逻辑上看，两句话表示相同的世界状态——为真的条件相同。但系统1处理语言时会激活不同的关联网络：「意大利队赢了」让人想到意大利的努力和庆祝，「法国队输了」让人想到法国的失败和齐达内的头撞事件。经济人（理性主体）只看世界状态不受措辞影响，但普通人的联想机制让逻辑等价的表述产生不同的情感反应，这正是框架效应的底层机制。"
   },
   {
     "id": "q2",
-    "question": "解释为什么 rival（竞争者）和 river（河流）有关系？词根 riv 是如何连接这两个含义的？",
-    "answer": "riv = 河流（拉丁语 rivus）。rival 的字面义是「共用同一条河流（灌溉水源）的人」。在古罗马农业社会，两家人如果共用同一条灌溉水渠，就不可避免地会为水源分配产生争执，所以「同河人」变成了「竞争对手」。这是一个从具体（共享河流）到抽象（竞争关系）的语义演变典例。"
+    "question": "「英里/加仑错觉」是什么？为什么它对政策制定有重大影响？",
+    "answer": "亚当从12 MPG换到14 MPG，贝丝从30 MPG换到40 MPG。直觉上贝丝省油更多（每加仑多10英里 vs 2英里），但计算表明亚当省了119加仑、贝丝只省83加仑。MPG框架产生了系统性的错误直觉——让人低估低MPG车辆升级的巨大节能潜力，高估高MPG车辆进一步升级的效果。正确框架是「加仑/英里」或「升/100公里」。2013年美国首次在新车标签中纳入GPM信息。"
   },
   {
     "id": "q3",
-    "question": "在林肯葛底斯堡演说的开头句中，找出至少5个包含拉丁/希腊词根的词，并分析它们的词根。",
-    "answer": "1) continent = con-（共同）+ tin（持有）→ 连在一起的大陆；2) nation = nat（出生）→ 同一出生地的人 = 国家；3) conceived = con-（共同）+ ceiv（取、拿）→ 构想；4) liberty = liber（自由）→ 自由；5) dedicated = de-（加强）+ dic（说、宣告）→ 奉献；6) proposition = pro-（向前）+ posit（放置）→ 命题；7) equal = equ（平等）→ 平等的。几乎每个关键词都有一个古典词根在支撑。"
+    "question": "器官捐献率的巨大差异为什么最好用系统2的懒惰来解释，而不是系统1的情绪？",
+    "answer": "其他框架效应（如亚洲疾病问题）源于系统1的即时情绪反应——「拯救」和「死亡」唤起不同的情感。但器官捐献的差异来自默认选项的设置，不涉及情绪词汇。关键机制是：如果人们已经做了决定就会勾选，但如果没想好，就必须耗费脑力去思考——系统2不愿做这个功课，于是接受默认选项。就像一道数学题放在勾选框里——2+2=? 和 13x37=? 会导致不同的勾选率。"
   },
   {
     "id": "q4",
-    "question": "请用「拆词三步法」分析 ostracism（放逐）的构词过程和文化背景。",
-    "answer": "① 后缀：-ism = 主义/制度/行为；② 前缀：无明显前缀；③ 词根：ostrac = 贝壳/碎陶片（希腊语 ostrakon）。字面义：「碎陶片制度」。文化背景：古希腊雅典民主制度中，全体公民用陶片投票决定是否将某人驱逐出城邦5-10年。每人在碎陶片上写下想要放逐的人名，票数超过6000则执行流放。所以「碎陶片行为」→「放逐；排斥」。现代英语中ostracize表示「排斥某人」。"
-  },
-  {
-    "id": "q5",
-    "question": "为什么 hydrogen（氢）的字面意思是「生成水的元素」？请用词根分析解释。",
-    "answer": "hydrogen = hydr（水，希腊语hydor）+ gen（产生，希腊语genos）= 生成水的元素。18世纪化学家拉瓦锡发现氢气燃烧后生成水，因此用希腊词根命名为hydrogen——「产水者」。同理：oxygen = oxy（酸）+ gen = 产酸者（拉瓦锡误以为氧是所有酸的共同成分）；nitrogen = nitr（硝石）+ gen = 产硝石者。这三个元素名完美展示了希腊词根在科学命名中的地位。"
+    "question": "如果你的朋友丢了戏票要放弃看戏，你会怎么建议她？这反映了什么原则？",
+    "answer": "建议她问自己：「如果丢了等额的现金，你还会买票吗？如果会，那就重新买票吧。」这是用更好的框架（丢现金）替换更差的框架（丢戏票）。丢票的人将损失记入「这场戏」的心理账户，让成本看似翻倍；丢现金记入「一般收入」账户，不影响购票决定。原则：较宽的框架和较包容的心理账户通常让人做出更理性的决策；沉没成本应该被忽略。"
   }
 ];
-const preQuiz = [
+const chapterNav = {"prev": {"num": 33, "title": "逆转", "href": "ch33.html"}, "next": {"num": 35, "title": "两个自我", "href": "ch35.html"}};
+window.pipeData_block2 = [
   {
-    "question": "如果你在阅读英文原著时遇到一个生词，你第一反应是查词典，还是先尝试用词根词缀分析它？",
-    "hint": "想想哪种方式更有助于长期记忆"
+    "cmd": "框架呈现",
+    "annotation": "「保留20英镑」或「失去30英镑」——同一客观结果"
   },
   {
-    "question": "你认为 mirror（镜子）和 miracle（奇迹）之间有什么联系？",
-    "hint": "它们看起来像不像同族词？找找共同的字母序列"
+    "cmd": "杏仁核（情绪）",
+    "annotation": "随框架而为时活跃——系统1的自动情绪反应",
+    "bottleneck": true
+  },
+  {
+    "cmd": "前扣带回（冲突）",
+    "annotation": "抵制系统1倾向时活跃——内心冲突的标志"
+  },
+  {
+    "cmd": "前额叶（理性）",
+    "annotation": "在最「理性」的受试者中更活跃——情绪和理性共同引导"
+  },
+  {
+    "cmd": "最终决策",
+    "annotation": "少数「理性」个体忠于现实，内心几乎没有冲突"
   }
 ];
-const chapterNav = {"prev": {"num": 20, "title": "常用词根 G-P", "href": "ch20.html"}, "next": {"num": 22, "title": "综合练习与复习", "href": "ch22.html"}};
-window.tipsData_block1 = [
+window.tipsData_block3 = [
   {
-    "icon": "🔍",
-    "title": "aggregation → greg = 群",
-    "desc": "ag-(=ad-) + greg(群) + -ation(名词) = 聚集物"
+    "icon": "🎫",
+    "title": "丢票 vs 丢钱",
+    "text": "丢了戏票不想再买（沉没成本），丢了等额现金则愿意买票。更好的框架是丢钱——因为沉没成本应该被忽略，只关注现在的选择和可能的后果"
   },
   {
-    "icon": "🔍",
-    "title": "armament → arm = 武装",
-    "desc": "arm(武装) + -ament(名词) = 军备；装备"
+    "icon": "⛽",
+    "title": "英里/加仑 vs 加仑/英里",
+    "text": "英里/加仑（MPG）产生错觉：从30→40 MPG看似省更多油，实际上从12→14 MPG省的更多（119加仑 vs 83加仑）。加仑/英里是更好的框架"
   },
   {
-    "icon": "🔍",
-    "title": "capitation → capit = 头",
-    "desc": "capit(头) + -ation(名词) = 人头税（按「头」收税）"
+    "icon": "💊",
+    "title": "存活率 vs 死亡率",
+    "text": "「90%存活率」让84%的医生选择手术，「10%死亡率」只让50%的医生选手术——同一事实，不同框架。医学训练无法抵御框架的影响"
   },
   {
-    "icon": "🔍",
-    "title": "cosmonaut → cosm = 宇宙",
-    "desc": "cosm(宇宙) + -o- + naut(水手) = 宇宙水手 = 宇航员"
-  },
-  {
-    "icon": "🔍",
-    "title": "denominate → nomin = 名字",
-    "desc": "de-(加强) + nomin(名) + -ate(动词) = 给…命名"
-  },
-  {
-    "icon": "🔍",
-    "title": "demonstrate → monstr = 显示",
-    "desc": "de-(加强) + monstr(显示) + -ate(动词) = 论证，表明"
-  },
-  {
-    "icon": "🔍",
-    "title": "heritage → her = 继承",
-    "desc": "her(继承) + -it- + -age(名词) = 遗产；传统"
-  },
-  {
-    "icon": "🔍",
-    "title": "pseudonym → onym = 名字",
-    "desc": "pseud(假) + -o- + nym(名) = 假名；笔名"
+    "icon": "💳",
+    "title": "现金折扣 vs 信用卡附加费",
+    "text": "放弃折扣比支付附加费更容易接受，因为「成本不是损失」。信用卡游说团体深谙此道，要求将差别定价称为「现金折扣」"
   }
 ];
-window.tipsData_block2 = [
+window.barData_block4 = [
   {
-    "icon": "✏️",
-    "title": "aerology = aer(空气) + logy(学)",
-    "desc": "→ 大气学，气象学"
+    "label": "奥地利\n（退出式）",
+    "value": 100,
+    "color": "#6c63ff"
   },
   {
-    "icon": "✏️",
-    "title": "agriculture = agr(田) + culture(耕种)",
-    "desc": "→ 农业"
+    "label": "瑞典\n（退出式）",
+    "value": 86,
+    "color": "#4ecdc4"
   },
   {
-    "icon": "✏️",
-    "title": "triangle = tri(三) + angl(角)",
-    "desc": "→ 三角形"
+    "label": "德国\n（加入式）",
+    "value": 12,
+    "color": "#ff6b6b"
   },
   {
-    "icon": "✏️",
-    "title": "dentist = dent(齿) + ist(人)",
-    "desc": "→ 牙医"
-  },
-  {
-    "icon": "✏️",
-    "title": "telephone = tele(远) + phon(声)",
-    "desc": "→ 远声 = 电话"
-  },
-  {
-    "icon": "✏️",
-    "title": "computer = com(全面) + put(想) + er(物)",
-    "desc": "→ 全面计算的机器 = 计算机"
-  },
-  {
-    "icon": "✏️",
-    "title": "umbrella = umbr(影) + ella(小)",
-    "desc": "→ 小影子 = 伞"
-  },
-  {
-    "icon": "✏️",
-    "title": "society = soci(同伴) + ety(状态)",
-    "desc": "→ 同伴的集合 = 社会"
-  }
-];
-window.pipeData_block5 = [];
-window.barData_block6 = [
-  {
-    "label": "第一类：识别词根",
-    "width": 40,
-    "value": "直接在单词中找出词根并说出含义",
-    "color": "success"
-  },
-  {
-    "label": "第二类：说文解字（明显）",
-    "width": 60,
-    "value": "词义与词根含义关系一目了然",
-    "color": "success"
-  },
-  {
-    "label": "第三类：说文解字（隐晦）",
-    "width": 80,
-    "value": "需要查找文化背景才能理解词义跳跃",
-    "color": "warning"
-  },
-  {
-    "label": "第四类：原著实战",
-    "width": 95,
-    "value": "在真实语境中识别并分析多个词根",
-    "color": "danger"
+    "label": "丹麦\n（加入式）",
+    "value": 4,
+    "color": "#ff6b6b"
   }
 ];
 
@@ -731,26 +675,6 @@ function toggleQuiz(card) {
 
 /* ── Block JS (injected per block) ── */
 
-// Block: bar-chart
-(function() {
-    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
-        const blockId = container.id.replace('barChart-', '');
-        const dataVar = window['barData_' + blockId];
-        if (!dataVar) return;
-        dataVar.forEach(bar => {
-            const div = document.createElement('div');
-            div.className = 'bar-row fade-in';
-            const colorClass = bar.warning ? 'danger' : 'success';
-            div.innerHTML = `
-                <div class="bar-label">${bar.label}</div>
-                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
-                <div class="bar-value">${bar.value || ''}</div>`;
-            container.appendChild(div);
-        });
-    });
-})();
-
-
 // Block: tips-grid
 (function() {
     document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
@@ -765,6 +689,26 @@ function toggleQuiz(card) {
                 <div class="tip-title">${tip.title}</div>
                 <div class="tip-desc">${tip.text || tip.desc || ''}</div>
                 ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
+            container.appendChild(div);
+        });
+    });
+})();
+
+
+// Block: bar-chart
+(function() {
+    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
+        const blockId = container.id.replace('barChart-', '');
+        const dataVar = window['barData_' + blockId];
+        if (!dataVar) return;
+        dataVar.forEach(bar => {
+            const div = document.createElement('div');
+            div.className = 'bar-row fade-in';
+            const colorClass = bar.warning ? 'danger' : 'success';
+            div.innerHTML = `
+                <div class="bar-label">${bar.label}</div>
+                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
+                <div class="bar-value">${bar.value || ''}</div>`;
             container.appendChild(div);
         });
     });

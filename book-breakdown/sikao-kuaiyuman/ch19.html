@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Part 3 综合练习：词根实战训练场 · Part 3 Comprehensive Exercises: Root Analysis in Action | Chapter 21</title>
+<title>理解的错觉 · The Illusion of Understanding | Chapter 19</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -137,6 +137,24 @@ section { padding: 80px 0; }
 
 /* ── Block CSS (injected per block) ── */
 
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent3-rgb),0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* Block: tips-grid */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+.tip-card:hover::before { transform: scaleX(1); }
+.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.tip-icon { font-size: 2rem; margin-bottom: 12px; }
+.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
+.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
+
+
 /* Block: comparison */
 .comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
 .comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
@@ -160,37 +178,6 @@ section { padding: 80px 0; }
 .pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
 .pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
 @media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
-
-
-/* Block: tips-grid */
-.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
-.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
-.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
-.tip-card:hover::before { transform: scaleX(1); }
-.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
-.tip-icon { font-size: 2rem; margin-bottom: 12px; }
-.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
-.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
-.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
-
-
-/* Block: insight-box */
-.insight-box { background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent3-rgb),0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
-.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
-.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
-
-
-/* Block: bar-chart */
-.bar-chart { display: flex; flex-direction: column; gap: 12px; }
-.bar-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 1rem; }
-.bar-label { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; color: var(--text-dim); }
-.bar-track { height: 32px; background: rgba(var(--text-rgb),0.03); border-radius: 0.5rem; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 0.5rem; display: flex; align-items: center; padding-left: 0.75rem; font-size: 0.75rem; font-family: var(--font-mono); color: #fff; transition: width 1.5s ease-out; }
-.bar-fill.success { background: linear-gradient(90deg, var(--accent3), #2dd4bf); }
-.bar-fill.danger { background: linear-gradient(90deg, var(--accent2), #ef4444); }
-.bar-fill.neutral { background: linear-gradient(90deg, var(--accent), #8b5cf6); }
-.bar-fill.warning { background: linear-gradient(90deg, var(--accent4), var(--warning)); }
-.bar-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; }
 
 
 /* ── Responsive ── */
@@ -259,10 +246,10 @@ section { padding: 80px 0; }
 <!-- ── Hero ── -->
 <section class="hero" id="sec-hero">
     <div class="hero-content">
-        <div class="hero-chapter">Chapter 21 / 22 · Part III · 330个常用词根简介 330 Common Roots Overview</div>
-        <div class="hero-icon">🏋️</div>
-        <h1 class="hero-title">Part 3 综合练习：词根实战训练场</h1>
-        <p class="hero-sub">330个词根不是用来「看」的，而是用来「拆」的——在练习中把词根知识转化为拆词直觉</p>
+        <div class="hero-chapter">Chapter 19 / 38 · Part III · 过度自信 — 我们以为自己知道的远多于实际知道的</div>
+        <div class="hero-icon">📖</div>
+        <h1 class="hero-title">理解的错觉</h1>
+        <p class="hero-sub">We understand the past much less than we think -- and this illusion makes us believe we can predict the future</p>
     </div>
     <div class="scroll-hint">
         <span></span>
@@ -287,64 +274,61 @@ section { padding: 80px 0; }
     </section>
 
     <!-- ── Sections (assembled from blocks) ── -->
-    <!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+    <!-- Block: pipeline — Flow diagram with connected nodes -->
 <section id="sec-block1" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第一类练习：识别词根及含义</div>
-    <div class="tips-grid" id="tipsGrid-block1"></div>
-</section>
-
-<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
-<section id="sec-block2" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">第二类练习：一目了然的说文解字</div>
-    <div class="tips-grid" id="tipsGrid-block2"></div>
+    <div class="section-title">叙事谬误：从事实到幻觉的生产线</div>
+    <div class="pipeline-flow" id="pipeline-block1"></div>
+    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;">谷歌成功故事如何制造理解的错觉</div>
 </section>
 
 <!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
-<section id="sec-block3" class="fade-in">
+<section id="sec-block2" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第三类练习：词义跳跃的文化密码</div>
+    <div class="section-title">后见之明偏差：「我早就知道」的错觉</div>
     <div class="comparison-grid">
-        <div class="comparison-side hard">
-            <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+        <div class="comparison-side pro">
+            <div class="comparison-icon">🔮</div>
+            <div class="comparison-label">事前（预测时）</div>
+            <div class="comparison-title">充满不确定性</div>
+            <div class="comparison-text">尼克松1972年访华前：
+受访者对15种可能结果做概率判断
+毛泽东会接见尼克松吗？不确定
+美国会承认中国吗？不确定
+各种概率分布反映真实的不确定感</div>
         </div>
         <div class="comparison-vs">VS</div>
-        <div class="comparison-side smart">
-            <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+        <div class="comparison-side con">
+            <div class="comparison-icon">📰</div>
+            <div class="comparison-label">事后（回忆时）</div>
+            <div class="comparison-title">不可避免的错觉</div>
+            <div class="comparison-text">访问结束后请同一批人回忆：
+已发生事件→夸大自己事前给的概率
+未发生事件→「记得」自己一直认为不太可能
+人们不仅高估自己的预测准确性
+也高估他人的预测准确性</div>
         </div>
     </div>
-    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">词义从词根含义到现代用法的跳跃，背后往往藏着一段文化故事。学会追踪这些故事，不仅加深记忆，还能让词汇学习变成一场文化探险。</div></div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">后果越严重，后见之明偏差就越大。9·11事件后人们认为CIA局长7月10日就「应该知道」——但那天没人知道也不可能知道那些情报会影响历史。</div></div>
+</section>
+
+<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">后见之明的社会代价</div>
+    <div class="tips-grid" id="tipsGrid-block3"></div>
 </section>
 
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block4" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">📜 林肯葛底斯堡演说中的词根</div>
-        <div class="insight-content"></div>
+        <div class="insight-title">📊 CEO才能与公司成功的冷酷数学</div>
+        <div class="insight-content">CEO确实影响公司业绩，但相关系数可能只有约0.30——这意味着在成对公司中，能力更强的CEO领导更成功公司的频率约60%，仅比随机猜测高10个百分点。
+
+《基业长青》分析了18对公司的成败差异，但比较已有的成败在很大程度上相当于比较运气好坏。平均而言，书中「优秀公司」和「不太成功公司」在研究发表后的盈利能力和股票回报几乎没有差异。《追求卓越》提及的公司平均盈利也在短期内骤降。
+
+光环效应制造了虚幻的一致性：成功时CEO被描述为「善于变通、行事果断」，同一个人公司下滑后又变成「僵化昏庸、独断专行」——相同行为的两种截然相反的描述。</div>
     </div>
-</section>
-
-<!-- Block: pipeline — Flow diagram with connected nodes -->
-<section id="sec-block5" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">拆词三步法实操</div>
-    <div class="pipeline-flow" id="pipeline-block5"></div>
-    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;"></div>
-</section>
-
-<!-- Block: bar-chart — Horizontal bar chart -->
-<section id="sec-block6" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">四类练习的难度递增</div>
-    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
-    <div class="bar-chart" id="barChart-block6"></div>
 </section>
 
 
@@ -393,198 +377,103 @@ const feynmanSteps = [
   {
     "step": 1,
     "title": "选择概念",
-    "desc": "第三部分练习分为四大题型：1）识别词根并说出含义；2）对词义与词根关系明显的词进行「说文解字」；3）探究词义与词根含义相距较远的词的文化背景；4）在英文原著段落中识别和分析词根。"
+    "desc": "叙事谬误（塔勒布）：人类不断为过去编造站不住脚的简单故事，并信以为真。后见之明偏差（费什霍夫）：事件发生后，人们夸大自己事前预测的概率。结果偏差：用结果好坏而非决策过程是否合理来评判决策质量。三者合力制造了「理解的错觉」——我们相信世界是可理解和可预测的。"
   },
   {
     "step": 2,
-    "title": "讲给外行听",
-    "desc": "这就像一场词根的「实弹演习」。前面学了450个词根理论，现在要把它们用在真实单词上。就像学了武术套路之后的实战对练——不是比划比划就行，而是要真的能拆、能猜、能验证。"
+    "title": "以教代学",
+    "desc": "想象你在看一部电影的结局。结局令人满意，因为所有情节都顺理成章地汇聚在一起。但如果你能回到开头，有无数种可能的结局——每个关键决策都可能走向不同的方向。谷歌的故事就像这样一部电影：每个决策都成功了，所以创始人看起来有完美的先见之明。但电影中省略了无数没发生的事——而那些没发生的事本可以改变一切。"
   },
   {
     "step": 3,
-    "title": "找出漏洞",
-    "desc": "练习暴露了三个常见问题：一是词根含义和现代词义之间的跳跃（如mirror来自mir「惊异」，因为古人觉得镜子里的影像令人惊异）；二是同根词的词形变化规律（元音弱化、辅音同化）；三是前缀变体的识别（ad-在不同辅音前变成ac-, af-, ag-等）。"
+    "title": "查漏补缺",
+    "desc": "费什霍夫的尼克松实验证明了后见之明偏差的普遍性：人们对已发生事件夸大自己事前的预测概率，对未发生事件则「回忆」自己一直认为不太可能。这产生了严重的社会后果——后见之明让决策者被用结果而非过程来评判，导致风险厌恶的过度防御和铤而走险的不当奖赏。"
   },
   {
     "step": 4,
-    "title": "简化再简化",
-    "desc": "拆词三步法：1）从后往前切——先认后缀定词性；2）从前往后切——再认前缀定方向；3）中间剩下的就是词根——查表定核心含义。"
+    "title": "简化精炼",
+    "desc": "理解的错觉的核心链条：叙事谬误（为过去编连贯故事）→ 后见之明偏差（认为自己早就知道）→ 未来可预测的错觉。成功的秘诀类书籍（如《基业长青》）利用了这条链条——比较成功和失败的公司，「发现」规律，但CEO才能与公司成功的相关系数只有约0.30。只要存在随机性，规律就只是一种幻象。"
   }
 ];
 const takeaways = [
   {
-    "icon": "🔍",
-    "title": "识别词根是基础",
-    "text": "第一类练习训练最基本的能力：在单词中快速定位词根。aggregation→greg、capitation→capit、cosmonaut→cosm+naut。"
+    "icon": "📖",
+    "title": "理解的三重错觉",
+    "desc": "叙事谬误让过去变得简单可解释，后见之明偏差让我们以为自己早就知道，两者合力产生了「未来可预测」的错觉。你知道的越少，越容易构建自洽的故事。"
   },
   {
-    "icon": "✏️",
-    "title": "说文解字是核心",
-    "text": "第二类练习巩固「前缀+词根+后缀」的拆解公式。agriculture = agr(田) + culture(耕种) = 农业。"
+    "icon": "🎲",
+    "title": "运气被系统性低估",
+    "desc": "成功故事中运气的作用比故事描述的更大——但光环效应让每个成功决策看似英明，每个失败决策看似愚蠢。「只要存在随机性，规律就只是一种幻象。」"
   },
   {
-    "icon": "🔮",
-    "title": "文化背景是进阶",
-    "text": "第三类练习揭示词义跳跃：mirror（镜子）←mir（惊异）：古人惊异于镜中倒影。这些故事让词根记忆从枯燥变有趣。"
-  },
-  {
-    "icon": "📜",
-    "title": "原著实战是终极",
-    "text": "第四类练习证明：在马克思、培根、林肯、丘吉尔、奥威尔、狄更斯的文章中，你的词根知识大有用武之地。"
-  },
-  {
-    "icon": "🏋️",
-    "title": "三步拆词法",
-    "text": "从后切后缀（定词性）→ 从前切前缀（定方向）→ 中间即词根（定核心义）。反复练习直到形成直觉。"
+    "icon": "⚖️",
+    "title": "结果偏差扭曲评判",
+    "desc": "我们用结果好坏而非决策过程是否合理来评判决策——这对医生、CEO等代理决策者尤为残酷。后见之明让审慎决策在事后看起来像是不负责任的疏忽。"
   }
 ];
 const quiz = [
   {
-    "id": "q1",
-    "question": "请对 quintessence（精髓）进行完整的「说文解字」分析，包括词根含义和文化背景。",
-    "answer": "quintessence = quint（五）+ ess（存在）+ -ence（名词后缀）。字面义是「第五存在/第五要素」。文化背景：亚里士多德认为构成世界的基本元素有四个（土、水、火、气），而天体由更纯净的「第五元素」（拉丁语 quinta essentia）构成。因此quintessence引申为「最精纯的部分」→「精髓；完美典范」。"
+    "question": "卡尼曼为什么说在讨论2008年金融危机时应该禁用「知道」这个词？",
+    "answer": "因为「知道」一词暗示世界比实际更可知。有些人事前想到会发生危机，但他们并不「知道」——他们当时无法用确凿证据证明。许多聪明且见多识广的人看好经济前景，不相信灾难即将来临。如果连最聪明的人都在争论，那么危机就是不可知的。事后说「我早就知道」是后见之明偏差的典型表现——人们根据实际发生的事修改了自己的信念史。「直觉」和「预感」也有同样的问题：「我预感这段婚姻不会长久，但我错了」——这话听起来奇怪，因为这些词暗示了想法终将成真。"
   },
   {
-    "id": "q2",
-    "question": "解释为什么 rival（竞争者）和 river（河流）有关系？词根 riv 是如何连接这两个含义的？",
-    "answer": "riv = 河流（拉丁语 rivus）。rival 的字面义是「共用同一条河流（灌溉水源）的人」。在古罗马农业社会，两家人如果共用同一条灌溉水渠，就不可避免地会为水源分配产生争执，所以「同河人」变成了「竞争对手」。这是一个从具体（共享河流）到抽象（竞争关系）的语义演变典例。"
+    "question": "为什么CEO才能与公司成功只有约0.30的相关系数，仍然被写成伟大的领导力故事？",
+    "answer": "0.30的相关系数意味着在成对公司中，能力更强的CEO领导更成功公司的概率约60%——仅比随机猜测高10个百分点。但机场书店不会卖「CEO对业绩只有微弱影响」的书。人们渴望获知成败的决定因素——无论多么虚幻。光环效应制造了虚假一致性：公司成功时CEO被描述为善于变通，失败后相同行为被描述为僵化——我们颠倒了因果关系，以为公司失败是因为CEO不善变通，实际上是因为公司走下坡路所以他「看起来」僵化。叙事谬误+光环效应+后见之明偏差，让微弱的统计关系被包装成伟大的领导力传奇。"
   },
   {
-    "id": "q3",
-    "question": "在林肯葛底斯堡演说的开头句中，找出至少5个包含拉丁/希腊词根的词，并分析它们的词根。",
-    "answer": "1) continent = con-（共同）+ tin（持有）→ 连在一起的大陆；2) nation = nat（出生）→ 同一出生地的人 = 国家；3) conceived = con-（共同）+ ceiv（取、拿）→ 构想；4) liberty = liber（自由）→ 自由；5) dedicated = de-（加强）+ dic（说、宣告）→ 奉献；6) proposition = pro-（向前）+ posit（放置）→ 命题；7) equal = equ（平等）→ 平等的。几乎每个关键词都有一个古典词根在支撑。"
-  },
-  {
-    "id": "q4",
-    "question": "请用「拆词三步法」分析 ostracism（放逐）的构词过程和文化背景。",
-    "answer": "① 后缀：-ism = 主义/制度/行为；② 前缀：无明显前缀；③ 词根：ostrac = 贝壳/碎陶片（希腊语 ostrakon）。字面义：「碎陶片制度」。文化背景：古希腊雅典民主制度中，全体公民用陶片投票决定是否将某人驱逐出城邦5-10年。每人在碎陶片上写下想要放逐的人名，票数超过6000则执行流放。所以「碎陶片行为」→「放逐；排斥」。现代英语中ostracize表示「排斥某人」。"
-  },
-  {
-    "id": "q5",
-    "question": "为什么 hydrogen（氢）的字面意思是「生成水的元素」？请用词根分析解释。",
-    "answer": "hydrogen = hydr（水，希腊语hydor）+ gen（产生，希腊语genos）= 生成水的元素。18世纪化学家拉瓦锡发现氢气燃烧后生成水，因此用希腊词根命名为hydrogen——「产水者」。同理：oxygen = oxy（酸）+ gen = 产酸者（拉瓦锡误以为氧是所有酸的共同成分）；nitrogen = nitr（硝石）+ gen = 产硝石者。这三个元素名完美展示了希腊词根在科学命名中的地位。"
+    "question": "后见之明偏差如何同时助长了过度防御和不当冒险？",
+    "answer": "过度防御方向：因为决策者知道负面结果会让他们事后被评判（「你应该预见到这个风险」），所以他们采取过度保守策略——医生做更多不必要检查，政府聘请不需要的监督员，一切以避责为目的。不当冒险方向：一直走运的领导者永远不会因铤而走险受到惩罚——后见之明让他们的鲁莽看起来像远见。只需赌赢几次，鲁莽就被赋予英明的光环。结果偏差不看过程只看结果，奖赏运气、惩罚审慎。这是把双刃剑：同一种偏差机制在不同方向上都扭曲了对决策质量的评估。"
   }
 ];
-const preQuiz = [
+const chapterNav = {"prev": {"num": 18, "title": "驯服直觉性预测", "href": "ch18.html"}, "next": {"num": 20, "title": "有效性错觉", "href": "ch20.html"}};
+window.pipeData_block1 = [
   {
-    "question": "如果你在阅读英文原著时遇到一个生词，你第一反应是查词典，还是先尝试用词根词缀分析它？",
-    "hint": "想想哪种方式更有助于长期记忆"
+    "title": "选择性关注",
+    "desc": "只关注已发生的显著事件，忽视无数未发生的可能",
+    "icon": "👁️"
   },
   {
-    "question": "你认为 mirror（镜子）和 miracle（奇迹）之间有什么联系？",
-    "hint": "它们看起来像不像同族词？找找共同的字母序列"
+    "title": "光环效应",
+    "desc": "成功让每个决策看起来都是英明的，失败者的行为则被描述为盲目迟缓",
+    "icon": "✨"
+  },
+  {
+    "title": "因果归因",
+    "desc": "将结果归因于天赋和意图而非运气——每个关键决策都成功，看似完美先见",
+    "icon": "🎯"
+  },
+  {
+    "title": "连贯叙事",
+    "desc": "信息越少越容易构建自洽故事——你知道的越少，越容易「理解」",
+    "icon": "📖"
+  },
+  {
+    "title": "不可避免感",
+    "desc": "完成的故事令人信服到似乎不可能有其他结局——但这是错觉",
+    "icon": "🔮"
   }
 ];
-const chapterNav = {"prev": {"num": 20, "title": "常用词根 G-P", "href": "ch20.html"}, "next": {"num": 22, "title": "综合练习与复习", "href": "ch22.html"}};
-window.tipsData_block1 = [
+window.tipsData_block3 = [
   {
-    "icon": "🔍",
-    "title": "aggregation → greg = 群",
-    "desc": "ag-(=ad-) + greg(群) + -ation(名词) = 聚集物"
+    "icon": "⚕️",
+    "title": "医疗决策",
+    "desc": "低风险手术中不可预测的事故导致患者死亡→陪审团事后倾向于认为手术「实际上是有风险的」，主刀医生「应该更清楚」"
   },
   {
-    "icon": "🔍",
-    "title": "armament → arm = 武装",
-    "desc": "arm(武装) + -ament(名词) = 军备；装备"
+    "icon": "🏛️",
+    "title": "公共政策",
+    "desc": "德卢斯市洪灾案例：知道洪灾发生后有56%的人认为该市应该雇监督员，不知道结果时只有24%——尽管被提醒不要受后见之明影响"
   },
   {
-    "icon": "🔍",
-    "title": "capitation → capit = 头",
-    "desc": "capit(头) + -ation(名词) = 人头税（按「头」收税）"
+    "icon": "🎖️",
+    "title": "鲁莽者获赏",
+    "desc": "一直走运的领导人永远不会因铤而走险受到惩罚——只需赌赢几次就被赋予英明果断的光环。后见之明奖赏运气，惩罚审慎"
   },
   {
-    "icon": "🔍",
-    "title": "cosmonaut → cosm = 宇宙",
-    "desc": "cosm(宇宙) + -o- + naut(水手) = 宇宙水手 = 宇航员"
-  },
-  {
-    "icon": "🔍",
-    "title": "denominate → nomin = 名字",
-    "desc": "de-(加强) + nomin(名) + -ate(动词) = 给…命名"
-  },
-  {
-    "icon": "🔍",
-    "title": "demonstrate → monstr = 显示",
-    "desc": "de-(加强) + monstr(显示) + -ate(动词) = 论证，表明"
-  },
-  {
-    "icon": "🔍",
-    "title": "heritage → her = 继承",
-    "desc": "her(继承) + -it- + -age(名词) = 遗产；传统"
-  },
-  {
-    "icon": "🔍",
-    "title": "pseudonym → onym = 名字",
-    "desc": "pseud(假) + -o- + nym(名) = 假名；笔名"
-  }
-];
-window.tipsData_block2 = [
-  {
-    "icon": "✏️",
-    "title": "aerology = aer(空气) + logy(学)",
-    "desc": "→ 大气学，气象学"
-  },
-  {
-    "icon": "✏️",
-    "title": "agriculture = agr(田) + culture(耕种)",
-    "desc": "→ 农业"
-  },
-  {
-    "icon": "✏️",
-    "title": "triangle = tri(三) + angl(角)",
-    "desc": "→ 三角形"
-  },
-  {
-    "icon": "✏️",
-    "title": "dentist = dent(齿) + ist(人)",
-    "desc": "→ 牙医"
-  },
-  {
-    "icon": "✏️",
-    "title": "telephone = tele(远) + phon(声)",
-    "desc": "→ 远声 = 电话"
-  },
-  {
-    "icon": "✏️",
-    "title": "computer = com(全面) + put(想) + er(物)",
-    "desc": "→ 全面计算的机器 = 计算机"
-  },
-  {
-    "icon": "✏️",
-    "title": "umbrella = umbr(影) + ella(小)",
-    "desc": "→ 小影子 = 伞"
-  },
-  {
-    "icon": "✏️",
-    "title": "society = soci(同伴) + ety(状态)",
-    "desc": "→ 同伴的集合 = 社会"
-  }
-];
-window.pipeData_block5 = [];
-window.barData_block6 = [
-  {
-    "label": "第一类：识别词根",
-    "width": 40,
-    "value": "直接在单词中找出词根并说出含义",
-    "color": "success"
-  },
-  {
-    "label": "第二类：说文解字（明显）",
-    "width": 60,
-    "value": "词义与词根含义关系一目了然",
-    "color": "success"
-  },
-  {
-    "label": "第三类：说文解字（隐晦）",
-    "width": 80,
-    "value": "需要查找文化背景才能理解词义跳跃",
-    "color": "warning"
-  },
-  {
-    "label": "第四类：原著实战",
-    "width": 95,
-    "value": "在真实语境中识别并分析多个词根",
-    "color": "danger"
+    "icon": "📋",
+    "title": "过度防御",
+    "desc": "因后见之明评判而导致的风险厌恶：医生做更多不必要检查、把更多病例转给专家——保护医生而非患者"
   }
 ];
 
@@ -730,26 +619,6 @@ function toggleQuiz(card) {
 })();
 
 /* ── Block JS (injected per block) ── */
-
-// Block: bar-chart
-(function() {
-    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
-        const blockId = container.id.replace('barChart-', '');
-        const dataVar = window['barData_' + blockId];
-        if (!dataVar) return;
-        dataVar.forEach(bar => {
-            const div = document.createElement('div');
-            div.className = 'bar-row fade-in';
-            const colorClass = bar.warning ? 'danger' : 'success';
-            div.innerHTML = `
-                <div class="bar-label">${bar.label}</div>
-                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
-                <div class="bar-value">${bar.value || ''}</div>`;
-            container.appendChild(div);
-        });
-    });
-})();
-
 
 // Block: tips-grid
 (function() {

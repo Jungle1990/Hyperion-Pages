@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Part 3 综合练习：词根实战训练场 · Part 3 Comprehensive Exercises: Root Analysis in Action | Chapter 21</title>
+<title>前景理论 · Prospect Theory | Chapter 26</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -137,29 +137,10 @@ section { padding: 80px 0; }
 
 /* ── Block CSS (injected per block) ── */
 
-/* Block: comparison */
-.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
-.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
-.comparison-side:hover { transform: scale(1.03); }
-.comparison-side.hard { border-color: var(--danger); }
-.comparison-side.smart { border-color: var(--success); }
-.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
-.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
-.comparison-side.hard .comparison-label { color: var(--danger); }
-.comparison-side.smart .comparison-label { color: var(--success); }
-.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
-.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
-.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
-@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
-
-
-/* Block: pipeline */
-.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
-.pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(var(--accent-rgb),0.3); }
-.pipe-node.highlight { background: linear-gradient(135deg, var(--accent2), #ef4444); }
-.pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
-.pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
-@media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent3-rgb),0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
 
 
 /* Block: tips-grid */
@@ -174,10 +155,20 @@ section { padding: 80px 0; }
 .tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
 
 
-/* Block: insight-box */
-.insight-box { background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent3-rgb),0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
-.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
-.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
 
 
 /* Block: bar-chart */
@@ -259,10 +250,10 @@ section { padding: 80px 0; }
 <!-- ── Hero ── -->
 <section class="hero" id="sec-hero">
     <div class="hero-content">
-        <div class="hero-chapter">Chapter 21 / 22 · Part III · 330个常用词根简介 330 Common Roots Overview</div>
-        <div class="hero-icon">🏋️</div>
-        <h1 class="hero-title">Part 3 综合练习：词根实战训练场</h1>
-        <p class="hero-sub">330个词根不是用来「看」的，而是用来「拆」的——在练习中把词根知识转化为拆词直觉</p>
+        <div class="hero-chapter">Chapter 26 / 38 · Part IV · 选择 — 决策中的非理性力量</div>
+        <div class="hero-icon">📈</div>
+        <h1 class="hero-title">前景理论</h1>
+        <p class="hero-sub">Losses loom larger than gains, sensitivity diminishes as stakes grow, and everything is evaluated relative to a reference point — these three facts rewrote economics</p>
     </div>
     <div class="scroll-hint">
         <span></span>
@@ -290,61 +281,54 @@ section { padding: 80px 0; }
     <!-- Block: tips-grid — Grid of tip/maxim/story cards -->
 <section id="sec-block1" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第一类练习：识别词根及含义</div>
+    <div class="section-title">前景理论的三个核心认知特征</div>
     <div class="tips-grid" id="tipsGrid-block1"></div>
 </section>
 
-<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
 <section id="sec-block2" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第二类练习：一目了然的说文解字</div>
-    <div class="tips-grid" id="tipsGrid-block2"></div>
-</section>
-
-<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
-<section id="sec-block3" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">第三类练习：词义跳跃的文化密码</div>
+    <div class="section-title">收益域 vs 损失域：看似矛盾实则统一</div>
     <div class="comparison-grid">
-        <div class="comparison-side hard">
-            <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+        <div class="comparison-side pro">
+            <div class="comparison-icon">🛡️</div>
+            <div class="comparison-label">收益域</div>
+            <div class="comparison-title">风险厌恶</div>
+            <div class="comparison-text">确定得900元 > 90%概率得1000元
+900元的确定收益主观价值更高
+敏感性递减使确定收益更有吸引力
+愿意接受低于期望值的确定选项
+例：安东尼选择确定的200万</div>
         </div>
         <div class="comparison-vs">VS</div>
-        <div class="comparison-side smart">
-            <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+        <div class="comparison-side con">
+            <div class="comparison-icon">🎲</div>
+            <div class="comparison-label">损失域</div>
+            <div class="comparison-title">风险寻求</div>
+            <div class="comparison-text">确定损失900元 < 90%概率损失1000元
+确定损失900元的负价值更大
+确定的损失令人厌恶→铤而走险
+当所有选择都很糟糕时赌一把
+例：贝蒂选择赌博以避免确定损失</div>
         </div>
     </div>
-    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">词义从词根含义到现代用法的跳跃，背后往往藏着一段文化故事。学会追踪这些故事，不仅加深记忆，还能让词汇学习变成一场文化探险。</div></div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">两种行为并不矛盾——它们是同一条S形价值曲线的两面。在混合赌博中，损失厌恶导致极端的风险厌恶；在纯损失选择中，敏感性递减导致风险寻求。</div></div>
+</section>
+
+<!-- Block: bar-chart — Horizontal bar chart -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">损失厌恶比率测试</div>
+    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;">损失厌恶比率通常在1.5-2.5之间——意味着你需要获得损失的1.5到2.5倍才愿意接受赌博。当被告知「像交易者一样思考」时，损失厌恶会显著降低。</p>
+    <div class="bar-chart" id="barChart-block3"></div>
 </section>
 
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block4" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">📜 林肯葛底斯堡演说中的词根</div>
+        <div class="insight-title">💡 </div>
         <div class="insight-content"></div>
     </div>
-</section>
-
-<!-- Block: pipeline — Flow diagram with connected nodes -->
-<section id="sec-block5" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">拆词三步法实操</div>
-    <div class="pipeline-flow" id="pipeline-block5"></div>
-    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;"></div>
-</section>
-
-<!-- Block: bar-chart — Horizontal bar chart -->
-<section id="sec-block6" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">四类练习的难度递增</div>
-    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
-    <div class="bar-chart" id="barChart-block6"></div>
 </section>
 
 
@@ -393,198 +377,103 @@ const feynmanSteps = [
   {
     "step": 1,
     "title": "选择概念",
-    "desc": "第三部分练习分为四大题型：1）识别词根并说出含义；2）对词义与词根关系明显的词进行「说文解字」；3）探究词义与词根含义相距较远的词的文化背景；4）在英文原著段落中识别和分析词根。"
+    "desc": "前景理论是卡尼曼和特沃斯基对期望效用理论的重大修正。它有三个核心特征：(1)评估相对于参考点（而非绝对财富）；(2)敏感性递减——从0到100的心理冲击远大于从900到1000；(3)损失厌恶——损失的痛苦大约是同等收益快乐的1.5到2.5倍。"
   },
   {
     "step": 2,
-    "title": "讲给外行听",
-    "desc": "这就像一场词根的「实弹演习」。前面学了450个词根理论，现在要把它们用在真实单词上。就像学了武术套路之后的实战对练——不是比划比划就行，而是要真的能拆、能猜、能验证。"
+    "title": "以教代学",
+    "desc": "你愿意接受这场赌博吗：抛硬币，反面损失100元，正面赢150元？期望值是正的（+25元），但大多数人拒绝。为什么？因为损失100元的恐惧大于赢得150元的渴望——这就是损失厌恶。要让大多数人接受100元损失的赌博，收益通常需要达到200元——损失的痛苦是收益的两倍。"
   },
   {
     "step": 3,
-    "title": "找出漏洞",
-    "desc": "练习暴露了三个常见问题：一是词根含义和现代词义之间的跳跃（如mirror来自mir「惊异」，因为古人觉得镜子里的影像令人惊异）；二是同根词的词形变化规律（元音弱化、辅音同化）；三是前缀变体的识别（ad-在不同辅音前变成ac-, af-, ag-等）。"
+    "title": "查漏补缺",
+    "desc": "前景理论用问题3和4给了伯努利致命一击：两个问题的最终财富状态完全相同（得到1500元或赌博得到1000/2000元的50/50），但因为参考点不同（一个先得1000元，一个先得2000元），大多数人的选择截然相反。拉宾定理从数学上证明了用财富效用解释损失厌恶是荒谬的。但前景理论也有自身盲点——它无法处理「失望」和「后悔」。"
   },
   {
     "step": 4,
-    "title": "简化再简化",
-    "desc": "拆词三步法：1）从后往前切——先认后缀定词性；2）从前往后切——再认前缀定方向；3）中间剩下的就是词根——查表定核心含义。"
+    "title": "简化精炼",
+    "desc": "前景理论的价值函数是一条S形曲线：参考点左侧（损失）比右侧（收益）更陡峭——这就是损失厌恶的图形表达。在收益域风险厌恶（偏好确定收益），在损失域风险寻求（偏好赌博以避免确定损失）——两者并不矛盾，而是同一条曲线的两面。"
   }
 ];
 const takeaways = [
   {
-    "icon": "🔍",
-    "title": "识别词根是基础",
-    "text": "第一类练习训练最基本的能力：在单词中快速定位词根。aggregation→greg、capitation→capit、cosmonaut→cosm+naut。"
+    "icon": "📈",
+    "title": "损失是收益的两倍重",
+    "desc": "损失厌恶比率约1.5-2.5——你需要获得损失的2倍才愿意接受赌博。这不是胆小，而是进化本能：相比追逐机遇，更重视规避威胁的生物更可能存活。"
   },
   {
-    "icon": "✏️",
-    "title": "说文解字是核心",
-    "text": "第二类练习巩固「前缀+词根+后缀」的拆解公式。agriculture = agr(田) + culture(耕种) = 农业。"
+    "icon": "🔀",
+    "title": "框架决定选择",
+    "desc": "问题3和4的财富最终状态完全相同，但因为参考点不同（先得1000 vs 先得2000），多数人做出截然相反的选择——这是伯努利理论无法解释的致命反例。"
   },
   {
-    "icon": "🔮",
-    "title": "文化背景是进阶",
-    "text": "第三类练习揭示词义跳跃：mirror（镜子）←mir（惊异）：古人惊异于镜中倒影。这些故事让词根记忆从枯燥变有趣。"
-  },
-  {
-    "icon": "📜",
-    "title": "原著实战是终极",
-    "text": "第四类练习证明：在马克思、培根、林肯、丘吉尔、奥威尔、狄更斯的文章中，你的词根知识大有用武之地。"
-  },
-  {
-    "icon": "🏋️",
-    "title": "三步拆词法",
-    "text": "从后切后缀（定词性）→ 从前切前缀（定方向）→ 中间即词根（定核心义）。反复练习直到形成直觉。"
+    "icon": "🔬",
+    "title": "好理论也有盲点",
+    "desc": "前景理论无法处理失望和后悔——承认这一点是科学诚实。理论被采纳不是因为完美，而是因为它的新概念（参考点、损失厌恶）确实比旧理论多解释了很多现象。"
   }
 ];
 const quiz = [
   {
-    "id": "q1",
-    "question": "请对 quintessence（精髓）进行完整的「说文解字」分析，包括词根含义和文化背景。",
-    "answer": "quintessence = quint（五）+ ess（存在）+ -ence（名词后缀）。字面义是「第五存在/第五要素」。文化背景：亚里士多德认为构成世界的基本元素有四个（土、水、火、气），而天体由更纯净的「第五元素」（拉丁语 quinta essentia）构成。因此quintessence引申为「最精纯的部分」→「精髓；完美典范」。"
+    "question": "为什么「确定得900元」比「90%概率得1000元」更有吸引力，但「确定损失900元」却不如「90%概率损失1000元」？",
+    "answer": "这两种偏好看似矛盾，实则由同一条S形价值曲线解释。在收益域：敏感性递减使确定的900元效用很高，接近1000元的效用；加上确定性效应（100%vs90%的心理差距很大），人们偏好确定收益。在损失域：确定损失900元的负效用极大，人们对确定损失有强烈厌恶，宁愿赌一把——90%概率的损失「感觉」比确定损失好很多，因为还有10%的希望一无所失。两种行为都是参考点+敏感性递减+损失厌恶的自然推论。"
   },
   {
-    "id": "q2",
-    "question": "解释为什么 rival（竞争者）和 river（河流）有关系？词根 riv 是如何连接这两个含义的？",
-    "answer": "riv = 河流（拉丁语 rivus）。rival 的字面义是「共用同一条河流（灌溉水源）的人」。在古罗马农业社会，两家人如果共用同一条灌溉水渠，就不可避免地会为水源分配产生争执，所以「同河人」变成了「竞争对手」。这是一个从具体（共享河流）到抽象（竞争关系）的语义演变典例。"
+    "question": "拉宾定理如何从数学上证明伯努利理论的荒谬？",
+    "answer": "拉宾证明：如果一个人因为财富效用曲线的凹性（递减边际效用）而拒绝「50%赢11元/50%输10元」的小赌博，那么根据同一条效用曲线的数学推导，她也一定会拒绝「50%输200元/50%赢20000元」的大赌博——期望值为9900元且最大损失只有200元。头脑正常的人都不会拒绝后者。这数学地证明了用财富效用的凹性来解释小额赌博中的风险厌恶是不可能的——真正的原因是损失厌恶，它发生在参考点附近而非整条财富曲线上。"
   },
   {
-    "id": "q3",
-    "question": "在林肯葛底斯堡演说的开头句中，找出至少5个包含拉丁/希腊词根的词，并分析它们的词根。",
-    "answer": "1) continent = con-（共同）+ tin（持有）→ 连在一起的大陆；2) nation = nat（出生）→ 同一出生地的人 = 国家；3) conceived = con-（共同）+ ceiv（取、拿）→ 构想；4) liberty = liber（自由）→ 自由；5) dedicated = de-（加强）+ dic（说、宣告）→ 奉献；6) proposition = pro-（向前）+ posit（放置）→ 命题；7) equal = equ（平等）→ 平等的。几乎每个关键词都有一个古典词根在支撑。"
-  },
-  {
-    "id": "q4",
-    "question": "请用「拆词三步法」分析 ostracism（放逐）的构词过程和文化背景。",
-    "answer": "① 后缀：-ism = 主义/制度/行为；② 前缀：无明显前缀；③ 词根：ostrac = 贝壳/碎陶片（希腊语 ostrakon）。字面义：「碎陶片制度」。文化背景：古希腊雅典民主制度中，全体公民用陶片投票决定是否将某人驱逐出城邦5-10年。每人在碎陶片上写下想要放逐的人名，票数超过6000则执行流放。所以「碎陶片行为」→「放逐；排斥」。现代英语中ostracize表示「排斥某人」。"
-  },
-  {
-    "id": "q5",
-    "question": "为什么 hydrogen（氢）的字面意思是「生成水的元素」？请用词根分析解释。",
-    "answer": "hydrogen = hydr（水，希腊语hydor）+ gen（产生，希腊语genos）= 生成水的元素。18世纪化学家拉瓦锡发现氢气燃烧后生成水，因此用希腊词根命名为hydrogen——「产水者」。同理：oxygen = oxy（酸）+ gen = 产酸者（拉瓦锡误以为氧是所有酸的共同成分）；nitrogen = nitr（硝石）+ gen = 产硝石者。这三个元素名完美展示了希腊词根在科学命名中的地位。"
+    "question": "为什么前景理论虽然有明显的盲点（不能解释失望和后悔），却仍然成为社会科学中被引用最多的论文之一？",
+    "answer": "因为科学理论的采用取决于有用性而非完美性。后悔理论虽然更「真实」，但很少能做出将其与前景理论区分开的引人注目的预测。前景理论的优势在于它相对简单——只添加了参考点和损失厌恶两个概念——但这两个概念确实预测了期望效用理论无法解释的大量现象。学者们将理论作为研究工具包：除非新工具非常有用，否则不会自找麻烦往工具包里添加负担。前景理论恰好通过了这个实用性门槛。"
   }
 ];
-const preQuiz = [
-  {
-    "question": "如果你在阅读英文原著时遇到一个生词，你第一反应是查词典，还是先尝试用词根词缀分析它？",
-    "hint": "想想哪种方式更有助于长期记忆"
-  },
-  {
-    "question": "你认为 mirror（镜子）和 miracle（奇迹）之间有什么联系？",
-    "hint": "它们看起来像不像同族词？找找共同的字母序列"
-  }
-];
-const chapterNav = {"prev": {"num": 20, "title": "常用词根 G-P", "href": "ch20.html"}, "next": {"num": 22, "title": "综合练习与复习", "href": "ch22.html"}};
+const chapterNav = {"prev": {"num": 25, "title": "伯努利的错误", "href": "ch25.html"}, "next": {"num": 27, "title": "禀赋效应", "href": "ch27.html"}};
 window.tipsData_block1 = [
   {
-    "icon": "🔍",
-    "title": "aggregation → greg = 群",
-    "desc": "ag-(=ad-) + greg(群) + -ation(名词) = 聚集物"
+    "icon": "🎯",
+    "title": "参考点依赖",
+    "desc": "所有评估都相对于中性参考点——通常是现状，但也可以是期望或「应得的」结果。收入增长或减少取决于参考点位置。正如冰水和热水实验所示。"
   },
   {
-    "icon": "🔍",
-    "title": "armament → arm = 武装",
-    "desc": "arm(武装) + -ament(名词) = 军备；装备"
+    "icon": "📐",
+    "title": "敏感性递减",
+    "desc": "100→200元的主观差距远大于900→1000元。在漆黑房间开一盏灯效果很大，在明亮房间增加同样亮度几乎无感。这解释了损失域的风险寻求行为。"
   },
   {
-    "icon": "🔍",
-    "title": "capitation → capit = 头",
-    "desc": "capit(头) + -ation(名词) = 人头税（按「头」收税）"
-  },
-  {
-    "icon": "🔍",
-    "title": "cosmonaut → cosm = 宇宙",
-    "desc": "cosm(宇宙) + -o- + naut(水手) = 宇宙水手 = 宇航员"
-  },
-  {
-    "icon": "🔍",
-    "title": "denominate → nomin = 名字",
-    "desc": "de-(加强) + nomin(名) + -ate(动词) = 给…命名"
-  },
-  {
-    "icon": "🔍",
-    "title": "demonstrate → monstr = 显示",
-    "desc": "de-(加强) + monstr(显示) + -ate(动词) = 论证，表明"
-  },
-  {
-    "icon": "🔍",
-    "title": "heritage → her = 继承",
-    "desc": "her(继承) + -it- + -age(名词) = 遗产；传统"
-  },
-  {
-    "icon": "🔍",
-    "title": "pseudonym → onym = 名字",
-    "desc": "pseud(假) + -o- + nym(名) = 假名；笔名"
+    "icon": "⚖️",
+    "title": "损失厌恶",
+    "desc": "损失的痛苦约是同等收益快乐的1.5-2.5倍。人类和动物的大脑天生优先处理威胁——更重视坏消息是进化本能。参考点处价值函数斜率发生骤变。"
   }
 ];
-window.tipsData_block2 = [
+window.barData_block3 = [
   {
-    "icon": "✏️",
-    "title": "aerology = aer(空气) + logy(学)",
-    "desc": "→ 大气学，气象学"
-  },
-  {
-    "icon": "✏️",
-    "title": "agriculture = agr(田) + culture(耕种)",
-    "desc": "→ 农业"
-  },
-  {
-    "icon": "✏️",
-    "title": "triangle = tri(三) + angl(角)",
-    "desc": "→ 三角形"
-  },
-  {
-    "icon": "✏️",
-    "title": "dentist = dent(齿) + ist(人)",
-    "desc": "→ 牙医"
-  },
-  {
-    "icon": "✏️",
-    "title": "telephone = tele(远) + phon(声)",
-    "desc": "→ 远声 = 电话"
-  },
-  {
-    "icon": "✏️",
-    "title": "computer = com(全面) + put(想) + er(物)",
-    "desc": "→ 全面计算的机器 = 计算机"
-  },
-  {
-    "icon": "✏️",
-    "title": "umbrella = umbr(影) + ella(小)",
-    "desc": "→ 小影子 = 伞"
-  },
-  {
-    "icon": "✏️",
-    "title": "society = soci(同伴) + ety(状态)",
-    "desc": "→ 同伴的集合 = 社会"
-  }
-];
-window.pipeData_block5 = [];
-window.barData_block6 = [
-  {
-    "label": "第一类：识别词根",
+    "label": "抛硬币损失$10时的最低收益要求",
     "width": 40,
-    "value": "直接在单词中找出词根并说出含义",
-    "color": "success"
+    "value": "约$20",
+    "color": "#ff6b6b"
   },
   {
-    "label": "第二类：说文解字（明显）",
+    "label": "抛硬币损失$100时的最低收益要求",
     "width": 60,
-    "value": "词义与词根含义关系一目了然",
-    "color": "success"
+    "value": "约$200",
+    "color": "#ff6b6b"
   },
   {
-    "label": "第三类：说文解字（隐晦）",
-    "width": 80,
-    "value": "需要查找文化背景才能理解词义跳跃",
-    "color": "warning"
+    "label": "抛硬币损失$500时的最低收益要求",
+    "width": 75,
+    "value": "约$1000+",
+    "color": "#ff6b6b"
   },
   {
-    "label": "第四类：原著实战",
-    "width": 95,
-    "value": "在真实语境中识别并分析多个词根",
-    "color": "danger"
+    "label": "「像交易者一样思考」后的比率",
+    "width": 30,
+    "value": "显著降低",
+    "color": "#4ecdc4"
+  },
+  {
+    "label": "金融专业风险投资者",
+    "width": 25,
+    "value": "较能容忍",
+    "color": "#4ecdc4"
   }
 ];
 
@@ -731,26 +620,6 @@ function toggleQuiz(card) {
 
 /* ── Block JS (injected per block) ── */
 
-// Block: bar-chart
-(function() {
-    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
-        const blockId = container.id.replace('barChart-', '');
-        const dataVar = window['barData_' + blockId];
-        if (!dataVar) return;
-        dataVar.forEach(bar => {
-            const div = document.createElement('div');
-            div.className = 'bar-row fade-in';
-            const colorClass = bar.warning ? 'danger' : 'success';
-            div.innerHTML = `
-                <div class="bar-label">${bar.label}</div>
-                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
-                <div class="bar-value">${bar.value || ''}</div>`;
-            container.appendChild(div);
-        });
-    });
-})();
-
-
 // Block: tips-grid
 (function() {
     document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
@@ -771,32 +640,21 @@ function toggleQuiz(card) {
 })();
 
 
-// Block: pipeline
+// Block: bar-chart
 (function() {
-    document.querySelectorAll('[id^="pipeline-"]').forEach(container => {
-        const blockId = container.id.replace('pipeline-', '');
-        const dataVar = window['pipeData_' + blockId];
+    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
+        const blockId = container.id.replace('barChart-', '');
+        const dataVar = window['barData_' + blockId];
         if (!dataVar) return;
-        const pipeData = dataVar;
-        pipeData.forEach((node, i) => {
-            if (i > 0) {
-                const arrow = document.createElement('div');
-                arrow.className = 'pipe-arrow';
-                arrow.textContent = '→';
-                container.appendChild(arrow);
-            }
-            const wrapper = document.createElement('div');
-            const nodeDiv = document.createElement('div');
-            nodeDiv.className = 'pipe-node' + (node.bottleneck ? ' highlight' : '');
-            nodeDiv.textContent = node.cmd || node.name || '';
-            wrapper.appendChild(nodeDiv);
-            if (node.annotation || node.data) {
-                const dataDiv = document.createElement('div');
-                dataDiv.className = 'pipe-data';
-                dataDiv.textContent = node.annotation || node.data;
-                wrapper.appendChild(dataDiv);
-            }
-            container.appendChild(wrapper);
+        dataVar.forEach(bar => {
+            const div = document.createElement('div');
+            div.className = 'bar-row fade-in';
+            const colorClass = bar.warning ? 'danger' : 'success';
+            div.innerHTML = `
+                <div class="bar-label">${bar.label}</div>
+                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
+                <div class="bar-value">${bar.value || ''}</div>`;
+            container.appendChild(div);
         });
     });
 })();

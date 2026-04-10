@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Part 3 综合练习：词根实战训练场 · Part 3 Comprehensive Exercises: Root Analysis in Action | Chapter 21</title>
+<title>驯服直觉性预测 · Taming Intuitive Predictions | Chapter 18</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -137,6 +137,25 @@ section { padding: 80px 0; }
 
 /* ── Block CSS (injected per block) ── */
 
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent3-rgb),0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
 /* Block: comparison */
 .comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
 .comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
@@ -160,37 +179,6 @@ section { padding: 80px 0; }
 .pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
 .pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
 @media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
-
-
-/* Block: tips-grid */
-.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
-.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
-.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
-.tip-card:hover::before { transform: scaleX(1); }
-.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
-.tip-icon { font-size: 2rem; margin-bottom: 12px; }
-.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
-.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
-.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
-
-
-/* Block: insight-box */
-.insight-box { background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent3-rgb),0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
-.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
-.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
-
-
-/* Block: bar-chart */
-.bar-chart { display: flex; flex-direction: column; gap: 12px; }
-.bar-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 1rem; }
-.bar-label { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; color: var(--text-dim); }
-.bar-track { height: 32px; background: rgba(var(--text-rgb),0.03); border-radius: 0.5rem; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 0.5rem; display: flex; align-items: center; padding-left: 0.75rem; font-size: 0.75rem; font-family: var(--font-mono); color: #fff; transition: width 1.5s ease-out; }
-.bar-fill.success { background: linear-gradient(90deg, var(--accent3), #2dd4bf); }
-.bar-fill.danger { background: linear-gradient(90deg, var(--accent2), #ef4444); }
-.bar-fill.neutral { background: linear-gradient(90deg, var(--accent), #8b5cf6); }
-.bar-fill.warning { background: linear-gradient(90deg, var(--accent4), var(--warning)); }
-.bar-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; }
 
 
 /* ── Responsive ── */
@@ -259,10 +247,10 @@ section { padding: 80px 0; }
 <!-- ── Hero ── -->
 <section class="hero" id="sec-hero">
     <div class="hero-content">
-        <div class="hero-chapter">Chapter 21 / 22 · Part III · 330个常用词根简介 330 Common Roots Overview</div>
-        <div class="hero-icon">🏋️</div>
-        <h1 class="hero-title">Part 3 综合练习：词根实战训练场</h1>
-        <p class="hero-sub">330个词根不是用来「看」的，而是用来「拆」的——在练习中把词根知识转化为拆词直觉</p>
+        <div class="hero-chapter">Chapter 18 / 38 · Part II · 启发式与偏差 — 直觉判断为何系统性出错</div>
+        <div class="hero-icon">🎯</div>
+        <h1 class="hero-title">驯服直觉性预测</h1>
+        <p class="hero-sub">Your intuition matches prediction to evidence -- but evidence and outcomes live on different scales</p>
     </div>
     <div class="scroll-hint">
         <span></span>
@@ -287,64 +275,82 @@ section { padding: 80px 0; }
     </section>
 
     <!-- ── Sections (assembled from blocks) ── -->
-    <!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+    <!-- Block: pipeline — Flow diagram with connected nodes -->
 <section id="sec-block1" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第一类练习：识别词根及含义</div>
-    <div class="tips-grid" id="tipsGrid-block1"></div>
-</section>
-
-<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
-<section id="sec-block2" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">第二类练习：一目了然的说文解字</div>
-    <div class="tips-grid" id="tipsGrid-block2"></div>
+    <div class="section-title">系统1的强度匹配：从证据到预测的自动映射</div>
+    <div class="pipeline-flow" id="pipeline-block1"></div>
+    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;">朱莉4岁流利阅读 → GPA预测3.7的心理路径</div>
 </section>
 
 <!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
-<section id="sec-block3" class="fade-in">
+<section id="sec-block2" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第三类练习：词义跳跃的文化密码</div>
+    <div class="section-title">直觉性预测 vs 修正后的预测</div>
     <div class="comparison-grid">
-        <div class="comparison-side hard">
-            <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+        <div class="comparison-side con">
+            <div class="comparison-icon">💨</div>
+            <div class="comparison-label">直觉性预测</div>
+            <div class="comparison-title">与证据同等极端</div>
+            <div class="comparison-text">证据排95百分位→预测排95百分位
+完全忽略回归均值
+过于乐观或过于悲观
+评估与预测混为一谈
+对旗开得胜者预测过高，对开局不利者预测过低</div>
         </div>
         <div class="comparison-vs">VS</div>
-        <div class="comparison-side smart">
-            <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+        <div class="comparison-side pro">
+            <div class="comparison-icon">🎯</div>
+            <div class="comparison-label">修正后的预测</div>
+            <div class="comparison-title">回归到均值</div>
+            <div class="comparison-text">第一步：估计基线（GPA均值，如3.2）
+第二步：直觉预测（GPA 3.8）
+第三步：估计相关性（r ≈ 0.30）
+第四步：3.2 + 0.30 x (3.8 - 3.2) = 3.38
+高估和低估的概率大致相等</div>
         </div>
     </div>
-    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">词义从词根含义到现代用法的跳跃，背后往往藏着一段文化故事。学会追踪这些故事，不仅加深记忆，还能让词汇学习变成一场文化探险。</div></div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">修正直觉性预测是系统2的任务——需要找到参考类、估测基线、评估证据质量。但纠正直觉的代价是：你永远无法预测极端结果，永远无法说「我早就知道」。</div></div>
+</section>
+
+<!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block3" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">招聘悖论：信息越少印象越极端</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">✨</div>
+            <div class="analogy-label">金（刚毕业）</div>
+            <div class="analogy-desc">推荐信评价很高
+面试表现出色
+无实质性科研成果
+信息样本小→更容易出现极端结果
+运气成分更大→回归更多</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">📄</div>
+            <div class="analogy-label">简（博士后三年）</div>
+            <div class="analogy-desc">学术成果丰硕
+科研成绩优异
+面试表现不如金精彩
+信息样本大→极端结果更可信
+运气成分更小→回归更少</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">直觉倾向于选择金——因为「所见即一切」让更深刻的印象占主导。但考虑到小样本中运气的成分更大，金回归均值的程度应该更大。理性地说，应该选择简。</div></div>
 </section>
 
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block4" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">📜 林肯葛底斯堡演说中的词根</div>
-        <div class="insight-content"></div>
+        <div class="insight-title">💡 无偏差预测的代价与理性人的选择</div>
+        <div class="insight-content">无偏差预测意味着你永远不会预测极端结果——永远无法说「我早就知道她会进最高法院」或「这家初创公司一定成功」。
+
+但并非所有错误代价相同：风险投资家错过下一个谷歌的代价远大于在普通投资上损失；银行家某个借款人破产的代价远大于拒绝几个好客户。在这些情况下，极端语言可能有其战略价值。
+
+理性人的做法：不用极端预测来欺骗自己。知道最有前途的初创企业成功概率也不大，但仍然选择最有希望的赌注。用不确定性的范围代替单一数字——如果成功回报足够大，可以投资于最可能失败的企业。</div>
     </div>
-</section>
-
-<!-- Block: pipeline — Flow diagram with connected nodes -->
-<section id="sec-block5" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">拆词三步法实操</div>
-    <div class="pipeline-flow" id="pipeline-block5"></div>
-    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;"></div>
-</section>
-
-<!-- Block: bar-chart — Horizontal bar chart -->
-<section id="sec-block6" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">四类练习的难度递增</div>
-    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
-    <div class="bar-chart" id="barChart-block6"></div>
 </section>
 
 
@@ -393,198 +399,81 @@ const feynmanSteps = [
   {
     "step": 1,
     "title": "选择概念",
-    "desc": "第三部分练习分为四大题型：1）识别词根并说出含义；2）对词义与词根关系明显的词进行「说文解字」；3）探究词义与词根含义相距较远的词的文化背景；4）在英文原著段落中识别和分析词根。"
+    "desc": "非回归性直觉：系统1通过强度匹配将证据的极端性直接映射到预测的极端性——4岁流利阅读对应GPA 3.7/3.8。这忽略了回归均值：早期阅读能力与大学GPA的相关性可能只有0.30，预测应该只从均值移动30%的距离。"
   },
   {
     "step": 2,
-    "title": "讲给外行听",
-    "desc": "这就像一场词根的「实弹演习」。前面学了450个词根理论，现在要把它们用在真实单词上。就像学了武术套路之后的实战对练——不是比划比划就行，而是要真的能拆、能猜、能验证。"
+    "title": "以教代学",
+    "desc": "想象你评估证据和做预测就像在两把标尺上标记位置。证据标尺：朱莉4岁读书→标在95百分位。预测标尺：大脑自动把GPA也标在95百分位。但这两把尺上的分数由不同因素决定——共同因素可能只占30%。正确做法是把GPA标记在「均值 + 0.30 x（95百分位与均值的距离）」处。"
   },
   {
     "step": 3,
-    "title": "找出漏洞",
-    "desc": "练习暴露了三个常见问题：一是词根含义和现代词义之间的跳跃（如mirror来自mir「惊异」，因为古人觉得镜子里的影像令人惊异）；二是同根词的词形变化规律（元音弱化、辅音同化）；三是前缀变体的识别（ad-在不同辅音前变成ac-, af-, ag-等）。"
+    "title": "查漏补缺",
+    "desc": "以色列军队选拔军官的研究提供了完美案例：评估军官在单位表现的等级分布和预测军校毕业成绩的等级分布完全一致——做预测的人把评估当成了预测，用强度匹配把一个量表上的分数直接转换到另一个量表。他们没有处理预测中巨大的不确定性，做出了完全非回归性的预测。"
   },
   {
     "step": 4,
-    "title": "简化再简化",
-    "desc": "拆词三步法：1）从后往前切——先认后缀定词性；2）从前往后切——再认前缀定方向；3）中间剩下的就是词根——查表定核心含义。"
+    "title": "简化精炼",
+    "desc": "修正直觉性预测的四个步骤：(1)估计基线（平均值）；(2)用直觉形成匹配预测；(3)估计证据与结果的相关性；(4)从基线向直觉预测移动相关系数比例的距离。无证据→预测=基线；完美证据→预测=直觉；大多数情况→预测介于两者之间。"
   }
 ];
 const takeaways = [
   {
-    "icon": "🔍",
-    "title": "识别词根是基础",
-    "text": "第一类练习训练最基本的能力：在单词中快速定位词根。aggregation→greg、capitation→capit、cosmonaut→cosm+naut。"
+    "icon": "🎯",
+    "title": "评估 ≠ 预测",
+    "desc": "系统1把证据评估当作预测——朱莉的阅读能力排95百分位，GPA就被预测到95百分位。但从证据到结果之间存在大量不确定性，正确预测应该向均值回归。"
   },
   {
-    "icon": "✏️",
-    "title": "说文解字是核心",
-    "text": "第二类练习巩固「前缀+词根+后缀」的拆解公式。agriculture = agr(田) + culture(耕种) = 农业。"
+    "icon": "📐",
+    "title": "四步修正法",
+    "desc": "（1）估计基线；（2）形成直觉预测；（3）估计证据与结果的相关性；（4）从基线向直觉移动相关系数比例的距离。相关性越低，回归越大。"
   },
   {
-    "icon": "🔮",
-    "title": "文化背景是进阶",
-    "text": "第三类练习揭示词义跳跃：mirror（镜子）←mir（惊异）：古人惊异于镜中倒影。这些故事让词根记忆从枯燥变有趣。"
-  },
-  {
-    "icon": "📜",
-    "title": "原著实战是终极",
-    "text": "第四类练习证明：在马克思、培根、林肯、丘吉尔、奥威尔、狄更斯的文章中，你的词根知识大有用武之地。"
-  },
-  {
-    "icon": "🏋️",
-    "title": "三步拆词法",
-    "text": "从后切后缀（定词性）→ 从前切前缀（定方向）→ 中间即词根（定核心义）。反复练习直到形成直觉。"
+    "icon": "⚖️",
+    "title": "信息越少需回归越多",
+    "desc": "金的面试表现惊艳但科研空白——小样本中运气成分更大。简的面试平淡但成果丰硕——大样本结论更可靠。考虑到回归，应选择简。"
   }
 ];
 const quiz = [
   {
-    "id": "q1",
-    "question": "请对 quintessence（精髓）进行完整的「说文解字」分析，包括词根含义和文化背景。",
-    "answer": "quintessence = quint（五）+ ess（存在）+ -ence（名词后缀）。字面义是「第五存在/第五要素」。文化背景：亚里士多德认为构成世界的基本元素有四个（土、水、火、气），而天体由更纯净的「第五元素」（拉丁语 quinta essentia）构成。因此quintessence引申为「最精纯的部分」→「精髓；完美典范」。"
+    "question": "以色列军队选拔军官时，为什么做预测的军官的评估等级分布和预测的毕业成绩等级分布完全一致？",
+    "answer": "因为做预测的军官将两项任务混为一谈：他们的日常工作是评估候选人在本单位的表现（这是他们擅长的），而我要求他们做的是预测学员未来在军校的毕业成绩（这包含巨大的不确定性）。他们只是应用了强度匹配——将本单位的评级直接转换到军校的量表上。他们没有处理预测中的不确定性，做出了完全非回归性的预测。这是替代作用的完美案例。"
   },
   {
-    "id": "q2",
-    "question": "解释为什么 rival（竞争者）和 river（河流）有关系？词根 riv 是如何连接这两个含义的？",
-    "answer": "riv = 河流（拉丁语 rivus）。rival 的字面义是「共用同一条河流（灌溉水源）的人」。在古罗马农业社会，两家人如果共用同一条灌溉水渠，就不可避免地会为水源分配产生争执，所以「同河人」变成了「竞争对手」。这是一个从具体（共享河流）到抽象（竞争关系）的语义演变典例。"
+    "question": "为什么修正后的预测「让你永远无法说『我早就知道』」？这是优势还是劣势？",
+    "answer": "修正后的预测将极端证据向均值回归，所以你的预测永远不会足够极端。你不会预测一个优秀高中生会成为普林斯顿优等生，也不会预测一个初创企业成功概率「非常高」。当极端结果真的发生时，你的预测不会匹配。这是统计上的优势（预测高估和低估的概率大致相等），但心理上是劣势（失去了预测到位的满足感）。理性人接受这个代价——他们知道最有前途的企业成功概率也不大，但仍选择最好的赌注，不需要自我欺骗。"
   },
   {
-    "id": "q3",
-    "question": "在林肯葛底斯堡演说的开头句中，找出至少5个包含拉丁/希腊词根的词，并分析它们的词根。",
-    "answer": "1) continent = con-（共同）+ tin（持有）→ 连在一起的大陆；2) nation = nat（出生）→ 同一出生地的人 = 国家；3) conceived = con-（共同）+ ceiv（取、拿）→ 构想；4) liberty = liber（自由）→ 自由；5) dedicated = de-（加强）+ dic（说、宣告）→ 奉献；6) proposition = pro-（向前）+ posit（放置）→ 命题；7) equal = equ（平等）→ 平等的。几乎每个关键词都有一个古典词根在支撑。"
-  },
-  {
-    "id": "q4",
-    "question": "请用「拆词三步法」分析 ostracism（放逐）的构词过程和文化背景。",
-    "answer": "① 后缀：-ism = 主义/制度/行为；② 前缀：无明显前缀；③ 词根：ostrac = 贝壳/碎陶片（希腊语 ostrakon）。字面义：「碎陶片制度」。文化背景：古希腊雅典民主制度中，全体公民用陶片投票决定是否将某人驱逐出城邦5-10年。每人在碎陶片上写下想要放逐的人名，票数超过6000则执行流放。所以「碎陶片行为」→「放逐；排斥」。现代英语中ostracize表示「排斥某人」。"
-  },
-  {
-    "id": "q5",
-    "question": "为什么 hydrogen（氢）的字面意思是「生成水的元素」？请用词根分析解释。",
-    "answer": "hydrogen = hydr（水，希腊语hydor）+ gen（产生，希腊语genos）= 生成水的元素。18世纪化学家拉瓦锡发现氢气燃烧后生成水，因此用希腊词根命名为hydrogen——「产水者」。同理：oxygen = oxy（酸）+ gen = 产酸者（拉瓦锡误以为氧是所有酸的共同成分）；nitrogen = nitr（硝石）+ gen = 产硝石者。这三个元素名完美展示了希腊词根在科学命名中的地位。"
+    "question": "在金和简的招聘案例中，为什么「回归均值」的逻辑支持选择看起来不那么惊艳的简？",
+    "answer": "金只有推荐信和面试印象，没有实质性科研成果——她的信息样本很小。小样本更容易出现极端结果（好或差），运气在其中的比重更大。因此预测金未来表现时，应该期望更大程度的回归均值。简有三年的博士后经历和丰硕的学术成果——大样本中的优秀表现更可能反映真实能力而非运气。考虑到金可能比简回归得更多，简实际上是更可靠的选择。这又是小数定律的体现：我们被小样本中的极端结果所吸引，却忘了它们的可信度更低。"
   }
 ];
-const preQuiz = [
+const chapterNav = {"prev": {"num": 17, "title": "回归均值", "href": "ch17.html"}, "next": {"num": 19, "title": "理解的错觉", "href": "ch19.html"}};
+window.pipeData_block1 = [
   {
-    "question": "如果你在阅读英文原著时遇到一个生词，你第一反应是查词典，还是先尝试用词根词缀分析它？",
-    "hint": "想想哪种方式更有助于长期记忆"
+    "title": "寻找因果关联",
+    "desc": "早期阅读能力与GPA都是学术天赋的标志→关联成立",
+    "icon": "🔗"
   },
   {
-    "question": "你认为 mirror（镜子）和 miracle（奇迹）之间有什么联系？",
-    "hint": "它们看起来像不像同族词？找找共同的字母序列"
-  }
-];
-const chapterNav = {"prev": {"num": 20, "title": "常用词根 G-P", "href": "ch20.html"}, "next": {"num": 22, "title": "综合练习与复习", "href": "ch22.html"}};
-window.tipsData_block1 = [
-  {
-    "icon": "🔍",
-    "title": "aggregation → greg = 群",
-    "desc": "ag-(=ad-) + greg(群) + -ation(名词) = 聚集物"
+    "title": "评估证据极端性",
+    "desc": "4岁流利阅读→在同龄人中大约95百分位",
+    "icon": "📏"
   },
   {
-    "icon": "🔍",
-    "title": "armament → arm = 武装",
-    "desc": "arm(武装) + -ament(名词) = 军备；装备"
+    "title": "强度匹配",
+    "desc": "将阅读能力的百分位直接映射到GPA的百分位",
+    "icon": "🔄"
   },
   {
-    "icon": "🔍",
-    "title": "capitation → capit = 头",
-    "desc": "capit(头) + -ation(名词) = 人头税（按「头」收税）"
+    "title": "转换到目标量表",
+    "desc": "GPA 95百分位 ≈ 3.7/3.8→这就是直觉预测",
+    "icon": "🎯"
   },
   {
-    "icon": "🔍",
-    "title": "cosmonaut → cosm = 宇宙",
-    "desc": "cosm(宇宙) + -o- + naut(水手) = 宇宙水手 = 宇航员"
-  },
-  {
-    "icon": "🔍",
-    "title": "denominate → nomin = 名字",
-    "desc": "de-(加强) + nomin(名) + -ate(动词) = 给…命名"
-  },
-  {
-    "icon": "🔍",
-    "title": "demonstrate → monstr = 显示",
-    "desc": "de-(加强) + monstr(显示) + -ate(动词) = 论证，表明"
-  },
-  {
-    "icon": "🔍",
-    "title": "heritage → her = 继承",
-    "desc": "her(继承) + -it- + -age(名词) = 遗产；传统"
-  },
-  {
-    "icon": "🔍",
-    "title": "pseudonym → onym = 名字",
-    "desc": "pseud(假) + -o- + nym(名) = 假名；笔名"
-  }
-];
-window.tipsData_block2 = [
-  {
-    "icon": "✏️",
-    "title": "aerology = aer(空气) + logy(学)",
-    "desc": "→ 大气学，气象学"
-  },
-  {
-    "icon": "✏️",
-    "title": "agriculture = agr(田) + culture(耕种)",
-    "desc": "→ 农业"
-  },
-  {
-    "icon": "✏️",
-    "title": "triangle = tri(三) + angl(角)",
-    "desc": "→ 三角形"
-  },
-  {
-    "icon": "✏️",
-    "title": "dentist = dent(齿) + ist(人)",
-    "desc": "→ 牙医"
-  },
-  {
-    "icon": "✏️",
-    "title": "telephone = tele(远) + phon(声)",
-    "desc": "→ 远声 = 电话"
-  },
-  {
-    "icon": "✏️",
-    "title": "computer = com(全面) + put(想) + er(物)",
-    "desc": "→ 全面计算的机器 = 计算机"
-  },
-  {
-    "icon": "✏️",
-    "title": "umbrella = umbr(影) + ella(小)",
-    "desc": "→ 小影子 = 伞"
-  },
-  {
-    "icon": "✏️",
-    "title": "society = soci(同伴) + ety(状态)",
-    "desc": "→ 同伴的集合 = 社会"
-  }
-];
-window.pipeData_block5 = [];
-window.barData_block6 = [
-  {
-    "label": "第一类：识别词根",
-    "width": 40,
-    "value": "直接在单词中找出词根并说出含义",
-    "color": "success"
-  },
-  {
-    "label": "第二类：说文解字（明显）",
-    "width": 60,
-    "value": "词义与词根含义关系一目了然",
-    "color": "success"
-  },
-  {
-    "label": "第三类：说文解字（隐晦）",
-    "width": 80,
-    "value": "需要查找文化背景才能理解词义跳跃",
-    "color": "warning"
-  },
-  {
-    "label": "第四类：原著实战",
-    "width": 95,
-    "value": "在真实语境中识别并分析多个词根",
-    "color": "danger"
+    "title": "回归缺失",
+    "desc": "证据极端性完全保留——预测与证据一样极端",
+    "icon": "⚠️"
   }
 ];
 
@@ -730,46 +619,6 @@ function toggleQuiz(card) {
 })();
 
 /* ── Block JS (injected per block) ── */
-
-// Block: bar-chart
-(function() {
-    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
-        const blockId = container.id.replace('barChart-', '');
-        const dataVar = window['barData_' + blockId];
-        if (!dataVar) return;
-        dataVar.forEach(bar => {
-            const div = document.createElement('div');
-            div.className = 'bar-row fade-in';
-            const colorClass = bar.warning ? 'danger' : 'success';
-            div.innerHTML = `
-                <div class="bar-label">${bar.label}</div>
-                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
-                <div class="bar-value">${bar.value || ''}</div>`;
-            container.appendChild(div);
-        });
-    });
-})();
-
-
-// Block: tips-grid
-(function() {
-    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
-        const blockId = container.id.replace('tipsGrid-', '');
-        const dataVar = window['tipsData_' + blockId];
-        if (!dataVar) return;
-        dataVar.forEach(tip => {
-            const div = document.createElement('div');
-            div.className = 'tip-card fade-in';
-            div.innerHTML = `
-                <div class="tip-icon">${tip.icon || '💡'}</div>
-                <div class="tip-title">${tip.title}</div>
-                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
-                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
-            container.appendChild(div);
-        });
-    });
-})();
-
 
 // Block: pipeline
 (function() {

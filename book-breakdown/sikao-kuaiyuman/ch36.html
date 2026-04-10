@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Part 3 综合练习：词根实战训练场 · Part 3 Comprehensive Exercises: Root Analysis in Action | Chapter 21</title>
+<title>人生是个故事 · Life as a Story | Chapter 36</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -137,6 +137,25 @@ section { padding: 80px 0; }
 
 /* ── Block CSS (injected per block) ── */
 
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent3-rgb),0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
+
+
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
+
+
 /* Block: comparison */
 .comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
 .comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
@@ -151,33 +170,6 @@ section { padding: 80px 0; }
 .comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
 .comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
 @media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
-
-
-/* Block: pipeline */
-.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
-.pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(var(--accent-rgb),0.3); }
-.pipe-node.highlight { background: linear-gradient(135deg, var(--accent2), #ef4444); }
-.pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
-.pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
-@media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
-
-
-/* Block: tips-grid */
-.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
-.tip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
-.tip-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
-.tip-card:hover::before { transform: scaleX(1); }
-.tip-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
-.tip-icon { font-size: 2rem; margin-bottom: 12px; }
-.tip-title { font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
-.tip-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
-.tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
-
-
-/* Block: insight-box */
-.insight-box { background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent3-rgb),0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
-.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
-.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
 
 
 /* Block: bar-chart */
@@ -259,10 +251,10 @@ section { padding: 80px 0; }
 <!-- ── Hero ── -->
 <section class="hero" id="sec-hero">
     <div class="hero-content">
-        <div class="hero-chapter">Chapter 21 / 22 · Part III · 330个常用词根简介 330 Common Roots Overview</div>
-        <div class="hero-icon">🏋️</div>
-        <h1 class="hero-title">Part 3 综合练习：词根实战训练场</h1>
-        <p class="hero-sub">330个词根不是用来「看」的，而是用来「拆」的——在练习中把词根知识转化为拆词直觉</p>
+        <div class="hero-chapter">Chapter 36 / 38 · Part V · 两个自我 — 体验自我与记忆自我的分裂</div>
+        <div class="hero-icon">📖</div>
+        <h1 class="hero-title">人生是个故事</h1>
+        <p class="hero-sub">We care about narrative endings, not cumulative durations — the remembering self writes our life story</p>
     </div>
     <div class="scroll-hint">
         <span></span>
@@ -287,64 +279,76 @@ section { padding: 80px 0; }
     </section>
 
     <!-- ── Sections (assembled from blocks) ── -->
-    <!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+    <!-- Block: analogy — 2-column comparison card -->
 <section id="sec-block1" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第一类练习：识别词根及含义</div>
-    <div class="tips-grid" id="tipsGrid-block1"></div>
+    <div class="section-title">茶花女的启示：故事的结局 vs 时间的流逝</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">⏱️</div>
+            <div class="analogy-label">时间视角（体验自我）</div>
+            <div class="analogy-desc">维奥莱塔27岁还是28岁去世——这意味着少了一整年的幸福
+如果最后重聚了一周而非10分钟——多出了更多快乐时光
+歌剧的精彩部分持续了多久？越长越好
+人生的快乐总量 = 快乐时光的累积之和</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">📖</div>
+            <div class="analogy-label">故事视角（记忆自我）</div>
+            <div class="analogy-desc">维奥莱塔活了27年还是28年——完全不重要
+重聚一周还是10分钟——情感反应不变
+关键只有一个：爱人是否在她死前赶到？
+人生的评价 = 关键时刻 + 结局质量</div>
+        </div>
+    </div>
+    
 </section>
 
-<!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+<!-- Block: bar-chart — Horizontal bar chart -->
 <section id="sec-block2" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第二类练习：一目了然的说文解字</div>
-    <div class="tips-grid" id="tipsGrid-block2"></div>
+    <div class="section-title">珍的人生实验：「少即是多」令人震惊</div>
+    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
+    <div class="bar-chart" id="barChart-block2"></div>
 </section>
 
 <!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
 <section id="sec-block3" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第三类练习：词义跳跃的文化密码</div>
+    <div class="section-title">健忘的假期：你为谁而活？</div>
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
+            <div class="comparison-label">为体验自我而活</div>
             <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-text">假期照常安排，享受每一刻
+重游曾经的快乐之地
+最大化当下的感受
+不需要拍照或创造故事
+像对待失忆的陌生人一样对待自己</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
+            <div class="comparison-label">为记忆自我而活</div>
             <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-text">消除记忆大幅降低假期价值
+不愿意为健忘的假期付同样的钱
+不会去爬山或徒步——这些只为记忆而忍受痛苦
+拍照是为了设计未来的记忆
+「难忘」是假期的核心价值标准</div>
         </div>
     </div>
-    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">词义从词根含义到现代用法的跳跃，背后往往藏着一段文化故事。学会追踪这些故事，不仅加深记忆，还能让词汇学习变成一场文化探险。</div></div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">多数人表示消除记忆会大幅降低体验的价值。面对痛苦的失忆手术，大多数人对体验自我的痛苦漠不关心——「我是我的记忆自我，那个体验人生的体验自我犹如陌生人。」</div></div>
 </section>
 
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block4" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">📜 林肯葛底斯堡演说中的词根</div>
-        <div class="insight-content"></div>
+        <div class="insight-title">📝 </div>
+        <div class="insight-content">我们不只是用故事评价自己的人生——也用它评价他人。一位与女儿断联的母亲去世，我们关心的是她们是否和解了。一位科学家的重要发现在身后被推翻，我们为她感到遗憾——即使她从未体验过这种遗憾。一位丈夫生前深信妻子忠贞，我们听说妻子有情人时会同情他——即使他生前过着幸福的生活。我们关注的是故事的质量，而非感受的质量。我们非常在意自己的人生叙事，渴望活得体面、结局美好。</div>
     </div>
-</section>
-
-<!-- Block: pipeline — Flow diagram with connected nodes -->
-<section id="sec-block5" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">拆词三步法实操</div>
-    <div class="pipeline-flow" id="pipeline-block5"></div>
-    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;"></div>
-</section>
-
-<!-- Block: bar-chart — Horizontal bar chart -->
-<section id="sec-block6" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">四类练习的难度递增</div>
-    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
-    <div class="bar-chart" id="barChart-block6"></div>
 </section>
 
 
@@ -393,198 +397,89 @@ const feynmanSteps = [
   {
     "step": 1,
     "title": "选择概念",
-    "desc": "第三部分练习分为四大题型：1）识别词根并说出含义；2）对词义与词根关系明显的词进行「说文解字」；3）探究词义与词根含义相距较远的词的文化背景；4）在英文原著段落中识别和分析词根。"
+    "desc": "为什么我们在评价人生时更在意结局而非时长？峰终定律和时长忽视如何影响对整个人生的评价？「健忘的假期」思维实验揭示了什么？我们用多少时间为体验自我而活，又有多少是为记忆自我？"
   },
   {
     "step": 2,
-    "title": "讲给外行听",
-    "desc": "这就像一场词根的「实弹演习」。前面学了450个词根理论，现在要把它们用在真实单词上。就像学了武术套路之后的实战对练——不是比划比划就行，而是要真的能拆、能猜、能验证。"
+    "title": "以教代学",
+    "desc": "看《茶花女》时，我们紧张地关注：年轻的爱人会及时赶到吗？如果他迟了10分钟，故事就完全不同了。但如果我被告知维奥莱塔去世时27岁而非28岁——少了整整一年的幸福——我竟然不会动容。故事围绕重大事件和难忘时刻展开，与时间流逝无关。这就是记忆自我的运作方式：它编写故事，结局决定一切。"
   },
   {
     "step": 3,
-    "title": "找出漏洞",
-    "desc": "练习暴露了三个常见问题：一是词根含义和现代词义之间的跳跃（如mirror来自mir「惊异」，因为古人觉得镜子里的影像令人惊异）；二是同根词的词形变化规律（元音弱化、辅音同化）；三是前缀变体的识别（ad-在不同辅音前变成ac-, af-, ag-等）。"
+    "title": "查漏补缺",
+    "desc": "迪纳的实验更令人震惊：珍度过了30年或60年的幸福人生——寿命翻倍不影响人们对其幸福感的评价（时长忽视）。更不可思议的是，在非常幸福的人生后加上5年「还算幸福」的时光，反而降低了整体评价（少即是多效应）。绝大多数受试者认为多出的5年让人生变得更糟——即使在被试内实验中也是如此。"
   },
   {
     "step": 4,
-    "title": "简化再简化",
-    "desc": "拆词三步法：1）从后往前切——先认后缀定词性；2）从前往后切——再认前缀定方向；3）中间剩下的就是词根——查表定核心含义。"
+    "title": "简化精炼",
+    "desc": "我们把人生看作故事：巅峰和结尾决定评价，时长被忽视。做决策的是记忆自我——我们根据期望存储的记忆来计划假期、评价人生、做出选择。「健忘的假期」实验揭示：如果记忆会被抹去，体验的价值大幅缩水。我是我的记忆自我，那个体验人生的体验自我却犹如陌生人。"
   }
 ];
 const takeaways = [
   {
-    "icon": "🔍",
-    "title": "识别词根是基础",
-    "text": "第一类练习训练最基本的能力：在单词中快速定位词根。aggregation→greg、capitation→capit、cosmonaut→cosm+naut。"
+    "icon": "📖",
+    "title": "人生被当作故事来评价",
+    "text": "故事围绕重大事件和难忘时刻展开，与时间流逝无关。维奥莱塔活了27年还是28年不重要，重要的是爱人是否在她死前赶到。"
   },
   {
-    "icon": "✏️",
-    "title": "说文解字是核心",
-    "text": "第二类练习巩固「前缀+词根+后缀」的拆解公式。agriculture = agr(田) + culture(耕种) = 农业。"
+    "icon": "⏱️",
+    "title": "时长忽视适用于整个人生",
+    "text": "珍的寿命翻倍不影响幸福评价；在极幸福人生后加上5年「还算幸福」的时光反而降低评价——人们用典型的时间片段而非总和来评价人生。"
   },
   {
-    "icon": "🔮",
-    "title": "文化背景是进阶",
-    "text": "第三类练习揭示词义跳跃：mirror（镜子）←mir（惊异）：古人惊异于镜中倒影。这些故事让词根记忆从枯燥变有趣。"
+    "icon": "📸",
+    "title": "记忆自我掌控假期决策",
+    "text": "我们根据期望存储的记忆来计划假期。「难忘」是旅游的核心价值标准。如果所有记忆都将被抹去，多数人不愿支付同样的价格。"
   },
   {
-    "icon": "📜",
-    "title": "原著实战是终极",
-    "text": "第四类练习证明：在马克思、培根、林肯、丘吉尔、奥威尔、狄更斯的文章中，你的词根知识大有用武之地。"
+    "icon": "👻",
+    "title": "体验自我是「陌生人」",
+    "text": "面对失忆手术的思维实验，多数人对体验自我的痛苦漠不关心——「我是记忆自我，体验自我犹如陌生人」——这揭示了记忆自我的绝对主导地位。"
   },
   {
-    "icon": "🏋️",
-    "title": "三步拆词法",
-    "text": "从后切后缀（定词性）→ 从前切前缀（定方向）→ 中间即词根（定核心义）。反复练习直到形成直觉。"
+    "icon": "🔚",
+    "title": "结局决定故事的特色",
+    "text": "无论是歌剧、人生还是婚姻，结局的质量对整体评价有决定性影响。「晚节不保」之所以可怕，是因为它会改写整个人生叙事。"
   }
 ];
 const quiz = [
   {
     "id": "q1",
-    "question": "请对 quintessence（精髓）进行完整的「说文解字」分析，包括词根含义和文化背景。",
-    "answer": "quintessence = quint（五）+ ess（存在）+ -ence（名词后缀）。字面义是「第五存在/第五要素」。文化背景：亚里士多德认为构成世界的基本元素有四个（土、水、火、气），而天体由更纯净的「第五元素」（拉丁语 quinta essentia）构成。因此quintessence引申为「最精纯的部分」→「精髓；完美典范」。"
+    "question": "为什么维奥莱塔少活一年不令人动容，但爱人迟到10分钟就会改变整个故事？",
+    "answer": "因为记忆自我按照叙事规则（而非时间累积）来评价经历。故事围绕重大事件和转折时刻展开——是否在死前重聚是决定故事走向的关键时刻。一年的幸福只是「更多同样的时间」，不会改变叙事结构。但最后10分钟是故事的高潮和结局，决定了整个叙事的特色。这与峰终定律一致：巅峰和结尾的分量远大于其他时刻。"
   },
   {
     "id": "q2",
-    "question": "解释为什么 rival（竞争者）和 river（河流）有关系？词根 riv 是如何连接这两个含义的？",
-    "answer": "riv = 河流（拉丁语 rivus）。rival 的字面义是「共用同一条河流（灌溉水源）的人」。在古罗马农业社会，两家人如果共用同一条灌溉水渠，就不可避免地会为水源分配产生争执，所以「同河人」变成了「竞争对手」。这是一个从具体（共享河流）到抽象（竞争关系）的语义演变典例。"
+    "question": "迪纳的「珍的人生」实验中最令人震惊的发现是什么？为什么研究者一开始以为受试者是愚蠢的？",
+    "answer": "最令人震惊的是「少即是多」效应：在非常幸福的人生后加上5年还算幸福的时光，反而降低了整体幸福评价——甚至在被试内实验中（同一人比较两个版本）也是如此。研究者一开始以为受试者是愚蠢的，但当受试者的父母和年长朋友回答同样问题时，模式不变。这不是愚蠢，而是系统1用平均值（原型）替代总和的固有特征——多出的「还算幸福」稀释了人生叙事的平均质量。"
   },
   {
     "id": "q3",
-    "question": "在林肯葛底斯堡演说的开头句中，找出至少5个包含拉丁/希腊词根的词，并分析它们的词根。",
-    "answer": "1) continent = con-（共同）+ tin（持有）→ 连在一起的大陆；2) nation = nat（出生）→ 同一出生地的人 = 国家；3) conceived = con-（共同）+ ceiv（取、拿）→ 构想；4) liberty = liber（自由）→ 自由；5) dedicated = de-（加强）+ dic（说、宣告）→ 奉献；6) proposition = pro-（向前）+ posit（放置）→ 命题；7) equal = equ（平等）→ 平等的。几乎每个关键词都有一个古典词根在支撑。"
-  },
-  {
-    "id": "q4",
-    "question": "请用「拆词三步法」分析 ostracism（放逐）的构词过程和文化背景。",
-    "answer": "① 后缀：-ism = 主义/制度/行为；② 前缀：无明显前缀；③ 词根：ostrac = 贝壳/碎陶片（希腊语 ostrakon）。字面义：「碎陶片制度」。文化背景：古希腊雅典民主制度中，全体公民用陶片投票决定是否将某人驱逐出城邦5-10年。每人在碎陶片上写下想要放逐的人名，票数超过6000则执行流放。所以「碎陶片行为」→「放逐；排斥」。现代英语中ostracize表示「排斥某人」。"
-  },
-  {
-    "id": "q5",
-    "question": "为什么 hydrogen（氢）的字面意思是「生成水的元素」？请用词根分析解释。",
-    "answer": "hydrogen = hydr（水，希腊语hydor）+ gen（产生，希腊语genos）= 生成水的元素。18世纪化学家拉瓦锡发现氢气燃烧后生成水，因此用希腊词根命名为hydrogen——「产水者」。同理：oxygen = oxy（酸）+ gen = 产酸者（拉瓦锡误以为氧是所有酸的共同成分）；nitrogen = nitr（硝石）+ gen = 产硝石者。这三个元素名完美展示了希腊词根在科学命名中的地位。"
+    "question": "「健忘的假期」思维实验揭示了我们对体验自我的什么态度？",
+    "answer": "多数人表示，如果假期结束后所有记忆和照片都被销毁，假期的价值会大幅缩水。有些人说根本不愿意去。这揭示了：1）我们主要为记忆自我而活，体验自我的感受几乎不被重视；2）很多活动（如爬山、徒步）本身体验痛苦，完全靠「事后回忆」获得价值；3）我们对体验自我的态度就像对待一个失忆的陌生人——漠不关心。旅游的核心是构建故事和收集记忆，而非当下的感官享受。"
   }
 ];
-const preQuiz = [
+const chapterNav = {"prev": {"num": 35, "title": "两个自我", "href": "ch35.html"}, "next": {"num": 37, "title": "体验幸福", "href": "ch37.html"}};
+window.barData_block2 = [
   {
-    "question": "如果你在阅读英文原著时遇到一个生词，你第一反应是查词典，还是先尝试用词根词缀分析它？",
-    "hint": "想想哪种方式更有助于长期记忆"
+    "label": "30年极幸福",
+    "value": 80,
+    "color": "#6c63ff"
   },
   {
-    "question": "你认为 mirror（镜子）和 miracle（奇迹）之间有什么联系？",
-    "hint": "它们看起来像不像同族词？找找共同的字母序列"
-  }
-];
-const chapterNav = {"prev": {"num": 20, "title": "常用词根 G-P", "href": "ch20.html"}, "next": {"num": 22, "title": "综合练习与复习", "href": "ch22.html"}};
-window.tipsData_block1 = [
-  {
-    "icon": "🔍",
-    "title": "aggregation → greg = 群",
-    "desc": "ag-(=ad-) + greg(群) + -ation(名词) = 聚集物"
+    "label": "30+5年还算幸福",
+    "value": 65,
+    "color": "#ff6b6b"
   },
   {
-    "icon": "🔍",
-    "title": "armament → arm = 武装",
-    "desc": "arm(武装) + -ament(名词) = 军备；装备"
+    "label": "60年极幸福",
+    "value": 80,
+    "color": "#6c63ff"
   },
   {
-    "icon": "🔍",
-    "title": "capitation → capit = 头",
-    "desc": "capit(头) + -ation(名词) = 人头税（按「头」收税）"
-  },
-  {
-    "icon": "🔍",
-    "title": "cosmonaut → cosm = 宇宙",
-    "desc": "cosm(宇宙) + -o- + naut(水手) = 宇宙水手 = 宇航员"
-  },
-  {
-    "icon": "🔍",
-    "title": "denominate → nomin = 名字",
-    "desc": "de-(加强) + nomin(名) + -ate(动词) = 给…命名"
-  },
-  {
-    "icon": "🔍",
-    "title": "demonstrate → monstr = 显示",
-    "desc": "de-(加强) + monstr(显示) + -ate(动词) = 论证，表明"
-  },
-  {
-    "icon": "🔍",
-    "title": "heritage → her = 继承",
-    "desc": "her(继承) + -it- + -age(名词) = 遗产；传统"
-  },
-  {
-    "icon": "🔍",
-    "title": "pseudonym → onym = 名字",
-    "desc": "pseud(假) + -o- + nym(名) = 假名；笔名"
-  }
-];
-window.tipsData_block2 = [
-  {
-    "icon": "✏️",
-    "title": "aerology = aer(空气) + logy(学)",
-    "desc": "→ 大气学，气象学"
-  },
-  {
-    "icon": "✏️",
-    "title": "agriculture = agr(田) + culture(耕种)",
-    "desc": "→ 农业"
-  },
-  {
-    "icon": "✏️",
-    "title": "triangle = tri(三) + angl(角)",
-    "desc": "→ 三角形"
-  },
-  {
-    "icon": "✏️",
-    "title": "dentist = dent(齿) + ist(人)",
-    "desc": "→ 牙医"
-  },
-  {
-    "icon": "✏️",
-    "title": "telephone = tele(远) + phon(声)",
-    "desc": "→ 远声 = 电话"
-  },
-  {
-    "icon": "✏️",
-    "title": "computer = com(全面) + put(想) + er(物)",
-    "desc": "→ 全面计算的机器 = 计算机"
-  },
-  {
-    "icon": "✏️",
-    "title": "umbrella = umbr(影) + ella(小)",
-    "desc": "→ 小影子 = 伞"
-  },
-  {
-    "icon": "✏️",
-    "title": "society = soci(同伴) + ety(状态)",
-    "desc": "→ 同伴的集合 = 社会"
-  }
-];
-window.pipeData_block5 = [];
-window.barData_block6 = [
-  {
-    "label": "第一类：识别词根",
-    "width": 40,
-    "value": "直接在单词中找出词根并说出含义",
-    "color": "success"
-  },
-  {
-    "label": "第二类：说文解字（明显）",
-    "width": 60,
-    "value": "词义与词根含义关系一目了然",
-    "color": "success"
-  },
-  {
-    "label": "第三类：说文解字（隐晦）",
-    "width": 80,
-    "value": "需要查找文化背景才能理解词义跳跃",
-    "color": "warning"
-  },
-  {
-    "label": "第四类：原著实战",
-    "width": 95,
-    "value": "在真实语境中识别并分析多个词根",
-    "color": "danger"
+    "label": "60+5年还算幸福",
+    "value": 65,
+    "color": "#ff6b6b"
   }
 ];
 
@@ -746,57 +641,6 @@ function toggleQuiz(card) {
                 <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
                 <div class="bar-value">${bar.value || ''}</div>`;
             container.appendChild(div);
-        });
-    });
-})();
-
-
-// Block: tips-grid
-(function() {
-    document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
-        const blockId = container.id.replace('tipsGrid-', '');
-        const dataVar = window['tipsData_' + blockId];
-        if (!dataVar) return;
-        dataVar.forEach(tip => {
-            const div = document.createElement('div');
-            div.className = 'tip-card fade-in';
-            div.innerHTML = `
-                <div class="tip-icon">${tip.icon || '💡'}</div>
-                <div class="tip-title">${tip.title}</div>
-                <div class="tip-desc">${tip.text || tip.desc || ''}</div>
-                ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
-            container.appendChild(div);
-        });
-    });
-})();
-
-
-// Block: pipeline
-(function() {
-    document.querySelectorAll('[id^="pipeline-"]').forEach(container => {
-        const blockId = container.id.replace('pipeline-', '');
-        const dataVar = window['pipeData_' + blockId];
-        if (!dataVar) return;
-        const pipeData = dataVar;
-        pipeData.forEach((node, i) => {
-            if (i > 0) {
-                const arrow = document.createElement('div');
-                arrow.className = 'pipe-arrow';
-                arrow.textContent = '→';
-                container.appendChild(arrow);
-            }
-            const wrapper = document.createElement('div');
-            const nodeDiv = document.createElement('div');
-            nodeDiv.className = 'pipe-node' + (node.bottleneck ? ' highlight' : '');
-            nodeDiv.textContent = node.cmd || node.name || '';
-            wrapper.appendChild(nodeDiv);
-            if (node.annotation || node.data) {
-                const dataDiv = document.createElement('div');
-                dataDiv.className = 'pipe-data';
-                dataDiv.textContent = node.annotation || node.data;
-                wrapper.appendChild(dataDiv);
-            }
-            container.appendChild(wrapper);
         });
     });
 })();

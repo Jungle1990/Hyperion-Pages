@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Part 3 综合练习：词根实战训练场 · Part 3 Comprehensive Exercises: Root Analysis in Action | Chapter 21</title>
+<title>小数定律 · The Law of Small Numbers | Chapter 10</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -137,29 +137,23 @@ section { padding: 80px 0; }
 
 /* ── Block CSS (injected per block) ── */
 
-/* Block: comparison */
-.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
-.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
-.comparison-side:hover { transform: scale(1.03); }
-.comparison-side.hard { border-color: var(--danger); }
-.comparison-side.smart { border-color: var(--success); }
-.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
-.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
-.comparison-side.hard .comparison-label { color: var(--danger); }
-.comparison-side.smart .comparison-label { color: var(--success); }
-.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
-.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
-.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
-@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+/* Block: insight-box */
+.insight-box { background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent3-rgb),0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
+.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
 
 
-/* Block: pipeline */
-.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
-.pipe-node { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(var(--accent-rgb),0.3); }
-.pipe-node.highlight { background: linear-gradient(135deg, var(--accent2), #ef4444); }
-.pipe-arrow { color: var(--accent3); font-size: 1.5rem; }
-.pipe-data { text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.3rem; }
-@media (max-width: 768px) { .pipeline-flow { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
+/* Block: analogy */
+.analogy-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.analogy-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; text-align: center; transition: all 0.3s; }
+.analogy-side:hover { transform: scale(1.02); }
+.analogy-side.left { border-color: var(--accent3); }
+.analogy-side.right { border-color: var(--accent); }
+.analogy-icon { font-size: 3rem; margin-bottom: 12px; }
+.analogy-label { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.analogy-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.analogy-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .analogy-compare { grid-template-columns: 1fr; } .analogy-vs { transform: rotate(90deg); } }
 
 
 /* Block: tips-grid */
@@ -174,23 +168,20 @@ section { padding: 80px 0; }
 .tip-example { font-size: 0.75rem; color: var(--accent3); margin-top: 8px; font-family: var(--font-mono); }
 
 
-/* Block: insight-box */
-.insight-box { background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent3-rgb),0.1)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.5rem 2rem; margin: 1rem 0; }
-.insight-title { font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
-.insight-content { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; }
-
-
-/* Block: bar-chart */
-.bar-chart { display: flex; flex-direction: column; gap: 12px; }
-.bar-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 1rem; }
-.bar-label { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; color: var(--text-dim); }
-.bar-track { height: 32px; background: rgba(var(--text-rgb),0.03); border-radius: 0.5rem; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 0.5rem; display: flex; align-items: center; padding-left: 0.75rem; font-size: 0.75rem; font-family: var(--font-mono); color: #fff; transition: width 1.5s ease-out; }
-.bar-fill.success { background: linear-gradient(90deg, var(--accent3), #2dd4bf); }
-.bar-fill.danger { background: linear-gradient(90deg, var(--accent2), #ef4444); }
-.bar-fill.neutral { background: linear-gradient(90deg, var(--accent), #8b5cf6); }
-.bar-fill.warning { background: linear-gradient(90deg, var(--accent4), var(--warning)); }
-.bar-value { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; }
+/* Block: comparison */
+.comparison-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 2rem 0; }
+.comparison-side { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: all 0.4s; }
+.comparison-side:hover { transform: scale(1.03); }
+.comparison-side.hard { border-color: var(--danger); }
+.comparison-side.smart { border-color: var(--success); }
+.comparison-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.comparison-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+.comparison-side.hard .comparison-label { color: var(--danger); }
+.comparison-side.smart .comparison-label { color: var(--success); }
+.comparison-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.comparison-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+.comparison-vs { font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent4); font-weight: 700; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
 
 
 /* ── Responsive ── */
@@ -259,10 +250,10 @@ section { padding: 80px 0; }
 <!-- ── Hero ── -->
 <section class="hero" id="sec-hero">
     <div class="hero-content">
-        <div class="hero-chapter">Chapter 21 / 22 · Part III · 330个常用词根简介 330 Common Roots Overview</div>
-        <div class="hero-icon">🏋️</div>
-        <h1 class="hero-title">Part 3 综合练习：词根实战训练场</h1>
-        <p class="hero-sub">330个词根不是用来「看」的，而是用来「拆」的——在练习中把词根知识转化为拆词直觉</p>
+        <div class="hero-chapter">Chapter 10 / 38 · Part II · 启发式与偏差 — 直觉判断为何系统性出错</div>
+        <div class="hero-icon">🎲</div>
+        <h1 class="hero-title">小数定律</h1>
+        <p class="hero-sub">We see patterns where only randomness exists — small samples produce extreme results, and our causal minds cannot resist inventing explanations for them</p>
     </div>
     <div class="scroll-hint">
         <span></span>
@@ -287,64 +278,61 @@ section { padding: 80px 0; }
     </section>
 
     <!-- ── Sections (assembled from blocks) ── -->
-    <!-- Block: tips-grid — Grid of tip/maxim/story cards -->
+    <!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
 <section id="sec-block1" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第一类练习：识别词根及含义</div>
-    <div class="tips-grid" id="tipsGrid-block1"></div>
+    <div class="section-title">肾癌悖论：小样本的双面陷阱</div>
+    <div class="comparison-grid">
+        <div class="comparison-side smart">
+            <div class="comparison-icon">📉</div>
+            <div class="comparison-label">发病率最低的郡</div>
+            <div class="comparison-title">农村→健康生活方式？</div>
+            <div class="comparison-text">肾癌发病率最低的郡大多在人口稀少的农村。系统1立刻构建因果故事：没有污染、食物新鲜——这听起来很有道理。</div>
+        </div>
+        <div class="comparison-vs">VS</div>
+        <div class="comparison-side hard">
+            <div class="comparison-icon">📈</div>
+            <div class="comparison-label">发病率最高的郡</div>
+            <div class="comparison-title">农村→贫困生活方式？</div>
+            <div class="comparison-text">发病率最高的郡也大多在人口稀少的农村！系统1再次编造因果故事：医疗条件差、高脂饮食、酗酒吸烟。</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">农村生活方式不可能同时解释最高和最低发病率。真正的原因是「人口少」=小样本=更多极端结果。这不是因果解释，而是数学事实。</div></div>
+</section>
+
+<!-- Block: analogy — 2-column comparison card -->
+<section id="sec-block2" class="fade-in">
+    <div class="section-tag"></div>
+    <div class="section-title">弹珠罐：理解小样本为何产生极端结果</div>
+    <div class="analogy-compare">
+        <div class="analogy-side left">
+            <div class="analogy-icon">🔴</div>
+            <div class="analogy-label">杰克：每次取4颗</div>
+            <div class="analogy-desc">从红白各半的罐子中每次取4颗弹珠。取到全部同色（4红或4白）的概率为12.5%——每8次就有一次极端结果。</div>
+        </div>
+        <div class="analogy-vs">⟺</div>
+        <div class="analogy-side right">
+            <div class="analogy-icon">🔵</div>
+            <div class="analogy-label">吉尔：每次取7颗</div>
+            <div class="analogy-desc">同一个罐子每次取7颗。取到全部同色的概率仅为1.56%——每64次才有一次极端结果。杰克出现极端结果的频率是吉尔的8倍。</div>
+        </div>
+    </div>
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">这不是因果关系，而是数学事实：小样本比大样本更频繁地产生极端结果。美国各郡就像不同大小的取样——人口少的郡就是杰克，更容易出现异常的高或低发病率。</div></div>
 </section>
 
 <!-- Block: tips-grid — Grid of tip/maxim/story cards -->
-<section id="sec-block2" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">第二类练习：一目了然的说文解字</div>
-    <div class="tips-grid" id="tipsGrid-block2"></div>
-</section>
-
-<!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
 <section id="sec-block3" class="fade-in">
     <div class="section-tag"></div>
-    <div class="section-title">第三类练习：词义跳跃的文化密码</div>
-    <div class="comparison-grid">
-        <div class="comparison-side hard">
-            <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
-        </div>
-        <div class="comparison-vs">VS</div>
-        <div class="comparison-side smart">
-            <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
-        </div>
-    </div>
-    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">词义从词根含义到现代用法的跳跃，背后往往藏着一段文化故事。学会追踪这些故事，不仅加深记忆，还能让词汇学习变成一场文化探险。</div></div>
+    <div class="section-title">「热手」谬误与随机性的认知错觉</div>
+    <div class="tips-grid" id="tipsGrid-block3"></div>
 </section>
 
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block4" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">📜 林肯葛底斯堡演说中的词根</div>
-        <div class="insight-content"></div>
+        <div class="insight-title">🏫 小学校既是最好的也是最差的</div>
+        <div class="insight-content">研究发现最成功的学校规模都很小，盖茨基金会投入约17亿美元推广小学校。但如果研究者问最差的学校有什么特征，他们会发现差学校也往往规模小。小学校不是教育水平更高，只是变异性更大——这与肾癌郡县是完全相同的统计假象。大学校反而成绩更好，因为它们能提供更多种类的课程。</div>
     </div>
-</section>
-
-<!-- Block: pipeline — Flow diagram with connected nodes -->
-<section id="sec-block5" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">拆词三步法实操</div>
-    <div class="pipeline-flow" id="pipeline-block5"></div>
-    <div class="pipeline-caption" style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:1rem;"></div>
-</section>
-
-<!-- Block: bar-chart — Horizontal bar chart -->
-<section id="sec-block6" class="fade-in">
-    <div class="section-tag"></div>
-    <div class="section-title">四类练习的难度递增</div>
-    <p class="chart-baseline" style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1.5rem;"></p>
-    <div class="bar-chart" id="barChart-block6"></div>
 </section>
 
 
@@ -393,198 +381,90 @@ const feynmanSteps = [
   {
     "step": 1,
     "title": "选择概念",
-    "desc": "第三部分练习分为四大题型：1）识别词根并说出含义；2）对词义与词根关系明显的词进行「说文解字」；3）探究词义与词根含义相距较远的词的文化背景；4）在英文原著段落中识别和分析词根。"
+    "desc": "小样本的极端结果、对样本量的不敏感、因果思维vs统计思维"
   },
   {
     "step": 2,
-    "title": "讲给外行听",
-    "desc": "这就像一场词根的「实弹演习」。前面学了450个词根理论，现在要把它们用在真实单词上。就像学了武术套路之后的实战对练——不是比划比划就行，而是要真的能拆、能猜、能验证。"
+    "title": "以教代学",
+    "desc": "肾癌郡县悖论展示小样本假象；弹珠罐实验解释杰克vs吉尔的极端结果差异"
   },
   {
     "step": 3,
-    "title": "找出漏洞",
-    "desc": "练习暴露了三个常见问题：一是词根含义和现代词义之间的跳跃（如mirror来自mir「惊异」，因为古人觉得镜子里的影像令人惊异）；二是同根词的词形变化规律（元音弱化、辅音同化）；三是前缀变体的识别（ad-在不同辅音前变成ac-, af-, ag-等）。"
+    "title": "查漏补缺",
+    "desc": "「热手」谬误适用于篮球也适用于投资——随机性看起来像规律是普遍的认知错觉"
   },
   {
     "step": 4,
-    "title": "简化再简化",
-    "desc": "拆词三步法：1）从后往前切——先认后缀定词性；2）从前往后切——再认前缀定方向；3）中间剩下的就是词根——查表定核心含义。"
+    "title": "简化精炼",
+    "desc": "系统1盲信小数定律——根据少量观察构建过度自洽的现实表征，用因果故事解释统计假象"
   }
 ];
 const takeaways = [
   {
-    "icon": "🔍",
-    "title": "识别词根是基础",
-    "text": "第一类练习训练最基本的能力：在单词中快速定位词根。aggregation→greg、capitation→capit、cosmonaut→cosm+naut。"
+    "icon": "🎲",
+    "title": "小样本产生极端结果是数学事实",
+    "desc": "不需要因果解释——人口少的郡癌症发病率极高或极低，这只是抽样波动"
   },
   {
-    "icon": "✏️",
-    "title": "说文解字是核心",
-    "text": "第二类练习巩固「前缀+词根+后缀」的拆解公式。agriculture = agr(田) + culture(耕种) = 农业。"
+    "icon": "📊",
+    "title": "人们对样本量极不敏感",
+    "desc": "300人还是3000人的民调？除非数字荒谬，否则你的反应不会有太大差异"
   },
   {
-    "icon": "🔮",
-    "title": "文化背景是进阶",
-    "text": "第三类练习揭示词义跳跃：mirror（镜子）←mir（惊异）：古人惊异于镜中倒影。这些故事让词根记忆从枯燥变有趣。"
+    "icon": "🏀",
+    "title": "「热手」是最普遍的认知错觉之一",
+    "desc": "篮球、投资、CEO业绩——我们在随机性中看到规律并编造因果故事"
   },
   {
-    "icon": "📜",
-    "title": "原著实战是终极",
-    "text": "第四类练习证明：在马克思、培根、林肯、丘吉尔、奥威尔、狄更斯的文章中，你的词根知识大有用武之地。"
+    "icon": "🧠",
+    "title": "因果思维与统计思维根本冲突",
+    "desc": "系统1自动寻找原因，但统计事实改变概率而非提供原因——对偶然事件的因果解释必然是错的"
   },
   {
-    "icon": "🏋️",
-    "title": "三步拆词法",
-    "text": "从后切后缀（定词性）→ 从前切前缀（定方向）→ 中间即词根（定核心义）。反复练习直到形成直觉。"
+    "icon": "🏫",
+    "title": "盲信小数定律代价巨大",
+    "desc": "盖茨基金会花17亿美元推广小学校——基于的「证据」不过是小样本的统计假象"
   }
 ];
 const quiz = [
   {
-    "id": "q1",
-    "question": "请对 quintessence（精髓）进行完整的「说文解字」分析，包括词根含义和文化背景。",
-    "answer": "quintessence = quint（五）+ ess（存在）+ -ence（名词后缀）。字面义是「第五存在/第五要素」。文化背景：亚里士多德认为构成世界的基本元素有四个（土、水、火、气），而天体由更纯净的「第五元素」（拉丁语 quinta essentia）构成。因此quintessence引申为「最精纯的部分」→「精髓；完美典范」。"
+    "question": "为什么肾癌发病率最高和最低的郡都在人口稀少的农村？",
+    "answer": "这不是因果关系。人口少=小样本，小样本比大样本更频繁地产生极端结果（高或低发病率）。就像从弹珠罐中每次取4颗比取7颗更常出现全同色结果一样。农村生活方式不可能同时导致最高和最低发病率——真正的原因是统计学中的抽样变异。"
   },
   {
-    "id": "q2",
-    "question": "解释为什么 rival（竞争者）和 river（河流）有关系？词根 riv 是如何连接这两个含义的？",
-    "answer": "riv = 河流（拉丁语 rivus）。rival 的字面义是「共用同一条河流（灌溉水源）的人」。在古罗马农业社会，两家人如果共用同一条灌溉水渠，就不可避免地会为水源分配产生争执，所以「同河人」变成了「竞争对手」。这是一个从具体（共享河流）到抽象（竞争关系）的语义演变典例。"
+    "question": "卡尼曼和特沃斯基为什么将论文命名为《盲信小数定律》？",
+    "answer": "这是对大数定律的讽刺。大数定律说大样本趋近总体；但人们的直觉似乎认为小样本也能代表总体——即「小数定律」。他们的实验表明，连统计学教材的作者在选择样本量时也犯同样的错误，50%的研究因样本太小而无法证实正确假设。"
   },
   {
-    "id": "q3",
-    "question": "在林肯葛底斯堡演说的开头句中，找出至少5个包含拉丁/希腊词根的词，并分析它们的词根。",
-    "answer": "1) continent = con-（共同）+ tin（持有）→ 连在一起的大陆；2) nation = nat（出生）→ 同一出生地的人 = 国家；3) conceived = con-（共同）+ ceiv（取、拿）→ 构想；4) liberty = liber（自由）→ 自由；5) dedicated = de-（加强）+ dic（说、宣告）→ 奉献；6) proposition = pro-（向前）+ posit（放置）→ 命题；7) equal = equ（平等）→ 平等的。几乎每个关键词都有一个古典词根在支撑。"
+    "question": "为什么篮球「热手」研究的结论让几乎所有人难以接受？",
+    "answer": "因为在随机性中发现规律的倾向是不可抗拒的。连续投进三四个球时，因果思维自动形成判断：「这个球员手感很热」。但对数千次投篮序列的分析表明，投中和失误的顺序完全符合随机性检验。凯尔特人教练直接说「我根本不在乎」——这恰好证明了认知错觉的力量。"
   },
   {
-    "id": "q4",
-    "question": "请用「拆词三步法」分析 ostracism（放逐）的构词过程和文化背景。",
-    "answer": "① 后缀：-ism = 主义/制度/行为；② 前缀：无明显前缀；③ 词根：ostrac = 贝壳/碎陶片（希腊语 ostrakon）。字面义：「碎陶片制度」。文化背景：古希腊雅典民主制度中，全体公民用陶片投票决定是否将某人驱逐出城邦5-10年。每人在碎陶片上写下想要放逐的人名，票数超过6000则执行流放。所以「碎陶片行为」→「放逐；排斥」。现代英语中ostracize表示「排斥某人」。"
-  },
-  {
-    "id": "q5",
-    "question": "为什么 hydrogen（氢）的字面意思是「生成水的元素」？请用词根分析解释。",
-    "answer": "hydrogen = hydr（水，希腊语hydor）+ gen（产生，希腊语genos）= 生成水的元素。18世纪化学家拉瓦锡发现氢气燃烧后生成水，因此用希腊词根命名为hydrogen——「产水者」。同理：oxygen = oxy（酸）+ gen = 产酸者（拉瓦锡误以为氧是所有酸的共同成分）；nitrogen = nitr（硝石）+ gen = 产硝石者。这三个元素名完美展示了希腊词根在科学命名中的地位。"
+    "question": "盖茨基金会小学校投资的错误本质是什么？",
+    "answer": "研究发现最成功的学校规模小，但最差的学校也规模小。小学校不是教育质量更高，只是变异性更大——这是小样本效应的经典表现。人们为小学校的「成功」构建了因果故事（更多关注、更好鼓励），但这个故事毫无意义。约17亿美元的投资基于的是统计假象。"
   }
 ];
-const preQuiz = [
+const chapterNav = {"prev": {"num": 9, "title": "回答一个更简单的问题", "href": "ch09.html"}, "next": {"num": 11, "title": "锚定", "href": "ch11.html"}};
+window.tipsData_block3 = [
   {
-    "question": "如果你在阅读英文原著时遇到一个生词，你第一反应是查词典，还是先尝试用词根词缀分析它？",
-    "hint": "想想哪种方式更有助于长期记忆"
+    "icon": "🏀",
+    "title": "篮球热手不存在",
+    "desc": "对数千次投篮分析表明，投中和失误的顺序符合所有随机性检验——凯尔特人教练说「我根本不在乎」"
   },
   {
-    "question": "你认为 mirror（镜子）和 miracle（奇迹）之间有什么联系？",
-    "hint": "它们看起来像不像同族词？找找共同的字母序列"
-  }
-];
-const chapterNav = {"prev": {"num": 20, "title": "常用词根 G-P", "href": "ch20.html"}, "next": {"num": 22, "title": "综合练习与复习", "href": "ch22.html"}};
-window.tipsData_block1 = [
-  {
-    "icon": "🔍",
-    "title": "aggregation → greg = 群",
-    "desc": "ag-(=ad-) + greg(群) + -ation(名词) = 聚集物"
+    "icon": "👶",
+    "title": "婴儿性别序列",
+    "desc": "男男男女女女、女女女女女女、男女男男女男——三组概率完全相同，但只有第三组「看起来」随机"
   },
   {
-    "icon": "🔍",
-    "title": "armament → arm = 武装",
-    "desc": "arm(武装) + -ament(名词) = 军备；装备"
+    "icon": "💣",
+    "title": "伦敦轰炸",
+    "desc": "二战中人们认为轰炸点有规律，怀疑未炸区有间谍——统计分析证明是典型的随机分布"
   },
   {
-    "icon": "🔍",
-    "title": "capitation → capit = 头",
-    "desc": "capit(头) + -ation(名词) = 人头税（按「头」收税）"
-  },
-  {
-    "icon": "🔍",
-    "title": "cosmonaut → cosm = 宇宙",
-    "desc": "cosm(宇宙) + -o- + naut(水手) = 宇宙水手 = 宇航员"
-  },
-  {
-    "icon": "🔍",
-    "title": "denominate → nomin = 名字",
-    "desc": "de-(加强) + nomin(名) + -ate(动词) = 给…命名"
-  },
-  {
-    "icon": "🔍",
-    "title": "demonstrate → monstr = 显示",
-    "desc": "de-(加强) + monstr(显示) + -ate(动词) = 论证，表明"
-  },
-  {
-    "icon": "🔍",
-    "title": "heritage → her = 继承",
-    "desc": "her(继承) + -it- + -age(名词) = 遗产；传统"
-  },
-  {
-    "icon": "🔍",
-    "title": "pseudonym → onym = 名字",
-    "desc": "pseud(假) + -o- + nym(名) = 假名；笔名"
-  }
-];
-window.tipsData_block2 = [
-  {
-    "icon": "✏️",
-    "title": "aerology = aer(空气) + logy(学)",
-    "desc": "→ 大气学，气象学"
-  },
-  {
-    "icon": "✏️",
-    "title": "agriculture = agr(田) + culture(耕种)",
-    "desc": "→ 农业"
-  },
-  {
-    "icon": "✏️",
-    "title": "triangle = tri(三) + angl(角)",
-    "desc": "→ 三角形"
-  },
-  {
-    "icon": "✏️",
-    "title": "dentist = dent(齿) + ist(人)",
-    "desc": "→ 牙医"
-  },
-  {
-    "icon": "✏️",
-    "title": "telephone = tele(远) + phon(声)",
-    "desc": "→ 远声 = 电话"
-  },
-  {
-    "icon": "✏️",
-    "title": "computer = com(全面) + put(想) + er(物)",
-    "desc": "→ 全面计算的机器 = 计算机"
-  },
-  {
-    "icon": "✏️",
-    "title": "umbrella = umbr(影) + ella(小)",
-    "desc": "→ 小影子 = 伞"
-  },
-  {
-    "icon": "✏️",
-    "title": "society = soci(同伴) + ety(状态)",
-    "desc": "→ 同伴的集合 = 社会"
-  }
-];
-window.pipeData_block5 = [];
-window.barData_block6 = [
-  {
-    "label": "第一类：识别词根",
-    "width": 40,
-    "value": "直接在单词中找出词根并说出含义",
-    "color": "success"
-  },
-  {
-    "label": "第二类：说文解字（明显）",
-    "width": 60,
-    "value": "词义与词根含义关系一目了然",
-    "color": "success"
-  },
-  {
-    "label": "第三类：说文解字（隐晦）",
-    "width": 80,
-    "value": "需要查找文化背景才能理解词义跳跃",
-    "color": "warning"
-  },
-  {
-    "label": "第四类：原著实战",
-    "width": 95,
-    "value": "在真实语境中识别并分析多个词根",
-    "color": "danger"
+    "icon": "✈️",
+    "title": "以色列空军",
+    "desc": "两个中队一队损失4架另一队零损失。卡尼曼建议：承认运气，停止调查——别为随机结果制造罪恶感"
   }
 ];
 
@@ -731,26 +611,6 @@ function toggleQuiz(card) {
 
 /* ── Block JS (injected per block) ── */
 
-// Block: bar-chart
-(function() {
-    document.querySelectorAll('[id^="barChart-"]').forEach(container => {
-        const blockId = container.id.replace('barChart-', '');
-        const dataVar = window['barData_' + blockId];
-        if (!dataVar) return;
-        dataVar.forEach(bar => {
-            const div = document.createElement('div');
-            div.className = 'bar-row fade-in';
-            const colorClass = bar.warning ? 'danger' : 'success';
-            div.innerHTML = `
-                <div class="bar-label">${bar.label}</div>
-                <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${bar.pct}%">${bar.note || ''}</div></div>
-                <div class="bar-value">${bar.value || ''}</div>`;
-            container.appendChild(div);
-        });
-    });
-})();
-
-
 // Block: tips-grid
 (function() {
     document.querySelectorAll('[id^="tipsGrid-"]').forEach(container => {
@@ -766,37 +626,6 @@ function toggleQuiz(card) {
                 <div class="tip-desc">${tip.text || tip.desc || ''}</div>
                 ${tip.example ? '<div class="tip-example">' + tip.example + '</div>' : ''}`;
             container.appendChild(div);
-        });
-    });
-})();
-
-
-// Block: pipeline
-(function() {
-    document.querySelectorAll('[id^="pipeline-"]').forEach(container => {
-        const blockId = container.id.replace('pipeline-', '');
-        const dataVar = window['pipeData_' + blockId];
-        if (!dataVar) return;
-        const pipeData = dataVar;
-        pipeData.forEach((node, i) => {
-            if (i > 0) {
-                const arrow = document.createElement('div');
-                arrow.className = 'pipe-arrow';
-                arrow.textContent = '→';
-                container.appendChild(arrow);
-            }
-            const wrapper = document.createElement('div');
-            const nodeDiv = document.createElement('div');
-            nodeDiv.className = 'pipe-node' + (node.bottleneck ? ' highlight' : '');
-            nodeDiv.textContent = node.cmd || node.name || '';
-            wrapper.appendChild(nodeDiv);
-            if (node.annotation || node.data) {
-                const dataDiv = document.createElement('div');
-                dataDiv.className = 'pipe-data';
-                dataDiv.textContent = node.annotation || node.data;
-                wrapper.appendChild(dataDiv);
-            }
-            container.appendChild(wrapper);
         });
     });
 })();
