@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>哥德尔、艾舍尔、巴赫 读后蒸馏 / Distill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(var(--accent-rgb),0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Progress Bar ── */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  z-index: 9999; transition: width 0.1s linear;
+}
+
+/* ── Hero ── */
+.hero {
+  min-height: 50vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 4rem 2rem 3rem; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(var(--accent-rgb),0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(var(--accent3-rgb),0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+/* ── Fixed Nav ── */
+.fixed-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 9998; padding: 0.6rem 1.5rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.4rem; background: rgba(var(--bg-rgb),0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+.fixed-nav.scrolled { border-bottom-color: var(--border); }
+.fixed-nav a { color: var(--text-dim); text-decoration: none; transition: color 0.3s; }
+.fixed-nav a:hover { color: var(--accent); }
+.fixed-nav .sep { color: var(--text-dim); margin: 0 0.15rem; }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px var(--glow)); }
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900;
+  background: linear-gradient(135deg, var(--accent4) 0%, var(--accent) 40%, var(--accent3) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-subtitle {
+  font-size: 1rem; color: var(--text-dim); font-weight: 300;
+  margin-top: 0.5rem; max-width: 500px;
+}
+.hero-book {
+  font-size: 0.85rem; color: var(--accent); font-family: var(--font-mono);
+  margin-top: 1rem; letter-spacing: 1px;
+}
+
+/* ── Section Nav ── */
+.section-nav {
+  display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+  padding: 16px 20px; position: sticky; top: 0; z-index: 50;
+  background: rgba(var(--bg-rgb),0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-pill {
+  padding: 6px 16px; border-radius: 2rem; border: 1px solid var(--border);
+  background: transparent; color: var(--text-dim); font-family: var(--font-sans);
+  font-size: 0.8rem; cursor: pointer; transition: all 0.2s; text-decoration: none;
+}
+.nav-pill:hover, .nav-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 800px; margin: 0 auto; padding: 0 20px 4rem; }
+
+/* ── Section Header ── */
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  margin: 4rem 0 2rem; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-header-icon { font-size: 1.8rem; }
+.section-header h2 { font-size: 1.5rem; font-weight: 700; }
+.section-header .section-label {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  color: var(--accent); letter-spacing: 2px; text-transform: uppercase;
+  margin-left: auto;
+}
+
+/* ── Quotes ── */
+.quote-list { display: flex; flex-direction: column; gap: 16px; }
+.quote-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent4); border-radius: var(--radius);
+  padding: 20px 24px; cursor: pointer; transition: all 0.3s;
+}
+.quote-card:hover { border-color: var(--accent4); transform: translateX(4px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.quote-text {
+  font-size: 1.05rem; font-weight: 400; line-height: 1.9;
+  position: relative; padding-left: 1.2rem;
+}
+.quote-text::before {
+  content: '\201C'; position: absolute; left: -4px; top: -8px;
+  font-size: 2.5rem; color: var(--accent4); opacity: 0.4; font-family: serif;
+}
+.quote-footer { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.quote-chapter {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  background: rgba(var(--accent-rgb),0.15); color: var(--accent);
+  padding: 2px 10px; border-radius: 2rem;
+}
+.quote-context {
+  font-size: 0.78rem; color: var(--text-dim);
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease, margin-top 0.3s ease;
+  line-height: 1.6;
+}
+.quote-card.expanded .quote-context { max-height: 200px; margin-top: 10px; }
+.quote-expand-hint {
+  font-size: 0.7rem; color: var(--text-dim); margin-left: auto;
+  font-family: var(--font-mono); opacity: 0.6;
+}
+.quote-card.expanded .quote-expand-hint { display: none; }
+
+/* ── Concepts ── */
+.concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.concept-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; transition: all 0.3s;
+  cursor: default;
+}
+.concept-card:hover { border-color: var(--accent3); transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+.concept-icon { font-size: 2rem; margin-bottom: 12px; }
+.concept-name { font-weight: 700; font-size: 1rem; margin-bottom: 2px; }
+.concept-name-zh { font-size: 0.8rem; color: var(--accent3); margin-bottom: 10px; }
+.concept-summary {
+  font-size: 0.82rem; color: var(--text-dim); line-height: 1.7;
+  max-height: 3.4rem; overflow: hidden; transition: max-height 0.4s ease;
+}
+.concept-card:hover .concept-summary { max-height: 400px; }
+.concept-more {
+  font-size: 0.7rem; color: var(--accent); margin-top: 6px;
+  font-family: var(--font-mono); transition: opacity 0.2s;
+}
+.concept-card:hover .concept-more { opacity: 0; }
+
+/* ── Principles ── */
+.principle-list { display: flex; flex-direction: column; gap: 12px; counter-reset: principle; }
+.principle-item {
+  display: flex; align-items: flex-start; gap: 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 22px; transition: all 0.3s;
+  counter-increment: principle;
+}
+.principle-item:hover { border-color: var(--accent2); transform: translateX(4px); }
+.principle-num {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent2); min-width: 28px; padding-top: 2px;
+}
+.principle-num::before { content: counter(principle, decimal-leading-zero); }
+.principle-icon { font-size: 1.4rem; flex-shrink: 0; padding-top: 1px; }
+.principle-body { flex: 1; }
+.principle-text { font-size: 0.95rem; font-weight: 500; }
+.principle-text-zh { font-size: 0.82rem; color: var(--text-dim); margin-top: 4px; }
+
+/* ── Essence ── */
+.essence-list { display: flex; flex-direction: column; gap: 2px; }
+.essence-item {
+  display: grid; grid-template-columns: 60px 1fr; gap: 16px;
+  padding: 14px 20px; border-radius: var(--radius);
+  transition: background 0.2s;
+}
+.essence-item:hover { background: var(--card); }
+.essence-chapter {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  color: var(--accent); padding-top: 3px; text-align: right;
+}
+.essence-body {}
+.essence-title { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 2px; }
+.essence-sentence { font-size: 0.9rem; line-height: 1.7; }
+
+/* ── Empty State ── */
+.empty-state {
+  text-align: center; padding: 3rem; color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* ── Fade-in ── */
+.fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Footer ── */
+.footer {
+  text-align: center; padding: 2rem 0; color: var(--text-dim);
+  font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 3rem;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .hero { min-height: 40vh; padding: 3rem 1.5rem 2rem; }
+  .concept-grid { grid-template-columns: 1fr; }
+  .essence-item { grid-template-columns: 45px 1fr; gap: 10px; }
+  .quote-card { padding: 16px 18px; }
+  .section-header { margin: 3rem 0 1.5rem; }
+}
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
+</style>
+</head>
+<body>
+
+<nav class="fixed-nav" id="fixedNav">
+  <a href="../../index.html">Hyperion</a>
+  <span class="sep">/</span>
+  <a href="../index.html">Book Breakdowns</a>
+  <span class="sep">/</span>
+  <span class="current">哥德尔、艾舍尔、巴赫</span>
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-toggle-icon" id="themeIcon"></span></button>
+</nav>
+
+<div id="progress-bar"></div>
+
+<section class="hero">
+  <div class="hero-icon">🧪</div>
+  <h1>Distill</h1>
+  <p class="hero-subtitle">What remains after the last page — the ideas worth carrying forward</p>
+  <div class="hero-book">🎭 哥德尔、艾舍尔、巴赫</div>
+</section>
+
+<nav class="section-nav">
+  <a class="nav-pill active" href="#quotes" onclick="scrollToSection('quotes',this)">Quotes</a>
+  <a class="nav-pill" href="#concepts" onclick="scrollToSection('concepts',this)">Concepts</a>
+  <a class="nav-pill" href="#principles" onclick="scrollToSection('principles',this)">Principles</a>
+  <a class="nav-pill" href="#essence" onclick="scrollToSection('essence',this)">Essence</a>
+</nav>
+
+<main class="container">
+
+  <!-- Quotes -->
+  <div class="section-header fade-in" id="quotes">
+    <span class="section-header-icon">&#x1F4AC;</span>
+    <h2>Quotes</h2>
+    <span class="section-label">GOLDEN LINES</span>
+  </div>
+  <div class="quote-list" id="quoteList"></div>
+
+  <!-- Concepts -->
+  <div class="section-header fade-in" id="concepts">
+    <span class="section-header-icon">&#x1F9E0;</span>
+    <h2>Concepts</h2>
+    <span class="section-label">MENTAL MODELS</span>
+  </div>
+  <div class="concept-grid" id="conceptGrid"></div>
+
+  <!-- Principles -->
+  <div class="section-header fade-in" id="principles">
+    <span class="section-header-icon">&#x2728;</span>
+    <h2>Principles</h2>
+    <span class="section-label">ACTION RULES</span>
+  </div>
+  <div class="principle-list" id="principleList"></div>
+
+  <!-- Essence -->
+  <div class="section-header fade-in" id="essence">
+    <span class="section-header-icon">&#x1F3AF;</span>
+    <h2>Essence</h2>
+    <span class="section-label">ONE SENTENCE PER CHAPTER</span>
+  </div>
+  <div class="essence-list" id="essenceList"></div>
+
+</main>
+
+<div class="footer">
+  Distilled with the <a href="https://en.wikipedia.org/wiki/Feynman_Technique">Feynman Method</a>
+</div>
+
+<script>
+const distill = {
+  "quotes": [
+    {
+      "text": "形式系统就像一台自动售货机：投入硬币，按按钮，吐出商品。机器不知道自己在做什么，但聪明的观察者能从旁看出规律。",
+      "chapter": 1,
+      "context": "形式系统的本质——机械操作与人类洞察的根本区别"
+    },
+    {
+      "text": "做事所花费的时间总是比你预期的要长，即使你的预期中考虑了侯世达定律。",
+      "chapter": 5,
+      "context": "侯世达定律——递归地引用自身的经验性真理，揭示了递归的无处不在"
+    },
+    {
+      "text": "词语不能完全捕捉真理，形式系统不能完全捕捉数学真理——两者都揭示了「系统不能成为自己的元系统」。",
+      "chapter": 9,
+      "context": "禅宗与哥德尔定理的深层共鸣——系统自指的根本极限"
+    },
+    {
+      "text": "一个实际的电子不是简单的粒子，而是一个「裸电子」加上围绕它的无穷多虚粒子云——层层递归嵌套到无穷深。",
+      "chapter": 5,
+      "context": "物质世界本身就是递归结构——费曼图揭示的自然界的自相似性"
+    },
+    {
+      "text": "在任何缠结的层次结构之下，总有一个「不受干扰的层次」——硬件基质。软件的灵活性恰恰来自硬件的稳固性。",
+      "chapter": 20,
+      "context": "意识与自由意志的物理基础——缠结层次与不变基质的辩证关系"
+    },
+    {
+      "text": "自我成为一种存在的时刻，恰是它具有反映自身能力的时刻。",
+      "chapter": 20,
+      "context": "自我意识的本质定义——自指能力即存在的根基"
+    },
+    {
+      "text": "哥德尔串G在TNT中说的是「我不是TNT的定理」——它是真的但不可证，揭示了TNT的不完全性。",
+      "chapter": 14,
+      "context": "哥德尔不完全性定理的核心——一个系统足够强大就必然不完全"
+    },
+    {
+      "text": "禅师拿起竹篦问：「叫它竹篦就冒犯了它的本质，不叫竹篦就无视了事实。你叫它什么？」",
+      "chapter": 9,
+      "context": "禅宗公案与形式系统极限的类比——语言不能穷尽实在"
+    },
+    {
+      "text": "递归就像俄罗斯套娃：每个娃娃里面还有个更小的娃娃，但最小的那个是实心的——基底情形保证过程不会无穷回归。",
+      "chapter": 5,
+      "context": "递归的终止条件——基底情形是递归与无穷回归的本质区别"
+    },
+    {
+      "text": "意识和自由意志是一种「浮现」现象，产生于符号层次的怪圈之中。",
+      "chapter": 20,
+      "context": "GEB全书的终极论点——意识从层次缠结中涌现"
+    },
+    {
+      "text": "哥德尔、艾舍尔、巴赫就像三面棱镜，把同一束白光折射成不同的彩虹。三者的共同主题：当层次缠结时，自我从中浮现。",
+      "chapter": 20,
+      "context": "全书主旨的最终收束——三位大师殊途同归"
+    },
+    {
+      "text": "要完全描述一个电子需要对无穷多种费曼图取平均。整个物质世界就是由这些「泡泡套泡泡」组成的！",
+      "chapter": 5,
+      "context": "递归不仅是数学概念，更是物理世界的底层结构"
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Strange Loop",
+      "nameZh": "怪圈",
+      "summary": "当一个层次结构中的最高层与最低层发生交叉缠结时，就形成了怪圈。哥德尔通过编码让形式系统谈论自身，艾舍尔通过视觉幻象让画中人物走出画面，巴赫通过无穷升高的卡农让旋律回到起点。怪圈是自我意识的核心机制——正是层次的缠结使「自我」从无生命的物质中浮现。",
+      "icon": "♾️"
+    },
+    {
+      "name": "Formal System",
+      "nameZh": "形式系统",
+      "summary": "由有限的符号表、公理和推理规则构成的纯机械系统。它像一台印刷机，不理解意义，只执行符号变换。WJU系统是最简单的例子：从公理WJ出发，通过四条规则产生定理。形式系统的核心问题是：它能产生什么、不能产生什么？这个问题往往只能在系统外部回答。",
+      "icon": "🏭"
+    },
+    {
+      "name": "Gödel Numbering",
+      "nameZh": "哥德尔配数",
+      "summary": "给形式系统的每个符号分配数字，使每个符号串对应一个自然数，每条推理规则对应一种算术运算。这样「关于系统的串的性质」就变成了「关于自然数的性质」——而后者正是系统自己能表达的。哥德尔配数让系统被迫能够谈论自己，自指由此诞生，不完全性由此不可避免。",
+      "icon": "🔢"
+    },
+    {
+      "name": "Recursion",
+      "nameZh": "递归",
+      "summary": "用一个事物的较简单版本来定义这个事物本身，但总有一条不再递归的基底路径保证终止。递归无处不在：语言语法、音乐调性、计算机程序、基本粒子结构。推入和弹出是递归的基本操作，堆栈是支撑递归的数据结构。足够复杂的递归系统可能产生不可预测的行为——这可能是智能的核心。",
+      "icon": "🔄"
+    },
+    {
+      "name": "Isomorphism",
+      "nameZh": "同构",
+      "summary": "两个复杂结构之间的信息保持映射。同构是意义的载体：当我们说一个形式系统「表达」了某种数学真理时，实际上是说系统的定理集与数学真理之间存在同构关系。哥德尔、艾舍尔、巴赫三者之间的类比本身就是一种深层同构——不同媒介中相同结构模式的映射。",
+      "icon": "🪞"
+    },
+    {
+      "name": "Self-Reference",
+      "nameZh": "自指",
+      "summary": "一个系统或语句谈论自身的能力。蒯恩的㧟摁技巧和哥德尔的算术㧟摁是实现自指的核心方法。自指是不完全性定理的钥匙：一旦系统能够构造出「我不可被证明」这样的句子，系统就面临要么不一致要么不完全的两难。自指也是自我意识和自复制的基础。",
+      "icon": "🐍"
+    },
+    {
+      "name": "Emergence",
+      "nameZh": "浮现",
+      "summary": "高层现象从低层组件的交互中涌现，但无法仅用低层语言充分描述。蚁群的智能从单个蚂蚁的简单行为中浮现，意识从神经元的电化学活动中浮现，数学真理从形式符号的机械操作中浮现。浮现是理解心智、生命和意义的关键概念——整体大于部分之和。",
+      "icon": "🌊"
+    },
+    {
+      "name": "Tangled Hierarchy",
+      "nameZh": "缠结的层次结构",
+      "summary": "与简单的反馈不同，缠结的层次结构涉及层次本身的扰乱：对象层与元层不再泾渭分明。艾舍尔《画手》中两只手互相画、哥德尔串G同时在对象层和元层操作、大脑中思想改变思维方式又被思维方式塑造——这些都是缠结层次的实例。每个缠结之下都有一个不受干扰的基质层。",
+      "icon": "🌀"
+    }
+  ],
+  "principles": [
+    {
+      "text": "To understand a system fully, you must step outside it — but the meta-system faces the same limitation.",
+      "textZh": "要完全理解一个系统，必须跳出系统——但元系统又面临同样的局限。",
+      "icon": "🦘"
+    },
+    {
+      "text": "Meaning is not in the symbols themselves, but in the isomorphism between the symbol system and the world it maps.",
+      "textZh": "意义不在符号本身，而在符号系统与它所映射的世界之间的同构关系中。",
+      "icon": "🗺️"
+    },
+    {
+      "text": "Any sufficiently powerful system that can refer to itself will contain truths it cannot prove.",
+      "textZh": "任何足够强大且能自指的系统，都必然包含它无法证明的真理。",
+      "icon": "🔓"
+    },
+    {
+      "text": "Consciousness emerges from tangled hierarchies — the interplay of levels, not any single level alone.",
+      "textZh": "意识从缠结的层次中浮现——来自层次间的交互，而非任何单一层次。",
+      "icon": "🧠"
+    },
+    {
+      "text": "The flexibility of software arises precisely from the rigidity of the hardware beneath it.",
+      "textZh": "软件的灵活性恰恰来自底层硬件的稳固性——变化建立在不变之上。",
+      "icon": "💻"
+    },
+    {
+      "text": "Simple recursive rules can produce behavior so complex that no pattern can capture it — this may be the essence of intelligence.",
+      "textZh": "简单的递归规则能产生复杂到无法被任何模式捕捉的行为——这可能正是智能的本质。",
+      "icon": "🔄"
+    },
+    {
+      "text": "Gödel's theorem does not forbid machine intelligence — it reveals that both humans and machines share the same fundamental limits.",
+      "textZh": "哥德尔定理并不禁止机器智能——它揭示的是人类和机器共享同样的根本局限。",
+      "icon": "🤖"
+    },
+    {
+      "text": "Free will emerges from the balance between self-awareness and the inability to fully introspect one's own mechanisms.",
+      "textZh": "自由意志从「有自知之明」与「无法完全洞察自身机制」之间的平衡中浮现。",
+      "icon": "⚖️"
+    }
+  ],
+  "essence": [
+    {
+      "chapter": 1,
+      "title": "WU谜题——形式系统",
+      "sentence": "形式系统是纯机械的符号游戏，但判断它能否产生某个结果，往往需要跳出系统才能回答。"
+    },
+    {
+      "chapter": 2,
+      "title": "数学中的意义与形式",
+      "sentence": "形式系统的符号串是否具有意义，取决于它与外部世界之间是否存在同构映射。"
+    },
+    {
+      "chapter": 3,
+      "title": "图形与衬底",
+      "sentence": "定理集（图形）和非定理集（衬底）的关系揭示了形式系统可判定性的深层结构。"
+    },
+    {
+      "chapter": 4,
+      "title": "一致性、完全性与几何学",
+      "sentence": "欧几里德第五公设的独立性证明了一致性和完全性是形式系统的两大核心属性，而非欧几何的存在预示了哥德尔的发现。"
+    },
+    {
+      "chapter": 5,
+      "title": "递归结构和递归过程",
+      "sentence": "递归是自然界和人类思维的基本构造方式——从语言语法到基本粒子，层层嵌套直至无穷。"
+    },
+    {
+      "chapter": 6,
+      "title": "意义位于何处",
+      "sentence": "意义不固定在信息载体中，而在于解码者能否建立信息与世界之间的同构关系。"
+    },
+    {
+      "chapter": 7,
+      "title": "命题演算",
+      "sentence": "命题演算是形式化推理的第一步，展示了如何将逻辑推理变成纯机械的符号操作。"
+    },
+    {
+      "chapter": 8,
+      "title": "印符数论",
+      "sentence": "TNT将自然数的全部性质编码为形式系统，为哥德尔的自指构造提供了舞台。"
+    },
+    {
+      "chapter": 9,
+      "title": "无门与哥德尔",
+      "sentence": "禅宗公案用悖论打破逻辑，哥德尔用自指打破形式系统——两条路径在「系统不能完全理解自身」处交汇。"
+    },
+    {
+      "chapter": 10,
+      "title": "描述的层次和计算机系统",
+      "sentence": "计算机系统的多层架构（硬件到软件）是理解大脑层次结构和浮现现象的最佳类比。"
+    },
+    {
+      "chapter": 11,
+      "title": "大脑和思维",
+      "sentence": "大脑的神经网络如何从电化学信号中产生思维，是从低层描述到高层描述的核心跨越问题。"
+    },
+    {
+      "chapter": 12,
+      "title": "心智和思维",
+      "sentence": "心智活动可以在多个层次上描述——从神经元到符号到概念，每个层次有其不可替代的解释力。"
+    },
+    {
+      "chapter": 13,
+      "title": "BlooP和FlooP和GlooP",
+      "sentence": "有界循环（BlooP）、无界循环（FlooP）和假想的超能力语言（GlooP）划定了可计算性的精确边界。"
+    },
+    {
+      "chapter": 14,
+      "title": "论TNT及有关系统中形式上不可判定的命题",
+      "sentence": "哥德尔通过证明对和算术㧟摁构造出自指句G，证明了一致的TNT必然是不完全的。"
+    },
+    {
+      "chapter": 15,
+      "title": "跳出系统",
+      "sentence": "每次「跳出系统」加入新公理都会产生新的不可判定命题——不完全性是无法一劳永逸消除的。"
+    },
+    {
+      "chapter": 16,
+      "title": "自指和自复制",
+      "sentence": "自指与自复制共享同一深层机制：一段信息既作为数据被处理，又作为指令被执行——DNA和哥德尔串都是如此。"
+    },
+    {
+      "chapter": 17,
+      "title": "丘奇、图灵、塔斯基及别的人",
+      "sentence": "丘奇-图灵论题统一了所有可计算性定义，塔斯基证明了算术真理不可在算术内定义——形式化的极限从多个方向被确立。"
+    },
+    {
+      "chapter": 18,
+      "title": "人工智能：回顾",
+      "sentence": "早期AI的成功与失败揭示了知识表示和常识推理才是智能的核心难题，而非搜索和逻辑推理。"
+    },
+    {
+      "chapter": 19,
+      "title": "人工智能：展望",
+      "sentence": "真正的AI需要灵活的概念框架、类比推理和自我模型——不是更快的计算，而是更深的理解。"
+    },
+    {
+      "chapter": 20,
+      "title": "怪圈，或缠结的层次结构",
+      "sentence": "意识和自我从符号层次的怪圈中浮现，哥德尔、艾舍尔、巴赫三者在此交汇——当层次缠结回自身时，意义诞生。"
+    }
+  ]
+};
+
+
+(function() {
+  const data = typeof distill !== 'undefined' ? distill : {};
+  const quotes = data.quotes || [];
+  const concepts = data.concepts || [];
+  const principles = data.principles || [];
+  const essence = data.essence || [];
+
+  // ── Render Quotes ──
+  const quoteList = document.getElementById('quoteList');
+  if (quotes.length === 0) {
+    quoteList.innerHTML = '<div class="empty-state">No quotes distilled yet.</div>';
+  } else {
+    quotes.forEach(q => {
+      const card = document.createElement('div');
+      card.className = 'quote-card fade-in';
+      card.onclick = function() { this.classList.toggle('expanded'); };
+      card.innerHTML =
+        '<div class="quote-text">' + escHtml(q.text) + '</div>' +
+        '<div class="quote-footer">' +
+          (q.chapter ? '<span class="quote-chapter">Ch.' + q.chapter + '</span>' : '') +
+          '<span class="quote-expand-hint">click to expand</span>' +
+        '</div>' +
+        (q.context ? '<div class="quote-context">' + escHtml(q.context) + '</div>' : '');
+      quoteList.appendChild(card);
+    });
+  }
+
+  // ── Render Concepts ──
+  const conceptGrid = document.getElementById('conceptGrid');
+  if (concepts.length === 0) {
+    conceptGrid.innerHTML = '<div class="empty-state">No concepts distilled yet.</div>';
+  } else {
+    concepts.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'concept-card fade-in';
+      card.innerHTML =
+        '<div class="concept-icon">' + (c.icon || '\u{1F9E0}') + '</div>' +
+        '<div class="concept-name">' + escHtml(c.name) + '</div>' +
+        (c.nameZh ? '<div class="concept-name-zh">' + escHtml(c.nameZh) + '</div>' : '') +
+        '<div class="concept-summary">' + escHtml(c.summary || '') + '</div>' +
+        '<div class="concept-more">hover to read more</div>';
+      conceptGrid.appendChild(card);
+    });
+  }
+
+  // ── Render Principles ──
+  const principleList = document.getElementById('principleList');
+  if (principles.length === 0) {
+    principleList.innerHTML = '<div class="empty-state">No principles distilled yet.</div>';
+  } else {
+    principles.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'principle-item fade-in';
+      item.innerHTML =
+        '<div class="principle-num"></div>' +
+        '<div class="principle-icon">' + (p.icon || '\u{1F4A1}') + '</div>' +
+        '<div class="principle-body">' +
+          '<div class="principle-text">' + escHtml(p.text) + '</div>' +
+          (p.textZh ? '<div class="principle-text-zh">' + escHtml(p.textZh) + '</div>' : '') +
+        '</div>';
+      principleList.appendChild(item);
+    });
+  }
+
+  // ── Render Essence ──
+  const essenceList = document.getElementById('essenceList');
+  if (essence.length === 0) {
+    essenceList.innerHTML = '<div class="empty-state">No chapter essences distilled yet.</div>';
+  } else {
+    essence.forEach(e => {
+      const item = document.createElement('div');
+      item.className = 'essence-item fade-in';
+      item.innerHTML =
+        '<div class="essence-chapter">Ch.' + (e.chapter || '?') + '</div>' +
+        '<div class="essence-body">' +
+          (e.title ? '<div class="essence-title">' + escHtml(e.title) + '</div>' : '') +
+          '<div class="essence-sentence">' + escHtml(e.sentence || '') + '</div>' +
+        '</div>';
+      essenceList.appendChild(item);
+    });
+  }
+
+  // ── Utility ──
+  function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // ── Scroll Progress ──
+  var progressBar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', function() {
+    var h = document.documentElement;
+    var pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    progressBar.style.width = Math.min(pct, 100) + '%';
+    document.getElementById('fixedNav').classList.toggle('scrolled', window.scrollY > 50);
+  });
+
+  // ── IntersectionObserver Fade-in ──
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // ── Active nav pill tracking ──
+  var sections = ['quotes', 'concepts', 'principles', 'essence'];
+  var navPills = document.querySelectorAll('.nav-pill');
+  var sectionObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        navPills.forEach(function(p) { p.classList.remove('active'); });
+        var pill = document.querySelector('.nav-pill[href="#' + entry.target.id + '"]');
+        if (pill) pill.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -60% 0px' });
+
+  sections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+})();
+
+function scrollToSection(id, el) {
+  var target = document.getElementById(id);
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.querySelectorAll('.nav-pill').forEach(function(p) { p.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+</script>
+<!-- Theme Toggle (injected into .fixed-nav) -->
+<style>
+.theme-toggle {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
+</body>
+</html>
