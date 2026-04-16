@@ -37,11 +37,11 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text);
 .hero-en { font-size: 1rem; color: var(--text-dim); font-weight: 300; margin-bottom: 0.5rem; }
 .hero-badge { display: inline-block; padding: 0.4rem 1.2rem; border: 1px solid var(--accent4); border-radius: 2rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent4); letter-spacing: 2px; }
 /* ── Fixed Nav ── */
-.fixed-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 9998; padding: 0.6rem 1.5rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.4rem; background: rgba(15,17,23,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+.fixed-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 9998; padding: 0.6rem 1.5rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.4rem; background: rgba(var(--bg-rgb),0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
 .fixed-nav.scrolled { border-bottom-color: var(--border); }
 .fixed-nav a { color: var(--text-dim); text-decoration: none; transition: color 0.3s; }
 .fixed-nav a:hover { color: var(--accent); }
-.fixed-nav .sep { color: var(--border); margin: 0 0.15rem; }
+.fixed-nav .sep { color: var(--text-dim); margin: 0 0.15rem; }
 
 /* ── Container ── */
 .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
@@ -161,9 +161,11 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text);
 <body>
 
 <nav class="fixed-nav" id="fixedNav">
-    <a href="../../index.html">Home</a>
+    <a href="../../index.html">Hyperion</a>
     <span class="sep">/</span>
-    <a href="index.html">思考，快与慢</a>
+    <a href="../index.html">Book Breakdowns</a>
+    <span class="sep">/</span>
+    <span class="current">思考，快与慢</span>
 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-toggle-icon" id="themeIcon"></span></button>
 </nav>
 

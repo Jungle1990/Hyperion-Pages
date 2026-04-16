@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synthesis — Paper Reading</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --accent5: #a78bfa;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(108, 99, 255, 0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Fixed Nav ── */
+.fixed-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 9998; padding: 0.6rem 1.5rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.4rem; background: rgba(var(--bg-rgb),0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+.fixed-nav.scrolled { border-bottom-color: var(--border); }
+.fixed-nav a { color: var(--text-dim); text-decoration: none; transition: color 0.3s; }
+.fixed-nav a:hover { color: var(--accent); }
+.nav-sep { color: var(--text-dim); }
+
+/* ── Content ── */
+.container { max-width: 800px; margin: 0 auto; padding: 5rem 20px 4rem; }
+
+.page-title {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 800;
+  margin-bottom: 0.4rem;
+}
+.page-subtitle {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  margin-bottom: 2.5rem;
+}
+
+.section { margin-bottom: 3rem; }
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-icon { font-size: 1.2rem; }
+
+/* ── Concept frequency ── */
+.concept-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.concept-label {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  width: 140px;
+  text-align: right;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.concept-track {
+  flex: 1;
+  height: 24px;
+  background: var(--card);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.concept-fill {
+  height: 100%;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.8);
+  min-width: 30px;
+  transition: width 0.6s ease;
+}
+
+/* ── Domain map ── */
+.domain-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.domain-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.2rem;
+  transition: border-color 0.3s;
+}
+.domain-card:hover { border-color: var(--accent); }
+.domain-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.3rem;
+}
+.domain-count {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+.domain-papers {
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* ── Timeline ── */
+.timeline-list { display: flex; flex-direction: column; gap: 0; position: relative; }
+.timeline-list::before {
+  content: '';
+  position: absolute;
+  left: 60px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+.tl-item {
+  display: flex;
+  gap: 16px;
+  padding: 0.8rem 0;
+  position: relative;
+}
+.tl-date {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  width: 52px;
+  text-align: right;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+.tl-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: var(--bg);
+  flex-shrink: 0;
+  z-index: 1;
+  margin-top: 2px;
+}
+.tl-body { flex: 1; }
+.tl-title { font-size: 0.9rem; font-weight: 500; }
+.tl-title a { color: var(--text); text-decoration: none; }
+.tl-title a:hover { color: var(--accent); }
+.tl-tags { display: flex; gap: 4px; margin-top: 4px; }
+.tl-tag {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--accent5);
+  background: rgba(167,139,250,0.1);
+  padding: 1px 6px;
+  border-radius: 2rem;
+}
+
+/* ── Footer ── */
+.footer {
+  text-align: center;
+  padding: 2rem 0;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  border-top: 1px solid var(--border);
+  margin-top: 3rem;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+@media (max-width: 600px) {
+  .concept-label { width: 80px; font-size: 0.7rem; }
+  .domain-grid { grid-template-columns: 1fr; }
+}
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
+</style>
+</head>
+<body>
+
+<nav class="fixed-nav" id="fixedNav">
+  <a href="../index.html">Hyperion</a>
+  <span class="nav-sep">/</span>
+  <a href="index.html">Paper Reading</a>
+  <span class="nav-sep">/</span>
+  <span style="color:var(--text)">Synthesis</span>
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-toggle-icon" id="themeIcon"></span></button>
+</nav>
+
+<main class="container">
+  <h1 class="page-title">Cross-Paper Synthesis</h1>
+  <p class="page-subtitle">Patterns, concepts, and connections across all papers</p>
+
+  <!-- Concept Frequency -->
+  <div class="section">
+    <div class="section-title"><span class="section-icon">🔑</span> Recurring Concepts</div>
+    <div id="conceptBars"></div>
+  </div>
+
+  <!-- Domain Map -->
+  <div class="section">
+    <div class="section-title"><span class="section-icon">🗺️</span> Research Landscape</div>
+    <div class="domain-grid" id="domainGrid"></div>
+  </div>
+
+  <!-- Reading Timeline -->
+  <div class="section">
+    <div class="section-title"><span class="section-icon">📅</span> Reading Timeline</div>
+    <div class="timeline-list" id="timeline"></div>
+  </div>
+</main>
+
+<div class="footer">
+  Built with <a href="../index.html">Hyperion</a>
+</div>
+
+<script>
+const papers = [
+  {
+    "id": "2604.08224",
+    "source": "https://arxiv.org/abs/2604.08224",
+    "title": "Externalization in LLM Agents: A Unified Review of Memory, Skills, Protocols and Harness Engineering",
+    "titleZh": "LLM智能体中的外部化：记忆、技能、协议与运行框架工程的统一综述",
+    "authors": [
+      "Chenyu Zhou",
+      "Huacan Chai",
+      "Wenteng Chen",
+      "Zihan Guo",
+      "Rong Shan",
+      "Yuanyi Song",
+      "Tianyi Xu",
+      "Yingxuan Yang",
+      "Aofan Yu",
+      "Weiming Zhang",
+      "Congming Zheng",
+      "Jiachen Zhu",
+      "Zeyu Zheng",
+      "Zhuosheng Zhang",
+      "Xingyu Lou",
+      "Changwang Zhang",
+      "Zhihui Fu",
+      "Jun Wang",
+      "Weiwen Liu",
+      "Jianghao Lin",
+      "Weinan Zhang"
+    ],
+    "venue": "arXiv preprint",
+    "year": 2026,
+    "date_read": "2026-04-16",
+    "tags": [
+      "llm-agents",
+      "externalization",
+      "memory-systems",
+      "tool-use",
+      "multi-agent",
+      "cognitive-architecture"
+    ],
+    "domain": "ai-agents",
+    "status": "digested",
+    "icon": "🤖",
+    "abstract": "LLM agent capabilities are increasingly moved outside model weights into external infrastructure. Using 'cognitive artifacts' as a framework, externalization is categorized into four areas: memory (state across time), skills (procedural expertise), protocols (interaction structure), and harness engineering (coordination layer). The paper traces a progression from weights to context to harness and discusses trade-offs between parametric and externalized capability.",
+    "contribution": {
+      "problem": "LLM agent systems lack a unified framework to understand how capabilities are distributed between model weights and external infrastructure.",
+      "approach": "Introduces 'cognitive artifacts' as a lens to categorize externalized capabilities into four pillars: memory, skills, protocols, and harness engineering. Traces the evolutionary arc from weights → context → harness.",
+      "result": "Provides a comprehensive 54-page taxonomy covering memory systems (episodic, semantic, procedural), skill externalization (tool use, code generation), interaction protocols (MCP, A2A), and harness patterns (orchestration, evaluation).",
+      "significance": "First unified framework connecting previously siloed research areas (RAG, tool use, multi-agent, prompt engineering) under a single evolutionary narrative. Helps practitioners understand where to externalize capabilities vs. keep them in-weight."
+    },
+    "key_ideas": [
+      {
+        "title": "Weights → Context → Harness Progression",
+        "desc": "Agent capabilities evolve through three stages: first encoded in model weights (pre-training), then moved to context window (few-shot, RAG), then fully externalized to harness infrastructure (tool orchestration, state management). Each stage trades off latency and integration tightness for flexibility and updateability.",
+        "tags": [
+          "architecture-evolution",
+          "externalization"
+        ]
+      },
+      {
+        "title": "Four Pillars of Externalization",
+        "desc": "Memory (persisting state across interactions), Skills (procedural expertise via tools/code), Protocols (structured interaction patterns like MCP/A2A), and Harness Engineering (the coordination layer that wires everything together). These aren't independent — they form a stack where each layer depends on the ones below.",
+        "tags": [
+          "taxonomy",
+          "cognitive-artifacts"
+        ]
+      },
+      {
+        "title": "Cognitive Artifacts Framework",
+        "desc": "Borrowed from cognitive science: external objects that extend human cognition (maps, calendars, checklists). Applied to LLMs: prompts, tool definitions, memory stores, and protocols are cognitive artifacts that extend model capabilities beyond what weights encode. Key insight: the artifact is part of the cognitive system, not just an input.",
+        "tags": [
+          "cognitive-science",
+          "framework"
+        ]
+      },
+      {
+        "title": "Memory Taxonomy: Episodic / Semantic / Procedural",
+        "desc": "Episodic memory stores interaction history (conversation logs, task traces). Semantic memory stores factual knowledge (RAG, knowledge graphs). Procedural memory stores how-to knowledge (learned tool sequences, code patterns). Most current systems only implement episodic; semantic and procedural are emerging frontiers.",
+        "tags": [
+          "memory-systems",
+          "taxonomy"
+        ]
+      },
+      {
+        "title": "Protocol Standardization as Infrastructure",
+        "desc": "MCP (Model Context Protocol) and A2A (Agent-to-Agent) represent externalization of interaction structure. Instead of hard-coding how agents talk to tools or each other, protocols make these patterns reusable and composable — similar to how HTTP standardized web communication.",
+        "tags": [
+          "protocols",
+          "mcp",
+          "standardization"
+        ]
+      }
+    ],
+    "method": {
+      "overview": "Systematic literature review + taxonomy construction. Collects 200+ papers across memory, tools, multi-agent, and orchestration, then organizes them under the cognitive artifacts framework.",
+      "steps": [
+        "Define cognitive artifacts framework from cognitive science literature",
+        "Categorize existing LLM agent work into four pillars",
+        "Trace evolutionary progression (weights → context → harness) within each pillar",
+        "Identify open challenges and research gaps"
+      ],
+      "novelty": "Unifies previously disconnected research threads (RAG, tool use, multi-agent protocols, evaluation) under a single framework. Prior surveys focused on individual pillars; this is the first to show how they form a stack."
+    },
+    "connections": [],
+    "takeaways": [
+      {
+        "insight": "The weights → context → harness framework is a decision tool, not just a taxonomy — for any agent feature, ask where it should live",
+        "action": "Apply this to Hyperion's own architecture: memory files are harness-level externalization, templates are context-level",
+        "domain": "meta-learning"
+      },
+      {
+        "insight": "Procedural memory (learned tool sequences) is the most under-explored memory type — most systems only do episodic",
+        "action": "When building agent workflows, consider persisting successful tool-call chains as reusable procedures rather than replaying from scratch",
+        "domain": "ai-agents"
+      },
+      {
+        "insight": "Protocol standardization (MCP, A2A) follows the same pattern as HTTP/REST — it's infrastructure, not application logic",
+        "action": "Treat MCP tool definitions as stable interfaces; don't couple agent logic to specific tool implementations",
+        "domain": "systems"
+      }
+    ],
+    "personal_notes": "Extremely useful as a mental map for understanding the LLM agent landscape. The four-pillar taxonomy is practical — when building an agent system, you can ask: what goes in weights vs. context vs. harness for each pillar? The cognitive artifacts lens is elegant but could be more rigorously connected to the cognitive science literature. The paper is comprehensive but sometimes reads like a catalog rather than providing deep analysis of trade-offs.",
+    "questions": [
+      "Is there a principled way to decide what should stay in weights vs. be externalized?",
+      "How do the four pillars interact — does improving memory reduce the need for skill externalization?",
+      "What are the failure modes of over-externalization (e.g., latency, error propagation through tool chains)?",
+      "How does this framework apply to non-LLM agent architectures (classical AI, robotics)?"
+    ]
+  }
+];
+
+const CONCEPT_COLORS = ['#6c63ff', '#ff6b6b', '#4ecdc4', '#ffe66d', '#a78bfa', '#f97316', '#ec4899', '#14b8a6'];
+
+// ── Concept frequency ──
+const tagCounts = {};
+papers.forEach(p => (p.tags || []).forEach(t => { tagCounts[t] = (tagCounts[t] || 0) + 1; }));
+const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 15);
+const maxCount = sortedTags.length > 0 ? sortedTags[0][1] : 1;
+
+const barsEl = document.getElementById('conceptBars');
+sortedTags.forEach(([tag, count], i) => {
+  const pct = (count / maxCount) * 100;
+  const color = CONCEPT_COLORS[i % CONCEPT_COLORS.length];
+  const bar = document.createElement('div');
+  bar.className = 'concept-bar';
+  bar.innerHTML = `
+    <div class="concept-label">${tag}</div>
+    <div class="concept-track">
+      <div class="concept-fill" style="width:${pct}%;background:${color}">${count}</div>
+    </div>`;
+  barsEl.appendChild(bar);
+});
+if (sortedTags.length === 0) {
+  barsEl.innerHTML = '<div style="color:var(--text-dim);font-style:italic">Add more papers to see recurring concepts.</div>';
+}
+
+// ── Domain map ──
+const domainMap = {};
+papers.forEach(p => {
+  const d = p.domain || 'uncategorized';
+  if (!domainMap[d]) domainMap[d] = [];
+  domainMap[d].push(p);
+});
+
+const gridEl = document.getElementById('domainGrid');
+Object.keys(domainMap).sort().forEach(domain => {
+  const ps = domainMap[domain];
+  const card = document.createElement('div');
+  card.className = 'domain-card';
+  const titles = ps.map(p => p.title).slice(0, 3).join(', ');
+  card.innerHTML = `
+    <div class="domain-name">${domain}</div>
+    <div class="domain-count">${ps.length} paper${ps.length > 1 ? 's' : ''}</div>
+    <div class="domain-papers">${titles}${ps.length > 3 ? '...' : ''}</div>`;
+  gridEl.appendChild(card);
+});
+
+// ── Reading timeline ──
+const timelineEl = document.getElementById('timeline');
+const sorted = [...papers].sort((a, b) => (a.date_read || '').localeCompare(b.date_read || ''));
+sorted.forEach(p => {
+  const item = document.createElement('div');
+  item.className = 'tl-item';
+  const tags = (p.tags || []).slice(0, 3).map(t => `<span class="tl-tag">${t}</span>`).join('');
+  item.innerHTML = `
+    <div class="tl-date">${(p.date_read || '').slice(5)}</div>
+    <div class="tl-dot"></div>
+    <div class="tl-body">
+      <div class="tl-title"><a href="${p.id}.html">${p.title}</a></div>
+      <div class="tl-tags">${tags}</div>
+    </div>`;
+  timelineEl.appendChild(item);
+});
+
+// Scroll nav
+window.addEventListener('scroll', () => {
+  document.getElementById('fixedNav').classList.toggle('scrolled', window.scrollY > 50);
+});
+</script>
+<!-- Theme Toggle (injected into .fixed-nav) -->
+<style>
+.theme-toggle {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paper Reading</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --accent5: #a78bfa;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(108, 99, 255, 0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Fixed Nav ── */
+.fixed-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 9998; padding: 0.6rem 1.5rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.4rem; background: rgba(var(--bg-rgb),0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+.fixed-nav.scrolled { border-bottom-color: var(--border); }
+.fixed-nav a { color: var(--text-dim); text-decoration: none; transition: color 0.3s; }
+.fixed-nav a:hover { color: var(--accent); }
+
+/* ── Hero ── */
+.hero {
+  min-height: 40vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 5rem 2rem 2rem;
+  position: relative;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(255,107,107,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.hero-icon {
+  font-size: 4rem;
+  animation: float 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 30px var(--glow));
+  margin-bottom: 1rem;
+}
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 900;
+  background: linear-gradient(135deg, #fff 0%, var(--accent) 50%, var(--accent3) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s ease-in-out infinite;
+  margin-bottom: 0.4rem;
+}
+@keyframes shimmer { 0%, 100% { background-position: 0% center; } 50% { background-position: 200% center; } }
+.hero-subtitle {
+  font-size: 1rem;
+  color: var(--text-dim);
+  font-weight: 300;
+}
+
+/* ── Stats Bar ── */
+.stats-bar {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 1.2rem 2rem;
+  margin: 0 auto 1rem;
+  max-width: 600px;
+}
+.stat {
+  text-align: center;
+}
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ── Sub Nav ── */
+.sub-nav {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 0 auto 1.5rem;
+  max-width: 600px;
+}
+.sub-nav a {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-decoration: none;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+  transition: all 0.3s;
+}
+.sub-nav a:hover { border-color: var(--accent); color: var(--accent); }
+.sub-nav a.active { background: rgba(108,99,255,0.15); border-color: var(--accent); color: var(--accent); }
+
+/* ── Timeline Canvas ── */
+.timeline-section {
+  max-width: 800px;
+  margin: 0 auto 2rem;
+  padding: 0 20px;
+}
+.timeline-title {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+.timeline-canvas-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  position: relative;
+}
+#timelineCanvas {
+  width: 100%;
+  height: 120px;
+  display: block;
+}
+
+/* ── Filter Bar ── */
+.filter-bar {
+  max-width: 800px;
+  margin: 0 auto 1.5rem;
+  padding: 0 20px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.filter-bar input {
+  flex: 1;
+  min-width: 200px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+  padding: 8px 16px;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.3s;
+}
+.filter-bar input:focus { border-color: var(--accent); }
+.filter-bar input::placeholder { color: var(--text-dim); }
+.filter-chip {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 5px 12px;
+  border-radius: 2rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+.filter-chip:hover { border-color: var(--accent); color: var(--text); }
+.filter-chip.active { background: rgba(108,99,255,0.15); border-color: var(--accent); color: var(--accent); }
+
+/* ── Container ── */
+.container { max-width: 800px; margin: 0 auto; padding: 0 20px 4rem; }
+
+/* ── Domain Group ── */
+.domain-group { margin-bottom: 2rem; }
+.domain-label {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.domain-count {
+  font-size: 0.7rem;
+  color: var(--accent);
+  background: rgba(108,99,255,0.1);
+  padding: 2px 8px;
+  border-radius: 2rem;
+}
+
+/* ── Paper Cards ── */
+.card-list { display: flex; flex-direction: column; gap: 10px; }
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  text-decoration: none;
+  color: var(--text);
+  transition: all 0.3s;
+}
+.card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px var(--glow);
+}
+.card-icon { font-size: 2rem; flex-shrink: 0; padding-top: 2px; }
+.card-body { flex: 1; min-width: 0; }
+.card-title { font-weight: 600; font-size: 0.95rem; line-height: 1.4; }
+.card-sub { font-size: 0.8rem; color: var(--text-dim); margin-top: 2px; }
+.card-contribution { font-size: 0.8rem; color: var(--text-dim); margin-top: 6px; line-height: 1.5; }
+.card-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.card-tag {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--accent5);
+  background: rgba(167,139,250,0.1);
+  padding: 1px 6px;
+  border-radius: 2rem;
+}
+.card-right { text-align: right; flex-shrink: 0; }
+.card-badge {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--accent);
+  background: rgba(108,99,255,0.1);
+  padding: 4px 10px;
+  border-radius: 2rem;
+  white-space: nowrap;
+}
+.card-date {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+.no-results {
+  text-align: center;
+  color: var(--text-dim);
+  font-style: italic;
+  padding: 3rem 1rem;
+}
+
+/* ── Footer ── */
+.footer {
+  text-align: center;
+  padding: 2rem 0;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  border-top: 1px solid var(--border);
+  margin-top: 3rem;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+@media (max-width: 600px) {
+  .stats-bar { gap: 1rem; }
+  .stat-value { font-size: 1.4rem; }
+  .card { padding: 14px 16px; gap: 12px; }
+  .card-icon { font-size: 1.6rem; }
+  .card-right { display: none; }
+}
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
+</style>
+</head>
+<body>
+
+<nav class="fixed-nav" id="fixedNav">
+  <a href="../index.html">Hyperion</a>
+  <span style="color:var(--border)">/</span>
+  <span style="color:var(--text)">Paper Reading</span>
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-toggle-icon" id="themeIcon"></span></button>
+</nav>
+
+<div class="hero">
+  <div class="hero-icon">📄</div>
+  <h1>Paper Reading</h1>
+  <p class="hero-subtitle">Research Paper Extraction & Knowledge Synthesis</p>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<div class="sub-nav">
+  <a href="index.html" class="active">Atlas</a>
+  <a href="graph.html">Graph</a>
+  <a href="synthesis.html">Synthesis</a>
+</div>
+
+<div class="timeline-section">
+  <div class="timeline-title">Reading Timeline</div>
+  <div class="timeline-canvas-wrap">
+    <canvas id="timelineCanvas"></canvas>
+  </div>
+</div>
+
+<div class="filter-bar" id="filterBar">
+  <input type="text" id="searchInput" placeholder="Search papers by title, author, tag...">
+</div>
+
+<main class="container" id="paperList"></main>
+
+<div class="footer">
+  Built with <a href="../index.html">Hyperion</a>
+</div>
+
+<script>
+const papers = [
+  {
+    "id": "2604.08224",
+    "source": "https://arxiv.org/abs/2604.08224",
+    "title": "Externalization in LLM Agents: A Unified Review of Memory, Skills, Protocols and Harness Engineering",
+    "titleZh": "LLM智能体中的外部化：记忆、技能、协议与运行框架工程的统一综述",
+    "authors": [
+      "Chenyu Zhou",
+      "Huacan Chai",
+      "Wenteng Chen",
+      "Zihan Guo",
+      "Rong Shan",
+      "Yuanyi Song",
+      "Tianyi Xu",
+      "Yingxuan Yang",
+      "Aofan Yu",
+      "Weiming Zhang",
+      "Congming Zheng",
+      "Jiachen Zhu",
+      "Zeyu Zheng",
+      "Zhuosheng Zhang",
+      "Xingyu Lou",
+      "Changwang Zhang",
+      "Zhihui Fu",
+      "Jun Wang",
+      "Weiwen Liu",
+      "Jianghao Lin",
+      "Weinan Zhang"
+    ],
+    "venue": "arXiv preprint",
+    "year": 2026,
+    "date_read": "2026-04-16",
+    "tags": [
+      "llm-agents",
+      "externalization",
+      "memory-systems",
+      "tool-use",
+      "multi-agent",
+      "cognitive-architecture"
+    ],
+    "domain": "ai-agents",
+    "status": "digested",
+    "icon": "🤖",
+    "abstract": "LLM agent capabilities are increasingly moved outside model weights into external infrastructure. Using 'cognitive artifacts' as a framework, externalization is categorized into four areas: memory (state across time), skills (procedural expertise), protocols (interaction structure), and harness engineering (coordination layer). The paper traces a progression from weights to context to harness and discusses trade-offs between parametric and externalized capability.",
+    "contribution": {
+      "problem": "LLM agent systems lack a unified framework to understand how capabilities are distributed between model weights and external infrastructure.",
+      "approach": "Introduces 'cognitive artifacts' as a lens to categorize externalized capabilities into four pillars: memory, skills, protocols, and harness engineering. Traces the evolutionary arc from weights → context → harness.",
+      "result": "Provides a comprehensive 54-page taxonomy covering memory systems (episodic, semantic, procedural), skill externalization (tool use, code generation), interaction protocols (MCP, A2A), and harness patterns (orchestration, evaluation).",
+      "significance": "First unified framework connecting previously siloed research areas (RAG, tool use, multi-agent, prompt engineering) under a single evolutionary narrative. Helps practitioners understand where to externalize capabilities vs. keep them in-weight."
+    },
+    "key_ideas": [
+      {
+        "title": "Weights → Context → Harness Progression",
+        "desc": "Agent capabilities evolve through three stages: first encoded in model weights (pre-training), then moved to context window (few-shot, RAG), then fully externalized to harness infrastructure (tool orchestration, state management). Each stage trades off latency and integration tightness for flexibility and updateability.",
+        "tags": [
+          "architecture-evolution",
+          "externalization"
+        ]
+      },
+      {
+        "title": "Four Pillars of Externalization",
+        "desc": "Memory (persisting state across interactions), Skills (procedural expertise via tools/code), Protocols (structured interaction patterns like MCP/A2A), and Harness Engineering (the coordination layer that wires everything together). These aren't independent — they form a stack where each layer depends on the ones below.",
+        "tags": [
+          "taxonomy",
+          "cognitive-artifacts"
+        ]
+      },
+      {
+        "title": "Cognitive Artifacts Framework",
+        "desc": "Borrowed from cognitive science: external objects that extend human cognition (maps, calendars, checklists). Applied to LLMs: prompts, tool definitions, memory stores, and protocols are cognitive artifacts that extend model capabilities beyond what weights encode. Key insight: the artifact is part of the cognitive system, not just an input.",
+        "tags": [
+          "cognitive-science",
+          "framework"
+        ]
+      },
+      {
+        "title": "Memory Taxonomy: Episodic / Semantic / Procedural",
+        "desc": "Episodic memory stores interaction history (conversation logs, task traces). Semantic memory stores factual knowledge (RAG, knowledge graphs). Procedural memory stores how-to knowledge (learned tool sequences, code patterns). Most current systems only implement episodic; semantic and procedural are emerging frontiers.",
+        "tags": [
+          "memory-systems",
+          "taxonomy"
+        ]
+      },
+      {
+        "title": "Protocol Standardization as Infrastructure",
+        "desc": "MCP (Model Context Protocol) and A2A (Agent-to-Agent) represent externalization of interaction structure. Instead of hard-coding how agents talk to tools or each other, protocols make these patterns reusable and composable — similar to how HTTP standardized web communication.",
+        "tags": [
+          "protocols",
+          "mcp",
+          "standardization"
+        ]
+      }
+    ],
+    "method": {
+      "overview": "Systematic literature review + taxonomy construction. Collects 200+ papers across memory, tools, multi-agent, and orchestration, then organizes them under the cognitive artifacts framework.",
+      "steps": [
+        "Define cognitive artifacts framework from cognitive science literature",
+        "Categorize existing LLM agent work into four pillars",
+        "Trace evolutionary progression (weights → context → harness) within each pillar",
+        "Identify open challenges and research gaps"
+      ],
+      "novelty": "Unifies previously disconnected research threads (RAG, tool use, multi-agent protocols, evaluation) under a single framework. Prior surveys focused on individual pillars; this is the first to show how they form a stack."
+    },
+    "connections": [],
+    "takeaways": [
+      {
+        "insight": "The weights → context → harness framework is a decision tool, not just a taxonomy — for any agent feature, ask where it should live",
+        "action": "Apply this to Hyperion's own architecture: memory files are harness-level externalization, templates are context-level",
+        "domain": "meta-learning"
+      },
+      {
+        "insight": "Procedural memory (learned tool sequences) is the most under-explored memory type — most systems only do episodic",
+        "action": "When building agent workflows, consider persisting successful tool-call chains as reusable procedures rather than replaying from scratch",
+        "domain": "ai-agents"
+      },
+      {
+        "insight": "Protocol standardization (MCP, A2A) follows the same pattern as HTTP/REST — it's infrastructure, not application logic",
+        "action": "Treat MCP tool definitions as stable interfaces; don't couple agent logic to specific tool implementations",
+        "domain": "systems"
+      }
+    ],
+    "personal_notes": "Extremely useful as a mental map for understanding the LLM agent landscape. The four-pillar taxonomy is practical — when building an agent system, you can ask: what goes in weights vs. context vs. harness for each pillar? The cognitive artifacts lens is elegant but could be more rigorously connected to the cognitive science literature. The paper is comprehensive but sometimes reads like a catalog rather than providing deep analysis of trade-offs.",
+    "questions": [
+      "Is there a principled way to decide what should stay in weights vs. be externalized?",
+      "How do the four pillars interact — does improving memory reduce the need for skill externalization?",
+      "What are the failure modes of over-externalization (e.g., latency, error propagation through tool chains)?",
+      "How does this framework apply to non-LLM agent architectures (classical AI, robotics)?"
+    ]
+  }
+];
+
+// ── Domain colors ──
+const DOMAIN_COLORS = {
+  'ai-agents': '#6c63ff',
+  'machine-learning': '#ff6b6b',
+  'systems': '#4ecdc4',
+  'theory': '#ffe66d',
+  'nlp': '#a78bfa',
+  'vision': '#f97316',
+  'security': '#ec4899',
+  'databases': '#14b8a6',
+  'networks': '#8b5cf6',
+  'hci': '#06b6d4',
+};
+function domainColor(d) { return DOMAIN_COLORS[d] || '#6c63ff'; }
+
+// ── Stats ──
+const statsBar = document.getElementById('statsBar');
+const domains = new Set();
+const allTags = new Set();
+papers.forEach(p => { if (p.domain) domains.add(p.domain); (p.tags || []).forEach(t => allTags.add(t)); });
+const stats = [
+  { value: papers.length, label: 'Papers' },
+  { value: domains.size, label: 'Domains' },
+  { value: papers.reduce((s, p) => s + (p.connections || []).length, 0), label: 'Connections' },
+];
+stats.forEach(s => {
+  const div = document.createElement('div');
+  div.className = 'stat';
+  div.innerHTML = `<div class="stat-value">${s.value}</div><div class="stat-label">${s.label}</div>`;
+  statsBar.appendChild(div);
+});
+
+// ── Timeline Canvas ──
+function drawTimeline() {
+  const canvas = document.getElementById('timelineCanvas');
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = rect.width * dpr;
+  canvas.height = 120 * dpr;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = '120px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const W = rect.width, H = 120;
+
+  if (papers.length === 0) return;
+
+  const dates = papers.map(p => new Date(p.date_read)).sort((a, b) => a - b);
+  const minDate = dates[0].getTime();
+  const maxDate = dates[dates.length - 1].getTime();
+  const range = maxDate - minDate || 1;
+  const pad = 30;
+
+  // Axis
+  ctx.strokeStyle = '#2a2d3a';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad, H - 30);
+  ctx.lineTo(W - pad, H - 30);
+  ctx.stroke();
+
+  // Date labels
+  ctx.fillStyle = '#8888a0';
+  ctx.font = '11px JetBrains Mono, monospace';
+  ctx.textAlign = 'center';
+  const labelDates = [dates[0], dates[dates.length - 1]];
+  if (dates.length > 2) labelDates.splice(1, 0, dates[Math.floor(dates.length / 2)]);
+  labelDates.forEach(d => {
+    const x = pad + ((d.getTime() - minDate) / range) * (W - 2 * pad);
+    const label = d.toISOString().slice(0, 10);
+    ctx.fillText(label, x, H - 12);
+  });
+
+  // Domain rows
+  const domainList = [...domains];
+  const rowH = (H - 50) / Math.max(domainList.length, 1);
+
+  papers.forEach(p => {
+    const x = pad + ((new Date(p.date_read).getTime() - minDate) / range) * (W - 2 * pad);
+    const di = domainList.indexOf(p.domain);
+    const y = 15 + (di >= 0 ? di : 0) * rowH + rowH / 2;
+    const color = domainColor(p.domain);
+
+    ctx.beginPath();
+    ctx.arc(x, y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = color + '33';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+  });
+
+  // Domain labels on left
+  ctx.textAlign = 'left';
+  ctx.font = '10px JetBrains Mono, monospace';
+  domainList.forEach((d, i) => {
+    const y = 15 + i * rowH + rowH / 2;
+    ctx.fillStyle = domainColor(d);
+    ctx.fillText(d, 4, y + 3);
+  });
+}
+drawTimeline();
+window.addEventListener('resize', drawTimeline);
+
+// ── Filter chips ──
+const filterBar = document.getElementById('filterBar');
+const tagCounts = {};
+papers.forEach(p => (p.tags || []).forEach(t => { tagCounts[t] = (tagCounts[t] || 0) + 1; }));
+const topTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+topTags.forEach(([tag]) => {
+  const btn = document.createElement('button');
+  btn.className = 'filter-chip';
+  btn.textContent = tag;
+  btn.dataset.tag = tag;
+  btn.addEventListener('click', () => { btn.classList.toggle('active'); renderPapers(); });
+  filterBar.appendChild(btn);
+});
+
+// ── Render papers ──
+const paperList = document.getElementById('paperList');
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('input', renderPapers);
+
+function renderPapers() {
+  const query = searchInput.value.toLowerCase();
+  const activeTags = [...document.querySelectorAll('.filter-chip.active')].map(b => b.dataset.tag);
+
+  let filtered = papers.filter(p => {
+    if (query) {
+      const haystack = [p.title, p.titleZh, ...(p.authors || []), ...(p.tags || []), p.domain, p.venue].join(' ').toLowerCase();
+      if (!haystack.includes(query)) return false;
+    }
+    if (activeTags.length > 0) {
+      if (!activeTags.some(t => (p.tags || []).includes(t))) return false;
+    }
+    return true;
+  });
+
+  // Group by domain
+  const groups = {};
+  filtered.forEach(p => {
+    const d = p.domain || 'uncategorized';
+    if (!groups[d]) groups[d] = [];
+    groups[d].push(p);
+  });
+
+  paperList.innerHTML = '';
+  if (filtered.length === 0) {
+    paperList.innerHTML = '<div class="no-results">No papers match your search.</div>';
+    return;
+  }
+
+  const sortedDomains = Object.keys(groups).sort();
+  sortedDomains.forEach(domain => {
+    const group = document.createElement('div');
+    group.className = 'domain-group';
+    group.innerHTML = `<div class="domain-label">${domain} <span class="domain-count">${groups[domain].length}</span></div>`;
+
+    const list = document.createElement('div');
+    list.className = 'card-list';
+
+    groups[domain].sort((a, b) => (b.date_read || '').localeCompare(a.date_read || '')).forEach(p => {
+      const a = document.createElement('a');
+      a.className = 'card';
+      a.href = p.id + '.html';
+
+      const authorsShort = (p.authors || []).slice(0, 3).join(', ') + (p.authors && p.authors.length > 3 ? ' et al.' : '');
+      const contribLine = p.contribution ? p.contribution.problem : '';
+      const tagsHtml = (p.tags || []).slice(0, 4).map(t => `<span class="card-tag">${t}</span>`).join('');
+
+      a.innerHTML = `
+        <div class="card-icon">${p.icon || '📄'}</div>
+        <div class="card-body">
+          <div class="card-title">${p.title}</div>
+          <div class="card-sub">${authorsShort}</div>
+          ${contribLine ? `<div class="card-contribution">${contribLine}</div>` : ''}
+          ${tagsHtml ? `<div class="card-tags">${tagsHtml}</div>` : ''}
+        </div>
+        <div class="card-right">
+          <div class="card-badge">${p.status || 'read'}</div>
+          <div class="card-date">${p.date_read || ''}</div>
+        </div>`;
+      list.appendChild(a);
+    });
+
+    group.appendChild(list);
+    paperList.appendChild(group);
+  });
+}
+renderPapers();
+
+// Scroll nav
+window.addEventListener('scroll', () => {
+  document.getElementById('fixedNav').classList.toggle('scrolled', window.scrollY > 50);
+});
+</script>
+<!-- Theme Toggle (injected into .fixed-nav) -->
+<style>
+.theme-toggle {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
+</body>
+</html>

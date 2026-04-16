@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paper Graph — Paper Reading</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222636;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #4ecdc4;
+  --accent4: #ffe66d;
+  --accent5: #a78bfa;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --border: #2a2d3a;
+  --glow: rgba(108, 99, 255, 0.15);
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow: hidden;
+}
+::selection { background: var(--accent); color: #fff; }
+
+/* ── Fixed Nav ── */
+.fixed-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 9998; padding: 0.6rem 1.5rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.4rem; background: rgba(var(--bg-rgb),0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+.fixed-nav.scrolled { border-bottom-color: var(--border); }
+.fixed-nav a { color: var(--text-dim); text-decoration: none; transition: color 0.3s; }
+.fixed-nav a:hover { color: var(--accent); }
+.nav-sep { color: var(--text-dim); }
+
+/* ── Canvas ── */
+#graphCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Info Panel ── */
+.info-panel {
+  position: fixed;
+  right: 20px;
+  top: 60px;
+  width: 320px;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  z-index: 100;
+  display: none;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.info-panel.visible { display: block; }
+.info-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+.info-close:hover { color: var(--text); }
+.info-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; padding-right: 2rem; }
+.info-meta { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.8rem; }
+.info-section-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin: 1rem 0 0.4rem;
+}
+.info-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.6; }
+.info-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 0.6rem; }
+.info-tag {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--accent5);
+  background: rgba(167,139,250,0.1);
+  padding: 1px 6px;
+  border-radius: 2rem;
+}
+.info-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: var(--accent);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+.info-link:hover { text-decoration: underline; }
+.info-conn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 0.8rem;
+}
+.info-conn-type {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  padding: 1px 6px;
+  border-radius: 2rem;
+  white-space: nowrap;
+}
+.info-conn-type.builds-on { background: rgba(108,99,255,0.15); color: var(--accent); }
+.info-conn-type.extends { background: rgba(78,205,196,0.15); color: var(--accent3); }
+.info-conn-type.contradicts { background: rgba(255,107,107,0.15); color: var(--accent2); }
+.info-conn-type.compares { background: rgba(255,230,109,0.15); color: var(--accent4); }
+.info-conn-type.same-lineage { background: rgba(167,139,250,0.15); color: var(--accent5); }
+
+/* ── Legend ── */
+.legend {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  z-index: 100;
+  font-size: 0.75rem;
+}
+.legend-title {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  color: var(--text-dim);
+}
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Stats overlay ── */
+.graph-stats {
+  position: fixed;
+  left: 20px;
+  top: 60px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 1rem;
+  z-index: 100;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+.graph-stats span { color: var(--accent); font-weight: 700; }
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
+</style>
+</head>
+<body>
+
+<nav class="fixed-nav" id="fixedNav">
+  <a href="../index.html">Hyperion</a>
+  <span class="nav-sep">/</span>
+  <a href="index.html">Paper Reading</a>
+  <span class="nav-sep">/</span>
+  <span style="color:var(--text)">Graph</span>
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-toggle-icon" id="themeIcon"></span></button>
+</nav>
+
+<canvas id="graphCanvas"></canvas>
+
+<div class="graph-stats" id="graphStats"></div>
+
+<div class="legend" id="legend"></div>
+
+<div class="info-panel" id="infoPanel">
+  <button class="info-close" id="infoClose">&times;</button>
+  <div id="infoPanelContent"></div>
+</div>
+
+<script>
+const graph = {
+  "nodes": [
+    {
+      "id": "2604.08224",
+      "title": "Externalization in LLM Agents: A Unified Review of Memory, Skills, Protocols and Harness Engineering",
+      "domain": "ai-agents",
+      "tags": [
+        "llm-agents",
+        "externalization",
+        "memory-systems",
+        "tool-use",
+        "multi-agent",
+        "cognitive-architecture"
+      ],
+      "authors": [
+        "Chenyu Zhou",
+        "Huacan Chai",
+        "Wenteng Chen",
+        "Zihan Guo",
+        "Rong Shan",
+        "Yuanyi Song",
+        "Tianyi Xu",
+        "Yingxuan Yang",
+        "Aofan Yu",
+        "Weiming Zhang",
+        "Congming Zheng",
+        "Jiachen Zhu",
+        "Zeyu Zheng",
+        "Zhuosheng Zhang",
+        "Xingyu Lou",
+        "Changwang Zhang",
+        "Zhihui Fu",
+        "Jun Wang",
+        "Weiwen Liu",
+        "Jianghao Lin",
+        "Weinan Zhang"
+      ],
+      "venue": "arXiv preprint",
+      "year": 2026,
+      "contribution": "LLM agent systems lack a unified framework to understand how capabilities are distributed between model weights and external infrastructure.",
+      "connections": 0
+    }
+  ],
+  "edges": []
+};
+
+// ── Domain colors ──
+const DOMAIN_COLORS = {
+  'ai-agents': '#6c63ff',
+  'machine-learning': '#ff6b6b',
+  'systems': '#4ecdc4',
+  'theory': '#ffe66d',
+  'nlp': '#a78bfa',
+  'vision': '#f97316',
+  'security': '#ec4899',
+  'databases': '#14b8a6',
+  'networks': '#8b5cf6',
+  'hci': '#06b6d4',
+  'testing': '#8888a0',
+};
+function domainColor(d) { return DOMAIN_COLORS[d] || '#6c63ff'; }
+
+const EDGE_COLORS = {
+  'builds-on': '#6c63ff',
+  'extends': '#4ecdc4',
+  'contradicts': '#ff6b6b',
+  'compares': '#ffe66d',
+  'same-lineage': '#a78bfa',
+};
+
+// ── Stats ──
+document.getElementById('graphStats').innerHTML =
+  `<span>${graph.nodes.length}</span> papers &nbsp; <span>${graph.edges.length}</span> connections`;
+
+// ── Legend ──
+const domains = [...new Set(graph.nodes.map(n => n.domain))].filter(Boolean).sort();
+const legendEl = document.getElementById('legend');
+legendEl.innerHTML = '<div class="legend-title">Domains</div>' +
+  domains.map(d => `<div class="legend-item"><div class="legend-dot" style="background:${domainColor(d)}"></div>${d}</div>`).join('');
+
+// ── Force-directed graph ──
+const canvas = document.getElementById('graphCanvas');
+const ctx = canvas.getContext('2d');
+let W, H, dpr;
+
+function resize() {
+  dpr = window.devicePixelRatio || 1;
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+resize();
+window.addEventListener('resize', resize);
+
+// Initialize node positions
+const nodeMap = {};
+graph.nodes.forEach((n, i) => {
+  n.x = W / 2 + (Math.random() - 0.5) * 300;
+  n.y = H / 2 + (Math.random() - 0.5) * 300;
+  n.vx = 0;
+  n.vy = 0;
+  n.radius = 8 + Math.min(n.connections * 3, 20);
+  nodeMap[n.id] = n;
+});
+
+// Edge references
+const edges = graph.edges.map(e => ({
+  source: nodeMap[e.source],
+  target: nodeMap[e.target],
+  type: e.type,
+})).filter(e => e.source && e.target);
+
+// Physics
+const REPULSION = 3000;
+const ATTRACTION = 0.005;
+const DAMPING = 0.85;
+const CENTER_PULL = 0.01;
+
+function simulate() {
+  const nodes = graph.nodes;
+  // Repulsion
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      let dx = nodes[j].x - nodes[i].x;
+      let dy = nodes[j].y - nodes[i].y;
+      let dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      let force = REPULSION / (dist * dist);
+      let fx = (dx / dist) * force;
+      let fy = (dy / dist) * force;
+      nodes[i].vx -= fx;
+      nodes[i].vy -= fy;
+      nodes[j].vx += fx;
+      nodes[j].vy += fy;
+    }
+  }
+
+  // Attraction (edges)
+  edges.forEach(e => {
+    let dx = e.target.x - e.source.x;
+    let dy = e.target.y - e.source.y;
+    let dist = Math.sqrt(dx * dx + dy * dy) || 1;
+    let force = dist * ATTRACTION;
+    let fx = (dx / dist) * force;
+    let fy = (dy / dist) * force;
+    e.source.vx += fx;
+    e.source.vy += fy;
+    e.target.vx -= fx;
+    e.target.vy -= fy;
+  });
+
+  // Center pull + velocity update
+  nodes.forEach(n => {
+    n.vx += (W / 2 - n.x) * CENTER_PULL;
+    n.vy += (H / 2 - n.y) * CENTER_PULL;
+    n.vx *= DAMPING;
+    n.vy *= DAMPING;
+    n.x += n.vx;
+    n.y += n.vy;
+  });
+}
+
+// ── Render ──
+let hoveredNode = null;
+let selectedNode = null;
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Edges
+  edges.forEach(e => {
+    ctx.beginPath();
+    ctx.moveTo(e.source.x, e.source.y);
+    ctx.lineTo(e.target.x, e.target.y);
+    const isHighlighted = selectedNode && (e.source.id === selectedNode.id || e.target.id === selectedNode.id);
+    ctx.strokeStyle = isHighlighted ? (EDGE_COLORS[e.type] || '#6c63ff') : 'rgba(42,45,58,0.6)';
+    ctx.lineWidth = isHighlighted ? 2 : 1;
+    ctx.stroke();
+  });
+
+  // Nodes
+  graph.nodes.forEach(n => {
+    const isSelected = selectedNode && n.id === selectedNode.id;
+    const isHovered = hoveredNode && n.id === hoveredNode.id;
+    const isConnected = selectedNode && edges.some(e =>
+      (e.source.id === selectedNode.id && e.target.id === n.id) ||
+      (e.target.id === selectedNode.id && e.source.id === n.id)
+    );
+    const dimmed = selectedNode && !isSelected && !isConnected;
+
+    // Glow
+    if (isSelected || isHovered) {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.radius + 6, 0, Math.PI * 2);
+      ctx.fillStyle = domainColor(n.domain) + '22';
+      ctx.fill();
+    }
+
+    // Node circle
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+    ctx.fillStyle = dimmed ? '#1a1d27' : domainColor(n.domain) + (dimmed ? '44' : 'cc');
+    ctx.fill();
+    ctx.strokeStyle = dimmed ? '#2a2d3a' : domainColor(n.domain);
+    ctx.lineWidth = isSelected ? 3 : 1.5;
+    ctx.stroke();
+
+    // Label
+    if (!dimmed || isConnected) {
+      ctx.fillStyle = dimmed ? '#8888a066' : '#e8e8f0';
+      ctx.font = `${isSelected ? '600 13' : '12'}px 'Noto Sans SC', sans-serif`;
+      ctx.textAlign = 'center';
+      // Truncate title
+      let label = n.title;
+      if (label.length > 30) label = label.slice(0, 27) + '...';
+      ctx.fillText(label, n.x, n.y + n.radius + 16);
+    }
+  });
+}
+
+// ── Animation loop ──
+let frame = 0;
+function loop() {
+  if (frame < 300) simulate();
+  draw();
+  frame++;
+  requestAnimationFrame(loop);
+}
+loop();
+
+// ── Interaction ──
+function getNodeAt(mx, my) {
+  for (let i = graph.nodes.length - 1; i >= 0; i--) {
+    const n = graph.nodes[i];
+    const dx = mx - n.x;
+    const dy = my - n.y;
+    if (dx * dx + dy * dy < (n.radius + 4) * (n.radius + 4)) return n;
+  }
+  return null;
+}
+
+canvas.addEventListener('mousemove', e => {
+  hoveredNode = getNodeAt(e.clientX, e.clientY);
+  canvas.style.cursor = hoveredNode ? 'pointer' : 'default';
+});
+
+canvas.addEventListener('click', e => {
+  const node = getNodeAt(e.clientX, e.clientY);
+  if (node) {
+    selectedNode = node;
+    showInfoPanel(node);
+  } else {
+    selectedNode = null;
+    document.getElementById('infoPanel').classList.remove('visible');
+  }
+});
+
+document.getElementById('infoClose').addEventListener('click', () => {
+  selectedNode = null;
+  document.getElementById('infoPanel').classList.remove('visible');
+});
+
+// ── Info panel ──
+function showInfoPanel(node) {
+  const panel = document.getElementById('infoPanel');
+  const content = document.getElementById('infoPanelContent');
+
+  const nodeEdges = edges.filter(e => e.source.id === node.id || e.target.id === node.id);
+  const connsHtml = nodeEdges.length > 0 ? nodeEdges.map(e => {
+    const other = e.source.id === node.id ? e.target : e.source;
+    return `<div class="info-conn"><span class="info-conn-type ${e.type}">${e.type}</span><span>${other.title}</span></div>`;
+  }).join('') : '<div class="info-text">No connections yet.</div>';
+
+  const tagsHtml = (node.tags || []).map(t => `<span class="info-tag">${t}</span>`).join('');
+
+  content.innerHTML = `
+    <div class="info-title">${node.title}</div>
+    <div class="info-meta">${node.authors ? node.authors.slice(0, 3).join(', ') : ''} · ${node.venue || ''} ${node.year || ''}</div>
+    ${node.contribution ? `<div class="info-section-label">Problem</div><div class="info-text">${node.contribution}</div>` : ''}
+    ${tagsHtml ? `<div class="info-section-label">Tags</div><div class="info-tags">${tagsHtml}</div>` : ''}
+    <div class="info-section-label">Connections (${nodeEdges.length})</div>
+    ${connsHtml}
+    <a class="info-link" href="${node.id}.html">View full breakdown →</a>
+  `;
+  panel.classList.add('visible');
+}
+
+// ── Drag ──
+let dragNode = null;
+canvas.addEventListener('mousedown', e => {
+  dragNode = getNodeAt(e.clientX, e.clientY);
+});
+canvas.addEventListener('mousemove', e => {
+  if (dragNode) {
+    dragNode.x = e.clientX;
+    dragNode.y = e.clientY;
+    dragNode.vx = 0;
+    dragNode.vy = 0;
+  }
+});
+window.addEventListener('mouseup', () => { dragNode = null; });
+</script>
+<!-- Theme Toggle (injected into .fixed-nav) -->
+<style>
+.theme-toggle {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
+</body>
+</html>

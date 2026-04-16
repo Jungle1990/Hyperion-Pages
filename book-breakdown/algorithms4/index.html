@@ -80,11 +80,11 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text);
 .tool-link-icon { font-size: 1.1rem; }
 
 /* ── Fixed Nav ── */
-.fixed-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 9998; padding: 0.6rem 1.5rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.4rem; background: rgba(15,17,23,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+.fixed-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 9998; padding: 0.6rem 1.5rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.4rem; background: rgba(var(--bg-rgb),0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
 .fixed-nav.scrolled { border-bottom-color: var(--border); }
 .fixed-nav a { color: var(--text-dim); text-decoration: none; transition: color 0.3s; }
 .fixed-nav a:hover { color: var(--accent); }
-.fixed-nav .sep { color: var(--border); margin: 0 0.15rem; }
+.fixed-nav .sep { color: var(--text-dim); margin: 0 0.15rem; }
 
 /* ── Fade-in ── */
 .fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
@@ -150,7 +150,11 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text);
 <body>
 
 <nav class="fixed-nav" id="fixedNav">
-    <a href="../../index.html">&larr; Home</a>
+    <a href="../../index.html">Hyperion</a>
+    <span class="sep">/</span>
+    <a href="../index.html">Book Breakdowns</a>
+    <span class="sep">/</span>
+    <span style="color:var(--text)">算法（第四版）</span>
 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-toggle-icon" id="themeIcon"></span></button>
 </nav>
 
