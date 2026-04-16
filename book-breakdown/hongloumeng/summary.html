@@ -731,30 +731,12 @@
             display: block;
         }
 
-        /* ========== Back Navigation ========== */
-        .back-nav {
-            padding: 3rem 0 5rem;
-            text-align: center;
-        }
-
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--accent);
-            text-decoration: none;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-            padding: 0.8rem 2rem;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            transition: border-color 0.3s, background 0.3s;
-        }
-
-        .back-link:hover {
-            border-color: var(--accent);
-            background: var(--glow);
-        }
+        /* ── Fixed Nav ── */
+        .fixed-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 9998; padding: 0.6rem 1.5rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.4rem; background: rgba(15,17,23,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+        .fixed-nav.scrolled { border-bottom-color: var(--border); }
+        .fixed-nav a { color: var(--text-dim); text-decoration: none; transition: color 0.3s; }
+        .fixed-nav a:hover { color: var(--accent); }
+        .fixed-nav .sep { color: var(--border); margin: 0 0.15rem; }
 
         /* ========== Responsive ========== */
         @media (max-width: 768px) {
@@ -848,6 +830,13 @@
 </style>
 </head>
 <body>
+
+<nav class="fixed-nav" id="fixedNav">
+    <a href="../../index.html">Home</a>
+    <span class="sep">/</span>
+    <a href="index.html">红楼梦</a>
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-toggle-icon" id="themeIcon"></span></button>
+</nav>
 
 <!-- Scroll Progress Bar -->
 <div id="progress-bar"></div>
@@ -958,13 +947,7 @@
     </div>
 </section>
 
-<!-- ==================== BACK NAVIGATION ==================== -->
-<div class="back-nav">
-    <a href="index.html" class="back-link">
-        <span>&larr;</span>
-        <span>返回目录 / Back to Index</span>
-    </a>
-</div>
+<!-- ==================== BREADCRUMB NAVIGATION ==================== -->
 
 <!-- ==================== JAVASCRIPT ==================== -->
 <script>
@@ -5450,6 +5433,10 @@ const groupConfig = {
 
     window.addEventListener('scroll', updateProgress, { passive: true });
 
+    window.addEventListener('scroll', () => {
+        document.getElementById('fixedNav').classList.toggle('scrolled', window.scrollY > 50);
+    });
+
     // ========== IntersectionObserver: Fade-in on Scroll ==========
     var animatedElements = document.querySelectorAll('[data-animate]');
 
@@ -5609,18 +5596,12 @@ const groupConfig = {
 })();
 </script>
 
-<!-- Theme Toggle -->
-<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-  <span class="theme-toggle-icon" id="themeIcon"></span>
-</button>
+<!-- Theme Toggle (injected into .fixed-nav) -->
 <style>
 .theme-toggle {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  z-index: 9999;
-  width: 36px;
-  height: 36px;
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--card);
@@ -5628,11 +5609,12 @@ const groupConfig = {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   transition: all 0.3s;
   opacity: 0.7;
   padding: 0;
   line-height: 1;
+  flex-shrink: 0;
 }
 .theme-toggle:hover {
   opacity: 1;

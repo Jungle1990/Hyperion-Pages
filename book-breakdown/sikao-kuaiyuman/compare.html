@@ -59,12 +59,12 @@ body {
               radial-gradient(ellipse at 70% 80%, rgba(78,205,196,0.06) 0%, transparent 50%);
   pointer-events: none;
 }
-.back-link {
-  position: absolute; top: 20px; left: 24px;
-  color: var(--text-dim); text-decoration: none; font-size: 0.85rem;
-  z-index: 2; transition: color 0.2s;
-}
-.back-link:hover { color: var(--accent3); }
+/* ── Fixed Nav ── */
+.fixed-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 9998; padding: 0.6rem 1.5rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.4rem; background: rgba(15,17,23,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+.fixed-nav.scrolled { border-bottom-color: var(--border); }
+.fixed-nav a { color: var(--text-dim); text-decoration: none; transition: color 0.3s; }
+.fixed-nav a:hover { color: var(--accent); }
+.fixed-nav .sep { color: var(--border); margin: 0 0.15rem; }
 .hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px var(--glow)); }
 .hero h1 {
   font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900;
@@ -328,10 +328,16 @@ body {
 </head>
 <body>
 
+<nav class="fixed-nav" id="fixedNav">
+  <a href="../../index.html">Home</a>
+  <span class="sep">/</span>
+  <a href="index.html">思考，快与慢</a>
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-toggle-icon" id="themeIcon"></span></button>
+</nav>
+
 <div id="progress-bar"></div>
 
 <section class="hero">
-  <a href="index.html" class="back-link">&larr; Back</a>
   <div class="hero-icon">&#x1F50D;</div>
   <h1>Edition Compare</h1>
   <p class="hero-subtitle">Side-by-side analysis of two editions &mdash; translation, structure, and content differences</p>
@@ -910,6 +916,7 @@ const compare = {
     var h = document.documentElement;
     var pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
     progressBar.style.width = Math.min(pct, 100) + '%';
+    document.getElementById('fixedNav').classList.toggle('scrolled', window.scrollY > 50);
   });
 
   // ── IntersectionObserver Fade-in ──
@@ -948,18 +955,12 @@ function scrollToSection(id, el) {
   if (el) el.classList.add('active');
 }
 </script>
-<!-- Theme Toggle -->
-<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-  <span class="theme-toggle-icon" id="themeIcon"></span>
-</button>
+<!-- Theme Toggle (injected into .fixed-nav) -->
 <style>
 .theme-toggle {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  z-index: 9999;
-  width: 36px;
-  height: 36px;
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--card);
@@ -967,11 +968,12 @@ function scrollToSection(id, el) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   transition: all 0.3s;
   opacity: 0.7;
   padding: 0;
   line-height: 1;
+  flex-shrink: 0;
 }
 .theme-toggle:hover {
   opacity: 1;

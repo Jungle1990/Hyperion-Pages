@@ -79,6 +79,13 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text);
 .tool-link:hover { border-color: var(--accent); color: var(--text); transform: translateY(-2px); }
 .tool-link-icon { font-size: 1.1rem; }
 
+/* ── Fixed Nav ── */
+.fixed-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 9998; padding: 0.6rem 1.5rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.4rem; background: rgba(15,17,23,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+.fixed-nav.scrolled { border-bottom-color: var(--border); }
+.fixed-nav a { color: var(--text-dim); text-decoration: none; transition: color 0.3s; }
+.fixed-nav a:hover { color: var(--accent); }
+.fixed-nav .sep { color: var(--border); margin: 0 0.15rem; }
+
 /* ── Fade-in ── */
 .fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
 .fade-in.visible { opacity: 1; transform: translateY(0); }
@@ -87,6 +94,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text);
     .stats { gap: 1.5rem; }
     .stat-num { font-size: 1.8rem; }
     .chapter-card { padding: 16px; gap: 14px; }
+
 }
 /* ── RGB triplet defaults (dark) ── */
 :root {
@@ -141,6 +149,11 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text);
 </head>
 <body>
 
+<nav class="fixed-nav" id="fixedNav">
+    <a href="../../index.html">&larr; Home</a>
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-toggle-icon" id="themeIcon"></span></button>
+</nav>
+
 <section class="hero">
     <div class="hero-icon">🦁</div>
     <h1>社会性动物</h1>
@@ -152,6 +165,8 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text);
         <a class="tool-link" href="xray.html"><span class="tool-link-icon">🩻</span> X-Ray · 透视这本书</a>
         <a class="tool-link" href="review.html"><span class="tool-link-icon">🔀</span> Interleaved Review · 交叉复习</a>
         <a class="tool-link" href="distill.html"><span class="tool-link-icon">🧪</span> Distill · 读后蒸馏</a>
+        <a class="tool-link" href="schedule.html"><span class="tool-link-icon">📅</span> Schedule · 学习日程</a>
+        <a class="tool-link" href="rootmap.html"><span class="tool-link-icon">🗺️</span> Root Map · 词根图谱</a>
         <a class="tool-link" href="../syntopical.html"><span class="tool-link-icon">🕸️</span> Syntopical · 主题阅读</a>
     </div>
     <div class="scroll-hint"><span></span><small>SCROLL</small></div>
@@ -333,19 +348,17 @@ const observer = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
 }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+window.addEventListener('scroll', () => {
+    document.getElementById('fixedNav').classList.toggle('scrolled', window.scrollY > 50);
+});
 </script>
-<!-- Theme Toggle -->
-<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-  <span class="theme-toggle-icon" id="themeIcon"></span>
-</button>
+<!-- Theme Toggle (injected into .fixed-nav) -->
 <style>
 .theme-toggle {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  z-index: 9999;
-  width: 36px;
-  height: 36px;
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--card);
@@ -353,11 +366,12 @@ document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   transition: all 0.3s;
   opacity: 0.7;
   padding: 0;
   line-height: 1;
+  flex-shrink: 0;
 }
 .theme-toggle:hover {
   opacity: 1;
