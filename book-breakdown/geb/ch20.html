@@ -314,18 +314,18 @@ section { padding: 80px 0; }
     <div class="section-title">艾舍尔《画手》：怪圈与不受干扰层</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">✋</div>
+            <div class="analogy-label">缠结的层次（两只手）</div>
+            <div class="analogy-desc">左手在画右手，右手在画左手——「画的」和「被画的」层次纠缠在一起，看似自相矛盾</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🎨</div>
+            <div class="analogy-label">不受干扰层（艾舍尔）</div>
+            <div class="analogy-desc">真正画出这一切的是艾舍尔本人——他处于两只手所在的空间之外，是使缠结得以存在的不可见基质</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">大脑中的符号缠结 ≈ 两只互画的手；神经元基质 ≈ 看不见的艾舍尔</div></div>
 </section>
 
 <!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
@@ -335,16 +335,22 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">简单缠结（反馈）</div>
+            <div class="comparison-title">简单缠结（反馈）</div>
+            <div class="comparison-text">两只手互相洗——日常行为，毫不奇怪
+不涉及层次的扰乱
+对话你来我往——不是悖论
+恒温器的反馈回路</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">缠结的层次结构（怪圈）</div>
+            <div class="comparison-title">缠结的层次结构（怪圈）</div>
+            <div class="comparison-text">两只手互相画——扰乱了「画/被画」的层次
+语言谈论自身——内外差别被搞乱
+哥德尔串G——对象层与元层缠结
+自我意识——思维反思自身的思维过程</div>
         </div>
     </div>
     
@@ -353,8 +359,8 @@ section { padding: 80px 0; }
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block4" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">🌀 意识的核心是怪圈</div>
+        <div class="insight-content">意识和自由意志是一种「浮现」现象：它们的解释不能仅借助生理学完成，而需要同时在多个层次上进行理解。正像哥德尔串G的「非定理性」不能在TNT层上解释，只能在更高的元数学层上被看到一样——意识可能也是一种本质上的「高层事实」，必须通过层次间的怪圈式相互作用来理解。自我成为存在的时刻，恰是它具有反映自身能力的时刻。</div>
     </div>
 </section>
 
@@ -368,8 +374,8 @@ section { padding: 80px 0; }
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block6" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">🌊 自由意志：有自知与无自知之间的平衡</div>
+        <div class="insight-content">当一个系统中存在「自我符号」，而且这个自我符号参与了决策过程，但又无法完全洞察自身的运作机制时——自由意志的感觉就从这种「有自知之明」和「无自知之明」的平衡中浮现出来。一个作家知道他在表达什么，但不完全知道想法从哪里来——来源像冰山一样大部分藏在水下。这不是确定性与随机性的问题，而是层次交错产生的漩涡。</div>
     </div>
 </section>
 
@@ -471,29 +477,71 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "为什么「软件的灵活性来自硬件的稳固性」不是一个矛盾？",
-    "a": "因为各层次上的软件规则都可以改变（思想改变思维方式），而硬件规则不变（神经元始终按物理规律运行）。正是底层的不变性为高层的变化提供了稳定的平台。"
+    "question": "为什么「软件的灵活性来自硬件的稳固性」不是一个矛盾？",
+    "answer": "因为各层次上的软件规则都可以改变（思想改变思维方式），而硬件规则不变（神经元始终按物理规律运行）。正是底层的不变性为高层的变化提供了稳定的平台。"
   },
   {
-    "q": "艾舍尔的《画廊》中，中心的「疵点」为什么是不可避免的？",
-    "a": "因为画中的年轻人处于他正在看的画之中，这种层次缠结必然在某处产生不完全性——艾舍尔无法根据他一贯的规则完成那个部分。这构成了对哥德尔不完全性定理的形象比喻。"
+    "question": "艾舍尔的《画廊》中，中心的「疵点」为什么是不可避免的？",
+    "answer": "因为画中的年轻人处于他正在看的画之中，这种层次缠结必然在某处产生不完全性——艾舍尔无法根据他一贯的规则完成那个部分。这构成了对哥德尔不完全性定理的形象比喻。"
   },
   {
-    "q": "塞缪尔论证「机器不能有自己的意愿」的错误在哪里？",
-    "a": "他犯了和卡罗尔对话中乌龟一样的错误：假设任何愿望的机械化都需要无穷回归。但底层规则（硬件）嵌入于物理之中，不需要更高层的「许可」就能运行——人的意愿同样来自未经自己设计或选择的大脑硬件。"
+    "question": "塞缪尔论证「机器不能有自己的意愿」的错误在哪里？",
+    "answer": "他犯了和卡罗尔对话中乌龟一样的错误：假设任何愿望的机械化都需要无穷回归。但底层规则（硬件）嵌入于物理之中，不需要更高层的「许可」就能运行——人的意愿同样来自未经自己设计或选择的大脑硬件。"
   },
   {
-    "q": "为什么侯世达说「所有不可判定命题本质上都是哥德尔语句」？",
-    "a": "因为G之所以不可判定，是由于它的非定理性只能在更高的元数学层上解释，在TNT层上完全没有解释。他猜测所有不可判定命题都具有这种特征——通过某种编码在系统内陈述了自身的非定理性。"
+    "question": "为什么侯世达说「所有不可判定命题本质上都是哥德尔语句」？",
+    "answer": "因为G之所以不可判定，是由于它的非定理性只能在更高的元数学层上解释，在TNT层上完全没有解释。他猜测所有不可判定命题都具有这种特征——通过某种编码在系统内陈述了自身的非定理性。"
   },
   {
-    "q": "「自我成为一种存在的时刻恰是它具有反映自身能力的时刻」是什么意思？",
-    "a": "这就像汉肯句子通过断定自己的可证明性使自己真的变成可证明的——自我意识是一种自我强化的怪圈：一旦系统有了反映自身的能力，那种反映本身就构成了「自我」的存在。"
+    "question": "「自我成为一种存在的时刻恰是它具有反映自身能力的时刻」是什么意思？",
+    "answer": "这就像汉肯句子通过断定自己的可证明性使自己真的变成可证明的——自我意识是一种自我强化的怪圈：一旦系统有了反映自身的能力，那种反映本身就构成了「自我」的存在。"
   }
 ];
 const chapterNav = {"prev": {"num": 19, "title": "人工智能：展望", "href": "ch19.html"}};
-window.pipeData_block1 = [];
-window.tipsData_block5 = [];
+window.pipeData_block1 = [
+  {
+    "label": "普通棋局",
+    "desc": "规则固定不变，每步只改变棋盘局势"
+  },
+  {
+    "label": "加入元规则",
+    "desc": "允许修改走棋规则——两层：规则+元规则"
+  },
+  {
+    "label": "加入元元规则",
+    "desc": "允许修改元规则——多层嵌套的辅助棋盘"
+  },
+  {
+    "label": "压缩为一个棋盘",
+    "desc": "同一个棋盘既是棋局又是规则——鸡生蛋、蛋生鸡的怪圈"
+  },
+  {
+    "label": "类比大脑",
+    "desc": "思想改变思维方式又被思维方式塑造——但底层神经元始终按物理规律不变运行"
+  }
+];
+window.tipsData_block5 = [
+  {
+    "icon": "🔢",
+    "title": "哥德尔：编码的怪圈",
+    "text": "形式系统通过哥德尔编码谈论自身，不完全性定理揭示了自指的极限和力量"
+  },
+  {
+    "icon": "🎨",
+    "title": "艾舍尔：视觉的怪圈",
+    "text": "《画廊》中观画者处于画中——层次的缠结产生不可能的空间"
+  },
+  {
+    "icon": "🎵",
+    "title": "巴赫：音乐的怪圈",
+    "text": "《音乐的奉献》中无穷升高的卡农——谢泼德音调让它真正闭合成圈"
+  },
+  {
+    "icon": "🧠",
+    "title": "人脑：意识的怪圈",
+    "text": "符号缠结被神经元缠结支持——软件灵活源于硬件稳固"
+  }
+];
 
 /* ── Pre-Quiz ── */
 (function() {

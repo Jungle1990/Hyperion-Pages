@@ -318,18 +318,18 @@ section { padding: 80px 0; }
     <div class="section-title">递归的日常类比</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">📞</div>
+            <div class="analogy-label">秘书接电话</div>
+            <div class="analogy-desc">正与A通话→B打来→暂停A→接B→C打来→暂停B→接C→C完毕→弹回B→B完毕→弹回A。每次暂停都在「堆栈」中记录断点。</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🪆</div>
+            <div class="analogy-label">俄罗斯套娃</div>
+            <div class="analogy-desc">大娃娃包含中娃娃，中娃娃包含小娃娃，小娃娃是实心的（基底）。打开=推入，合上=弹出。实心娃=终止条件。</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">推入=暂停当前去做子任务，弹出=子任务完成后恢复，堆栈=记住返回地址</div></div>
 </section>
 
 <!-- Block: pipeline — Flow diagram with connected nodes -->
@@ -347,16 +347,24 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">花哨名词（非递归）</div>
+            <div class="comparison-title">花哨名词（非递归）</div>
+            <div class="comparison-text">指示代词 + 量词 + 形容词 + 名词
+可跳过某些成分
+可重复形容词
+不调用自身
+例：「那件大红新桌子」</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">豪华名词（递归）</div>
+            <div class="comparison-title">豪华名词（递归）</div>
+            <div class="comparison-text">调用花哨名词 + 可能调用自身
+「及物动词 + 豪华名词 + 的 + 花哨名词」
+自引用但不循环——总有非递归通道
+可嵌套任意深度
+例：「结交朝向逻辑的鼻子的努力」</div>
         </div>
     </div>
     
@@ -365,8 +373,8 @@ section { padding: 80px 0; }
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block4" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">⚛️ 物质最底层的递归：费曼图</div>
+        <div class="insight-content">一个实际的电子不是简单的粒子，而是一个「裸电子」加上围绕它的无穷多虚粒子云。虚光子可以衰变成正负电子对，每对又可以放射虚光子...层层递归嵌套到无穷深。物理学家用「费曼图」来描述这种递归——越复杂的图贡献越小，但要精确描述一个电子需要对无穷多种图取平均。整个物质世界就是由这些「泡泡套泡泡」组成的！</div>
     </div>
 </section>
 
@@ -478,29 +486,81 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "什么是「推入」「弹出」和「堆栈」？用日常生活的例子解释。",
-    "a": "推入=暂停当前工作去做新的子任务（接多线电话时暂停A去接B），弹出=子任务完成后恢复上一个工作（B通话结束回到A），堆栈=记录每次暂停时的断点和上下文（一张纸记着「和A聊到了...」）。"
+    "question": "什么是「推入」「弹出」和「堆栈」？用日常生活的例子解释。",
+    "answer": "推入=暂停当前工作去做新的子任务（接多线电话时暂停A去接B），弹出=子任务完成后恢复上一个工作（B通话结束回到A），堆栈=记录每次暂停时的断点和上下文（一张纸记着「和A聊到了...」）。"
   },
   {
-    "q": "递归定义为什么不会导致无穷回归？",
-    "a": "因为递归定义总有一条不递归的基底路径（终了条件）。比如斐波那契数定义中FIBO(1)=FIBO(2)=1就是基底——不再调用自身。只要每次递归都在向基底靠近，过程就一定终止。"
+    "question": "递归定义为什么不会导致无穷回归？",
+    "answer": "因为递归定义总有一条不递归的基底路径（终了条件）。比如斐波那契数定义中FIBO(1)=FIBO(2)=1就是基底——不再调用自身。只要每次递归都在向基底靠近，过程就一定终止。"
   },
   {
-    "q": "和声小迷宫中哪个「推入」从未被「弹出」？",
-    "a": "最外层的推入——郝晕把阿基里斯和乌龟拐上直升飞机、威胁要做成馅饼——这个悬念从未解决。故事通过层层嵌套让读者忘记了最初的危险，但它始终悬而未决。"
+    "question": "和声小迷宫中哪个「推入」从未被「弹出」？",
+    "answer": "最外层的推入——郝晕把阿基里斯和乌龟拐上直升飞机、威胁要做成馅饼——这个悬念从未解决。故事通过层层嵌套让读者忘记了最初的危险，但它始终悬而未决。"
   },
   {
-    "q": "费曼图中的递归是什么意思？",
-    "a": "一个实际电子被描述为裸电子+围绕它的虚粒子云。虚光子可以衰变成电子-正电子对，每个又可以放射虚光子...层层嵌套到无穷。要完全描述一个电子需要对无穷多种费曼图取平均。"
+    "question": "费曼图中的递归是什么意思？",
+    "answer": "一个实际电子被描述为裸电子+围绕它的虚粒子云。虚光子可以衰变成电子-正电子对，每个又可以放射虚光子...层层嵌套到无穷。要完全描述一个电子需要对无穷多种费曼图取平均。"
   },
   {
-    "q": "侯世达定律是什么？它本身是递归的吗？",
-    "a": "「做事所花费的时间总是比你预期的要长，即使你的预期中考虑了侯世达定律。」是的，它本身就是递归的——定律引用了自身，但不会导致无穷回归，因为它描述的是一个经验事实。"
+    "question": "侯世达定律是什么？它本身是递归的吗？",
+    "answer": "「做事所花费的时间总是比你预期的要长，即使你的预期中考虑了侯世达定律。」是的，它本身就是递归的——定律引用了自身，但不会导致无穷回归，因为它描述的是一个经验事实。"
   }
 ];
 const chapterNav = {"prev": {"num": 4, "title": "一致性、完全性与几何学", "href": "ch04.html"}, "next": {"num": 6, "title": "意义位于何处", "href": "ch06.html"}};
-window.pipeData_block2 = [];
-window.tipsData_block5 = [];
+window.pipeData_block2 = [
+  {
+    "label": "第0层：现实世界",
+    "desc": "阿基里斯和乌龟被郝晕拐上直升飞机——悬而未决！"
+  },
+  {
+    "label": "第1层：故事",
+    "desc": "郝晕书房中的《神怪和煮调饮》，两人开始阅读"
+  },
+  {
+    "label": "第2层：艾舍尔画中",
+    "desc": "喝推入露进入《凹与凸》，遇到怪物和元怪物"
+  },
+  {
+    "label": "第3层：唱片纹道",
+    "desc": "缩小后在唱片纹沟中行走，听巴赫《和声小迷宫》"
+  },
+  {
+    "label": "弹出",
+    "desc": "吃弹出锅酥→弹回画中→上一层→回到乌龟家（但第0层从未弹出！）"
+  }
+];
+window.tipsData_block5 = [
+  {
+    "icon": "⬇️",
+    "title": "推入（Push）",
+    "text": "暂停当前工作，记住断点，开始一项新的（更底层的）工作"
+  },
+  {
+    "icon": "⬆️",
+    "title": "弹出（Pop）",
+    "text": "完成当前层工作，从堆栈读取返回地址，恢复上层工作"
+  },
+  {
+    "icon": "📚",
+    "title": "堆栈（Stack）",
+    "text": "后进先出的记忆结构，存储每层的返回地址和上下文"
+  },
+  {
+    "icon": "🛑",
+    "title": "终了（Base case）",
+    "text": "递归不再调用自身的部分，保证过程不会无穷回归"
+  },
+  {
+    "icon": "🌀",
+    "title": "异层结构",
+    "text": "没有单独「最高层」的程序结构——过程互相调用，如F(n)和M(n)"
+  },
+  {
+    "icon": "📊",
+    "title": "侯世达定律",
+    "text": "做事总比预期久，即使预期中已考虑了这条定律！"
+  }
+];
 window.barData_block6 = [];
 
 /* ── Pre-Quiz ── */

@@ -306,18 +306,18 @@ section { padding: 80px 0; }
     <div class="section-title">自想国：大脑同构的地理隐喻</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🗺️</div>
+            <div class="analogy-label">自想国（想象中的地图）</div>
+            <div class="analogy-desc">每人凭记忆画中国地图：大城市基本一致，偏远乡村各不相同，但整体结构可以对照</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🧠</div>
+            <div class="analogy-label">大脑符号网络</div>
+            <div class="analogy-desc">核心概念人人相似，细微联想因人而异，但借助共同参照点可以相互理解</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">共同的外部世界提供共同的参照点</div></div>
 </section>
 
 <!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
@@ -327,16 +327,22 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">局部忠实（逐字翻译）</div>
+            <div class="comparison-title">局部忠实（逐字翻译）</div>
+            <div class="comparison-text">保留原文的词汇对应
+保持原文的时态和语序
+保留文化专属名词（如「伏特加酒」）
+风险：读者缺乏文化背景时难以理解</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">总体忠实（意译重建）</div>
+            <div class="comparison-title">总体忠实（意译重建）</div>
+            <div class="comparison-text">保留原文的情感和功能
+调整时态和语序以适应目标语言
+替换为目标文化的等价物（如「茉莉花茶」）
+风险：离原文精神太远，变成「重写」</div>
         </div>
     </div>
     
@@ -360,8 +366,8 @@ section { padding: 80px 0; }
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block5" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">🤖 卢卡斯的挑战：心智 vs 机器</div>
+        <div class="insight-content">哲学家卢卡斯认为，有意识物能意识到自身，因此可以处理哥德尔式问题，而机器不能「在工作时把所作所为考虑进去」。但图灵反驳说：复杂度可能引起质的变化——超过某种临界点的机器可能「不再是真正的机器」，而是类似于创造了一个心智。</div>
     </div>
 </section>
 
@@ -458,25 +464,63 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "为什么两个人的大脑之间不可能有完全的符号同构？",
-    "a": "完全的符号同构意味着两个人的符号、触发模式完全对应，这要求他们有完全相同的记忆——也就是过着一模一样的生活。即使是双胞胎也远远达不到这种状态。甚至一个人回顾几年前的自己，也会发现同构是不完善的。"
+    "question": "为什么两个人的大脑之间不可能有完全的符号同构？",
+    "answer": "完全的符号同构意味着两个人的符号、触发模式完全对应，这要求他们有完全相同的记忆——也就是过着一模一样的生活。即使是双胞胎也远远达不到这种状态。甚至一个人回顾几年前的自己，也会发现同构是不完善的。"
   },
   {
-    "q": "「自想国」类比中，什么决定了两幅地图的相似程度？",
-    "a": "相似程度取决于城市的「中心性」——一个城市在经济、通讯、运输等方面越重要，就越可能在所有人的自想国中都出现。这类比于大脑中「核心符号」的普遍性：越基本的概念，个体差异越小。"
+    "question": "「自想国」类比中，什么决定了两幅地图的相似程度？",
+    "answer": "相似程度取决于城市的「中心性」——一个城市在经济、通讯、运输等方面越重要，就越可能在所有人的自想国中都出现。这类比于大脑中「核心符号」的普遍性：越基本的概念，个体差异越小。"
   },
   {
-    "q": "为什么作者认为意识不需要一个外在的「灵魂」来解释？",
-    "a": "因为大脑中的自我子系统本身就可以监控其他符号的活动，形成「关于思维的思维」的符号。当这种自我监控达到足够复杂的程度，意识就作为系统性质自然涌现，不需要额外的非物理实体。"
+    "question": "为什么作者认为意识不需要一个外在的「灵魂」来解释？",
+    "answer": "因为大脑中的自我子系统本身就可以监控其他符号的活动，形成「关于思维的思维」的符号。当这种自我监控达到足够复杂的程度，意识就作为系统性质自然涌现，不需要额外的非物理实体。"
   },
   {
-    "q": "翻译「炸脖ꪡ」这样的诗为什么特别困难？它为什么能说明大脑同构的问题？",
-    "a": "因为这首诗中大量使用了无意义的自造词，这些词的价值在于它们唤起的联想网络。不同语言的联想网络结构不同（如汉字有字形联想而英语有语音联想），所以无法建立精确的符号对应。这恰好说明两个大脑的符号网络只能是「部分同构」的。"
+    "question": "翻译「炸脖ꪡ」这样的诗为什么特别困难？它为什么能说明大脑同构的问题？",
+    "answer": "因为这首诗中大量使用了无意义的自造词，这些词的价值在于它们唤起的联想网络。不同语言的联想网络结构不同（如汉字有字形联想而英语有语音联想），所以无法建立精确的符号对应。这恰好说明两个大脑的符号网络只能是「部分同构」的。"
   }
 ];
 const chapterNav = {"prev": {"num": 11, "title": "大脑和思维", "href": "ch11.html"}, "next": {"num": 13, "title": "BlooP和FlooP和GlooP", "href": "ch13.html"}};
-window.pipeData_block3 = [];
-window.tipsData_block4 = [];
+window.pipeData_block3 = [
+  {
+    "label": "符号",
+    "desc": "神经元集群，代表单个概念"
+  },
+  {
+    "label": "子系统",
+    "desc": "符号的集群，能半自主运转，像个「子脑」"
+  },
+  {
+    "label": "自我子系统",
+    "desc": "最复杂的子系统，持续监控其他符号的活动状态"
+  },
+  {
+    "label": "意识",
+    "desc": "自我子系统对大脑活动进行组块化描述时的涌现性质"
+  }
+];
+window.tipsData_block4 = [
+  {
+    "icon": "🌍",
+    "title": "普遍性核心",
+    "text": "所有人的符号网络都有大量共通之处——因为我们生活在同一个世界"
+  },
+  {
+    "icon": "🔀",
+    "title": "共用编码",
+    "text": "同一个符号（如「山」）可以被不同子系统借用，就像分时系统中的共享程序"
+  },
+  {
+    "icon": "🎭",
+    "title": "朋友模型",
+    "text": "我们大脑中有代表亲密朋友的子系统，能模拟他们的思维方式"
+  },
+  {
+    "icon": "⚖️",
+    "title": "潜在信念",
+    "text": "大脑状态包含的是有条件的信念目录——同一大脑在不同环境下可以产生矛盾的想法"
+  }
+];
 
 /* ── Pre-Quiz ── */
 (function() {

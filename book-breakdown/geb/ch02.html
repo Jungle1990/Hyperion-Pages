@@ -318,18 +318,18 @@ section { padding: 80px 0; }
     <div class="section-title">同构：意义的桥梁</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🔐</div>
+            <div class="analogy-label">密码与解密</div>
+            <div class="analogy-desc">密文看起来毫无意义，但用正确的密钥解读后，每个符号都对应真实的语言。解密的过程就是发现同构。</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🔤</div>
+            <div class="analogy-label">形式系统与解释</div>
+            <div class="analogy-desc">pq系统的符号串本身无意义，但当q→等于、p→加、-→1时，每条定理都对应一个真实的加法等式。</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">意义不在符号本身，而在符号与现实之间的映射关系</div></div>
 </section>
 
 <!-- Block: pipeline — Flow diagram with connected nodes -->
@@ -347,16 +347,22 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">有意义的解释</div>
+            <div class="comparison-title">有意义的解释</div>
+            <div class="comparison-text">q→等于, p→加, -→1
+定理 ↔ 真陈述 一一对应
+---q--p- 即「3等于2加1」✓
+同构完美成立</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">无意义的解释</div>
+            <div class="comparison-title">无意义的解释</div>
+            <div class="comparison-text">q→马, p→幸福, -→苹果
+定理与真理毫无关系
+「苹果马苹果幸福苹果苹果」？
+没有同构可言</div>
         </div>
     </div>
     
@@ -365,8 +371,8 @@ section { padding: 80px 0; }
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block4" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">⚠️ 主动意义 vs 被动意义</div>
+        <div class="insight-content">在自然语言中，知道一个词的意义就能用它造新句子——意义是「主动的」。但在形式系统中，意义是「被动的」：我们只能从定理中读出意义，不能因为某个符号串「应该」有意义就把它当成定理。--------q--p--p--p-- 看起来像「8=2+2+2+2」，但它根本不是良构的，更不是定理。形式化要求再次发出警告！</div>
     </div>
 </section>
 
@@ -473,25 +479,63 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "什么是pq系统中的「有意义的解释」？举一个有意义和一个无意义的例子。",
-    "a": "有意义的解释是使每条定理都对应一个真陈述的解释，如q→等于、p→加。无意义的解释如q→马、p→幸福，定理解释后既不真也不假，只是无意义的排列。"
+    "question": "什么是pq系统中的「有意义的解释」？举一个有意义和一个无意义的例子。",
+    "answer": "有意义的解释是使每条定理都对应一个真陈述的解释，如q→等于、p→加。无意义的解释如q→马、p→幸福，定理解释后既不真也不假，只是无意义的排列。"
   },
   {
-    "q": "为什么说形式系统中的意义是「被动的」？",
-    "a": "因为意义只能从已有定理中读出，不能反过来基于意义创造新定理。比如不能因为「8=2+2+2+2」看起来正确就把对应符号串加入定理集——它甚至不是良构的。"
+    "question": "为什么说形式系统中的意义是「被动的」？",
+    "answer": "因为意义只能从已有定理中读出，不能反过来基于意义创造新定理。比如不能因为「8=2+2+2+2」看起来正确就把对应符号串加入定理集——它甚至不是良构的。"
   },
   {
-    "q": "卡罗尔的「二部创意曲」展示了什么哲学问题？",
-    "a": "展示了逻辑推理的无穷回归问题：接受A和B为真，还需要接受「若A且B则Z」（命题C），然后又需要接受「若A、B、C则Z」（命题D）...永无止境。这暗示形式规则本身不足以「强迫」推理。"
+    "question": "卡罗尔的「二部创意曲」展示了什么哲学问题？",
+    "answer": "展示了逻辑推理的无穷回归问题：接受A和B为真，还需要接受「若A且B则Z」（命题C），然后又需要接受「若A、B、C则Z」（命题D）...永无止境。这暗示形式规则本身不足以「强迫」推理。"
   },
   {
-    "q": "欧几里德如何用有穷的证明处理关于无穷的命题？",
-    "a": "通过「推广」技巧：先对一个非特定的数N进行论证，然后指出论证对所有N都成立。用「所有」「不论N是什么」这样有穷的词来体现无穷，避免了逐一检验无穷多情况。"
+    "question": "欧几里德如何用有穷的证明处理关于无穷的命题？",
+    "answer": "通过「推广」技巧：先对一个非特定的数N进行论证，然后指出论证对所有N都成立。用「所有」「不论N是什么」这样有穷的词来体现无穷，避免了逐一检验无穷多情况。"
   }
 ];
 const chapterNav = {"prev": {"num": 1, "title": "WU谜题——形式系统", "href": "ch01.html"}, "next": {"num": 3, "title": "图形与衬底", "href": "ch03.html"}};
-window.pipeData_block2 = [];
-window.tipsData_block5 = [];
+window.pipeData_block2 = [
+  {
+    "label": "公理模式",
+    "desc": "x-qxp- 是公理（x为短杠串）。如 --q-p- 即「2=1+1」"
+  },
+  {
+    "label": "推理规则",
+    "desc": "若 xqypz 是定理，则 x-qypz- 也是定理"
+  },
+  {
+    "label": "定理 = 真理",
+    "desc": "每条定理解释后都是正确的加法式子"
+  },
+  {
+    "label": "非定理 = 谬误",
+    "desc": "不能产生的符号串对应错误的加法式子"
+  }
+];
+window.tipsData_block5 = [
+  {
+    "icon": "🐢",
+    "title": "二部创意曲",
+    "text": "卡罗尔的对话展示了逻辑推理的无穷回归：每增加一条推理规则，都需要另一条规则来保证它被接受"
+  },
+  {
+    "icon": "🔄",
+    "title": "同构与巴赫",
+    "text": "这种「同样的事件在更高层次重复」的结构，与巴赫的无穷升高卡农绝妙相似"
+  },
+  {
+    "icon": "❓",
+    "title": "核心问题",
+    "text": "文字和思维是否遵循形式规则？这是本章也是全书的根本问题"
+  },
+  {
+    "icon": "🧮",
+    "title": "欧几里德的证明",
+    "text": "素数有无穷多个的证明展示了推理如何「绕过无穷」——用「所有」这个有穷的词来体现无穷"
+  }
+];
 window.barData_block6 = [];
 
 /* ── Pre-Quiz ── */

@@ -306,18 +306,18 @@ section { padding: 80px 0; }
     <div class="section-title">艾舍尔的图形与衬底 vs 形式系统的定理与非定理</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🎨</div>
+            <div class="analogy-label">视觉艺术</div>
+            <div class="analogy-desc">黑色动物是「图形」（主动画出），白色动物是「衬底」（被动形成）。在倍流畅画中，两者都是可识别的形状。</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🔢</div>
+            <div class="analogy-label">形式系统</div>
+            <div class="analogy-desc">合数C----等是「图形」（定理，可被规则产生），素数P---等是「衬底」（非定理，被排除的）。素数也能被另一套规则正面产生。</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">核心问题：衬底是否总能成为另一个系统的图形？答案是否定的！</div></div>
 </section>
 
 <!-- Block: pipeline — Flow diagram with connected nodes -->
@@ -335,16 +335,24 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">递归可枚举集（r.e.）</div>
+            <div class="comparison-title">递归可枚举集（r.e.）</div>
+            <div class="comparison-text">可以被形式系统的规则正面产生
+相当于「图形」：能按规则画出
+可以列出所有成员
+但不一定能判定某元素是否不在集合中
+例：任何形式系统的定理集</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">递归集</div>
+            <div class="comparison-title">递归集</div>
+            <div class="comparison-text">它和它的补集都是r.e.的
+相当于「倍流畅」图形：图形和衬底都可识别
+有判定过程：能在有限时间内判定是/否
+不是所有r.e.集都是递归的！
+例：加法正确式子的集合</div>
         </div>
     </div>
     
@@ -353,8 +361,8 @@ section { padding: 80px 0; }
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block4" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">🚫 为什么不能用否定来定义？</div>
+        <div class="insight-content">写下「如果Cx不是定理，那么Px是定理」看似合理，但这违背了形式系统的精神。因为判断Cx「不是」定理需要到系统外部去推理——你需要一张无穷长的「非定理表」。形式系统的规则只能基于已有的定理（正面信息）来产生新定理，不能基于「缺少」某个定理（负面信息）来做判断。这就是形式化要求的精髓。</div>
     </div>
 </section>
 
@@ -458,25 +466,73 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "为什么「如果Cx不是定理则Px是定理」是一条非法的规则？",
-    "a": "因为判断Cx「不是」定理需要到系统外部去推理，这不是形式系统内部的印符操作。形式系统的规则只能基于已有定理（正面信息）来产生新定理。"
+    "question": "为什么「如果Cx不是定理则Px是定理」是一条非法的规则？",
+    "answer": "因为判断Cx「不是」定理需要到系统外部去推理，这不是形式系统内部的印符操作。形式系统的规则只能基于已有定理（正面信息）来产生新定理。"
   },
   {
-    "q": "什么是「递归可枚举集」和「递归集」的区别？",
-    "a": "r.e.集的元素可以被规则逐一列出（像图形可以画出来）。递归集要求集合和它的补集都是r.e.的（图形和衬底都可识别），因此有判定过程。"
+    "question": "什么是「递归可枚举集」和「递归集」的区别？",
+    "answer": "r.e.集的元素可以被规则逐一列出（像图形可以画出来）。递归集要求集合和它的补集都是r.e.的（图形和衬底都可识别），因此有判定过程。"
   },
   {
-    "q": "素数是如何被「正面」刻划的？",
-    "a": "通过三步：(1) BZC系统表达「不可整除」；(2) MY规则表达「在某范围内无因子」；(3) 最终规则把无因子性转化为素数判定。整个过程稳步向前，不需要回溯。"
+    "question": "素数是如何被「正面」刻划的？",
+    "answer": "通过三步：(1) BZC系统表达「不可整除」；(2) MY规则表达「在某范围内无因子」；(3) 最终规则把无因子性转化为素数判定。整个过程稳步向前，不需要回溯。"
   },
   {
-    "q": "「存在非递归的r.e.集」这个事实为什么重要？",
-    "a": "它意味着存在形式系统没有判定过程——你无法用印符规则来区分定理和非定理。这与图形和衬底不对称直接相关，并且与哥德尔定理有同样的深度。"
+    "question": "「存在非递归的r.e.集」这个事实为什么重要？",
+    "answer": "它意味着存在形式系统没有判定过程——你无法用印符规则来区分定理和非定理。这与图形和衬底不对称直接相关，并且与哥德尔定理有同样的深度。"
   }
 ];
 const chapterNav = {"prev": {"num": 2, "title": "数学中的意义与形式", "href": "ch02.html"}, "next": {"num": 4, "title": "一致性、完全性与几何学", "href": "ch04.html"}};
-window.pipeData_block2 = [];
-window.tipsData_block5 = [];
+window.pipeData_block2 = [
+  {
+    "label": "tq系统",
+    "desc": "用印符规则把握乘法。公理：xqxt-。规则：xqytz已知→xyqytz-"
+  },
+  {
+    "label": "合数刻划",
+    "desc": "若 xqy-tz- 是tq定理，则 Cx 是定理。合数 = 图形"
+  },
+  {
+    "label": "非法的跳跃",
+    "desc": "不能直接说「若Cx不是定理则Px是定理」——这违反形式化要求！"
+  },
+  {
+    "label": "正面刻划素数",
+    "desc": "通过不可整除性（BZC系统）和无因子性（MY系统），正面产生素数"
+  }
+];
+window.tipsData_block5 = [
+  {
+    "icon": "🖼️",
+    "title": "流畅可画出",
+    "text": "图形可被规则产生，衬底只是副产品"
+  },
+  {
+    "icon": "🎭",
+    "title": "倍流畅",
+    "text": "图形和衬底都是可识别的形状"
+  },
+  {
+    "icon": "📋",
+    "title": "递归可枚举",
+    "text": "集合的元素可以被规则逐一列出"
+  },
+  {
+    "icon": "✅",
+    "title": "递归",
+    "text": "集合和它的补集都是r.e.的，有判定过程"
+  },
+  {
+    "icon": "🔢",
+    "title": "素数是正面可刻划的",
+    "text": "通过不可整除性测试，素数可以作为「图形」被产生"
+  },
+  {
+    "icon": "💥",
+    "title": "存在非递归的r.e.集",
+    "text": "有些衬底永远不能成为任何系统的图形"
+  }
+];
 
 /* ── Pre-Quiz ── */
 (function() {

@@ -318,18 +318,18 @@ section { padding: 80px 0; }
     <div class="section-title">唱机与形式系统——对位藏头诗的隐喻</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🎵</div>
+            <div class="analogy-label">唱机与唱片</div>
+            <div class="analogy-desc">唱片的纹道有两层意义：(1) 产生音乐（第一层）；(2) 引起唱机震颤（第二层）。正是隐含的第二层意义「倒戈」摧毁了唱机。</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">📜</div>
+            <div class="analogy-label">形式系统与哥德尔串</div>
+            <div class="analogy-desc">形式系统的符号串有两层意义：(1) 数论陈述（第一层）；(2)「我不能在此系统中被证明」（第二层）。正是隐含的第二层意义揭示了系统的不完全性。</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">两层意义的「倒戈」是哥德尔定理的核心机制</div></div>
 </section>
 
 <!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
@@ -339,16 +339,24 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">一致性</div>
+            <div class="comparison-title">一致性</div>
+            <div class="comparison-text">每条定理经解释后都是真的
+系统不会产生假陈述
+保证系统「不说谎」
+低保真唱机：播放的声音少但不失真
+可存在多种类型：逻辑/数学/物理学一致性</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">完全性</div>
+            <div class="comparison-title">完全性</div>
+            <div class="comparison-text">每个真陈述都是系统的定理
+系统不会遗漏真理
+保证系统「不沉默」
+高保真唱机：能重现所有声音
+哥德尔定理：足够强的系统不可能完全</div>
         </div>
     </div>
     
@@ -365,8 +373,8 @@ section { padding: 80px 0; }
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block4" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">🔑 未定义项与被动意义</div>
+        <div class="insight-content">非欧几何学的关键洞见：「点」「线」这些词应该是「未定义项」——它们的意义不来自日常经验，而来自它们出现于其中的公理全体。在椭圆几何中，一个「点」是一对对径点，一条「线」是一个大圆。这与pq系统中符号的被动意义完全类似：意义由系统内部的结构关系决定。</div>
     </div>
 </section>
 
@@ -478,25 +486,63 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "一致性和完全性分别是什么意思？",
-    "a": "一致性：系统产生的每个定理经解释后都是真陈述（不说谎）。完全性：每个能被系统表达的真陈述都是定理（不遗漏）。"
+    "question": "一致性和完全性分别是什么意思？",
+    "answer": "一致性：系统产生的每个定理经解释后都是真陈述（不说谎）。完全性：每个能被系统表达的真陈述都是定理（不遗漏）。"
   },
   {
-    "q": "为什么修改pq系统后出现「不一致」是假象？",
-    "a": "因为不一致是由于不加思索地沿用旧的解释。旧的pq系统中q对应「等于」，但新系统的定理集已经改变。只需把q重新解释为「小于或等于」（或更精确的含义），一致性就恢复了。"
+    "question": "为什么修改pq系统后出现「不一致」是假象？",
+    "answer": "因为不一致是由于不加思索地沿用旧的解释。旧的pq系统中q对应「等于」，但新系统的定理集已经改变。只需把q重新解释为「小于或等于」（或更精确的含义），一致性就恢复了。"
   },
   {
-    "q": "对位藏头诗中的唱机如何对应哥德尔定理？",
-    "a": "唱机对应公理系统，唱片对应符号串，可播放的唱片对应定理，「我不能在唱机X上播放」对应哥德尔串「我不能在系统X中导出」。任何足够强的唱机都存在它不能播放的唱片。"
+    "question": "对位藏头诗中的唱机如何对应哥德尔定理？",
+    "answer": "唱机对应公理系统，唱片对应符号串，可播放的唱片对应定理，「我不能在唱机X上播放」对应哥德尔串「我不能在系统X中导出」。任何足够强的唱机都存在它不能播放的唱片。"
   },
   {
-    "q": "非欧几何学的发现对数学有什么深远影响？",
-    "a": "它表明数学概念（如「直线」）的意义不是固定的，而是由公理系统隐含定义的「未定义项」。同一套形式化骨架可以支撑多种不同但同样一致的数学体系。"
+    "question": "非欧几何学的发现对数学有什么深远影响？",
+    "answer": "它表明数学概念（如「直线」）的意义不是固定的，而是由公理系统隐含定义的「未定义项」。同一套形式化骨架可以支撑多种不同但同样一致的数学体系。"
   }
 ];
 const chapterNav = {"prev": {"num": 3, "title": "图形与衬底", "href": "ch03.html"}, "next": {"num": 5, "title": "递归结构和递归过程", "href": "ch05.html"}};
-window.pipeData_block3 = [];
-window.tipsData_block5 = [];
+window.pipeData_block3 = [
+  {
+    "label": "欧几里德",
+    "desc": "五条公设，第五条（平行公设）显得丑陋，两千年来无人能证明它"
+  },
+  {
+    "label": "萨彻利（1733）",
+    "desc": "假设第五公设的反面，试图导出矛盾——结果推出了一堆正确的定理而不自知！"
+  },
+  {
+    "label": "鲍耶与罗巴切夫斯基（1823）",
+    "desc": "同时独立地认识到：否定平行公设不会产生矛盾，而是产生全新的几何学"
+  },
+  {
+    "label": "多种几何学并存",
+    "desc": "椭圆几何（球面）、双曲几何、欧氏几何——都是一致的，区别只在第五公设的选择"
+  }
+];
+window.tipsData_block5 = [
+  {
+    "icon": "🎵",
+    "title": "",
+    "text": "唱机是公理系统的隐喻，「完备的唱机」对应「完全的形式系统」"
+  },
+  {
+    "icon": "💿",
+    "title": "",
+    "text": "可播放的唱片是定理，不可播放的是非定理"
+  },
+  {
+    "icon": "💥",
+    "title": "",
+    "text": "「我不能在唱机X上播放」对应「我不能在系统X中导出」"
+  },
+  {
+    "icon": "🪃",
+    "title": "",
+    "text": "乌龟自己的手段倒戈回来打击自己——正如哥德尔用系统自身的力量证明系统的不完全"
+  }
+];
 window.barData_block6 = [];
 
 /* ── Pre-Quiz ── */

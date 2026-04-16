@@ -315,16 +315,22 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">卢卡斯的论点</div>
+            <div class="comparison-title">卢卡斯的论点</div>
+            <div class="comparison-text">人类总能对任何形式系统执行哥德尔化
+因此人类总比机器「多知道一些」
+心智不是机器——哥德尔定理证明了机械论是错的
+有意识物能既考虑自己又在工作，机器做不到</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">反驳</div>
+            <div class="comparison-title">反驳</div>
+            <div class="comparison-text">随着系统复杂度增加，人类哥德尔化能力也会达到极限
+不存在给所有构造性序数命名的递归规则
+怀特利悖论：卢卡斯自己也是不完备的
+足够复杂的机器可能「不再是真正的机器」</div>
         </div>
     </div>
     
@@ -336,18 +342,18 @@ section { padding: 80px 0; }
     <div class="section-title">艾舍尔的龙：跳出系统的幻觉</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🐉</div>
+            <div class="analogy-label">二维龙</div>
+            <div class="analogy-desc">拼命把头和尾伸出纸上的洞，试图进入三维——但一切仍在平面上</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🧠</div>
+            <div class="analogy-label">TNT / 人脑</div>
+            <div class="analogy-desc">通过自指试图「跳出」自己——但自指本身仍在系统内部运作</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">真正的「跳出」是不可能的——只能从内部模拟更高维度</div></div>
 </section>
 
 <!-- Block: tips-grid — Grid of tip/maxim/story cards -->
@@ -360,8 +366,8 @@ section { padding: 80px 0; }
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block5" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">🚪 跳出系统的悖论</div>
+        <div class="insight-content">程序可以修改自己，但这种可修改性本身就是程序固有的部分——不算真正「跳出」。人可以从一个子系统跳到更广的子系统，可以打破常规——但这仍然是大脑内部子系统间的互动。正如上帝能否造出一块自己举不动的石头——「完全超越自身」是一个逻辑上无法实现的概念。</div>
     </div>
 </section>
 
@@ -458,29 +464,67 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "为什么加入公理模式Gω也无法消除TNT的不完备性？",
-    "a": "因为一旦用一种明确的方式（公理模式）定义了所有要加入的公理，这个模式本身就可以在新系统内被表示和体现。Gω预见不到自己嵌入数论后的样子，因此又可以构造出新的不可判定句子Gω+1。正是「明晰地排列」导致了新的对角线攻击。"
+    "question": "为什么加入公理模式Gω也无法消除TNT的不完备性？",
+    "answer": "因为一旦用一种明确的方式（公理模式）定义了所有要加入的公理，这个模式本身就可以在新系统内被表示和体现。Gω预见不到自己嵌入数论后的样子，因此又可以构造出新的不可判定句子Gω+1。正是「明晰地排列」导致了新的对角线攻击。"
   },
   {
-    "q": "卢卡斯论证的核心错误在哪里？",
-    "a": "卢卡斯假设人类能对任何系统执行哥德尔化，但实际上随着系统复杂度增加，哥德尔化的方法本身变得越来越难以驾驭——不存在给所有构造性序数命名的递归规则。此外，怀特利悖论表明人自己也是不完备的：存在真命题是卢卡斯不能前后一致地断定的。"
+    "question": "卢卡斯论证的核心错误在哪里？",
+    "answer": "卢卡斯假设人类能对任何系统执行哥德尔化，但实际上随着系统复杂度增加，哥德尔化的方法本身变得越来越难以驾驭——不存在给所有构造性序数命名的递归规则。此外，怀特利悖论表明人自己也是不完备的：存在真命题是卢卡斯不能前后一致地断定的。"
   },
   {
-    "q": "艾舍尔的《龙》如何隐喻哥德尔定理？",
-    "a": "龙咬着自己的尾巴象征自指（自我吞噬的循环）。龙试图挣脱二维性、把头伸出纸面象征系统试图「跳出自身」。但一切——龙、洞、折叠——都仍在二维平面上，象征着系统无论怎样自省，都无法真正跳出自身。"
+    "question": "艾舍尔的《龙》如何隐喻哥德尔定理？",
+    "answer": "龙咬着自己的尾巴象征自指（自我吞噬的循环）。龙试图挣脱二维性、把头伸出纸面象征系统试图「跳出自身」。但一切——龙、洞、折叠——都仍在二维平面上，象征着系统无论怎样自省，都无法真正跳出自身。"
   },
   {
-    "q": "本质不完全性需要满足哪三个条件？一个不满足条件的系统会怎样？",
-    "a": "（1）能表示所有数论陈述（否则太弱，像冰箱）；（2）能体现所有原始递归关系（否则保真度不够，像低保真唱机）；（3）公理和规则可有限判定（否则不是良定义的形式系统）。不满足任一条件的系统仍可能不完备，但原因不在于哥德尔方法，而在于系统本身太弱。"
+    "question": "本质不完全性需要满足哪三个条件？一个不满足条件的系统会怎样？",
+    "answer": "（1）能表示所有数论陈述（否则太弱，像冰箱）；（2）能体现所有原始递归关系（否则保真度不够，像低保真唱机）；（3）公理和规则可有限判定（否则不是良定义的形式系统）。不满足任一条件的系统仍可能不完备，但原因不在于哥德尔方法，而在于系统本身太弱。"
   },
   {
-    "q": "「跳出系统」在日常生活中有什么表现？为什么它本质上是不可能的？",
-    "a": "广告商试图打破广告框架以显得真实、禅宗门人试图超越自我的规矩、程序试图修改自己——这些都是「跳出系统」的尝试。但它们本质上是系统内部的操作：广告的「反框架」仍是框架、禅宗的破规仍在禅宗之内、程序的自修改仍遵循自身指令。真正的「跳出」在逻辑上不可能，就像不可能违背物理定律。"
+    "question": "「跳出系统」在日常生活中有什么表现？为什么它本质上是不可能的？",
+    "answer": "广告商试图打破广告框架以显得真实、禅宗门人试图超越自我的规矩、程序试图修改自己——这些都是「跳出系统」的尝试。但它们本质上是系统内部的操作：广告的「反框架」仍是框架、禅宗的破规仍在禅宗之内、程序的自修改仍遵循自身指令。真正的「跳出」在逻辑上不可能，就像不可能违背物理定律。"
   }
 ];
 const chapterNav = {"prev": {"num": 14, "title": "论TNT及有关系统中形式上不可判定的命题", "href": "ch14.html"}, "next": {"num": 16, "title": "自指和自复制", "href": "ch16.html"}};
-window.pipeData_block1 = [];
-window.tipsData_block4 = [];
+window.pipeData_block1 = [
+  {
+    "label": "TNT有漏洞G",
+    "desc": "G说「我在TNT中不可证」——真但不可证"
+  },
+  {
+    "label": "TNT+G",
+    "desc": "补上漏洞：加G为公理。但新系统有新漏洞G'"
+  },
+  {
+    "label": "TNT+G+G'+...",
+    "desc": "反复补洞，用公理模式Gω一次性加入无穷多个"
+  },
+  {
+    "label": "TNT+Gω仍不完备",
+    "desc": "Gω预见不到自己嵌入数论的方式——新漏洞Gω+1出现"
+  }
+];
+window.tipsData_block4 = [
+  {
+    "icon": "📝",
+    "title": "表示能力",
+    "text": "系统能表示所有数论陈述——否则太弱，像冰箱而非唱机"
+  },
+  {
+    "icon": "✅",
+    "title": "体现能力",
+    "text": "所有原始递归关系都可体现——系统达到「临界质量」"
+  },
+  {
+    "icon": "⚙️",
+    "title": "形式可判定性",
+    "text": "公理和规则可通过有限过程辨认——否则系统本身就没有良定义"
+  },
+  {
+    "icon": "💥",
+    "title": "结论",
+    "text": "三者满足 → 系统必然不完备且无法证明自身一致性"
+  }
+];
 
 /* ── Pre-Quiz ── */
 (function() {

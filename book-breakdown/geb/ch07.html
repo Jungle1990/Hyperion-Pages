@@ -315,16 +315,24 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">组合/拆分规则</div>
+            <div class="comparison-title">组合/拆分规则</div>
+            <div class="comparison-text">联结规则：x和y都是定理 → ＜x∧y＞是定理
+分隔规则：＜x∧y＞是定理 → x和y各自是定理
+双重弯号规则：可随时添加或删除～～
+这些规则操作已有定理
+类似乐高积木的拼接与拆解</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">幻想规则（核心）</div>
+            <div class="comparison-title">幻想规则（核心）</div>
+            <div class="comparison-text">无中生有：不需要老定理作为输入
+步骤：[推入 → 假设前提x → 推导出y → ]弹出
+弹出后得到定理：＜x→y＞
+可递归嵌套：幻想中可以有幻想
+搬入规则：外层定理可带入内层，反向禁止</div>
         </div>
     </div>
     
@@ -333,8 +341,8 @@ section { padding: 80px 0; }
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block3" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">✨ 没有公理，定理从何而来？</div>
+        <div class="insight-content">命题演算是唯一一个我们见过的没有公理的形式系统。所有定理都由幻想规则产生。例如第一条定理＜P→～～P＞的推导过程：[推入幻想，假设P为前提，由双重弯号规则得～～P，]弹出幻想，得到＜P→～～P＞。这条定理说的是「如果P为真，则P的双重否定也为真」——一个直觉上完全正确的逻辑事实，被纯粹的符号操作所捕获。</div>
     </div>
 </section>
 
@@ -344,18 +352,18 @@ section { padding: 80px 0; }
     <div class="section-title">幻想规则 vs 盗梦空间</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🎬</div>
+            <div class="analogy-label">电影的嵌套梦境</div>
+            <div class="analogy-desc">梦中可以再做梦，每层弹出后回到「更真实一些」的层次。电影院的规则对银幕中所有角色都有效，但银幕中的事件不能反过来影响观众。</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">📐</div>
+            <div class="analogy-label">命题演算的递归幻想</div>
+            <div class="analogy-desc">幻想中可以开启新幻想，每次弹出上升一层。外层定理可搬入内层使用（搬入规则），但内层推导的结果不能搬到外层。</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">两者都有层次结构，且信息流是单向的——从外到内可以，从内到外不行</div></div>
 </section>
 
 <!-- Block: tips-grid — Grid of tip/maxim/story cards -->
@@ -453,25 +461,73 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "命题演算为什么不需要公理？",
-    "a": "因为幻想规则可以凭空产生定理：写下任意良构串x作为前提，在幻想中推导出y，弹出后就得到定理＜x→y＞。所有定理都通过这种「假设-推导-弹出」的方式产生。"
+    "question": "命题演算为什么不需要公理？",
+    "answer": "因为幻想规则可以凭空产生定理：写下任意良构串x作为前提，在幻想中推导出y，弹出后就得到定理＜x→y＞。所有定理都通过这种「假设-推导-弹出」的方式产生。"
   },
   {
-    "q": "搬入规则为什么只允许从外层向内层搬入，而不允许反向？",
-    "a": "如果允许把幻想内部的结果搬到外面，那你可以把任何良构串写成幻想的第一行，然后搬出来当定理——这就破坏了系统的一致性，任何东西都成了「定理」。"
+    "question": "搬入规则为什么只允许从外层向内层搬入，而不允许反向？",
+    "answer": "如果允许把幻想内部的结果搬到外面，那你可以把任何良构串写成幻想的第一行，然后搬出来当定理——这就破坏了系统的一致性，任何东西都成了「定理」。"
   },
   {
-    "q": "如何判定一个命题演算的串是否「良构」？",
-    "a": "使用自顶向下的判定过程：反向运用形成规则，逐步拆解。由于每条形成规则都是加长规则，反向运用必然缩短，因此必定能追溯到原子（P、Q、R及其加撇形式），从而在有限步骤内完成判定。"
+    "question": "如何判定一个命题演算的串是否「良构」？",
+    "answer": "使用自顶向下的判定过程：反向运用形成规则，逐步拆解。由于每条形成规则都是加长规则，反向运用必然缩短，因此必定能追溯到原子（P、Q、R及其加撇形式），从而在有限步骤内完成判定。"
   },
   {
-    "q": "＜＜P∧Q＞→＜Q∧P＞＞这条定理是怎么推导出来的？",
-    "a": "推入幻想，假设＜P∧Q＞为前提；用分隔规则得P和Q；用联结规则得＜Q∧P＞；弹出幻想得＜＜P∧Q＞→＜Q∧P＞＞。它证明了∧的交换律：P且Q蕴涵Q且P。"
+    "question": "＜＜P∧Q＞→＜Q∧P＞＞这条定理是怎么推导出来的？",
+    "answer": "推入幻想，假设＜P∧Q＞为前提；用分隔规则得P和Q；用联结规则得＜Q∧P＞；弹出幻想得＜＜P∧Q＞→＜Q∧P＞＞。它证明了∧的交换律：P且Q蕴涵Q且P。"
   }
 ];
 const chapterNav = {"prev": {"num": 6, "title": "意义位于何处", "href": "ch06.html"}, "next": {"num": 8, "title": "印符数论", "href": "ch08.html"}};
-window.pipeData_block1 = [];
-window.tipsData_block5 = [];
+window.pipeData_block1 = [
+  {
+    "label": "定义符号表",
+    "desc": "原子P,Q,R（可加撇号扩展）；联结词∧∨→～；尖括号＜＞"
+  },
+  {
+    "label": "定义良构串",
+    "desc": "原子是良构的；如果x,y良构，则～x、＜x∧y＞、＜x∨y＞、＜x→y＞也良构"
+  },
+  {
+    "label": "定义推理规则",
+    "desc": "联结、分隔、双重弯号、幻想规则和搬入规则"
+  },
+  {
+    "label": "产生定理",
+    "desc": "通过幻想规则凭空创造定理——无需公理！"
+  }
+];
+window.tipsData_block5 = [
+  {
+    "icon": "🔗",
+    "title": "∧（与/联结）",
+    "text": "「并且」——＜P∧Q＞意味着P和Q同时成立"
+  },
+  {
+    "icon": "🔀",
+    "title": "∨（或/析取）",
+    "text": "「或者」——＜P∨Q＞意味着P和Q至少一个成立"
+  },
+  {
+    "icon": "➡️",
+    "title": "→（蕴涵）",
+    "text": "「如果…那么…」——＜P→Q＞意味着P为真时Q也为真"
+  },
+  {
+    "icon": "🚫",
+    "title": "～（非/否定）",
+    "text": "取反——～P意味着P不成立"
+  },
+  {
+    "icon": "📐",
+    "title": "良构串",
+    "text": "按递归形成规则合法构造的串，可用自顶向下判定过程检验"
+  },
+  {
+    "icon": "🎪",
+    "title": "幻想规则",
+    "text": "假设前提x，推导出y，弹出得到定理＜x→y＞——无中生有"
+  }
+];
 
 /* ── Pre-Quiz ── */
 (function() {

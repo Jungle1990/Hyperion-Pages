@@ -306,18 +306,18 @@ section { padding: 80px 0; }
     <div class="section-title">信息携带者 vs 信息揭示者</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">💿</div>
+            <div class="analogy-label">唱片（信息携带者）</div>
+            <div class="analogy-desc">槽纹中编码了音乐的全部信息。换一台唱机播放，得到的是同样的音乐。信息存在于唱片中，唱机只是展现。</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🎰</div>
+            <div class="analogy-label">自动唱机（触发器）</div>
+            <div class="analogy-desc">按钮只是一个触发信号，歌曲存储在机器内部。换一组按钮信号，得到不同的歌曲，但意义来自机器而非按钮。</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">区分二者的关键：解码机制是否向输入中添加了意义</div></div>
 </section>
 
 <!-- Block: pipeline — Flow diagram with connected nodes -->
@@ -335,16 +335,24 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">平凡同构</div>
+            <div class="comparison-title">平凡同构</div>
+            <div class="comparison-text">唱片 ↔ 音乐：每段声音都有对应的槽纹
+G图 ↔ 蝴蝶：结构部件一一对应
+pq定理 ↔ 加法：解释过程显而易见
+分解程度低，易于理解
+解码过程简单直接</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">异常同构</div>
+            <div class="comparison-title">异常同构</div>
+            <div class="comparison-text">DNA ↔ 表现型：找不到「鼻子基因」
+遗传意义遍布整个分子各部分
+渐成过程是盘根错节的递归
+分解极为困难，触发链极长
+解码需要极其复杂的细胞机制</div>
         </div>
     </div>
     
@@ -353,8 +361,8 @@ section { padding: 80px 0; }
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block4" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">🌌 若智能是自然的，则意义是固有的</div>
+        <div class="insight-content">「自动唱机理论」认为所有消息都没有固有意义——因为理解任何消息都需要先有另一条消息来指导，形成无穷回退。但这个悖论和刘易斯·卡罗尔的规则悖论一样是无效的。人脑的物理结构天生就能识别消息、解码意义——物理规律打破了无穷回退。如果智能是宇宙中普遍存在的自然现象，那么具有「强制性内在逻辑」的消息（如巴赫的音乐），其意义就是固有的、可跨越星系的。</div>
     </div>
 </section>
 
@@ -453,25 +461,69 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "信息携带者和信息揭示者的核心区别是什么？",
-    "a": "信息携带者（如唱片）中包含了固有信息，揭示者（如唱机）只是展现它而不添加意义。自动唱机则相反——按钮只是触发器，信息藏在机器内部。区分标准是：解码机制是否向输入中添加了意义。"
+    "question": "信息携带者和信息揭示者的核心区别是什么？",
+    "answer": "信息携带者（如唱片）中包含了固有信息，揭示者（如唱机）只是展现它而不添加意义。自动唱机则相反——按钮只是触发器，信息藏在机器内部。区分标准是：解码机制是否向输入中添加了意义。"
   },
   {
-    "q": "为什么DNA与表现型之间是「异常同构」而非「平凡同构」？",
-    "a": "在平凡同构中（如唱片↔音乐），可以精确对应各部分。但DNA中找不到哪一段编码了鼻子形状或指纹——遗传意义遍布整个分子，通过极其复杂的递归触发链展开为表现型。"
+    "question": "为什么DNA与表现型之间是「异常同构」而非「平凡同构」？",
+    "answer": "在平凡同构中（如唱片↔音乐），可以精确对应各部分。但DNA中找不到哪一段编码了鼻子形状或指纹——遗传意义遍布整个分子，通过极其复杂的递归触发链展开为表现型。"
   },
   {
-    "q": "消息的三个层次（框架、外在、内在）之间有什么关系？",
-    "a": "框架消息告诉你「这里有条消息」；外在消息隐含地告诉你如何解码；内在消息是真正要传达的意义。外在消息只能作为触发器被传递，不能用显式语言表达——否则就变成了需要解码的内在消息。"
+    "question": "消息的三个层次（框架、外在、内在）之间有什么关系？",
+    "answer": "框架消息告诉你「这里有条消息」；外在消息隐含地告诉你如何解码；内在消息是真正要传达的意义。外在消息只能作为触发器被传递，不能用显式语言表达——否则就变成了需要解码的内在消息。"
   },
   {
-    "q": "为什么巴赫的音乐比约翰·卡奇的偶然音乐更可能被外星人理解？",
-    "a": "巴赫的音乐有丰富的模式层次、可凭借的「组块」结构，具有「强制性的内在逻辑」。卡奇的偶然音乐通过随机过程产生，缺乏可凭借的结构和模式，外星人很可能被框架信息和内部混乱之间的矛盾搞得莫名其妙。"
+    "question": "为什么巴赫的音乐比约翰·卡奇的偶然音乐更可能被外星人理解？",
+    "answer": "巴赫的音乐有丰富的模式层次、可凭借的「组块」结构，具有「强制性的内在逻辑」。卡奇的偶然音乐通过随机过程产生，缺乏可凭借的结构和模式，外星人很可能被框架信息和内部混乱之间的矛盾搞得莫名其妙。"
   }
 ];
 const chapterNav = {"prev": {"num": 5, "title": "递归结构和递归过程", "href": "ch05.html"}, "next": {"num": 7, "title": "命题演算", "href": "ch07.html"}};
-window.pipeData_block2 = [];
-window.tipsData_block5 = [];
+window.pipeData_block2 = [
+  {
+    "label": "框架消息",
+    "desc": "「我是一条消息，请解读我！」由结构特征隐含传递，如唱片的螺线形、瓶中纸条的存在"
+  },
+  {
+    "label": "外在消息",
+    "desc": "「这是如何解读我的线索」由符号模式隐含传递，如日文字母、DNA的非周期性晶体结构"
+  },
+  {
+    "label": "内在消息",
+    "desc": "真正要传递的意义：音乐中的情感体验、遗传学中的表现型、古文献中的历史记录"
+  }
+];
+window.tipsData_block5 = [
+  {
+    "icon": "📡",
+    "title": "触发器 vs 展现",
+    "text": "触发器只激活外部信息（如自动唱机按钮），展现则揭示材料固有信息（如唱片播放）"
+  },
+  {
+    "icon": "🧬",
+    "title": "遗传型 vs 表现型",
+    "text": "DNA是遗传型（编码），有机体是表现型（展开），二者是异常同构"
+  },
+  {
+    "icon": "🔬",
+    "title": "非周期性晶体结构",
+    "text": "薛定谔预言：遗传信息存储于规则几何包裹的非周期性结构中——书籍、DNA、唱片皆如此"
+  },
+  {
+    "icon": "🏺",
+    "title": "罗塞达碑",
+    "text": "三种文字书写同一内容，成为释读象形文字的钥匙，说明意义是材料固有的"
+  },
+  {
+    "icon": "🎵",
+    "title": "巴赫 vs 约翰·卡奇",
+    "text": "巴赫音乐有可凭借的模式层次，卡奇的偶然音乐缺乏组块结构，前者更可能被跨星系理解"
+  },
+  {
+    "icon": "🧠",
+    "title": "人类自动唱机的统一性",
+    "text": "所有人脑对同一触发信号产生几乎一样的反应，这种统一性使语言、意义和通讯成为可能"
+  }
+];
 
 /* ── Pre-Quiz ── */
 (function() {

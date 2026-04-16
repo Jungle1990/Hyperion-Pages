@@ -315,16 +315,24 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">自然语言（数论N）</div>
+            <div class="comparison-title">自然语言（数论N）</div>
+            <div class="comparison-text">5是素数
+2不是平方数
+1729是两个立方数的和
+存在无穷多个素数
+加法满足交换律</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">TNT符号串</div>
+            <div class="comparison-title">TNT符号串</div>
+            <div class="comparison-text">～∃a:∃b:＜Sa·Sb＞=SSSSS0
+～∃b:＜b·b＞=SS0
+∃b:∃c:＜(b·(b·b))+(c·(c·c))＞=SSS…S0
+∀a:∃b:＜～∃c:∃d:＜Sc·Sd＞=b∧…＞
+∀a:∀b:＜(a+b)=(b+a)＞</div>
         </div>
     </div>
     
@@ -333,8 +341,8 @@ section { padding: 80px 0; }
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block3" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">🔑 自由变元 vs 约束变元：意义的关键区分</div>
+        <div class="insight-content">串(SS0+SSS0)=SSSSS0是一个「句子」——它有确定的真假值（2+3=5，为真）。但串(a+SS0)=SSS0不是句子——变元a是「自由」的，真假取决于a取什么值。当你用∀a:或∃a:把变元「约束」起来，它就变成了句子：∀a:(a+SS0)=SSS0意味着「对所有a，a+2=3」——这是假的；∃a:(a+SS0)=SSS0意味着「存在a使得a+2=3」——这是真的（a=S0时成立）。</div>
     </div>
 </section>
 
@@ -344,18 +352,18 @@ section { padding: 80px 0; }
     <div class="section-title">TNT vs 自然语言数学</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">📖</div>
+            <div class="analogy-label">自然语言数学(N)</div>
+            <div class="analogy-desc">用「素数」「平方数」「无穷」等高级概念直接思考。灵活自然，但可能隐含歧义和不精确。就像日常对话。</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🔢</div>
+            <div class="analogy-label">印符数论(TNT)</div>
+            <div class="analogy-desc">只用S、0、+、·、=、∀、∃和逻辑符号。极其精确但冗长繁琐。就像把一切话都翻译成只有六个字母的人工语言。</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">TNT是N的形式化镜像——一切直觉概念都必须还原为最基本的操作</div></div>
 </section>
 
 <!-- Block: tips-grid — Grid of tip/maxim/story cards -->
@@ -453,25 +461,73 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "TNT中如何表示「5是素数」？",
-    "a": "将其拆解为基本概念：「不存在两个大于1的自然数a和b使得5等于a乘b」。TNT表示为：～∃a:∃b:＜＜Sa·Sb＞=SSSSS0＞。注意用Sa和Sb而非a和b来确保「大于0」（即大于等于1的后继意味着大于1需要SSa）。"
+    "question": "TNT中如何表示「5是素数」？",
+    "answer": "将其拆解为基本概念：「不存在两个大于1的自然数a和b使得5等于a乘b」。TNT表示为：～∃a:∃b:＜＜Sa·Sb＞=SSSSS0＞。注意用Sa和Sb而非a和b来确保「大于0」（即大于等于1的后继意味着大于1需要SSa）。"
   },
   {
-    "q": "自由变元和约束变元的区别是什么？为什么这个区别很重要？",
-    "a": "自由变元（如a+SS0=SSS0中的a）使公式没有确定真假值。约束变元（如∀a:或∃a:中的a）使公式变成有确定真假值的句子。这个区别至关重要，因为只有句子（无自由变元的公式）才能有意义地讨论其「真」或「假」。"
+    "question": "自由变元和约束变元的区别是什么？为什么这个区别很重要？",
+    "answer": "自由变元（如a+SS0=SSS0中的a）使公式没有确定真假值。约束变元（如∀a:或∃a:中的a）使公式变成有确定真假值的句子。这个区别至关重要，因为只有句子（无自由变元的公式）才能有意义地讨论其「真」或「假」。"
   },
   {
-    "q": "为什么侯世达反复强调要区分N和TNT？",
-    "a": "N是我们直觉理解的数论，TNT是模拟N的形式系统。在N中为真的命题在TNT中未必能被证明（不完全性）；混淆二者会让人误以为TNT能捕获数论的一切真理。这个缝隙正是哥德尔定理的核心。"
+    "question": "为什么侯世达反复强调要区分N和TNT？",
+    "answer": "N是我们直觉理解的数论，TNT是模拟N的形式系统。在N中为真的命题在TNT中未必能被证明（不完全性）；混淆二者会让人误以为TNT能捕获数论的一切真理。这个缝隙正是哥德尔定理的核心。"
   },
   {
-    "q": "TNT的归纳规则为什么如此重要？",
-    "a": "归纳规则使TNT能证明关于所有自然数的普遍命题（如加法交换律）。没有归纳规则，TNT只能证明个别数字的性质（如2+3=3+2），无法跨越到「对所有a和b」的普遍结论。"
+    "question": "TNT的归纳规则为什么如此重要？",
+    "answer": "归纳规则使TNT能证明关于所有自然数的普遍命题（如加法交换律）。没有归纳规则，TNT只能证明个别数字的性质（如2+3=3+2），无法跨越到「对所有a和b」的普遍结论。"
   }
 ];
 const chapterNav = {"prev": {"num": 7, "title": "命题演算", "href": "ch07.html"}, "next": {"num": 9, "title": "无门与哥德尔", "href": "ch09.html"}};
-window.pipeData_block1 = [];
-window.tipsData_block5 = [];
+window.pipeData_block1 = [
+  {
+    "label": "数字记法",
+    "desc": "0, S0(=1), SS0(=2), SSS0(=3)…… 用S（后继）和0构造所有自然数"
+  },
+  {
+    "label": "变元与运算",
+    "desc": "变元a,b,c,d,e（可加撇）；运算+和·；等号=；全部继承命题演算符号"
+  },
+  {
+    "label": "量词",
+    "desc": "∀a:（对所有a）和∃a:（存在a）——区分自由变元和约束变元"
+  },
+  {
+    "label": "公理与规则",
+    "desc": "皮亚诺公理（5条）+ 命题演算规则 + 量化规则 + 归纳规则"
+  }
+];
+window.tipsData_block5 = [
+  {
+    "icon": "0️⃣",
+    "title": "0",
+    "text": "零——唯一的基本数字"
+  },
+  {
+    "icon": "➕",
+    "title": "S",
+    "text": "后继函数——S0=1, SS0=2, SSS0=3"
+  },
+  {
+    "icon": "∀",
+    "title": "∀a:",
+    "text": "全称量词——「对所有a」，使a成为约束变元"
+  },
+  {
+    "icon": "∃",
+    "title": "∃a:",
+    "text": "存在量词——「存在一个a使得…」，使a成为约束变元"
+  },
+  {
+    "icon": "📏",
+    "title": "归纳规则",
+    "text": "数学归纳法的形式化：证明基础情况+证明继承步骤→得到普遍结论"
+  },
+  {
+    "icon": "⚠️",
+    "title": "N≠TNT",
+    "text": "N是直觉数学，TNT是形式符号系统——必须时刻区分二者！"
+  }
+];
 
 /* ── Pre-Quiz ── */
 (function() {

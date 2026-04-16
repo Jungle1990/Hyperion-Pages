@@ -307,16 +307,24 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">禅宗：词语的极限</div>
+            <div class="comparison-title">禅宗：词语的极限</div>
+            <div class="comparison-text">公案用悖论打破逻辑头脑
+「叫它竹篦则触，不叫则背」
+二元论是认知的根本障碍
+词语不能完全捕捉真理
+超越系统的「顿悟」无法在系统内获得</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">哥德尔：形式系统的极限</div>
+            <div class="comparison-title">哥德尔：形式系统的极限</div>
+            <div class="comparison-text">自指串G揭示系统的不完全性
+「G是定理则矛盾，G不是定理则遗漏」
+形式化是完全捕捉真理的根本障碍
+形式系统不能完全捕捉数学真理
+关于系统的某些真理只能在系统外看到</div>
         </div>
     </div>
     
@@ -333,8 +341,8 @@ section { padding: 80px 0; }
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block3" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">💥 G串的核心逻辑：不可判定的自指</div>
+        <div class="insight-content">哥德尔构造的串G在TNT中说的是「编号为g的串不是TNT的定理」——而g恰好是G自身的哥德尔数！所以G实际上在说「我不是TNT的定理」。如果TNT一致（不自相矛盾），那么：(1)如果G是定理，则G为假（因为G说自己不是定理），TNT证明了假命题——矛盾；(2)所以G不是定理，但G说的恰恰是这个事实，所以G为真。结论：G是真的但不可证——TNT是不完全的。</div>
     </div>
 </section>
 
@@ -344,18 +352,18 @@ section { padding: 80px 0; }
     <div class="section-title">禅宗的「无」vs 哥德尔的「不可判定」</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">☯️</div>
+            <div class="analogy-label">赵州的「无」</div>
+            <div class="analogy-desc">僧问「狗子还有佛性也无」，赵州答「无」。这个「无」不是简单的「没有」，而是超越有/无二元对立的第三种状态——无法用语言表达的顿悟。</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🔢</div>
+            <div class="analogy-label">哥德尔串G</div>
+            <div class="analogy-desc">G既非定理也非非定理的否定——它超越了TNT系统的可证/可否证二元结构。G是真的（在N中），但这个真理无法在TNT内被触及。</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">都揭示了一个深刻的事实：系统不能完全理解自身</div></div>
 </section>
 
 <!-- Block: tips-grid — Grid of tip/maxim/story cards -->
@@ -453,25 +461,73 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "哥德尔配数的核心思想是什么？它为什么能实现自指？",
-    "a": "给每个符号分配一个数字，使每个串对应一个自然数，每条推导规则对应一种算术运算。这样「关于TNT串的性质」就变成了「关于自然数的性质」——而后者正是TNT自己能表达的。TNT被迫能够谈论自己的串，自指由此产生。"
+    "question": "哥德尔配数的核心思想是什么？它为什么能实现自指？",
+    "answer": "给每个符号分配一个数字，使每个串对应一个自然数，每条推导规则对应一种算术运算。这样「关于TNT串的性质」就变成了「关于自然数的性质」——而后者正是TNT自己能表达的。TNT被迫能够谈论自己的串，自指由此产生。"
   },
   {
-    "q": "哥德尔串G为什么是真的但不可证的？",
-    "a": "G说「我不是TNT的定理」。如果G是定理，则G为假（TNT证明了假命题，TNT不一致）。所以如果TNT一致，G就不是定理。但G不是定理正是G所说的——所以G为真。一个真但不可证的命题。"
+    "question": "哥德尔串G为什么是真的但不可证的？",
+    "answer": "G说「我不是TNT的定理」。如果G是定理，则G为假（TNT证明了假命题，TNT不一致）。所以如果TNT一致，G就不是定理。但G不是定理正是G所说的——所以G为真。一个真但不可证的命题。"
   },
   {
-    "q": "禅宗的竹篦公案和哥德尔定理有什么深层联系？",
-    "a": "竹篦公案（叫它竹篦则触，不叫则背）揭示词语无法完整捕捉实在。哥德尔定理（G是定理则矛盾，不是定理则遗漏）揭示形式系统无法完整捕捉数学真理。两者都表明：任何「捕捉」系统都面临一个无法在内部解决的缺口。"
+    "question": "禅宗的竹篦公案和哥德尔定理有什么深层联系？",
+    "answer": "竹篦公案（叫它竹篦则触，不叫则背）揭示词语无法完整捕捉实在。哥德尔定理（G是定理则矛盾，不是定理则遗漏）揭示形式系统无法完整捕捉数学真理。两者都表明：任何「捕捉」系统都面临一个无法在内部解决的缺口。"
   },
   {
-    "q": "为什么说「系统不能成为自己的元系统」？",
-    "a": "禅宗认识到「禅宗是一个系统，不可能成为它自己的元系统——总有东西处在禅宗之外」。同样，TNT不能证明自身的一致性（哥德尔第二不完全性定理）。要完全理解一个系统，必须站在系统之外——但外部的元系统又面临同样的问题。"
+    "question": "为什么说「系统不能成为自己的元系统」？",
+    "answer": "禅宗认识到「禅宗是一个系统，不可能成为它自己的元系统——总有东西处在禅宗之外」。同样，TNT不能证明自身的一致性（哥德尔第二不完全性定理）。要完全理解一个系统，必须站在系统之外——但外部的元系统又面临同样的问题。"
   }
 ];
 const chapterNav = {"prev": {"num": 8, "title": "印符数论", "href": "ch08.html"}, "next": {"num": 10, "title": "描述的层次和计算机系统", "href": "ch10.html"}};
-window.pipeData_block2 = [];
-window.tipsData_block5 = [];
+window.pipeData_block2 = [
+  {
+    "label": "符号→数字",
+    "desc": "给每个符号分配一个哥德尔数，如W⇔3, J⇔1, U⇔0"
+  },
+  {
+    "label": "串→自然数",
+    "desc": "符号串变成数字串：WJU⇔310, WJJU⇔3110"
+  },
+  {
+    "label": "规则→算术运算",
+    "desc": "每条推理规则对应一种数字运算，推导变成计算"
+  },
+  {
+    "label": "自指实现",
+    "desc": "「这个串是否是定理」变成「这个数是否满足某算术性质」——TNT能表达的性质！"
+  }
+];
+window.tipsData_block5 = [
+  {
+    "icon": "🚪",
+    "title": "无门关",
+    "text": "十三世纪无门禅师编辑的48个公案集，评注和公案一样晦涩——元语言与对象语言无太大差别"
+  },
+  {
+    "icon": "🔢",
+    "title": "哥德尔配数",
+    "text": "给形式系统的每个符号分配数字，使串变成数、规则变成运算——将元数学嵌入数论"
+  },
+  {
+    "icon": "🪞",
+    "title": "自指串G",
+    "text": "一条TNT串，说的是「我不是TNT的定理」——利用哥德尔配数实现间接自指"
+  },
+  {
+    "icon": "☯️",
+    "title": "二元论",
+    "text": "禅宗认为把世界划分为概念范畴（有/无、真/假）是顿悟的障碍"
+  },
+  {
+    "icon": "🐂",
+    "title": "水牯牛过窗棂",
+    "text": "五祖的公案：头角四蹄都过了，尾巴为何过不得？——暗喻逻辑几乎但永远不能完全自洽"
+  },
+  {
+    "icon": "💎",
+    "title": "主义",
+    "text": "侯世达造的词：一种摒弃思维的存在方式，石头和树的「无方式」"
+  }
+];
 
 /* ── Pre-Quiz ── */
 (function() {

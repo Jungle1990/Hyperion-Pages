@@ -314,18 +314,18 @@ section { padding: 80px 0; }
     <div class="section-title">框架的嵌套：中药铺的柜子比喻</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🗄️</div>
+            <div class="analogy-label">中药铺柜子</div>
+            <div class="analogy-desc">每个柜子有若干抽屉槽，每个槽中可以插入一个子柜子（被挤压变形后塞进去），子柜子又有自己的槽——如此递归嵌套</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🧠</div>
+            <div class="analogy-label">心智框架</div>
+            <div class="analogy-desc">每个概念框架有若干「槽」需要填充子概念，子概念又是一个框架——每个框架带有「缺席选择」作为默认值，保证递归有终点</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">把一个柜子挤进另一个柜子的槽中 ≈ 把一个概念强行放入一个环境时，概念也会被环境所扭曲</div></div>
 </section>
 
 <!-- Block: comparison — Side-by-side concept comparison (hard vs smart, etc.) -->
@@ -335,16 +335,22 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">稳固层（不易滑动）</div>
+            <div class="comparison-title">稳固层（不易滑动）</div>
+            <div class="comparison-text">三维空间（恒定常量，几乎从未想过改变）
+物理定律（极深层的背景假设）
+比赛规则（暂时固定的常量）
+参赛球队和天气（参量，有较大可变性）</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">灵活层（容易滑动）</div>
+            <div class="comparison-title">灵活层（容易滑动）</div>
+            <div class="comparison-text">具体的一次传球、一个进球（变量）
+球员的具体位置和动作
+某人是否出界
+比分的某一分——在脑海中最「散漫」</div>
         </div>
     </div>
     
@@ -360,8 +366,8 @@ section { padding: 80px 0; }
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block5" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">🌍 虚拟世界：人类智能的发生中心</div>
+        <div class="insight-content">语言学家斯坦纳指出：假设、虚拟、条件句法可能是人类语言的发生中心。我们能够——也需要——对世界进行「否定」或「不定」，以便以别的方式来设想和表述。没有这种幻想的、反决定论的语言工具，人类几乎不可能生存至今。每一个「如果」都打开了一个可能性的窗口，而智能的核心就是知道哪些窗口值得打开。</div>
     </div>
 </section>
 
@@ -458,25 +464,67 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "为什么「如果列奥纳多·达·芬奇是个女的」是个不自然的虚拟，而「如果弗兰克教授仍健在」是自然的？",
-    "a": "改变一个特定人物的性别属于改变其最核心的身份属性（深层常量），违反了我们关于「其它一切不变」的直觉。而一个人多活几年只是改变了一个浅层参量——更容易想象其余一切照旧。"
+    "question": "为什么「如果列奥纳多·达·芬奇是个女的」是个不自然的虚拟，而「如果弗兰克教授仍健在」是自然的？",
+    "answer": "改变一个特定人物的性别属于改变其最核心的身份属性（深层常量），违反了我们关于「其它一切不变」的直觉。而一个人多活几年只是改变了一个浅层参量——更容易想象其余一切照旧。"
   },
   {
-    "q": "邦加德问题中为什么需要反复重构描述？",
-    "a": "因为同一幅图可以有无数种描述（三个图形、两个三角形和一个圆形、一个大图形和两个小图形……），但在特定问题环境中只有一种能区分两组图像。要找到它，必须不断尝试、丢弃和重建。"
+    "question": "邦加德问题中为什么需要反复重构描述？",
+    "answer": "因为同一幅图可以有无数种描述（三个图形、两个三角形和一个圆形、一个大图形和两个小图形……），但在特定问题环境中只有一种能区分两组图像。要找到它，必须不断尝试、丢弃和重建。"
   },
   {
-    "q": "框架理论中的「缺席选择」有什么作用？",
-    "a": "它为每个框架的每个槽提供了默认值，保证递归填充的过程有终点——你不需要无限细化每个细节，大多数槽使用默认值就够了。"
+    "question": "框架理论中的「缺席选择」有什么作用？",
+    "answer": "它为每个框架的每个槽提供了默认值，保证递归填充的过程有终点——你不需要无限细化每个细节，大多数槽使用默认值就够了。"
   },
   {
-    "q": "「树懒」这个角色在对话中体现了什么哲学观点？",
-    "a": "树懒代表了一种拒绝虚拟思维的「极端现实主义」——它坚持只承认事实，不接受任何「差一点」或「如果」。但讽刺的是，它自己的话中充满了虚拟语句，说明人（或动物）根本无法完全避免假设和想象。"
+    "question": "「树懒」这个角色在对话中体现了什么哲学观点？",
+    "answer": "树懒代表了一种拒绝虚拟思维的「极端现实主义」——它坚持只承认事实，不接受任何「差一点」或「如果」。但讽刺的是，它自己的话中充满了虚拟语句，说明人（或动物）根本无法完全避免假设和想象。"
   }
 ];
 const chapterNav = {"prev": {"num": 18, "title": "人工智能：回顾", "href": "ch18.html"}, "next": {"num": 20, "title": "怪圈，或缠结的层次结构", "href": "ch20.html"}};
-window.pipeData_block1 = [];
-window.tipsData_block4 = [];
+window.pipeData_block1 = [
+  {
+    "label": "最自然的滑动",
+    "desc": "「幸亏没开车窗」——只改变一个具体细节，其余不变"
+  },
+  {
+    "label": "较自然的滑动",
+    "desc": "「如果天气不下雨」——改变背景参量，略有难度"
+  },
+  {
+    "label": "不太自然的滑动",
+    "desc": "「如果比赛改成棒球」——改变游戏规则框架"
+  },
+  {
+    "label": "荒诞的滑动",
+    "desc": "「如果球是西瓜形的」——改变物理常识"
+  },
+  {
+    "label": "几乎不可能的滑动",
+    "desc": "「如果空间是四维的」——改变最底层的世界结构"
+  }
+];
+window.tipsData_block4 = [
+  {
+    "icon": "👁️",
+    "title": "预处理层",
+    "text": "检测线段、曲线、基本图形等底层特征——相当于意识和潜意识的交汇点"
+  },
+  {
+    "icon": "📝",
+    "title": "描述构造层",
+    "text": "用高层概念对图像进行尝试性描述——多种描述中只有一种是「对」的"
+  },
+  {
+    "icon": "🔗",
+    "title": "概念网络",
+    "text": "概念之间通过「相似」「相反」「邻近」等关系相联——触发新的描述角度"
+  },
+  {
+    "icon": "🔍",
+    "title": "同一性检测器",
+    "text": "在不同描述间巡视，发现重复出现的模式——触发模板重构"
+  }
+];
 
 /* ── Pre-Quiz ── */
 (function() {

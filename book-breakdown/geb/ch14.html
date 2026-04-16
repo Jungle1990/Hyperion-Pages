@@ -315,16 +315,22 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">自然语言中的㧟摁</div>
+            <div class="comparison-title">自然语言中的㧟摁</div>
+            <div class="comparison-text">取一个谓语短语（如「是假句子」）
+把它的引文形式放在自己前面
+得到：「'是假句子'是假句子」
+实现了自指——句子在谈论自己</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">TNT中的算术㧟摁</div>
+            <div class="comparison-title">TNT中的算术㧟摁</div>
+            <div class="comparison-text">取一个含自由变元的公式
+把该公式的哥德尔数代入自由变元
+得到一个关于自身哥德尔数的闭句子
+同样实现了自指——公式在谈论自己</div>
         </div>
     </div>
     
@@ -336,18 +342,18 @@ section { padding: 80px 0; }
     <div class="section-title">代入的巧妙：间接描述</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">📝</div>
+            <div class="analogy-label">直接代入</div>
+            <div class="analogy-desc">把具体数字（如1024）直接写进公式——简单但无法实现自指</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🪞</div>
+            <div class="analogy-label">间接描述代入</div>
+            <div class="analogy-desc">用「u的算术㧟摁化」来描述一个数——不写出数字本身，而是描述它如何产生</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">间接描述使G能引用自己的哥德尔数而不需要知道它具体是几</div></div>
 </section>
 
 <!-- Block: tips-grid — Grid of tip/maxim/story cards -->
@@ -360,8 +366,8 @@ section { padding: 80px 0; }
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block5" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">🌀 超自然数的奇异性质</div>
+        <div class="insight-content">超自然数可以用三元组编号，但存在一个类似海森堡测不准原理的限制：如果加法的编号是递归可算的，那么乘法的编号就不是递归可算的，反之亦然。你不可能同时精确掌握超自然数的加法和乘法规律。</div>
     </div>
 </section>
 
@@ -458,25 +464,63 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "为什么「是证明对」是原始递归的，但「是定理数」不是？",
-    "a": "检验证明对只需逐行核查推导的合法性，每一步都是有限的检测。但判断一个数是否为定理数需要搜索所有可能的证明——这是一个没有已知上界的搜索，可能永不终止。"
+    "question": "为什么「是证明对」是原始递归的，但「是定理数」不是？",
+    "answer": "检验证明对只需逐行核查推导的合法性，每一步都是有限的检测。但判断一个数是否为定理数需要搜索所有可能的证明——这是一个没有已知上界的搜索，可能永不终止。"
   },
   {
-    "q": "算术㧟摁是如何实现自指的？为什么仅仅㧟摁还不够？",
-    "a": "算术㧟摁把一个公式的哥德尔数代入该公式自身的自由变元中。但关键是被㧟摁的公式本身必须在谈论㧟摁这个概念——否则结果只是一个普通的数论命题，不会产生自指。必须㧟摁一个提及㧟摁的句子。"
+    "question": "算术㧟摁是如何实现自指的？为什么仅仅㧟摁还不够？",
+    "answer": "算术㧟摁把一个公式的哥德尔数代入该公式自身的自由变元中。但关键是被㧟摁的公式本身必须在谈论㧟摁这个概念——否则结果只是一个普通的数论命题，不会产生自指。必须㧟摁一个提及㧟摁的句子。"
   },
   {
-    "q": "哥德尔第二定理为什么对希尔伯特计划是「当头一棒」？",
-    "a": "希尔伯特计划希望用有限方法严格证明数学的无矛盾性。但哥德尔第二定理表明，任何足够强的一致系统都无法在自身内证明自身的一致性。要证明TNT的一致性，必须借助比TNT更强的系统——而那个更强系统的一致性又面临同样的问题。"
+    "question": "哥德尔第二定理为什么对希尔伯特计划是「当头一棒」？",
+    "answer": "希尔伯特计划希望用有限方法严格证明数学的无矛盾性。但哥德尔第二定理表明，任何足够强的一致系统都无法在自身内证明自身的一致性。要证明TNT的一致性，必须借助比TNT更强的系统——而那个更强系统的一致性又面临同样的问题。"
   },
   {
-    "q": "把~G加入TNT作为公理会导致什么后果？这与非欧几何有什么类比？",
-    "a": "加入~G会产生包含「超自然数」的非标准数论，就像否定第五公设产生非欧几何。两种理论在「日常」层面完全一致（2+2仍等于4，三角形内角和在小范围仍约180度），差异只在处理无穷/极端情形时才显现。"
+    "question": "把~G加入TNT作为公理会导致什么后果？这与非欧几何有什么类比？",
+    "answer": "加入~G会产生包含「超自然数」的非标准数论，就像否定第五公设产生非欧几何。两种理论在「日常」层面完全一致（2+2仍等于4，三角形内角和在小范围仍约180度），差异只在处理无穷/极端情形时才显现。"
   }
 ];
 const chapterNav = {"prev": {"num": 13, "title": "BlooP和FlooP和GlooP", "href": "ch13.html"}, "next": {"num": 15, "title": "跳出系统", "href": "ch15.html"}};
-window.pipeData_block1 = [];
-window.tipsData_block4 = [];
+window.pipeData_block1 = [
+  {
+    "label": "哥德尔配数",
+    "desc": "给TNT的每个符号串分配一个唯一的自然数"
+  },
+  {
+    "label": "证明对",
+    "desc": "定义原始递归关系：m是n的证明的哥德尔数"
+  },
+  {
+    "label": "算术㧟摁",
+    "desc": "把公式的哥德尔数代入公式自身——制造自指"
+  },
+  {
+    "label": "构造G",
+    "desc": "G说「没有数能与我的哥德尔数形成TNT证明对」，即「我不可证」"
+  }
+];
+window.tipsData_block4 = [
+  {
+    "icon": "🕳️",
+    "title": "G是不可判定的",
+    "text": "G既不是定理也不是非定理（假设TNT一致），但G的解释为真"
+  },
+  {
+    "icon": "🔐",
+    "title": "第二定理",
+    "text": "TNT无法证明自身的一致性——除非它本身不一致"
+  },
+  {
+    "icon": "Ω",
+    "title": "ω不完全性",
+    "text": "金字塔中每一层都是定理，但概括它们的全称命题不是定理"
+  },
+  {
+    "icon": "🔮",
+    "title": "超自然数",
+    "text": "如果把~G加入TNT，就被迫承认「超自然数」——比所有自然数都大的无穷整数"
+  }
+];
 
 /* ── Pre-Quiz ── */
 (function() {

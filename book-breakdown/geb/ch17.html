@@ -314,25 +314,25 @@ section { padding: 80px 0; }
     <div class="section-title">层次混淆：为什么机器可以「非理性」</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🧠</div>
+            <div class="analogy-label">人脑</div>
+            <div class="analogy-desc">神经元完美无缺地执行加法运算（底层理性），但支持的高层思维可以是错误的、混乱的、非理性的</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">💻</div>
+            <div class="analogy-label">计算机</div>
+            <div class="analogy-desc">硬件完美执行指令（底层理性），但运行的高层程序可以模拟混乱、遗忘、美感甚至错误信念</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">底层的完美秩序完全兼容高层的非理性表现——这不是矛盾，而是层次的自然分工</div></div>
 </section>
 
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block3" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">🇮🇳 拉玛奴衍：天才还是反例？</div>
+        <div class="insight-content">印度数学家拉玛奴衍凭直觉得出大量数学结果，其中一些连最优秀的数学家都未曾见过。他的合作者哈代评论说：「从本质上讲，所有数学家都在用同一性质的方法思维。」这就是丘奇-图灵论题的「哈代形式」——所有数学家本质上同构。拉玛奴衍的直觉并非超自然的「热线」，而是极其高效的、与普通推理本质相同的计算过程。</div>
     </div>
 </section>
 
@@ -343,16 +343,22 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">丘奇定理</div>
+            <div class="comparison-title">丘奇定理</div>
+            <div class="comparison-text">没有切实可靠的方法区分TNT的定理和非定理
+「是定理」这一性质可以表示但不可体现
+如果「是定理」可体现，G就变成真正的悖论
+螃蟹不可能有可靠的「定理判定器」</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">塔斯基定理</div>
+            <div class="comparison-title">塔斯基定理</div>
+            <div class="comparison-text">真理概念不能在TNT内部体现
+「是真理」比「是定理」更难以捉摸
+塔斯基公式T直接复制说谎者悖论到数论中
+螃蟹辨认真理的能力不会比辨认定理更强</div>
         </div>
     </div>
     
@@ -458,25 +464,75 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "为什么丘奇-图灵论题不是一个可以证明的数学定理？",
-    "a": "因为它是关于人类心智过程的一个假设——它断言心智能做的有效计算不会超出FlooP的能力。这涉及对「有效过程」的经验判断，而非纯粹的形式推导。"
+    "question": "为什么丘奇-图灵论题不是一个可以证明的数学定理？",
+    "answer": "因为它是关于人类心智过程的一个假设——它断言心智能做的有效计算不会超出FlooP的能力。这涉及对「有效过程」的经验判断，而非纯粹的形式推导。"
   },
   {
-    "q": "拉玛奴衍的直觉成果中有很多是错的，为什么这反而让人更相信他有「神秘力量」？",
-    "a": "这是一种悖论性的心理效应：出错暗示了「非理性因素」的存在，而非理性恰好是人们想象的「神秘直觉」的特征。但哈代指出，拉玛奴衍本质上使用的是与其他数学家相同性质的推理方法。"
+    "question": "拉玛奴衍的直觉成果中有很多是错的，为什么这反而让人更相信他有「神秘力量」？",
+    "answer": "这是一种悖论性的心理效应：出错暗示了「非理性因素」的存在，而非理性恰好是人们想象的「神秘直觉」的特征。但哈代指出，拉玛奴衍本质上使用的是与其他数学家相同性质的推理方法。"
   },
   {
-    "q": "为什么「意义来自认知结构间的联系」意味着语义性质需要无尽头的搜索？",
-    "a": "因为一个对象的「意义」并不局限于对象自身，而是依赖于它与所有其他对象之间的关系网络。这个网络本质上是开放的、不断扩展的，所以永远无法穷尽一个对象的全部意义。"
+    "question": "为什么「意义来自认知结构间的联系」意味着语义性质需要无尽头的搜索？",
+    "answer": "因为一个对象的「意义」并不局限于对象自身，而是依赖于它与所有其他对象之间的关系网络。这个网络本质上是开放的、不断扩展的，所以永远无法穷尽一个对象的全部意义。"
   },
   {
-    "q": "塔斯基定理的证明核心思路是什么？",
-    "a": "假设存在一个能体现「真理」的TNT公式TRUE{a}，用对角线法造出一个说自己是假的塔斯基公式T。T作为数论陈述既真又假——逻辑矛盾迫使我们放弃TRUE{a}存在的假设。"
+    "question": "塔斯基定理的证明核心思路是什么？",
+    "answer": "假设存在一个能体现「真理」的TNT公式TRUE{a}，用对角线法造出一个说自己是假的塔斯基公式T。T作为数论陈述既真又假——逻辑矛盾迫使我们放弃TRUE{a}存在的假设。"
   }
 ];
 const chapterNav = {"prev": {"num": 16, "title": "自指和自复制", "href": "ch16.html"}, "next": {"num": 18, "title": "人工智能：回顾", "href": "ch18.html"}};
-window.pipeData_block1 = [];
-window.tipsData_block5 = [];
+window.pipeData_block1 = [
+  {
+    "label": "同义反复形式",
+    "desc": "数学问题只能通过数学推演来解决（几乎空洞）"
+  },
+  {
+    "label": "标准形式",
+    "desc": "任何有效的分类方法都等价于一个有终止的FlooP程序"
+  },
+  {
+    "label": "大众过程形式",
+    "desc": "可传播的方法都等价于FlooP，但个人特有的方法可能例外"
+  },
+  {
+    "label": "同构形式",
+    "desc": "心智计算步骤与FlooP步骤之间存在层次同构"
+  },
+  {
+    "label": "微观形式",
+    "desc": "大脑各组成部分的行为都可用计算机模拟"
+  },
+  {
+    "label": "简化论形式",
+    "desc": "全部大脑过程都可从可计算的基质中导出"
+  },
+  {
+    "label": "人工智能形式",
+    "desc": "任何心智过程都可用计算机程序模拟"
+  }
+];
+window.tipsData_block5 = [
+  {
+    "icon": "📏",
+    "title": "句法性质",
+    "text": "可用预知有终止的BlooP检验——如良构性。性质明确存在于对象自身之内"
+  },
+  {
+    "icon": "🌊",
+    "title": "语义性质",
+    "text": "需要无尽头的搜索——如定理性、美。意义依赖于与无穷多对象的关系"
+  },
+  {
+    "icon": "🎵",
+    "title": "音乐之美",
+    "text": "不是旋律表面的句法特征，而是与听者全部经验的深层共鸣——本质上是语义的"
+  },
+  {
+    "icon": "🔍",
+    "title": "真理之谜",
+    "text": "美与真密切相关：两者都不可用有穷规则完全刻画，都需要超出系统的更高视角"
+  }
+];
 
 /* ── Pre-Quiz ── */
 (function() {

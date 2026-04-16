@@ -315,16 +315,20 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">类符号（范畴）</div>
+            <div class="comparison-title">类符号（范畴）</div>
+            <div class="comparison-text">代表一般概念，如「电影」「橄榄球队员」
+包含「缺席选择」——合理的默认假设
+可作为新例符号的模板</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">例符号（个体）</div>
+            <div class="comparison-title">例符号（个体）</div>
+            <div class="comparison-text">代表具体实体，如「回文斯」
+最初依赖父母类符号，逐渐获得自主性
+可通过「原型原则」反过来成为新的类符号</div>
         </div>
     </div>
     
@@ -336,18 +340,18 @@ section { padding: 80px 0; }
     <div class="section-title">符号的重叠：池塘涟漪</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🌊</div>
+            <div class="analogy-label">池塘水面</div>
+            <div class="analogy-desc">同一片水可以同时承载多个涟漪，它们彼此穿过互不干扰</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🧠</div>
+            <div class="analogy-label">大脑神经元</div>
+            <div class="analogy-desc">同一组神经元可以参与多个符号，靠不同的发射时间模式来区分</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">硬件相同，软件激活方式不同</div></div>
 </section>
 
 <!-- Block: tips-grid — Grid of tip/maxim/story cards -->
@@ -360,8 +364,8 @@ section { padding: 80px 0; }
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block5" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">💡 智能的可抽取性</div>
+        <div class="insight-content">如果思维过程可以完全在符号层次上描述——不涉及底层神经事件——那么智能就是一种可以从大脑硬件中「抽取」出来的软件性质。这意味着智能有可能实现在完全不同的硬件上，就像同一个程序可以运行在不同品牌的计算机上一样。</div>
     </div>
 </section>
 
@@ -458,25 +462,63 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "为什么单个神经元不能充当「符号」的角色？",
-    "a": "因为神经元只能以唯一的方式发送信息——发射或不发射，不能选择性地把信号发往不同方向。而符号需要能够选择性地触发其他符号，以模拟现实世界中对象的复杂行为。"
+    "question": "为什么单个神经元不能充当「符号」的角色？",
+    "answer": "因为神经元只能以唯一的方式发送信息——发射或不发射，不能选择性地把信号发往不同方向。而符号需要能够选择性地触发其他符号，以模拟现实世界中对象的复杂行为。"
   },
   {
-    "q": "「原型原则」是什么意思？",
-    "a": "最具体的事件可以被用作一类事件的一般范例。特殊事件的生动性使其牢牢印在记忆中，后来被当作与之相似的其他事物的模型。一般性即寓于特殊性之中。"
+    "question": "「原型原则」是什么意思？",
+    "answer": "最具体的事件可以被用作一类事件的一般范例。特殊事件的生动性使其牢牢印在记忆中，后来被当作与之相似的其他事物的模型。一般性即寓于特殊性之中。"
   },
   {
-    "q": "拉施利的老鼠迷津实验和潘菲尔德的大脑刺激实验，各自得出了什么看似矛盾的结论？",
-    "a": "拉施利发现切除老鼠皮层的任何部分都不能完全消除迷津记忆，得出记忆不可定位的结论；而潘菲尔德发现刺激特定神经元可以可靠地触发特定的记忆体验，暗示记忆是局部编码的。一种可能的调和是：记忆分布存贮但可从局部点触发。"
+    "question": "拉施利的老鼠迷津实验和潘菲尔德的大脑刺激实验，各自得出了什么看似矛盾的结论？",
+    "answer": "拉施利发现切除老鼠皮层的任何部分都不能完全消除迷津记忆，得出记忆不可定位的结论；而潘菲尔德发现刺激特定神经元可以可靠地触发特定的记忆体验，暗示记忆是局部编码的。一种可能的调和是：记忆分布存贮但可从局部点触发。"
   },
   {
-    "q": "描述性知识和过程性知识有什么区别？请各举一例。",
-    "a": "描述性知识是显式存贮的事实，如「广州人口约五百万」，可以直接提取；过程性知识隐含在程序中，如母语语法——你能正确使用但很难清楚陈述规则。大多数知识介于两者之间。"
+    "question": "描述性知识和过程性知识有什么区别？请各举一例。",
+    "answer": "描述性知识是显式存贮的事实，如「广州人口约五百万」，可以直接提取；过程性知识隐含在程序中，如母语语法——你能正确使用但很难清楚陈述规则。大多数知识介于两者之间。"
   }
 ];
 const chapterNav = {"prev": {"num": 10, "title": "描述的层次和计算机系统", "href": "ch10.html"}, "next": {"num": 12, "title": "心智和思维", "href": "ch12.html"}};
-window.pipeData_block1 = [];
-window.tipsData_block4 = [];
+window.pipeData_block1 = [
+  {
+    "label": "神经元",
+    "desc": "每秒决定上千次「发射或不发射」，可有20万个输入端口"
+  },
+  {
+    "label": "信号",
+    "desc": "神经脉冲沿轴突传播，在分叉点分裂成多路信号"
+  },
+  {
+    "label": "模块/符号",
+    "desc": "大量神经元组成的复合体，对应一个概念（如「祖母」）"
+  },
+  {
+    "label": "思维",
+    "desc": "符号之间通过触发模式相互激活，形成同构于现实世界的心理事件"
+  }
+];
+window.tipsData_block4 = [
+  {
+    "icon": "📖",
+    "title": "描述性知识",
+    "text": "显式存贮的事实，如「广州人口是五百万」，可直接提取"
+  },
+  {
+    "icon": "⚙️",
+    "title": "过程性知识",
+    "text": "隐含在程序中的能力，如母语语法规则，你会用但说不清"
+  },
+  {
+    "icon": "🎵",
+    "title": "混合存贮",
+    "text": "旋律的记忆：既非逐音符存贮，也非纯过程，而是音调关系与节奏模式的混合"
+  },
+  {
+    "icon": "🖼️",
+    "title": "视觉表象",
+    "text": "想象一只桔子时，大脑产生一系列被抑制的运动命令，形成生动的心理图像"
+  }
+];
 
 /* ── Pre-Quiz ── */
 (function() {

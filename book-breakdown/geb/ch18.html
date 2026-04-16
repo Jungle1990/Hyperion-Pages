@@ -322,16 +322,24 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">施德鲁能做的</div>
+            <div class="comparison-title">施德鲁能做的</div>
+            <div class="comparison-text">理解自然语言指令
+操纵积木世界中的对象
+解析代词指代和歧义
+回忆动作历史并解释原因
+学习新概念定义（如「塔」）</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">施德鲁做不到的</div>
+            <div class="comparison-title">施德鲁做不到的</div>
+            <div class="comparison-text">处理积木世界以外的任何话题
+理解比喻、幽默或情感
+在开放环境中进行常识推理
+处理模糊性和不确定性
+从失败中学习和自我改进</div>
         </div>
     </div>
     
@@ -340,8 +348,8 @@ section { padding: 80px 0; }
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block4" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">🎯 泰斯勒定理：AI永远是尚未做到的东西</div>
+        <div class="insight-content">一旦某种心智功能被程序化了，人们很快就不再把它看作「真正的思维」。下跳棋的程序已是世界一流，符号积分程序胜过最熟练的人，但没人称它们为「智能」。智能的核心永远后退到尚未被程序化的领域——学习、创造、情感响应、美的感受力、自我意识。这个不断后退的移动目标就是AI研究最大的讽刺。</div>
     </div>
 </section>
 
@@ -351,18 +359,18 @@ section { padding: 80px 0; }
     <div class="section-title">伊莉莎效应：人类的轻信本能</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🤖</div>
+            <div class="analogy-label">伊莉莎程序</div>
+            <div class="analogy-desc">极简单的模式匹配+预设回答模板，对输入只做表面分析，靠人类的轻信心理虚张声势</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🧠</div>
+            <div class="analogy-label">人类理解者</div>
+            <div class="analogy-desc">由于对计算机一无所知，人们用自己的思维模型来解释机器行为，自动填补了大量「意义」</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">程序只是利用了人类「过度解读」的本能——真正的理解发生在人脑中，不在程序中</div></div>
 </section>
 
 
@@ -458,25 +466,73 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "图灵测验中机器故意算错算术题，可能有哪些解释？",
-    "a": "至少五种：偶然硬件故障、编程bug、程序员故意插入的欺骗花招、长时间抽象思维的副作用、机器自己想出的玩笑。要搞清到底是哪种，就涉及了AI的几乎全部哲学问题。"
+    "question": "图灵测验中机器故意算错算术题，可能有哪些解释？",
+    "answer": "至少五种：偶然硬件故障、编程bug、程序员故意插入的欺骗花招、长时间抽象思维的副作用、机器自己想出的玩笑。要搞清到底是哪种，就涉及了AI的几乎全部哲学问题。"
   },
   {
-    "q": "为什么「伊莉莎效应」构成了对图灵测验的挑战？",
-    "a": "因为极简单的程序就能让人深信它在「理解」。但图灵测验的原始形式是合理的——关键是要提醒询问人保持怀疑精神，用全部智慧来对付被测者，而不是放松警惕。"
+    "question": "为什么「伊莉莎效应」构成了对图灵测验的挑战？",
+    "answer": "因为极简单的程序就能让人深信它在「理解」。但图灵测验的原始形式是合理的——关键是要提醒询问人保持怀疑精神，用全部智慧来对付被测者，而不是放松警惕。"
   },
   {
-    "q": "施德鲁为什么无法处理现实世界的问题？",
-    "a": "因为现实世界的问题不是自足的——一个简单任务可能牵连出无穷多的关联。施德鲁的积木世界有清晰的边界和规则，而现实世界没有。"
+    "question": "施德鲁为什么无法处理现实世界的问题？",
+    "answer": "因为现实世界的问题不是自足的——一个简单任务可能牵连出无穷多的关联。施德鲁的积木世界有清晰的边界和规则，而现实世界没有。"
   },
   {
-    "q": "什么是「泰斯勒定理」？它揭示了AI研究的什么困境？",
-    "a": "「AI永远是尚未做到的东西。」一旦某种心智功能被成功程序化，人们就不再把它算作智能。这意味着智能的定义永远在后退，AI的目标是一个移动靶。"
+    "question": "什么是「泰斯勒定理」？它揭示了AI研究的什么困境？",
+    "answer": "「AI永远是尚未做到的东西。」一旦某种心智功能被成功程序化，人们就不再把它算作智能。这意味着智能的定义永远在后退，AI的目标是一个移动靶。"
   }
 ];
 const chapterNav = {"prev": {"num": 17, "title": "丘奇、图灵、塔斯基及别的人", "href": "ch17.html"}, "next": {"num": 19, "title": "人工智能：展望", "href": "ch19.html"}};
-window.pipeData_block1 = [];
-window.tipsData_block2 = [];
+window.pipeData_block1 = [
+  {
+    "label": "询问人提问",
+    "desc": "询问人C在隔离房间中通过打字机向A和B提问"
+  },
+  {
+    "label": "机器伪装",
+    "desc": "机器A试图伪装成人类，可以故意犯错、表达情感"
+  },
+  {
+    "label": "人类配合",
+    "desc": "人类B努力帮助询问人识别出谁是机器"
+  },
+  {
+    "label": "判定结果",
+    "desc": "如果询问人无法可靠区分，就承认机器具有智能"
+  }
+];
+window.tipsData_block2 = [
+  {
+    "icon": "⛪",
+    "title": "神学反对",
+    "text": "上帝只给人灵魂——图灵指出这种论证在历史上经常被推翻"
+  },
+  {
+    "icon": "🙈",
+    "title": "鸵鸟式反对",
+    "text": "「机器思维的后果太可怕了，让我们假装它不可能」"
+  },
+  {
+    "icon": "📐",
+    "title": "数学化反对",
+    "text": "哥德尔定理限制了机器——但也限制了人类"
+  },
+  {
+    "icon": "😢",
+    "title": "意识论证",
+    "text": "机器不能「真正」感受——但你怎么知道别人「真正」在感受？"
+  },
+  {
+    "icon": "📋",
+    "title": "缺陷论证",
+    "text": "「机器永远不能做X」——但X的清单在不断缩短"
+  },
+  {
+    "icon": "👩‍💻",
+    "title": "洛芙莱丝反对",
+    "text": "机器只做被命令的事——但人也是由基因和环境「编程」的"
+  }
+];
 
 /* ── Pre-Quiz ── */
 (function() {

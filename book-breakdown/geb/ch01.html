@@ -306,18 +306,18 @@ section { padding: 80px 0; }
     <div class="section-title">形式系统 vs 自动售货机</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🏭</div>
+            <div class="analogy-label">自动售货机</div>
+            <div class="analogy-desc">投入硬币，按下按钮，机器按固定流程吐出商品。机器不理解「好喝」或「营养」，只执行机械步骤。</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🔤</div>
+            <div class="analogy-label">WJU形式系统</div>
+            <div class="analogy-desc">从公理WJ出发，应用四条规则，产生新的符号串。系统不理解「意义」，只执行符号变换。</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">两者都是纯机械的过程，不需要「理解」就能运转</div></div>
 </section>
 
 <!-- Block: pipeline — Flow diagram with connected nodes -->
@@ -335,16 +335,24 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">J方式（机方式）</div>
+            <div class="comparison-title">J方式（机方式）</div>
+            <div class="comparison-text">在系统内部机械地操作
+只使用W、J、U三个字母
+逐步推导，盲目探索
+永远不会知道WU是否可达
+计算机天生擅长这种方式</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">W方式（惟方式）</div>
+            <div class="comparison-title">W方式（惟方式）</div>
+            <div class="comparison-text">跳出系统进行思考
+可以使用任何语言和工具
+发现模式、进行逆推
+能证明WU永远不可达
+人类智能的核心优势</div>
         </div>
     </div>
     
@@ -353,8 +361,8 @@ section { padding: 80px 0; }
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block4" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">🔍 WU为何不可达？</div>
+        <div class="insight-content">关键在于模3计数。起初J的个数为1（模3余1）。规则II使J数翻倍：1→2→4→8...模3的余数循环为1→2→1→2...永远不会是0。而要得到WU，需要J的个数为0（模3余0）。因此WU不是WJU系统的定理。这个证明本身不在系统内部——它是关于系统的推理。</div>
     </div>
 </section>
 
@@ -453,25 +461,73 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "WJU系统中，为什么所有定理都必须以W开头？",
-    "a": "因为唯一的公理WJ以W开头，而四条规则都不会改变符号串的第一个字母。所有定理都「继承」了公理的第一个字母。"
+    "question": "WJU系统中，为什么所有定理都必须以W开头？",
+    "answer": "因为唯一的公理WJ以W开头，而四条规则都不会改变符号串的第一个字母。所有定理都「继承」了公理的第一个字母。"
   },
   {
-    "q": "「判定过程」和「等待怪物生成所有定理」的方法有什么本质区别？",
-    "a": "判定过程保证在有限时间内给出确定答案（是或否）。而等待方法只能在找到时说「是」，如果找不到则永远无法确认「否」——需要等无穷长时间。"
+    "question": "「判定过程」和「等待怪物生成所有定理」的方法有什么本质区别？",
+    "answer": "判定过程保证在有限时间内给出确定答案（是或否）。而等待方法只能在找到时说「是」，如果找不到则永远无法确认「否」——需要等无穷长时间。"
   },
   {
-    "q": "为什么说WU不是WJU系统的定理？",
-    "a": "因为J的个数从1开始，规则II翻倍、规则III减3，经过任意操作，J的个数模3永远是1或2，不可能是0。而WU要求J的个数为0。"
+    "question": "为什么说WU不是WJU系统的定理？",
+    "answer": "因为J的个数从1开始，规则II翻倍、规则III减3，经过任意操作，J的个数模3永远是1或2，不可能是0。而WU要求J的个数为0。"
   },
   {
-    "q": "W方式和J方式分别对应什么？",
-    "a": "J方式是在系统内部机械操作（像机器一样），W方式是跳出系统进行思考（用人类智能分析系统本身的性质）。"
+    "question": "W方式和J方式分别对应什么？",
+    "answer": "J方式是在系统内部机械操作（像机器一样），W方式是跳出系统进行思考（用人类智能分析系统本身的性质）。"
   }
 ];
 const chapterNav = {"next": {"num": 2, "title": "数学中的意义与形式", "href": "ch02.html"}};
-window.pipeData_block2 = [];
-window.tipsData_block5 = [];
+window.pipeData_block2 = [
+  {
+    "label": "规则I：末尾加U",
+    "desc": "如果符号串以J结尾，可在后面加U。如WJ→WJU"
+  },
+  {
+    "label": "规则II：W后翻倍",
+    "desc": "如果有Wx，则可得Wxx。如WJU→WJUJU"
+  },
+  {
+    "label": "规则III：JJJ→U",
+    "desc": "连续三个J可替换为一个U。如WJJJ→WU"
+  },
+  {
+    "label": "规则IV：删除UU",
+    "desc": "连续两个U可以去掉。如WUUJ→WJ"
+  }
+];
+window.tipsData_block5 = [
+  {
+    "icon": "📜",
+    "title": "公理",
+    "text": "形式系统中无偿给定的起始符号串，如WJ"
+  },
+  {
+    "icon": "📏",
+    "title": "推理规则",
+    "text": "将已有符号串变换为新符号串的操作"
+  },
+  {
+    "icon": "📐",
+    "title": "定理",
+    "text": "能从公理出发通过规则产生的符号串"
+  },
+  {
+    "icon": "📝",
+    "title": "推导",
+    "text": "从公理到某个定理的完整变换过程"
+  },
+  {
+    "icon": "✅",
+    "title": "判定过程",
+    "text": "能在有限时间内判断一个符号串是否为定理的方法"
+  },
+  {
+    "icon": "🔄",
+    "title": "形式化要求",
+    "text": "绝不能做任何背离规则的事情"
+  }
+];
 
 /* ── Pre-Quiz ── */
 (function() {

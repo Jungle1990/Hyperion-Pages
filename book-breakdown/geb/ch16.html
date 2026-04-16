@@ -307,16 +307,22 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">隐性自指（靠「本句子」）</div>
+            <div class="comparison-title">隐性自指（靠「本句子」）</div>
+            <div class="comparison-text">依赖语言处理器的能力
+像冰山一样，复杂处理藏在水下
+「本句子有七个字」看似简单，实则需要极复杂的指代消解
+类似用「我」字代表自己——几乎是作弊</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">显性自指（蒯恩/哥德尔法）</div>
+            <div class="comparison-title">显性自指（蒯恩/哥德尔法）</div>
+            <div class="comparison-text">通过「描述+操作」显式构造
+像肥皂一样，机制浮在表面可见
+蒯恩句子由模板和指令两部分组成
+哥德尔串G通过编码间接指向自身</div>
         </div>
     </div>
     
@@ -336,25 +342,25 @@ section { padding: 80px 0; }
     <div class="section-title">DNA自复制：生物界的蒯恩句子</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">💻</div>
+            <div class="analogy-label">自复制程序</div>
+            <div class="analogy-desc">同一段符号串既当程序执行，又当数据引用，两次出现完成自我复制</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🧬</div>
+            <div class="analogy-label">DNA复制</div>
+            <div class="analogy-desc">DNA既是蛋白质合成的「指令」，又是在复制酶作用下被「读取抄写」的模板——同一段编码的双重角色</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">程序中的数据/指令二重性 ≈ DNA中的模板/编码二重性</div></div>
 </section>
 
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block4" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">🔬 冯·诺依曼的先见之明</div>
+        <div class="insight-content">冯·诺依曼在DNA结构被发现之前就从逻辑上推导出：任何自复制系统都必须包含一套「通用构造器」加上一份「自身蓝图」。蓝图既被当作指令来指挥构造（被翻译），又被原封不动地复制进新个体（被转录）。这和蒯恩句子的结构完全一致——生命的密码就是一个分子层面的怪圈。</div>
     </div>
 </section>
 
@@ -458,25 +464,63 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "为什么不能用直接引用（把整个句子嵌入句子中）来实现自指？",
-    "a": "因为引用自己后得到的新句子总比自己长，无穷嵌套只适用于无穷长的句子。有穷句子只能通过「描述」而非「引用」来间接实现自指。"
+    "question": "为什么不能用直接引用（把整个句子嵌入句子中）来实现自指？",
+    "answer": "因为引用自己后得到的新句子总比自己长，无穷嵌套只适用于无穷长的句子。有穷句子只能通过「描述」而非「引用」来间接实现自指。"
   },
   {
-    "q": "自复制程序中，为什么同一段符号串要出现两次？",
-    "a": "第一次作为「程序」被执行（定义过程），第二次作为「数据」被引用（放在引号内作为模板值）。两种角色缺一不可。"
+    "question": "自复制程序中，为什么同一段符号串要出现两次？",
+    "answer": "第一次作为「程序」被执行（定义过程），第二次作为「数据」被引用（放在引号内作为模板值）。两种角色缺一不可。"
   },
   {
-    "q": "冯·诺依曼的自复制理论如何被DNA结构验证？",
-    "a": "DNA双螺旋恰好同时扮演两个角色：通过转录翻译指导蛋白质合成（当作指令），通过半保留复制产生自身副本（当作被复制的数据模板）。"
+    "question": "冯·诺依曼的自复制理论如何被DNA结构验证？",
+    "answer": "DNA双螺旋恰好同时扮演两个角色：通过转录翻译指导蛋白质合成（当作指令），通过半保留复制产生自身副本（当作被复制的数据模板）。"
   },
   {
-    "q": "哥德尔串G和蒯恩句子在结构上有什么共同点？",
-    "a": "两者都由「指令部分」和「模板部分」组成：指令描述了一个操作，模板提供了素材，而操作模板的结果恰好重新生成了包含指令和模板的完整原始结构。"
+    "question": "哥德尔串G和蒯恩句子在结构上有什么共同点？",
+    "answer": "两者都由「指令部分」和「模板部分」组成：指令描述了一个操作，模板提供了素材，而操作模板的结果恰好重新生成了包含指令和模板的完整原始结构。"
   }
 ];
 const chapterNav = {"prev": {"num": 15, "title": "跳出系统", "href": "ch15.html"}, "next": {"num": 17, "title": "丘奇、图灵、塔斯基及别的人", "href": "ch17.html"}};
-window.pipeData_block2 = [];
-window.tipsData_block5 = [];
+window.pipeData_block2 = [
+  {
+    "label": "定义过程ENIUQ",
+    "desc": "接收一个模板字符串作为输入"
+  },
+  {
+    "label": "打印模板",
+    "desc": "先按原样打印模板内容"
+  },
+  {
+    "label": "再打印引用",
+    "desc": "再把模板加上引号和括号打印一遍"
+  },
+  {
+    "label": "输出=原程序",
+    "desc": "输出恰好等于包含定义和调用的完整程序"
+  }
+];
+window.tipsData_block5 = [
+  {
+    "icon": "❌",
+    "title": "投币唱机",
+    "text": "信息不在歌曲中，而在唱机里——按钮只是触发器，不是副本"
+  },
+  {
+    "icon": "❌",
+    "title": "复印机",
+    "text": "纸张没有「自主指挥」复制过程，一切奥妙都在处理器的机制中"
+  },
+  {
+    "icon": "⚠️",
+    "title": "逆行程序",
+    "text": "倒着打印自己——信息相同但外在消息不同，勉强算自复制"
+  },
+  {
+    "icon": "✅",
+    "title": "蒯恩式自复制",
+    "text": "符号串以两种角色出场，完整信息「接近表面」——最纯正的自复制"
+  }
+];
 
 /* ── Pre-Quiz ── */
 (function() {

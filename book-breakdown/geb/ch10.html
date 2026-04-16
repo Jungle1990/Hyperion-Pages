@@ -315,16 +315,24 @@ section { padding: 80px 0; }
     <div class="comparison-grid">
         <div class="comparison-side hard">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">隐式修剪（大师/高层思维）</div>
+            <div class="comparison-title">隐式修剪（大师/高层思维）</div>
+            <div class="comparison-text">坏棋根本不会出现在思维中
+感知已经过「组块化」过滤
+类似于不会想到不合规则的棋步
+搜索空间被大幅缩减
+效率极高：只检查几种可能</div>
         </div>
         <div class="comparison-vs">VS</div>
         <div class="comparison-side smart">
             <div class="comparison-icon"></div>
-            <div class="comparison-label"></div>
-            <div class="comparison-title"></div>
-            <div class="comparison-text"></div>
+            <div class="comparison-label">显式修剪（新手/蛮力搜索）</div>
+            <div class="comparison-title">显式修剪（新手/蛮力搜索）</div>
+            <div class="comparison-text">先想到一步棋，再检查是否好
+需要逐一评估大量可能性
+机械式超前搜索
+搜索空间巨大
+效率低下：检查成百上千种可能</div>
         </div>
     </div>
     
@@ -333,8 +341,8 @@ section { padding: 80px 0; }
 <!-- Block: insight-box — Highlighted insight/quote card -->
 <section id="sec-block3" class="fade-in">
     <div class="insight-box">
-        <div class="insight-title">💡 </div>
-        <div class="insight-content"></div>
+        <div class="insight-title">🧩 组块化：智能的核心机制</div>
+        <div class="insight-content">德·格鲁特的实验证明：大师能在5秒内记住实际对局的棋局，但对随机摆放的棋子并不比新手强。这说明大师不是「记忆力更好」，而是能把棋子组织成高层次的「组块」——战略模式、攻防格局。错误往往是把整组棋子放错位置而非单个棋子，因为他们记住的是组块而非个体。数学家的直觉也同理：他们不是搜索更多路径，而是一下「嗅出」有前途的方向。</div>
     </div>
 </section>
 
@@ -344,18 +352,18 @@ section { padding: 80px 0; }
     <div class="section-title">编译程序 vs 解释程序</div>
     <div class="analogy-compare">
         <div class="analogy-side left">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">📝</div>
+            <div class="analogy-label">编译程序（书面翻译）</div>
+            <div class="analogy-desc">先把整个高级语言程序翻译成机器语言，然后一次性执行。就像先把一本书完整翻译好，再出版发行。</div>
         </div>
         <div class="analogy-vs">⟺</div>
         <div class="analogy-side right">
-            <div class="analogy-icon"></div>
-            <div class="analogy-label"></div>
-            <div class="analogy-desc"></div>
+            <div class="analogy-icon">🎙️</div>
+            <div class="analogy-label">解释程序（同声翻译）</div>
+            <div class="analogy-desc">读一行、理解一行、执行一行——三者交织进行。Lisp解释程序让每条语句在程序内部走一条独特的「路径」。</div>
         </div>
     </div>
-    
+    <div class="insight-box" style="margin-top:1.5rem"><div class="insight-content">两者殊途同归：都把高层描述映射到机器指令，只是翻译的时机和方式不同</div></div>
 </section>
 
 <!-- Block: tips-grid — Grid of tip/maxim/story cards -->
@@ -453,25 +461,77 @@ const takeaways = [
 ];
 const quiz = [
   {
-    "q": "为什么棋术大师搜索的着法反而比新手少？",
-    "a": "大师对棋局的感知已经过高层次「组块化」——他们看到的是战略模式而非单个棋子。坏棋对他们来说就像不合规则的棋步一样「不可见」（隐式修剪），因此只需检查极少数有前途的着法。"
+    "question": "为什么棋术大师搜索的着法反而比新手少？",
+    "answer": "大师对棋局的感知已经过高层次「组块化」——他们看到的是战略模式而非单个棋子。坏棋对他们来说就像不合规则的棋步一样「不可见」（隐式修剪），因此只需检查极少数有前途的着法。"
   },
   {
-    "q": "编译程序和解释程序的本质区别是什么？",
-    "a": "编译程序先完整翻译整个程序再执行（书面翻译），解释程序逐行读取、理解、执行三者交织进行（同声翻译）。编译产生独立的机器代码，解释让语句在解释程序内部走不同的「路径」。"
+    "question": "编译程序和解释程序的本质区别是什么？",
+    "answer": "编译程序先完整翻译整个程序再执行（书面翻译），解释程序逐行读取、理解、执行三者交织进行（同声翻译）。编译产生独立的机器代码，解释让语句在解释程序内部走不同的「路径」。"
   },
   {
-    "q": "什么是「自举」？为什么这个概念如此重要？",
-    "a": "自举是用部分完成的编译程序来翻译自身的扩展版本，逐步生长为完整的编译程序。它的重要性在于证明了：程序可以在不同层次上编制，而且高层工具可以用低层工具来构建——从一台裸机到完整的编程环境。"
+    "question": "什么是「自举」？为什么这个概念如此重要？",
+    "answer": "自举是用部分完成的编译程序来翻译自身的扩展版本，逐步生长为完整的编译程序。它的重要性在于证明了：程序可以在不同层次上编制，而且高层工具可以用低层工具来构建——从一台裸机到完整的编程环境。"
   },
   {
-    "q": "为什么计算机在精确性和灵活性之间存在根本矛盾？",
-    "a": "计算机用于完成精密的工作，必须无歧义地理解指令。如果允许某些「犯规」（不精确输入），这些犯规就被纳入了规则，用户仍面对刻板的边界。真正的灵活性需要「猜测意图」的能力——这本质上是人工智能问题。"
+    "question": "为什么计算机在精确性和灵活性之间存在根本矛盾？",
+    "answer": "计算机用于完成精密的工作，必须无歧义地理解指令。如果允许某些「犯规」（不精确输入），这些犯规就被纳入了规则，用户仍面对刻板的边界。真正的灵活性需要「猜测意图」的能力——这本质上是人工智能问题。"
   }
 ];
 const chapterNav = {"prev": {"num": 9, "title": "无门与哥德尔", "href": "ch09.html"}, "next": {"num": 11, "title": "大脑和思维", "href": "ch11.html"}};
-window.pipeData_block1 = [];
-window.tipsData_block5 = [];
+window.pipeData_block1 = [
+  {
+    "label": "硬件/微程序层",
+    "desc": "位、寄存器、开关——物理上的0和1。微指令可以构造更高层的机器指令"
+  },
+  {
+    "label": "机器语言层",
+    "desc": "ADD、PRINT、JUMP等固定指令集。把字解释为数字、字母或指令"
+  },
+  {
+    "label": "汇编语言层",
+    "desc": "机器指令的助记符版本。和机器语言一一对应，但人类可读"
+  },
+  {
+    "label": "编译/解释语言层",
+    "desc": "Algol、Lisp等高级语言。一条语句对应一组机器指令（组块化）"
+  },
+  {
+    "label": "操作系统层",
+    "desc": "管理多用户、多任务的通讯调度——类似于大脑处理多种刺激的方式"
+  }
+];
+window.tipsData_block5 = [
+  {
+    "icon": "🧱",
+    "title": "组块化（Chunking）",
+    "text": "把一组对象当作一个单位，形成高层描述。边界像细胞膜：内部结构可见也可隐藏"
+  },
+  {
+    "icon": "🔄",
+    "title": "自举（Bootstrapping）",
+    "text": "用部分完成的编译程序来编译自身的扩展版。像幼儿用已学的语言来获取更多语言"
+  },
+  {
+    "icon": "👻",
+    "title": "副现象",
+    "text": "仅在高层描述中可见的模式，在低层看不到。如「交通堵塞」是汽车群的副现象"
+  },
+  {
+    "icon": "🔍",
+    "title": "指令 vs 数据",
+    "text": "存储器中的同一个字可以被解释为数字、字母串，或指令——完全取决于上下文"
+  },
+  {
+    "icon": "🛡️",
+    "title": "操作系统",
+    "text": "为用户提供缓冲层，使其不必关心底层细节——像航空公司系统对乘客屏蔽了油量、风速等"
+  },
+  {
+    "icon": "🤖",
+    "title": "灵活 vs 精确的矛盾",
+    "text": "人际通讯容许含糊，但程序设计要求绝对精确。容许「犯规」的语言其实只是扩大了规则范围"
+  }
+];
 
 /* ── Pre-Quiz ── */
 (function() {
