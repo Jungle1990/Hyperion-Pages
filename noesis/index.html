@@ -406,6 +406,76 @@ const GRAPH = {
       "body": "## Core Insight\n\nAlgorithmic thinking is not about memorizing algorithms. It is the practice of:\n1. **Precisely defining the problem** before attempting a solution\n2. **Decomposing** complex problems into tractable subproblems\n3. **Recognizing patterns** — when a new problem is structurally identical to a solved one\n4. **Reasoning about trade-offs** — time vs space, simplicity vs performance, generality vs specificity\n\nBentley adds a practical dimension: profiling before optimizing, testing before trusting, and the discipline of back-of-envelope estimation to catch errors before they propagate.\n\n## Why This Matters\n\nAlgorithmic thinking is a special case of structured thinking — the same skill that Adler calls \"analytical reading\" and that Confucius embeds in 格物致知 (investigating things). The difference is the domain: algorithms operate on formal objects with provable properties, while ethics and literature operate on ambiguous human situations.\n\nThe tension: algorithmic thinking tempts us to believe all problems are formally solvable. The AI-era essay warns that the most important human problems (meaning, belonging, judgment) resist algorithmic treatment."
     },
     {
+      "id": "counterexample-pedagogy",
+      "title": "反例教学法：用陷阱代替讲解",
+      "type": "synthesis",
+      "status": "seed",
+      "domain": [
+        "meta-learning"
+      ],
+      "tags": [
+        "pedagogy",
+        "feynman",
+        "kahneman",
+        "hofstadter",
+        "learning-design"
+      ],
+      "sources": [
+        "丹尼尔·卡尼曼《思考，快与慢》",
+        "侯世达《哥德尔、艾舍尔、巴赫》",
+        "艾德勒《如何阅读一本书》"
+      ],
+      "connections": 2,
+      "body": "## 核心命题\n\n最强的教学法不是\"先讲概念再举例\"，而是**先让学习者掉进一个精心设计的陷阱，再告诉他：\"你掉进的这个陷阱，就是这个概念本身。\"**\n\n## 三本书的共同手法\n\n| 来源 | 反例工具 |\n|------|---------|\n| 卡尼曼 | 林达问题（合取谬误）、亚洲疾病框架效应、锚定数字魔法 |\n| 侯世达 | MU-puzzle、Crab Canon、Tortoise 与 Achilles 的对话 |\n| 艾德勒 | \"你以为你读懂了\"系列检验题 |\n\n它们都用**简单到看起来侮辱智商的小问题**让你答错，再揭示这个错误背后的根本机制。\n\n## 为什么有效\n\n- **直觉先于反思**：System 1 抢答，错误暴露；System 2 才有动机介入\n- **错误产生情绪记忆**：被骗一次比被告知十次更难忘\n- **概念变成\"自己的\"**：不是听别人讲的知识，是自己亲身犯过的错\n\n## 应用到 Hyperion\n\nFeynman 卡片应该把\"反直觉案例\"作为标准 block 类型 —— 不是讲完概念再举例，而是：\n\n```\nBlock 顺序：\n1. 反直觉小测验（让读者自答）\n2. 揭示常见错误答案\n3. 解释为什么会错\n4. 给出正确的概念框架\n5. 用大白话再讲一遍\n```\n\n这个结构比\"概念 → 解释 → 例子\"高一个数量级。"
+    },
+    {
+      "id": "dual-process-mind",
+      "title": "双过程心智：System 1/2 与 Strange Loop 的同构",
+      "type": "synthesis",
+      "status": "seed",
+      "domain": [
+        "epistemology",
+        "meta-learning"
+      ],
+      "tags": [
+        "cognition",
+        "consciousness",
+        "emergence",
+        "kahneman",
+        "hofstadter"
+      ],
+      "sources": [
+        "丹尼尔·卡尼曼《思考，快与慢》",
+        "侯世达《哥德尔、艾舍尔、巴赫》"
+      ],
+      "connections": 2,
+      "body": "## 核心命题\n\n卡尼曼的 System 1/System 2 与侯世达的 Strange Loop 在描述同一件事的两个侧面 ——\n**心智不是单一的\"我\"，而是分层结构：底层自动运行，上层以为自己在做主。**\n\n| 层级 | 思考，快与慢 | GEB |\n|------|------|-----|\n| 底层 | System 1：自动、快、无意识 | 神经元 / 形式系统 / 规则操作 |\n| 上层 | System 2：审慎、慢、有意识 | \"我\" / 自我 / 意义 / 理解 |\n| 张力 | 上层以为自己在做主，其实大部分被底层操纵 | 上层\"我\"如何从底层\"无意义符号\"中涌现？ |\n\n## 共享的认识论结论\n\n- 卡尼曼：\"你以为是你在决定，其实大部分是 System 1 替你决定的。\"\n- 侯世达：\"你以为'我'是个独立存在，其实'我'是底层符号自指循环涌现出的幻觉。\"\n\n**两本书都在回答：意识从哪里来？**\n\n## 自指现象的隐藏共性\n\n卡尼曼的书表面没讲递归，但仔细看 —— 认知失调、损失厌恶、可得性偏差全都是**自指现象**：\n1. 你的大脑用 System 1 评估一件事\n2. 评估结果反过来影响 System 2 怎么思考\n3. System 2 的思考又被你\"以为自己理性\"的信念扭曲\n4. 这个\"以为自己理性\"本身又是 System 1 制造的错觉\n\n→ 这就是一个完美的 **Strange Loop**。\n\n## 实践含义\n\n读《思考，快与慢》时如果只把它当行为经济学，会错过它最深的一层 ——\n它其实是 GEB 命题在心理学上的实证版本。\n\n下次读任何讨论\"自我\"\"意识\"\"认知\"的书时，应自动激活这个锚点。"
+    },
+    {
+      "id": "epistemic-humility",
+      "title": "认知谦卑：对自己心智保持警觉",
+      "type": "synthesis",
+      "status": "seed",
+      "domain": [
+        "epistemology",
+        "ethics"
+      ],
+      "tags": [
+        "self-awareness",
+        "kahneman",
+        "hofstadter",
+        "confucius",
+        "mindfulness"
+      ],
+      "sources": [
+        "丹尼尔·卡尼曼《思考，快与慢》",
+        "侯世达《哥德尔、艾舍尔、巴赫》",
+        "南怀瑾《论语别裁》"
+      ],
+      "connections": 2,
+      "body": "## 核心命题\n\n真正高级的智识训练，留给读者的不是\"知识\"，而是一种**态度的转变** ——\n**对自己心智的运作保持警觉。** 不再 100% 相信自己的判断、自己的\"我\"、自己的\"理解\"。\n\n## 三处共鸣\n\n| 来源 | 表述 |\n|------|------|\n| 卡尼曼 | \"我可能错了，让我用 System 2 再想想。\" —— 不再相信直觉判断 |\n| 侯世达 | \"那个'我'到底是谁？\" —— 不再相信\"我\"是独立存在 |\n| 孔子（论语） | \"知之为知之，不知为不知，是知也。\" —— 不再混淆\"知道\"与\"以为自己知道\" |\n\n三个时代、三种语言、三个领域，但都把读者**从自我中心推开了一步**。\n\n## 对立面：认知傲慢\n\n不读这些书的人的默认心态：\n- 我的判断是对的（直到事实打脸）\n- \"我\"是清晰的存在\n- 我懂的事我真的懂\n\n这种傲慢是**System 1 的最强产物** —— 它让人感觉良好、行动果断，但代价是**被自己的盲点统治而不自知**。\n\n## 与 Hyperion 的关系\n\n整个 Hyperion 系统（Book Breakdown、Algo Atlas、Noesis）本质上都是这个动作的具体化：\n**外置认知，让自己看到自己脑子的工作过程。**\n\n- 不写下来 → System 1 替我\"以为我懂了\"\n- 写下来 → System 2 被迫验证：\"我真的懂吗？\"\n- 写错了再回头看 → 看见自己当时的盲点\n\n**记笔记是认知谦卑的物理形态。**\n\n## 检验标准\n\n读完一本书后，自问：\n1. 我有没有比读之前更不确定某些事？\n2. 我有没有发现自己以前坚信的某个判断其实是错的？\n\n如果答案都是\"没有\"，要么这本书不够好，要么我没真读进去。"
+    },
+    {
       "id": "forgetting-paradox",
       "title": "遗忘悖论 · The Forgetting Paradox",
       "type": "synthesis",
@@ -709,6 +779,36 @@ const GRAPH = {
       "source": "algorithmic-thinking",
       "target": "passive-vs-active",
       "type": "supports"
+    },
+    {
+      "source": "counterexample-pedagogy",
+      "target": "dual-process-mind",
+      "type": "part-of"
+    },
+    {
+      "source": "counterexample-pedagogy",
+      "target": "epistemic-humility",
+      "type": "supports"
+    },
+    {
+      "source": "dual-process-mind",
+      "target": "counterexample-pedagogy",
+      "type": "supports"
+    },
+    {
+      "source": "dual-process-mind",
+      "target": "epistemic-humility",
+      "type": "extends"
+    },
+    {
+      "source": "epistemic-humility",
+      "target": "dual-process-mind",
+      "type": "extends"
+    },
+    {
+      "source": "epistemic-humility",
+      "target": "counterexample-pedagogy",
+      "type": "part-of"
     },
     {
       "source": "forgetting-paradox",
