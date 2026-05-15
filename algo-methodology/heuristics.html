@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Problem-Solving Heuristics · 解题启发法</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117; --card: #1a1d27; --card-hover: #222636;
+  --accent: #6c63ff; --accent2: #ff6b6b; --accent3: #4ecdc4; --accent4: #ffe66d;
+  --text: #e8e8f0; --text-dim: #8888a0; --border: #2a2d3a;
+  --font-sans: 'Noto Sans SC', sans-serif; --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+}
+*,*::before,*::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+nav.fixed-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; background: rgba(15,17,23,.75); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: .75rem 1.5rem; display: flex; align-items: center; gap: 1rem; font-size: .85rem; }
+nav.fixed-nav a { color: var(--text-dim); text-decoration: none; transition: color .2s; }
+nav.fixed-nav a:hover { color: var(--accent); }
+nav.fixed-nav .sep { color: var(--border); }
+nav.fixed-nav .crumb-current { color: var(--text); }
+
+.hero { min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 5rem 2rem 3rem; position: relative; }
+.hero-icon { font-size: 5rem; filter: drop-shadow(0 0 30px rgba(108,99,255,.3)); margin-bottom: 1.2rem; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.hero h1 { font-size: 3rem; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--accent3)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: .5rem; }
+.hero h2 { font-size: 1.5rem; font-weight: 300; color: var(--text-dim); margin-bottom: 1rem; }
+.hero .tagline { max-width: 720px; color: var(--text-dim); font-size: 1.05rem; }
+.hero .stats { display: flex; gap: 2.5rem; margin-top: 2.5rem; flex-wrap: wrap; justify-content: center; }
+.stat { text-align: center; }
+.stat .num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); }
+.stat .lbl { font-size: .85rem; color: var(--text-dim); margin-top: .25rem; }
+
+.section { max-width: 1200px; margin: 0 auto; padding: 3rem 1.5rem; }
+.section h3 { font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--accent4); border-left: 4px solid var(--accent); padding-left: .8rem; }
+.intro { color: var(--text-dim); max-width: 800px; margin-bottom: 2rem; font-size: 1rem; }
+.intro-zh { color: var(--text-dim); max-width: 800px; margin-top: .4rem; font-size: .95rem; opacity: .85; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.2rem; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.4rem; transition: all .25s; cursor: pointer; position: relative; overflow: hidden; }
+.card:hover { background: var(--card-hover); transform: translateY(-2px); border-color: var(--accent); }
+.card-icon { font-size: 1.6rem; margin-bottom: .6rem; }
+.card-title { font-size: 1.15rem; font-weight: 600; color: var(--text); margin-bottom: .15rem; }
+.card-title-zh { font-size: .9rem; color: var(--text-dim); margin-bottom: .8rem; }
+.card-essence { font-size: .9rem; color: var(--text-dim); line-height: 1.55; }
+.card-essence-zh { font-size: .85rem; color: var(--text-dim); opacity: .8; margin-top: .35rem; }
+
+details.detail { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem 1.4rem; margin-bottom: .8rem; transition: all .2s; }
+details.detail[open] { border-color: var(--accent); background: var(--card-hover); }
+details.detail > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: .8rem; font-size: 1.1rem; font-weight: 600; }
+details.detail > summary::-webkit-details-marker { display: none; }
+details.detail > summary::after { content: '+'; margin-left: auto; color: var(--text-dim); font-family: var(--font-mono); transition: transform .2s; }
+details.detail[open] > summary::after { content: '−'; }
+.summary-icon { font-size: 1.4rem; }
+.summary-zh { color: var(--text-dim); font-weight: 400; font-size: .9rem; }
+.detail-body { margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border); }
+.detail-body p { margin-bottom: .6rem; color: var(--text); font-size: .95rem; }
+.detail-body .zh { color: var(--text-dim); opacity: .85; font-size: .9rem; }
+.detail-body .sig { font-family: var(--font-mono); font-size: .85rem; background: rgba(108,99,255,.08); padding: .6rem .8rem; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--accent3); margin: .6rem 0; white-space: pre-wrap; overflow-x: auto; }
+.detail-body ul { list-style: none; padding-left: 0; }
+.detail-body ul li { padding: .15rem 0 .15rem 1.2rem; position: relative; color: var(--text-dim); font-size: .9rem; }
+.detail-body ul li::before { content: '▹'; position: absolute; left: 0; color: var(--accent3); }
+.label { font-size: .75rem; text-transform: uppercase; letter-spacing: .12em; color: var(--accent4); font-weight: 700; margin-top: .8rem; margin-bottom: .3rem; }
+.pitfall { background: rgba(255,107,107,.08); border-left: 3px solid var(--accent2); padding: .6rem .8rem; border-radius: 4px; color: var(--text); font-size: .9rem; margin: .5rem 0; }
+.history { background: rgba(255,230,109,.06); border-left: 3px solid var(--accent4); padding: .6rem .8rem; border-radius: 4px; color: var(--text-dim); font-size: .9rem; margin: .5rem 0; font-style: italic; }
+.sources { margin-top: .8rem; }
+.src-pill { display: inline-block; padding: .3rem .7rem; margin: .2rem .3rem .2rem 0; background: rgba(78,205,196,.08); border: 1px solid var(--accent3); color: var(--accent3); border-radius: 999px; font-size: .8rem; font-family: var(--font-mono); }
+.src-pill .note { color: var(--text-dim); margin-left: .4rem; font-family: var(--font-sans); }
+
+footer { padding: 3rem 1.5rem; text-align: center; color: var(--text-dim); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+footer a { color: var(--accent3); text-decoration: none; }
+
+@media (max-width: 600px) {
+  .hero h1 { font-size: 2.2rem; }
+  .hero h2 { font-size: 1.15rem; }
+  .grid { grid-template-columns: 1fr; }
+}
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
+</style>
+</head>
+<body>
+<nav class="fixed-nav">
+  <a href="../index.html">Hyperion</a>
+  <span class="sep">/</span>
+  <a href="index.html">Algo Methodology</a>
+  <span class="sep">/</span>
+  <span class="crumb-current">Problem-Solving Heuristics</span>
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-toggle-icon" id="themeIcon"></span></button>
+</nav>
+
+<div class="hero">
+  <div class="hero-icon">🧠</div>
+  <h1>Problem-Solving Heuristics</h1>
+  <h2>解题启发法</h2>
+  <p class="tagline">Polya-style moves: invariants, monovariants, transformations</p>
+  
+</div>
+
+<main class="section">
+  <p class="intro">Polya's How To Solve It, applied to algorithms. These are the moves you reach for when paradigm-matching alone fails.</p>
+  <p class="intro-zh">把波利亚《怎样解题》迁移到算法。范式匹配失败时，就动用这些 '招式'。</p>
+  <div id="content"></div>
+</main>
+
+<footer>
+  <div>Hyperion · Algo Methodology · synthesized from 22 canonical algorithm books</div>
+  <div style="margin-top:.4rem;"><a href="index.html">← back to atlas</a></div>
+</footer>
+
+<script>
+window.__items__ = [
+  {
+    "id": "specialize",
+    "name": "Solve a Special Case First",
+    "nameZh": "先解特殊情形",
+    "icon": "🎯",
+    "essence": "Try N=1, then N=2, then small N — pattern emerges. The general case is often N=k → N=k+1.",
+    "essenceZh": "试 N=1、N=2、小 N——模式自现。一般情形常常是 N=k → N=k+1。",
+    "prompt": "What does the simplest non-trivial instance look like?"
+  },
+  {
+    "id": "generalize",
+    "name": "Generalize the Problem",
+    "nameZh": "推广问题",
+    "icon": "🌐",
+    "essence": "Counter-intuitively, the more general problem is sometimes easier (DP state often needs to be generalized to recurse).",
+    "essenceZh": "反直觉地，更一般的问题有时更易解（DP 状态常需推广以便递推）。",
+    "prompt": "Is there a more abstract problem that contains mine?"
+  },
+  {
+    "id": "invariant",
+    "name": "Look for Invariants",
+    "nameZh": "寻找不变量",
+    "icon": "🔒",
+    "essence": "What stays the same as the algorithm progresses? Invariants prove correctness and often reveal the next step.",
+    "essenceZh": "算法推进时，什么保持不变？不变量既证明正确性，也常常揭示下一步。",
+    "prompt": "What property is preserved by every move?"
+  },
+  {
+    "id": "monovariant",
+    "name": "Look for Monovariants",
+    "nameZh": "寻找单调量",
+    "icon": "📈",
+    "essence": "A quantity that strictly increases (or decreases) → algorithm terminates, and often gives a complexity bound.",
+    "essenceZh": "严格单调变化的量 → 终止性 + 复杂度上界。",
+    "prompt": "What integer-valued quantity changes in only one direction?"
+  },
+  {
+    "id": "transform",
+    "name": "Transform Representation",
+    "nameZh": "变换表示",
+    "icon": "🔄",
+    "essence": "Cartesian → polar; time → frequency (FFT); graph → matrix. Sometimes the algorithm becomes trivial in the right space.",
+    "essenceZh": "笛卡尔 → 极坐标；时域 → 频域（FFT）；图 → 矩阵。换到合适的空间，算法常会变得平凡。",
+    "prompt": "Is there an isomorphic problem in a friendlier space?"
+  },
+  {
+    "id": "symmetry",
+    "name": "Exploit Symmetry",
+    "nameZh": "利用对称性",
+    "icon": "🪞",
+    "essence": "Identify equivalence classes — solve one representative, multiply the rest.",
+    "essenceZh": "找出等价类——解一个代表，其余倍乘。",
+    "prompt": "Which inputs differ only by relabeling?"
+  },
+  {
+    "id": "reverse",
+    "name": "Work Backwards",
+    "nameZh": "倒推",
+    "icon": "⏪",
+    "essence": "From goal to start, instead of start to goal. Sometimes the inverse is deterministic where forward is exponential.",
+    "essenceZh": "从目标倒推到起点。正向指数级时，逆向可能确定。",
+    "prompt": "What were the *last* moves of the optimal solution?"
+  },
+  {
+    "id": "extreme",
+    "name": "Consider the Extremes",
+    "nameZh": "考察极端",
+    "icon": "🏔️",
+    "essence": "The largest / smallest / first / last element often has a special property in the optimal solution.",
+    "essenceZh": "最大／最小／首／尾元素在最优解中常有特殊性质。",
+    "prompt": "What must be true of the maximum element?"
+  },
+  {
+    "id": "two-pointer",
+    "name": "Two Pointers / Sliding Window",
+    "nameZh": "双指针 / 滑动窗口",
+    "icon": "↔️",
+    "essence": "When the answer is monotone in a range, two indices moving in coordinated directions yield O(N).",
+    "essenceZh": "当答案在区间上单调时，两个协调移动的指针给出 O(N)。",
+    "prompt": "Is the answer monotone as I shrink/grow a window?"
+  },
+  {
+    "id": "binary-on-answer",
+    "name": "Binary Search on the Answer",
+    "nameZh": "答案二分",
+    "icon": "🎚️",
+    "essence": "If feasibility is monotone in the answer, binary-search the answer and verify each guess.",
+    "essenceZh": "若可行性在答案上单调，就对答案二分，并逐次验证。",
+    "prompt": "Is 'is X feasible?' monotone in X?"
+  }
+];
+
+const RENDER_MODE = 'list';
+const root = document.getElementById('content');
+
+function escapeHtml(s) { return (s||'').replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]); }
+
+function renderSources(srcs) {
+  if (!srcs || !srcs.length) return '';
+  return '<div class="sources">' + srcs.map(s =>
+    `<span class="src-pill">${escapeHtml(s.book)}<span class="note">${escapeHtml(s.note||'')}</span></span>`
+  ).join('') + '</div>';
+}
+
+function renderDetail(item) {
+  const sig = item.signature ? `<div class="sig">${escapeHtml(item.signature)}</div>` : '';
+  const when = item.whenToUse ? `<div class="label">When to use</div><ul>${item.whenToUse.map(w=>`<li>${escapeHtml(w)}</li>`).join('')}</ul>` : '';
+  const canon = item.canonical ? `<div class="label">Canonical example</div><p>${Array.isArray(item.canonical) ? item.canonical.map(escapeHtml).join('<br>') : escapeHtml(item.canonical)}</p>` : '';
+  const pit = item.pitfalls ? `<div class="pitfall"><strong>⚠ Pitfall:</strong> ${Array.isArray(item.pitfalls) ? item.pitfalls.map(escapeHtml).join('; ') : escapeHtml(item.pitfalls)}</div>` : '';
+  const hist = item.history ? `<div class="history">🕰 ${escapeHtml(item.history)}</div>` : '';
+  const rule = item.rule ? `<div class="sig">${escapeHtml(item.rule)}</div>` : '';
+  const prompt = item.prompt ? `<div class="label">Prompt yourself</div><p>${escapeHtml(item.prompt)}</p>` : '';
+  const methods = item.methods ? `<div class="label">Methods</div><ul>${Object.entries(item.methods).map(([k,v])=>`<li><strong>${escapeHtml(k)}:</strong> ${escapeHtml(v)}</li>`).join('')}</ul>` : '';
+  return `
+    <details class="detail">
+      <summary>
+        <span class="summary-icon">${item.icon||'•'}</span>
+        <span>${escapeHtml(item.name)}</span>
+        <span class="summary-zh">· ${escapeHtml(item.nameZh||'')}</span>
+      </summary>
+      <div class="detail-body">
+        <p>${escapeHtml(item.essence||'')}</p>
+        <p class="zh">${escapeHtml(item.essenceZh||'')}</p>
+        ${sig}${rule}${when}${methods}${canon}${pit}${hist}${prompt}
+        ${renderSources(item.sources)}
+      </div>
+    </details>`;
+}
+
+function renderAll() {
+  const items = window.__items__ || [];
+  root.innerHTML = items.map(renderDetail).join('');
+}
+
+renderAll();
+</script>
+<!-- Theme Toggle (injected into .fixed-nav) -->
+<style>
+.theme-toggle {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
+</body>
+</html>

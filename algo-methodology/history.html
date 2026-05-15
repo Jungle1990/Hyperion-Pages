@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Great Ideas Timeline · 思想史时间线</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root { --bg: #0f1117; --card: #1a1d27; --card-hover: #222636; --accent: #6c63ff; --accent2: #ff6b6b; --accent3: #4ecdc4; --accent4: #ffe66d; --text: #e8e8f0; --text-dim: #8888a0; --border: #2a2d3a; --font-sans: 'Noto Sans SC', sans-serif; --font-mono: 'JetBrains Mono', monospace; --radius: 14px; }
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+nav.fixed-nav { position: fixed; top:0; left:0; right:0; z-index:50; background: rgba(15,17,23,.75); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: .75rem 1.5rem; display: flex; align-items: center; gap: 1rem; font-size: .85rem; }
+nav.fixed-nav a { color: var(--text-dim); text-decoration: none; } nav.fixed-nav a:hover { color: var(--accent); }
+nav.fixed-nav .sep { color: var(--border); } nav.fixed-nav .crumb-current { color: var(--text); }
+
+.hero { padding: 5rem 2rem 3rem; text-align: center; }
+.hero-icon { font-size: 4rem; margin-bottom: 1rem; }
+.hero h1 { font-size: 2.6rem; background: linear-gradient(135deg, var(--accent), var(--accent3)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: .4rem; }
+.hero h2 { font-size: 1.3rem; color: var(--text-dim); font-weight: 300; }
+.hero .intro { max-width: 720px; margin: 1.5rem auto 0; color: var(--text-dim); }
+
+.timeline { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; position: relative; }
+.timeline::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--accent), var(--accent3), var(--accent4)); transform: translateX(-50%); }
+.tl-item { position: relative; width: 50%; padding: 1rem 2rem; margin-bottom: .5rem; }
+.tl-item.left { left: 0; text-align: right; }
+.tl-item.right { left: 50%; }
+.tl-dot { position: absolute; top: 1.6rem; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); border: 3px solid var(--bg); box-shadow: 0 0 0 2px var(--accent); }
+.tl-item.left .tl-dot { right: -7px; }
+.tl-item.right .tl-dot { left: -7px; }
+.tl-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem 1.4rem; transition: all .25s; cursor: pointer; }
+.tl-card:hover { background: var(--card-hover); border-color: var(--accent); transform: scale(1.02); }
+.tl-year { font-family: var(--font-mono); font-size: .85rem; color: var(--accent4); font-weight: 700; }
+.tl-name { font-size: 1.1rem; font-weight: 600; margin: .25rem 0 .15rem; }
+.tl-name-zh { font-size: .9rem; color: var(--text-dim); margin-bottom: .5rem; }
+.tl-by { font-size: .8rem; color: var(--accent3); font-style: italic; margin-bottom: .6rem; }
+.tl-idea { font-size: .9rem; color: var(--text); }
+.tl-idea-zh { font-size: .85rem; color: var(--text-dim); margin-top: .3rem; opacity: .85; }
+.tl-trivia { margin-top: .6rem; padding-top: .6rem; border-top: 1px dashed var(--border); font-size: .82rem; color: var(--text-dim); font-style: italic; }
+.tl-srcs { margin-top: .5rem; }
+.src-pill { display: inline-block; padding: .2rem .55rem; margin: .15rem .15rem 0 0; background: rgba(78,205,196,.08); border: 1px solid var(--accent3); color: var(--accent3); border-radius: 999px; font-size: .72rem; font-family: var(--font-mono); }
+
+footer { padding: 3rem 1.5rem; text-align: center; color: var(--text-dim); font-size: .85rem; border-top: 1px solid var(--border); }
+footer a { color: var(--accent3); text-decoration: none; }
+
+@media (max-width: 720px) {
+  .timeline::before { left: 20px; }
+  .tl-item.left, .tl-item.right { left: 0; width: 100%; text-align: left; padding-left: 3rem; padding-right: 1rem; }
+  .tl-item.left .tl-dot, .tl-item.right .tl-dot { left: 13px; right: auto; }
+}
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
+</style>
+</head>
+<body>
+<nav class="fixed-nav">
+  <a href="../index.html">Hyperion</a>
+  <span class="sep">/</span>
+  <a href="index.html">Algo Methodology</a>
+  <span class="sep">/</span>
+  <span class="crumb-current">Great Ideas Timeline</span>
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-toggle-icon" id="themeIcon"></span></button>
+</nav>
+
+<div class="hero">
+  <div class="hero-icon">🕰️</div>
+  <h1>Great Ideas Timeline</h1>
+  <h2>思想史时间线</h2>
+  <p class="intro">Algorithms are a human story. Below: who invented what, and which book in the canon teaches it best today. 算法是一个人类故事——下面是谁发明了什么，以及今天哪本书讲得最好。</p>
+</div>
+
+<div class="timeline" id="timeline"></div>
+
+<footer>
+  <div>Hyperion · Algo Methodology</div>
+  <div style="margin-top:.4rem;"><a href="index.html">← back to atlas</a></div>
+</footer>
+
+<script>
+window.__ideas__ = [
+  {
+    "id": "binary-search",
+    "year": 1946,
+    "name": "Binary Search",
+    "nameZh": "二分查找",
+    "by": "John Mauchly",
+    "idea": "Halve the search space each step — O(log N) is unbeatable for sorted lookup.",
+    "ideaZh": "每步把搜索空间砍半——在有序查找中 O(log N) 不可超越。",
+    "trivia": "Knuth notes: although the idea was published in 1946, the first bug-free version appeared in 1962 — a humbling fact Bentley dramatized in Pearls.",
+    "sources": [
+      {
+        "book": "taocp-v3",
+        "note": "Sec.6.2.1 definitive treatment"
+      },
+      {
+        "book": "pearls",
+        "note": "Column 4 — 'Writing Correct Programs'"
+      }
+    ]
+  },
+  {
+    "id": "quicksort",
+    "year": 1959,
+    "name": "Quicksort",
+    "nameZh": "快速排序",
+    "by": "C.A.R. Hoare",
+    "idea": "Partition around a pivot, recurse on each side. Cache-friendly average-O(N log N).",
+    "ideaZh": "围绕枢轴划分，两侧递归。缓存友好的期望 O(N log N)。",
+    "sources": [
+      {
+        "book": "taocp-v3",
+        "note": "Sec.5.2.2"
+      },
+      {
+        "book": "algs4-en",
+        "note": "Sec.2.3"
+      }
+    ]
+  },
+  {
+    "id": "dp",
+    "year": 1953,
+    "name": "Dynamic Programming",
+    "nameZh": "动态规划",
+    "by": "Richard Bellman",
+    "idea": "Cache and reuse overlapping sub-problems via a Bellman equation.",
+    "ideaZh": "用 Bellman 方程缓存并复用重叠子问题。",
+    "trivia": "Bellman named it 'dynamic programming' to placate a Defense Secretary who hated mathematics.",
+    "sources": [
+      {
+        "book": "clrs3",
+        "note": "Ch.15"
+      },
+      {
+        "book": "jeff-erickson",
+        "note": "Ch.3"
+      }
+    ]
+  },
+  {
+    "id": "shortest-paths",
+    "year": 1959,
+    "name": "Single-Source Shortest Paths",
+    "nameZh": "单源最短路",
+    "by": "Edsger W. Dijkstra",
+    "idea": "Greedy relaxation with a priority queue — invented over coffee in 20 minutes.",
+    "ideaZh": "用优先队列做贪心松弛——据 Dijkstra 自述，咖啡桌上 20 分钟想出来的。",
+    "sources": [
+      {
+        "book": "clrs3",
+        "note": "Ch.24"
+      },
+      {
+        "book": "algs4-en",
+        "note": "Ch.4.4"
+      }
+    ]
+  },
+  {
+    "id": "fft",
+    "year": 1965,
+    "name": "Fast Fourier Transform",
+    "nameZh": "快速傅里叶变换",
+    "by": "Cooley & Tukey (rediscovered from Gauss)",
+    "idea": "Compute DFT in O(N log N) by recursive divide & conquer on indices.",
+    "ideaZh": "通过对下标递归分治，把 DFT 从 O(N²) 降到 O(N log N)。",
+    "sources": [
+      {
+        "book": "clrs3",
+        "note": "Ch.30"
+      },
+      {
+        "book": "taocp-v4a",
+        "note": "polynomial arithmetic sections"
+      }
+    ]
+  },
+  {
+    "id": "np-complete",
+    "year": 1971,
+    "name": "NP-Completeness",
+    "nameZh": "NP 完全性",
+    "by": "Stephen Cook (1971), Richard Karp (1972)",
+    "idea": "A class of 'equivalently hard' problems — solve one in poly-time, solve them all.",
+    "ideaZh": "一类 '同样困难' 的问题——多项式解出一个，等于全解。",
+    "sources": [
+      {
+        "book": "clrs3",
+        "note": "Ch.34"
+      },
+      {
+        "book": "jeff-erickson",
+        "note": "Ch.12"
+      }
+    ]
+  },
+  {
+    "id": "rabin-karp",
+    "year": 1976,
+    "name": "Randomized Algorithms",
+    "nameZh": "随机化算法",
+    "by": "Michael Rabin",
+    "idea": "Probabilistic primality testing showed randomness as a first-class design tool.",
+    "ideaZh": "概率素性测试把随机性确立为头等的设计工具。",
+    "sources": [
+      {
+        "book": "clrs3",
+        "note": "Ch.5, Ch.31"
+      }
+    ]
+  },
+  {
+    "id": "amortized",
+    "year": 1985,
+    "name": "Amortization (Potential Method)",
+    "nameZh": "摊还分析（势函数法）",
+    "by": "Robert Tarjan",
+    "idea": "Unify aggregate / accounting analyses into a clean potential-function framework.",
+    "ideaZh": "把聚合法、记账法统一为干净的势函数框架。",
+    "sources": [
+      {
+        "book": "clrs3",
+        "note": "Ch.17"
+      }
+    ]
+  },
+  {
+    "id": "splay",
+    "year": 1985,
+    "name": "Self-Adjusting Trees (Splay)",
+    "nameZh": "自调整树（伸展树）",
+    "by": "Sleator & Tarjan",
+    "idea": "No explicit balance info — recently used nodes float to the root; amortized O(log N).",
+    "ideaZh": "不存任何平衡信息——最近访问的结点自动浮到根；摊还 O(log N)。",
+    "sources": [
+      {
+        "book": "algs4-en",
+        "note": "supplementary materials"
+      }
+    ]
+  },
+  {
+    "id": "competitive",
+    "year": 1985,
+    "name": "Competitive Analysis",
+    "nameZh": "竞争分析",
+    "by": "Sleator & Tarjan",
+    "idea": "Measure an online algorithm by its worst-case ratio to the offline optimum.",
+    "ideaZh": "用相对离线最优的最坏比值来衡量在线算法。",
+    "sources": [
+      {
+        "book": "clrs4",
+        "note": "new online chapter"
+      }
+    ]
+  },
+  {
+    "id": "treap-skiplist",
+    "year": 1989,
+    "name": "Randomized Balanced Search (Skip Lists, Treaps)",
+    "nameZh": "随机化平衡查找（跳跃表、Treap）",
+    "by": "William Pugh; Aragon & Seidel",
+    "idea": "Replace deterministic rotations with random priorities — same bounds, much simpler code.",
+    "ideaZh": "用随机优先级取代确定性旋转——同样的界，代码简单得多。",
+    "sources": [
+      {
+        "book": "algs4-en",
+        "note": "binary-search-tree chapter"
+      }
+    ]
+  },
+  {
+    "id": "dancing-links",
+    "year": 2000,
+    "name": "Dancing Links (DLX)",
+    "nameZh": "舞蹈链",
+    "by": "Donald E. Knuth",
+    "idea": "Exact-cover via doubly-linked lists that 'dance' in and out of removal during backtracking.",
+    "ideaZh": "用 '能跳进跳出' 的双向链表，在回溯中实现高效的精确覆盖。",
+    "sources": [
+      {
+        "book": "taocp-v4f5",
+        "note": "Fascicle 5 — definitive treatment"
+      }
+    ]
+  },
+  {
+    "id": "smoothed",
+    "year": 2001,
+    "name": "Smoothed Analysis",
+    "nameZh": "平滑分析",
+    "by": "Spielman & Teng",
+    "idea": "Bridge worst-case and average-case by perturbing inputs slightly — explained simplex's practical speed.",
+    "ideaZh": "通过对输入做小扰动连接最坏与平均——解释了单纯形法实践中的高速。",
+    "sources": []
+  },
+  {
+    "id": "pagerank",
+    "year": 1998,
+    "name": "PageRank",
+    "nameZh": "PageRank",
+    "by": "Brin & Page",
+    "idea": "Iterative eigenvector on the web graph — algorithmic ideas can become billion-dollar companies.",
+    "ideaZh": "在网页图上迭代特征向量——算法思想也能成就千亿企业。",
+    "sources": []
+  },
+  {
+    "id": "external-sort",
+    "year": 1973,
+    "name": "External Sorting & I/O Model",
+    "nameZh": "外部排序与 I/O 模型",
+    "by": "Knuth (TAOCP v3)",
+    "idea": "When data doesn't fit in RAM, the cost model changes — count I/Os, not comparisons.",
+    "ideaZh": "数据装不下内存时，代价模型变了——数 I/O 次数，而非比较次数。",
+    "sources": [
+      {
+        "book": "taocp-v3",
+        "note": "Ch.5.4 — exhaustive treatment"
+      }
+    ]
+  }
+];
+const root = document.getElementById('timeline');
+function esc(s) { return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]); }
+const items = (window.__ideas__||[]).slice().sort((a,b)=>a.year-b.year);
+root.innerHTML = items.map((it,i)=>{
+  const side = i%2===0 ? 'left' : 'right';
+  const srcs = (it.sources||[]).map(s=>`<span class="src-pill">${esc(s.book)}</span>`).join('');
+  return `<div class="tl-item ${side}">
+    <div class="tl-dot"></div>
+    <div class="tl-card">
+      <div class="tl-year">${it.year}</div>
+      <div class="tl-name">${esc(it.name)}</div>
+      <div class="tl-name-zh">${esc(it.nameZh||'')}</div>
+      <div class="tl-by">— ${esc(it.by||'')}</div>
+      <div class="tl-idea">${esc(it.idea||'')}</div>
+      <div class="tl-idea-zh">${esc(it.ideaZh||'')}</div>
+      ${it.trivia ? `<div class="tl-trivia">💡 ${esc(it.trivia)}</div>` : ''}
+      ${srcs ? `<div class="tl-srcs">${srcs}</div>` : ''}
+    </div>
+  </div>`;
+}).join('');
+</script>
+<!-- Theme Toggle (injected into .fixed-nav) -->
+<style>
+.theme-toggle {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
+</body>
+</html>

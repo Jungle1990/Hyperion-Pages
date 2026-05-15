@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distill · 精粹</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root { --bg: #0f1117; --card: #1a1d27; --accent: #6c63ff; --accent2: #ff6b6b; --accent3: #4ecdc4; --accent4: #ffe66d; --text: #e8e8f0; --text-dim: #8888a0; --border: #2a2d3a; --font-sans: 'Noto Sans SC', sans-serif; --font-mono: 'JetBrains Mono', monospace; --radius: 14px; }
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+nav.fixed-nav { position: fixed; top:0; left:0; right:0; z-index:50; background: rgba(15,17,23,.75); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: .75rem 1.5rem; display: flex; align-items: center; gap: 1rem; font-size: .85rem; }
+nav.fixed-nav a { color: var(--text-dim); text-decoration: none; } nav.fixed-nav a:hover { color: var(--accent); }
+nav.fixed-nav .sep { color: var(--border); } nav.fixed-nav .crumb-current { color: var(--text); }
+
+.wrap { max-width: 1100px; margin: 0 auto; padding: 5rem 1.5rem 4rem; }
+.title { text-align: center; margin-bottom: 3rem; }
+.title .icon { font-size: 3.5rem; margin-bottom: .8rem; }
+.title h1 { font-size: 2.6rem; background: linear-gradient(135deg, var(--accent), var(--accent3)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: .3rem; }
+.title h2 { font-size: 1.2rem; color: var(--text-dim); font-weight: 300; }
+.title .lead { max-width: 720px; margin: 1.2rem auto 0; color: var(--text-dim); }
+
+.distill-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+.block { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.4rem 1.5rem; position: relative; overflow: hidden; }
+.block::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--bar-color, var(--accent)); }
+.block.b-design { --bar-color: var(--accent); }
+.block.b-analysis { --bar-color: var(--accent3); }
+.block.b-engineering { --bar-color: var(--accent4); }
+.block.b-history { --bar-color: var(--accent2); }
+.block.b-heuristic { --bar-color: #a78bff; }
+.block h3 { font-size: 1.1rem; margin-bottom: .6rem; display: flex; align-items: center; gap: .5rem; }
+.block .zh { font-size: .85rem; color: var(--text-dim); font-weight: 400; }
+.block ul { list-style: none; padding-left: 0; }
+.block ul li { padding: .25rem 0 .25rem 1.1rem; position: relative; color: var(--text); font-size: .9rem; }
+.block ul li::before { content: '▹'; position: absolute; left: 0; color: var(--bar-color); }
+.block ul li small { color: var(--text-dim); display: block; font-size: .8rem; margin-top: .1rem; }
+
+.capstone { margin-top: 3rem; padding: 2rem; background: linear-gradient(135deg, rgba(108,99,255,.08), rgba(78,205,196,.08)); border: 1px solid var(--accent); border-radius: var(--radius); text-align: center; }
+.capstone .quote { font-size: 1.3rem; font-style: italic; color: var(--text); margin-bottom: 1rem; line-height: 1.5; }
+.capstone .quote-zh { font-size: 1rem; color: var(--text-dim); margin-bottom: 1rem; }
+.capstone .attr { color: var(--accent3); font-family: var(--font-mono); font-size: .85rem; }
+
+footer { padding: 2rem 1.5rem; text-align: center; color: var(--text-dim); font-size: .85rem; border-top: 1px solid var(--border); }
+footer a { color: var(--accent3); text-decoration: none; }
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
+</style>
+</head>
+<body>
+<nav class="fixed-nav">
+  <a href="../index.html">Hyperion</a>
+  <span class="sep">/</span>
+  <a href="index.html">Algo Methodology</a>
+  <span class="sep">/</span>
+  <span class="crumb-current">Distill</span>
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-toggle-icon" id="themeIcon"></span></button>
+</nav>
+
+<div class="wrap">
+  <div class="title">
+    <div class="icon">💎</div>
+    <h1>The Whole Methodology on One Screen</h1>
+    <h2>一屏看尽算法之道</h2>
+    <p class="lead">If you remember only this page, you remember most of what every great algorithm book is trying to teach. 如果只记一页，就记这一页——它几乎包含了所有伟大算法书想教的事。</p>
+  </div>
+
+  <div class="distill-grid">
+
+    <div class="block b-design">
+      <h3>🧩 Design <span class="zh">设计范式</span></h3>
+      <ul>
+        <li>Brute force is the baseline — never skip it<small>暴力是基线，别跳过</small></li>
+        <li>Divide & conquer when sub-problems are independent<small>子问题独立时用分治</small></li>
+        <li>DP when sub-problems overlap — name the state<small>子问题重叠时用 DP，关键在命名状态</small></li>
+        <li>Greedy when you can prove an exchange argument<small>能证明交换论证时用贪心</small></li>
+        <li>Backtracking + bound when search is structured<small>搜索结构化时用回溯+剪枝</small></li>
+        <li>Randomize to neutralize adversarial input<small>随机化抵消对抗输入</small></li>
+        <li>Reduce to a problem you already solved<small>归约到已会的问题</small></li>
+      </ul>
+    </div>
+
+    <div class="block b-analysis">
+      <h3>📐 Analyze <span class="zh">分析</span></h3>
+      <ul>
+        <li>O / Θ / Ω hide constants — for large N only<small>渐近记号只在大 N 有效</small></li>
+        <li>Solve recurrences: Master · Tree · Akra–Bazzi<small>递推求解：主定理 · 递归树 · Akra–Bazzi</small></li>
+        <li>Amortize a sequence — not the worst single op<small>分析整个序列，而非最坏一步</small></li>
+        <li>Adversary arguments prove lower bounds<small>对手论证给出下界</small></li>
+        <li>Empirical doubling: T(2N)/T(N) → growth exponent<small>实验倍增：比值给出指数</small></li>
+      </ul>
+    </div>
+
+    <div class="block b-engineering">
+      <h3>🛠️ Engineer <span class="zh">工程</span></h3>
+      <ul>
+        <li>Estimate orders of magnitude BEFORE coding<small>写代码前先估量级</small></li>
+        <li>Reformulate the problem — the real win is upstream<small>重述问题——真正的杠杆在上游</small></li>
+        <li>Simplicity over cleverness (Hoare)<small>简单优于聪明</small></li>
+        <li>Profile, then optimize (Knuth)<small>先剖析，再优化</small></li>
+        <li>Prove correctness with loop invariants<small>用循环不变量证明正确性</small></li>
+        <li>Augment, don't replace — add a field to a known DS<small>增强而非重造——给已知结构加字段</small></li>
+      </ul>
+    </div>
+
+    <div class="block b-history">
+      <h3>🕰️ Remember <span class="zh">铭记</span></h3>
+      <ul>
+        <li>1946 Mauchly — Binary search<small>梅奥赫利 · 二分查找</small></li>
+        <li>1953 Bellman — Dynamic programming<small>贝尔曼 · 动态规划</small></li>
+        <li>1959 Hoare — Quicksort · Dijkstra — SSSP<small>霍尔/迪杰斯特拉</small></li>
+        <li>1965 Cooley–Tukey — FFT<small>FFT</small></li>
+        <li>1971 Cook · 1972 Karp — NP-completeness<small>NP 完全性</small></li>
+        <li>1976 Rabin — Randomized algorithms<small>随机化算法登堂入室</small></li>
+        <li>1985 Tarjan — Amortization (potential method)<small>塔扬 · 摊还分析</small></li>
+      </ul>
+    </div>
+
+    <div class="block b-heuristic">
+      <h3>🧠 Ask Yourself <span class="zh">扪心自问</span></h3>
+      <ul>
+        <li>What's the simplest non-trivial instance?<small>最小非平凡实例长什么样？</small></li>
+        <li>What invariant is preserved? What monovariant changes?<small>有什么不变量？什么单调量？</small></li>
+        <li>Is this an old problem in disguise? Can I reduce?<small>这是旧问题的伪装吗？能归约吗？</small></li>
+        <li>What does the extreme element look like?<small>极端元素长什么样？</small></li>
+        <li>Is feasibility monotone? Can I binary-search the answer?<small>可行性单调吗？能否二分答案？</small></li>
+        <li>Have I measured? Or am I just guessing?<small>我测量过了吗？还是只是在猜？</small></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="capstone">
+    <div class="quote">"An algorithm must be seen to be believed." </div>
+    <div class="quote-zh">"算法须眼见为实。"</div>
+    <div class="attr">— Donald E. Knuth, TAOCP Vol. 1</div>
+  </div>
+
+</div>
+
+<footer>
+  <div>Hyperion · Algo Methodology · the canon, one screen</div>
+  <div style="margin-top:.4rem;"><a href="index.html">← back to atlas</a> · <a href="sources.html">📚 source atlas</a></div>
+</footer>
+<!-- Theme Toggle (injected into .fixed-nav) -->
+<style>
+.theme-toggle {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
+</body>
+</html>

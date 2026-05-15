@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Source Atlas · 典籍图谱</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root { --bg: #0f1117; --card: #1a1d27; --card-hover: #222636; --accent: #6c63ff; --accent2: #ff6b6b; --accent3: #4ecdc4; --accent4: #ffe66d; --text: #e8e8f0; --text-dim: #8888a0; --border: #2a2d3a; --font-sans: 'Noto Sans SC', sans-serif; --font-mono: 'JetBrains Mono', monospace; --radius: 14px; }
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.6; }
+nav.fixed-nav { position: fixed; top:0; left:0; right:0; z-index:50; background: rgba(15,17,23,.75); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: .75rem 1.5rem; display: flex; align-items: center; gap: 1rem; font-size: .85rem; }
+nav.fixed-nav a { color: var(--text-dim); text-decoration: none; } nav.fixed-nav a:hover { color: var(--accent); }
+nav.fixed-nav .sep { color: var(--border); } nav.fixed-nav .crumb-current { color: var(--text); }
+
+.hero { padding: 5rem 2rem 2rem; text-align: center; }
+.hero-icon { font-size: 3.5rem; margin-bottom: .8rem; }
+.hero h1 { font-size: 2.4rem; background: linear-gradient(135deg, var(--accent), var(--accent3)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: .4rem; }
+.hero h2 { font-size: 1.2rem; color: var(--text-dim); font-weight: 300; }
+.hero .intro { max-width: 720px; margin: 1.2rem auto 0; color: var(--text-dim); }
+
+.section { max-width: 1300px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.legend { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; color: var(--text-dim); font-size: .85rem; }
+.legend span { font-family: var(--font-mono); color: var(--accent3); margin-right: .25rem; }
+
+.matrix-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
+table.matrix { border-collapse: collapse; width: 100%; min-width: 1000px; font-size: .85rem; }
+table.matrix th, table.matrix td { padding: .5rem .6rem; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: center; }
+table.matrix thead th { background: rgba(108,99,255,.08); color: var(--accent4); font-weight: 600; font-size: .72rem; letter-spacing: .05em; vertical-align: bottom; writing-mode: vertical-rl; transform: rotate(180deg); height: 160px; max-width: 32px; }
+table.matrix thead th:first-child { writing-mode: horizontal-tb; transform: none; text-align: left; padding-left: 1rem; min-width: 280px; max-width: none; }
+table.matrix tbody th { text-align: left; padding-left: 1rem; background: rgba(108,99,255,.04); font-weight: 500; color: var(--text); }
+table.matrix tbody th .author { color: var(--text-dim); font-size: .78rem; font-weight: 400; }
+table.matrix tbody tr:hover { background: var(--card-hover); }
+.cell-3 { color: var(--accent4); font-weight: 700; font-size: 1.1rem; }
+.cell-2 { color: var(--accent3); font-weight: 600; }
+.cell-1 { color: var(--text-dim); }
+.cell-0 { color: var(--border); }
+
+.books-section { margin-top: 4rem; }
+.books-section h3 { font-size: 1.4rem; margin-bottom: 1rem; color: var(--accent4); border-left: 4px solid var(--accent); padding-left: .8rem; }
+.tier-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; }
+.book-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.2rem; }
+.book-card .tier { display: inline-block; padding: .15rem .55rem; border-radius: 999px; font-size: .7rem; font-family: var(--font-mono); margin-bottom: .4rem; }
+.book-card .tier-A { background: rgba(255,230,109,.12); color: var(--accent4); border: 1px solid var(--accent4); }
+.book-card .tier-B { background: rgba(78,205,196,.12); color: var(--accent3); border: 1px solid var(--accent3); }
+.book-card .tier-C { background: rgba(136,136,160,.12); color: var(--text-dim); border: 1px solid var(--text-dim); }
+.book-card .title { font-weight: 600; margin-bottom: .15rem; }
+.book-card .title-zh { font-size: .85rem; color: var(--text-dim); margin-bottom: .3rem; }
+.book-card .meta { font-size: .8rem; color: var(--text-dim); margin-bottom: .4rem; }
+.book-card .role { font-size: .85rem; color: var(--text); }
+
+footer { padding: 3rem 1.5rem; text-align: center; color: var(--text-dim); font-size: .85rem; border-top: 1px solid var(--border); }
+footer a { color: var(--accent3); text-decoration: none; }
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
+</style>
+</head>
+<body>
+<nav class="fixed-nav">
+  <a href="../index.html">Hyperion</a>
+  <span class="sep">/</span>
+  <a href="index.html">Algo Methodology</a>
+  <span class="sep">/</span>
+  <span class="crumb-current">Source Atlas</span>
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-toggle-icon" id="themeIcon"></span></button>
+</nav>
+
+<div class="hero">
+  <div class="hero-icon">📚</div>
+  <h1>Source Atlas</h1>
+  <h2>典籍图谱</h2>
+  <p class="intro">A coverage map: which book teaches which idea best. Use it to pick the right read for the right concept. 一张覆盖图：每本书对每个思想讲得多好，按概念找最佳读物。</p>
+</div>
+
+<section class="section">
+  <div class="legend">
+    <div><span>★</span>Definitive · 最佳</div>
+    <div><span>●</span>Solid · 良好</div>
+    <div><span>·</span>Mentioned · 顺带</div>
+  </div>
+  <div class="matrix-wrap">
+    <table class="matrix" id="matrix"></table>
+  </div>
+
+  <div class="books-section">
+    <h3>Tier A · Foundational</h3>
+    <div class="tier-grid" id="tier-a"></div>
+    <h3 style="margin-top:2.5rem;">Tier B · Design-oriented</h3>
+    <div class="tier-grid" id="tier-b"></div>
+    <h3 style="margin-top:2.5rem;">Tier C · Engineering & Popular</h3>
+    <div class="tier-grid" id="tier-c"></div>
+  </div>
+</section>
+
+<footer>
+  <div>Hyperion · Algo Methodology</div>
+  <div style="margin-top:.4rem;"><a href="index.html">← back to atlas</a></div>
+</footer>
+
+<script>
+window.__books__ = [
+  {
+    "id": "taocp-v1",
+    "title": "The Art of Computer Programming, Vol. 1: Fundamental Algorithms",
+    "titleZh": "计算机程序设计艺术 卷一：基本算法",
+    "author": "Donald E. Knuth",
+    "year": 1968,
+    "tier": "A",
+    "role": "foundational analysis · MIX machine · mathematical preliminaries",
+    "language": "en/zh",
+    "files": [
+      "taocp/en/taocp-v1_en.pdf",
+      "taocp/ch/taocp-v1_ch.pdf"
+    ],
+    "pages": 677
+  },
+  {
+    "id": "taocp-v2",
+    "title": "TAOCP Vol. 2: Seminumerical Algorithms",
+    "titleZh": "计算机程序设计艺术 卷二：半数值算法",
+    "author": "Donald E. Knuth",
+    "year": 1969,
+    "tier": "A",
+    "role": "random numbers · arithmetic · polynomial algorithms",
+    "language": "en/zh",
+    "files": [
+      "taocp/en/taocp-v2_en.pdf",
+      "taocp/ch/taocp-v2_ch.pdf"
+    ],
+    "pages": 782
+  },
+  {
+    "id": "taocp-v3",
+    "title": "TAOCP Vol. 3: Sorting and Searching",
+    "titleZh": "计算机程序设计艺术 卷三：排序与查找",
+    "author": "Donald E. Knuth",
+    "year": 1973,
+    "tier": "A",
+    "role": "canonical sort/search · external sorting · trees",
+    "language": "en/zh",
+    "files": [
+      "taocp/en/taocp-v3_en.pdf",
+      "taocp/ch/taocp-v3_ch.pdf"
+    ],
+    "pages": 803
+  },
+  {
+    "id": "taocp-mmix",
+    "title": "TAOCP Supplement: MMIX — A RISC Computer for the New Millennium",
+    "author": "Donald E. Knuth",
+    "year": 2005,
+    "tier": "A",
+    "role": "modern machine model replacing MIX",
+    "language": "en",
+    "files": [
+      "taocp/en/taocp-sup-mmix_en.pdf"
+    ],
+    "pages": 290
+  },
+  {
+    "id": "clrs3",
+    "title": "Introduction to Algorithms, 3rd Edition",
+    "titleZh": "算法导论 第三版",
+    "author": "Cormen, Leiserson, Rivest, Stein",
+    "year": 2009,
+    "tier": "A",
+    "role": "canonical textbook — paradigms, analysis, NP-completeness",
+    "language": "en",
+    "files": [
+      "intro-to-algs3.pdf"
+    ],
+    "pages": 1313
+  },
+  {
+    "id": "taocp-v4a",
+    "title": "TAOCP Vol. 4A: Combinatorial Algorithms, Part 1",
+    "titleZh": "计算机程序设计艺术 卷四A：组合算法 第一部分",
+    "author": "Donald E. Knuth",
+    "year": 2011,
+    "tier": "A",
+    "role": "bitwise tricks · BDDs · backtracking",
+    "language": "en/zh-fascicles",
+    "files": [
+      "taocp/en/taocp-v4a_en.pdf",
+      "taocp/ch/taocp-v4-0_ch.pdf",
+      "taocp/ch/taocp-v4-1a_ch.pdf",
+      "taocp/ch/taocp-v4-1b_ch.pdf",
+      "taocp/ch/taocp-v4-2_ch.pdf",
+      "taocp/ch/taocp-v4-3_ch.pdf",
+      "taocp/ch/taocp-v4-4_ch.pdf"
+    ],
+    "pages": 901
+  },
+  {
+    "id": "sedgewick-analysis",
+    "title": "An Introduction to the Analysis of Algorithms",
+    "author": "Sedgewick & Flajolet",
+    "year": 2013,
+    "tier": "A",
+    "role": "rigorous analytic combinatorics — recurrences, generating functions, asymptotics",
+    "language": "en",
+    "files": [
+      "intro-to-analysis-algs.pdf"
+    ],
+    "pages": 593
+  },
+  {
+    "id": "taocp-v4f6",
+    "title": "TAOCP Vol. 4 Fascicle 6: Satisfiability",
+    "titleZh": "计算机程序设计艺术 卷四 分册6：可满足性",
+    "author": "Donald E. Knuth",
+    "year": 2015,
+    "tier": "A",
+    "role": "SAT solvers · CDCL · survey propagation",
+    "language": "en/zh",
+    "files": [
+      "taocp/en/taocp-v4-f6_en.pdf",
+      "taocp/ch/taocp-v4-6_ch.pdf"
+    ],
+    "pages": 319
+  },
+  {
+    "id": "taocp-v4f5",
+    "title": "TAOCP Vol. 4 Fascicles 5: Mathematical Preliminaries Redux; Backtracking; Dancing Links",
+    "titleZh": "计算机程序设计艺术 卷四 分册5",
+    "author": "Donald E. Knuth",
+    "year": 2019,
+    "tier": "A",
+    "role": "dancing links · backtracking · Boolean function evaluation",
+    "language": "en/zh",
+    "files": [
+      "taocp/en/taocp-v4-f5a_en.pdf",
+      "taocp/en/taocp-v4-f5b_en.pdf",
+      "taocp/en/taocp-v4-f5c_en.pdf",
+      "taocp/ch/taocp-v4-5a_ch.pdf",
+      "taocp/ch/taocp-v4-5b_ch.pdf",
+      "taocp/ch/taocp-v4-5c_ch.pdf"
+    ],
+    "pages": 170
+  },
+  {
+    "id": "jeff-erickson",
+    "title": "Algorithms",
+    "author": "Jeff Erickson",
+    "year": 2019,
+    "tier": "A",
+    "role": "modern open-source textbook — strong on backtracking, DP, NP-hardness",
+    "language": "en",
+    "files": [
+      "algo-JeffE.pdf"
+    ],
+    "pages": 472
+  },
+  {
+    "id": "clrs4",
+    "title": "Introduction to Algorithms, 4th Edition",
+    "titleZh": "算法导论 第四版",
+    "author": "Cormen, Leiserson, Rivest, Stein",
+    "year": 2022,
+    "tier": "A",
+    "role": "updated CLRS — ML basics, online algorithms",
+    "language": "en",
+    "files": [
+      "intro-to-algs4.pdf"
+    ],
+    "pages": 1527
+  },
+  {
+    "id": "algs3-cpp",
+    "title": "Algorithms in C++, 3rd Edition",
+    "author": "Robert Sedgewick",
+    "year": 1998,
+    "tier": "B",
+    "role": "earlier Sedgewick treatment, C++ idioms",
+    "language": "en",
+    "files": [
+      "algs3-cpp.pdf"
+    ],
+    "pages": 739
+  },
+  {
+    "id": "skiena-adm",
+    "title": "The Algorithm Design Manual",
+    "author": "Steven S. Skiena",
+    "year": 2008,
+    "tier": "B",
+    "role": "war stories · practical paradigm picking · problem catalog",
+    "language": "en",
+    "files": [
+      "algo-design-manual.pdf"
+    ],
+    "pages": 800
+  },
+  {
+    "id": "algs4-en",
+    "title": "Algorithms, 4th Edition",
+    "titleZh": "算法 第四版",
+    "author": "Sedgewick & Wayne",
+    "year": 2011,
+    "tier": "B",
+    "role": "modern Java implementation pedagogy · empirical analysis",
+    "language": "en/zh",
+    "files": [
+      "algs4-en.pdf",
+      "algs4-ch.pdf"
+    ],
+    "pages": 969
+  },
+  {
+    "id": "sedgewick-intro-py",
+    "title": "Introduction to Programming in Python",
+    "author": "Sedgewick, Wayne & Dondero",
+    "year": 2015,
+    "tier": "B",
+    "role": "algorithmic thinking gateway · core data types",
+    "language": "en",
+    "files": [
+      "intro-to-programming-py.pdf"
+    ],
+    "pages": 794
+  },
+  {
+    "id": "sedgewick-intro-java",
+    "title": "Introduction to Programming in Java",
+    "author": "Sedgewick & Wayne",
+    "year": 2017,
+    "tier": "B",
+    "role": "Java twin of the intro book",
+    "language": "en",
+    "files": [
+      "intro-to-programming-java.pdf"
+    ],
+    "pages": 780
+  },
+  {
+    "id": "pku-py-algo",
+    "title": "Python Algorithms (PKU)",
+    "titleZh": "数据结构与算法 Python 版（北大）",
+    "author": "PKU course notes",
+    "year": 2020,
+    "tier": "B",
+    "role": "Chinese university pedagogy in Python",
+    "language": "zh",
+    "files": [
+      "algo-py-pku.pdf"
+    ],
+    "pages": 302
+  },
+  {
+    "id": "pearls",
+    "title": "Programming Pearls",
+    "titleZh": "编程珠玑",
+    "author": "Jon Bentley",
+    "year": 1986,
+    "tier": "C",
+    "role": "column thinking · problem reformulation · back-of-envelope",
+    "language": "zh",
+    "files": [
+      "编程珠玑.epub"
+    ],
+    "pages": null
+  },
+  {
+    "id": "more-pearls",
+    "title": "More Programming Pearls",
+    "titleZh": "编程珠玑（续）",
+    "author": "Jon Bentley",
+    "year": 1988,
+    "tier": "C",
+    "role": "engineering war stories · profiling · little languages",
+    "language": "zh",
+    "files": [
+      "编程珠玑（续）.epub"
+    ],
+    "pages": null
+  },
+  {
+    "id": "grokking",
+    "title": "Grokking Algorithms · 算法图解",
+    "titleZh": "算法图解",
+    "author": "Aditya Bhargava",
+    "year": 2016,
+    "tier": "C",
+    "role": "visual gentle intro · accessible mental models",
+    "language": "zh",
+    "files": [
+      "算法图解.pdf"
+    ],
+    "pages": 197
+  },
+  {
+    "id": "cs-overview",
+    "title": "Computer Science: An Overview",
+    "author": "J. Glenn Brookshear",
+    "year": 2018,
+    "tier": "C",
+    "role": "where algorithms sit in the broader CS landscape",
+    "language": "en",
+    "files": [
+      "computer-science.pdf"
+    ],
+    "pages": 1168
+  },
+  {
+    "id": "cs-guide-en",
+    "title": "A Common-Sense Guide to Data Structures and Algorithms",
+    "author": "Jay Wengrow",
+    "year": 2020,
+    "tier": "C",
+    "role": "low-math accessible explanations · Big-O intuition",
+    "language": "en/zh",
+    "files": [
+      "guide-to-ds-algs-en.pdf",
+      "guide-to-ds-algs-zh.pdf"
+    ],
+    "pages": 499
+  }
+];
+window.__matrix__ = {
+  "meta": {
+    "intro": "A coarse coverage map: which book teaches which idea best, well, or in passing.",
+    "introZh": "粗略的覆盖图：每本书对每个思想的讲述属于最佳、良好，还是顺带。",
+    "legend": {
+      "★": "Definitive treatment — go here first",
+      "●": "Solid treatment — good complementary read",
+      "·": "Mentioned / introductory"
+    }
+  },
+  "axes": [
+    "paradigms.divide-conquer",
+    "paradigms.dynamic-programming",
+    "paradigms.greedy",
+    "paradigms.backtracking",
+    "paradigms.randomization",
+    "paradigms.amortization",
+    "paradigms.reduction",
+    "analysis.recurrences",
+    "analysis.amortized",
+    "analysis.generating-functions",
+    "analysis.adversary",
+    "engineering.reformulate",
+    "engineering.profile-driven",
+    "engineering.correctness-by-invariant",
+    "engineering.little-languages",
+    "history.np-complete",
+    "history.dancing-links",
+    "history.external-sort"
+  ],
+  "matrix": {
+    "taocp-v1": {
+      "analysis.generating-functions": "●",
+      "analysis.recurrences": "★"
+    },
+    "taocp-v2": {
+      "paradigms.randomization": "★"
+    },
+    "taocp-v3": {
+      "history.external-sort": "★",
+      "paradigms.divide-conquer": "●",
+      "analysis.adversary": "●"
+    },
+    "taocp-v4a": {
+      "paradigms.backtracking": "★"
+    },
+    "taocp-v4f5": {
+      "history.dancing-links": "★",
+      "paradigms.backtracking": "★"
+    },
+    "taocp-v4f6": {
+      "paradigms.backtracking": "●"
+    },
+    "clrs3": {
+      "paradigms.divide-conquer": "★",
+      "paradigms.dynamic-programming": "★",
+      "paradigms.greedy": "★",
+      "paradigms.amortization": "★",
+      "paradigms.reduction": "★",
+      "analysis.recurrences": "★",
+      "analysis.amortized": "★",
+      "analysis.adversary": "★",
+      "history.np-complete": "★"
+    },
+    "clrs4": {
+      "paradigms.dynamic-programming": "●",
+      "history.np-complete": "●"
+    },
+    "sedgewick-analysis": {
+      "analysis.generating-functions": "★",
+      "analysis.recurrences": "★"
+    },
+    "jeff-erickson": {
+      "paradigms.dynamic-programming": "★",
+      "paradigms.backtracking": "★",
+      "paradigms.greedy": "●",
+      "paradigms.reduction": "●",
+      "history.np-complete": "★"
+    },
+    "skiena-adm": {
+      "engineering.reformulate": "★",
+      "paradigms.dynamic-programming": "●",
+      "paradigms.reduction": "●"
+    },
+    "algs4-en": {
+      "paradigms.divide-conquer": "●",
+      "paradigms.greedy": "★",
+      "paradigms.randomization": "●",
+      "engineering.correctness-by-invariant": "●"
+    },
+    "algs3-cpp": {
+      "paradigms.divide-conquer": "●"
+    },
+    "sedgewick-intro-py": {
+      "paradigms.divide-conquer": "·"
+    },
+    "sedgewick-intro-java": {
+      "paradigms.divide-conquer": "·"
+    },
+    "pku-py-algo": {
+      "paradigms.dynamic-programming": "·"
+    },
+    "pearls": {
+      "engineering.reformulate": "★",
+      "engineering.correctness-by-invariant": "★",
+      "engineering.profile-driven": "●"
+    },
+    "more-pearls": {
+      "engineering.profile-driven": "★",
+      "engineering.little-languages": "★"
+    },
+    "grokking": {
+      "paradigms.divide-conquer": "·",
+      "paradigms.dynamic-programming": "·",
+      "paradigms.greedy": "·"
+    },
+    "cs-guide-en": {
+      "paradigms.dynamic-programming": "·"
+    },
+    "cs-overview": {
+      "history.np-complete": "·"
+    }
+  }
+};
+function esc(s) { return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]); }
+
+const books = window.__books__||[];
+const matrix = window.__matrix__||{matrix:{}, axes:[]};
+const axes = matrix.axes;
+const axeLabels = {
+  'paradigms.divide-conquer':'D&C',
+  'paradigms.dynamic-programming':'DP',
+  'paradigms.greedy':'Greedy',
+  'paradigms.backtracking':'Backtrack',
+  'paradigms.randomization':'Random',
+  'paradigms.amortization':'Amortize',
+  'paradigms.reduction':'Reduce',
+  'analysis.recurrences':'Recur',
+  'analysis.amortized':'Amort.Anal',
+  'analysis.generating-functions':'GenFunc',
+  'analysis.adversary':'Adversary',
+  'engineering.reformulate':'Reformulate',
+  'engineering.profile-driven':'Profile',
+  'engineering.correctness-by-invariant':'Invariant',
+  'engineering.little-languages':'LittleLang',
+  'history.np-complete':'NP-C',
+  'history.dancing-links':'DLX',
+  'history.external-sort':'ExternSort'
+};
+const cellCls = v => v==='★' ? 'cell-3' : v==='●' ? 'cell-2' : v==='·' ? 'cell-1' : 'cell-0';
+
+let html = '<thead><tr><th>Book · 书</th>' + axes.map(a=>`<th title="${esc(a)}">${esc(axeLabels[a]||a)}</th>`).join('') + '</tr></thead><tbody>';
+for (const b of books) {
+  const row = matrix.matrix[b.id] || {};
+  html += `<tr><th>${esc(b.title)}<br><span class="author">${esc(b.author)}</span></th>`;
+  for (const a of axes) {
+    const v = row[a] || '';
+    html += `<td class="${cellCls(v)}">${esc(v)}</td>`;
+  }
+  html += '</tr>';
+}
+html += '</tbody>';
+document.getElementById('matrix').innerHTML = html;
+
+function renderBook(b) {
+  return `<div class="book-card">
+    <span class="tier tier-${b.tier}">Tier ${b.tier}</span>
+    <div class="title">${esc(b.title)}</div>
+    ${b.titleZh ? `<div class="title-zh">${esc(b.titleZh)}</div>` : ''}
+    <div class="meta">${esc(b.author)} · ${b.year} · ${b.pages||'?'} pp · ${esc(b.language)}</div>
+    <div class="role">${esc(b.role)}</div>
+  </div>`;
+}
+document.getElementById('tier-a').innerHTML = books.filter(b=>b.tier==='A').map(renderBook).join('');
+document.getElementById('tier-b').innerHTML = books.filter(b=>b.tier==='B').map(renderBook).join('');
+document.getElementById('tier-c').innerHTML = books.filter(b=>b.tier==='C').map(renderBook).join('');
+</script>
+<!-- Theme Toggle (injected into .fixed-nav) -->
+<style>
+.theme-toggle {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
+</body>
+</html>

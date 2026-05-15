@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engineering Wisdom · 工程智慧</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117; --card: #1a1d27; --card-hover: #222636;
+  --accent: #6c63ff; --accent2: #ff6b6b; --accent3: #4ecdc4; --accent4: #ffe66d;
+  --text: #e8e8f0; --text-dim: #8888a0; --border: #2a2d3a;
+  --font-sans: 'Noto Sans SC', sans-serif; --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+}
+*,*::before,*::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+nav.fixed-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; background: rgba(15,17,23,.75); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: .75rem 1.5rem; display: flex; align-items: center; gap: 1rem; font-size: .85rem; }
+nav.fixed-nav a { color: var(--text-dim); text-decoration: none; transition: color .2s; }
+nav.fixed-nav a:hover { color: var(--accent); }
+nav.fixed-nav .sep { color: var(--border); }
+nav.fixed-nav .crumb-current { color: var(--text); }
+
+.hero { min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 5rem 2rem 3rem; position: relative; }
+.hero-icon { font-size: 5rem; filter: drop-shadow(0 0 30px rgba(108,99,255,.3)); margin-bottom: 1.2rem; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.hero h1 { font-size: 3rem; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--accent3)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: .5rem; }
+.hero h2 { font-size: 1.5rem; font-weight: 300; color: var(--text-dim); margin-bottom: 1rem; }
+.hero .tagline { max-width: 720px; color: var(--text-dim); font-size: 1.05rem; }
+.hero .stats { display: flex; gap: 2.5rem; margin-top: 2.5rem; flex-wrap: wrap; justify-content: center; }
+.stat { text-align: center; }
+.stat .num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); }
+.stat .lbl { font-size: .85rem; color: var(--text-dim); margin-top: .25rem; }
+
+.section { max-width: 1200px; margin: 0 auto; padding: 3rem 1.5rem; }
+.section h3 { font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--accent4); border-left: 4px solid var(--accent); padding-left: .8rem; }
+.intro { color: var(--text-dim); max-width: 800px; margin-bottom: 2rem; font-size: 1rem; }
+.intro-zh { color: var(--text-dim); max-width: 800px; margin-top: .4rem; font-size: .95rem; opacity: .85; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.2rem; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.4rem; transition: all .25s; cursor: pointer; position: relative; overflow: hidden; }
+.card:hover { background: var(--card-hover); transform: translateY(-2px); border-color: var(--accent); }
+.card-icon { font-size: 1.6rem; margin-bottom: .6rem; }
+.card-title { font-size: 1.15rem; font-weight: 600; color: var(--text); margin-bottom: .15rem; }
+.card-title-zh { font-size: .9rem; color: var(--text-dim); margin-bottom: .8rem; }
+.card-essence { font-size: .9rem; color: var(--text-dim); line-height: 1.55; }
+.card-essence-zh { font-size: .85rem; color: var(--text-dim); opacity: .8; margin-top: .35rem; }
+
+details.detail { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem 1.4rem; margin-bottom: .8rem; transition: all .2s; }
+details.detail[open] { border-color: var(--accent); background: var(--card-hover); }
+details.detail > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: .8rem; font-size: 1.1rem; font-weight: 600; }
+details.detail > summary::-webkit-details-marker { display: none; }
+details.detail > summary::after { content: '+'; margin-left: auto; color: var(--text-dim); font-family: var(--font-mono); transition: transform .2s; }
+details.detail[open] > summary::after { content: '−'; }
+.summary-icon { font-size: 1.4rem; }
+.summary-zh { color: var(--text-dim); font-weight: 400; font-size: .9rem; }
+.detail-body { margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border); }
+.detail-body p { margin-bottom: .6rem; color: var(--text); font-size: .95rem; }
+.detail-body .zh { color: var(--text-dim); opacity: .85; font-size: .9rem; }
+.detail-body .sig { font-family: var(--font-mono); font-size: .85rem; background: rgba(108,99,255,.08); padding: .6rem .8rem; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--accent3); margin: .6rem 0; white-space: pre-wrap; overflow-x: auto; }
+.detail-body ul { list-style: none; padding-left: 0; }
+.detail-body ul li { padding: .15rem 0 .15rem 1.2rem; position: relative; color: var(--text-dim); font-size: .9rem; }
+.detail-body ul li::before { content: '▹'; position: absolute; left: 0; color: var(--accent3); }
+.label { font-size: .75rem; text-transform: uppercase; letter-spacing: .12em; color: var(--accent4); font-weight: 700; margin-top: .8rem; margin-bottom: .3rem; }
+.pitfall { background: rgba(255,107,107,.08); border-left: 3px solid var(--accent2); padding: .6rem .8rem; border-radius: 4px; color: var(--text); font-size: .9rem; margin: .5rem 0; }
+.history { background: rgba(255,230,109,.06); border-left: 3px solid var(--accent4); padding: .6rem .8rem; border-radius: 4px; color: var(--text-dim); font-size: .9rem; margin: .5rem 0; font-style: italic; }
+.sources { margin-top: .8rem; }
+.src-pill { display: inline-block; padding: .3rem .7rem; margin: .2rem .3rem .2rem 0; background: rgba(78,205,196,.08); border: 1px solid var(--accent3); color: var(--accent3); border-radius: 999px; font-size: .8rem; font-family: var(--font-mono); }
+.src-pill .note { color: var(--text-dim); margin-left: .4rem; font-family: var(--font-sans); }
+
+footer { padding: 3rem 1.5rem; text-align: center; color: var(--text-dim); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+footer a { color: var(--accent3); text-decoration: none; }
+
+@media (max-width: 600px) {
+  .hero h1 { font-size: 2.2rem; }
+  .hero h2 { font-size: 1.15rem; }
+  .grid { grid-template-columns: 1fr; }
+}
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
+</style>
+</head>
+<body>
+<nav class="fixed-nav">
+  <a href="../index.html">Hyperion</a>
+  <span class="sep">/</span>
+  <a href="index.html">Algo Methodology</a>
+  <span class="sep">/</span>
+  <span class="crumb-current">Engineering Wisdom</span>
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-toggle-icon" id="themeIcon"></span></button>
+</nav>
+
+<div class="hero">
+  <div class="hero-icon">🛠️</div>
+  <h1>Engineering Wisdom</h1>
+  <h2>工程智慧</h2>
+  <p class="tagline">Bentley & Skiena distilled — pearls, war stories, principles</p>
+  
+</div>
+
+<main class="section">
+  <p class="intro">Designing the algorithm is necessary but not sufficient. Bentley's Pearls and Skiena's war stories teach the half of the craft that textbooks leave implicit — problem reformulation, back-of-envelope sizing, simplicity, and humility.</p>
+  <p class="intro-zh">设计算法是必要的，但不够。Bentley 的珠玑与 Skiena 的战例，教的是教科书默而不宣的另一半工艺——重述问题、估量级、追求简洁、承认无知。</p>
+  <div id="content"></div>
+</main>
+
+<footer>
+  <div>Hyperion · Algo Methodology · synthesized from 22 canonical algorithm books</div>
+  <div style="margin-top:.4rem;"><a href="index.html">← back to atlas</a></div>
+</footer>
+
+<script>
+window.__items__ = [
+  {
+    "id": "back-of-envelope",
+    "name": "Back-of-Envelope Estimation",
+    "nameZh": "信封背面估算",
+    "icon": "✉️",
+    "essence": "Before coding, estimate orders of magnitude. 'Will N fit in memory? Will N² fit in time?'",
+    "essenceZh": "在写代码之前，先估量级。'N 装得下吗？N² 跑得完吗？'",
+    "rule": "Modern machine ≈ 10⁸–10⁹ simple ops/sec. 1 GB ≈ 10⁹ bytes. Always know which regime you're in.",
+    "sources": [
+      {
+        "book": "pearls",
+        "note": "Column 7 — 'The Back of the Envelope'"
+      }
+    ]
+  },
+  {
+    "id": "reformulate",
+    "name": "Reformulate the Problem",
+    "nameZh": "重述问题",
+    "icon": "🔄",
+    "essence": "The most leverage is often before any algorithm — restate what is actually asked.",
+    "essenceZh": "最大的杠杆通常出现在算法之前——重新陈述真正被问的是什么。",
+    "canonical": "Bentley's '我想排序一个磁带文件' war story: the real question was 'show unique 7-digit codes' — solved with a 1-bit-per-code bitmap, no sort needed.",
+    "sources": [
+      {
+        "book": "pearls",
+        "note": "Column 1 — bitmap sort"
+      },
+      {
+        "book": "skiena-adm",
+        "note": "Ch.1 — 'modeling the problem'"
+      }
+    ]
+  },
+  {
+    "id": "simplicity",
+    "name": "Simplicity Above Cleverness",
+    "nameZh": "简单优于聪明",
+    "icon": "🪶",
+    "essence": "Hoare: 'There are two ways to write code: simple enough that there are obviously no defects, or complex enough that there are no obvious defects.'",
+    "essenceZh": "Hoare：'写代码有两种方式：简单到显然没缺陷，或复杂到看不出缺陷。'",
+    "sources": [
+      {
+        "book": "pearls",
+        "note": "Column 3 — 'Data Structures Programs'"
+      },
+      {
+        "book": "more-pearls",
+        "note": "Column 1 — profiling first, only then optimize"
+      }
+    ]
+  },
+  {
+    "id": "profile-driven",
+    "name": "Profile Before You Tune",
+    "nameZh": "先剖析再调优",
+    "icon": "🔬",
+    "essence": "Knuth: 'Premature optimization is the root of all evil.' Measure first; the bottleneck is rarely where you guessed.",
+    "essenceZh": "Knuth：'过早优化是万恶之源。'先测量，瓶颈很少在你猜的地方。",
+    "sources": [
+      {
+        "book": "more-pearls",
+        "note": "Column 1 — 'A Spelling Checker' tuned only after profiling"
+      }
+    ]
+  },
+  {
+    "id": "correctness-by-invariant",
+    "name": "Correctness via Invariants",
+    "nameZh": "用不变量证明正确性",
+    "icon": "🔒",
+    "essence": "State the loop invariant, prove (init, maintain, terminate). Dijkstra & Hoare's gift.",
+    "essenceZh": "写出循环不变量，证明（初始化、保持、终止）。Dijkstra 与 Hoare 的礼物。",
+    "sources": [
+      {
+        "book": "clrs3",
+        "note": "Ch.2 — insertion sort as model proof"
+      },
+      {
+        "book": "pearls",
+        "note": "Column 4 — 'Writing Correct Programs' on binary search"
+      }
+    ]
+  },
+  {
+    "id": "column-thinking",
+    "name": "Column Thinking",
+    "nameZh": "专栏思维",
+    "icon": "📰",
+    "essence": "Bentley wrote each Pearl as a self-contained essay around one problem, one insight, one elegant solution. Aspirational unit of clarity.",
+    "essenceZh": "Bentley 把每篇珠玑写成围绕一个问题、一个洞见、一个优雅解的自包含小品文。值得效仿的清晰单元。",
+    "sources": [
+      {
+        "book": "pearls",
+        "note": "the format itself"
+      }
+    ]
+  },
+  {
+    "id": "war-story",
+    "name": "War Stories",
+    "nameZh": "战例叙事",
+    "icon": "⚔️",
+    "essence": "Real-world failures and triumphs teach more than synthetic examples. Skiena's war stories ground every paradigm in concrete project memory.",
+    "essenceZh": "真实世界的成败比合成例子教得更多。Skiena 的战例把每个范式锚定在具体项目记忆中。",
+    "sources": [
+      {
+        "book": "skiena-adm",
+        "note": "interleaved throughout — the book's signature device"
+      }
+    ]
+  },
+  {
+    "id": "augmentation",
+    "name": "Data Structure Augmentation",
+    "nameZh": "数据结构增强",
+    "icon": "➕",
+    "essence": "Take a known structure (BST, heap, …) and add a field that satisfies an invariant — get new operations almost for free.",
+    "essenceZh": "拿一个已知结构（BST、堆…），加一个满足不变量的字段——几乎免费地得到新操作。",
+    "canonical": "Order-statistic tree (size field); interval tree (max endpoint); segment tree with lazy tags.",
+    "sources": [
+      {
+        "book": "clrs3",
+        "note": "Ch.14 — the canonical recipe"
+      }
+    ]
+  },
+  {
+    "id": "indirection",
+    "name": "Indirection",
+    "nameZh": "间接寻址",
+    "icon": "↗️",
+    "essence": "Butler Lampson: 'Any problem in CS can be solved by adding a layer of indirection.' Pointers, handles, indices, virtual addresses.",
+    "essenceZh": "Butler Lampson：'计算机科学中任何问题都可以通过加一层间接来解决。'指针、句柄、索引、虚拟地址。",
+    "sources": []
+  },
+  {
+    "id": "lazy",
+    "name": "Lazy Evaluation & Deferred Work",
+    "nameZh": "惰性求值与延迟工作",
+    "icon": "😴",
+    "essence": "Don't pay for work you might not need. Lazy propagation in segment trees, lazy deletion, copy-on-write.",
+    "essenceZh": "别为可能用不上的工作付费。线段树惰性下推、惰性删除、写时复制。",
+    "sources": []
+  },
+  {
+    "id": "little-languages",
+    "name": "Little Languages",
+    "nameZh": "小语言",
+    "icon": "🔤",
+    "essence": "When data has structure, design a tiny domain-specific notation; manipulate by that notation, not by ad-hoc code.",
+    "essenceZh": "当数据有结构时，设计一个微型领域记号；按记号变换，而非临时代码。",
+    "sources": [
+      {
+        "book": "more-pearls",
+        "note": "Part III — 'Little Languages' is the cornerstone"
+      }
+    ]
+  }
+];
+
+const RENDER_MODE = 'list';
+const root = document.getElementById('content');
+
+function escapeHtml(s) { return (s||'').replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]); }
+
+function renderSources(srcs) {
+  if (!srcs || !srcs.length) return '';
+  return '<div class="sources">' + srcs.map(s =>
+    `<span class="src-pill">${escapeHtml(s.book)}<span class="note">${escapeHtml(s.note||'')}</span></span>`
+  ).join('') + '</div>';
+}
+
+function renderDetail(item) {
+  const sig = item.signature ? `<div class="sig">${escapeHtml(item.signature)}</div>` : '';
+  const when = item.whenToUse ? `<div class="label">When to use</div><ul>${item.whenToUse.map(w=>`<li>${escapeHtml(w)}</li>`).join('')}</ul>` : '';
+  const canon = item.canonical ? `<div class="label">Canonical example</div><p>${Array.isArray(item.canonical) ? item.canonical.map(escapeHtml).join('<br>') : escapeHtml(item.canonical)}</p>` : '';
+  const pit = item.pitfalls ? `<div class="pitfall"><strong>⚠ Pitfall:</strong> ${Array.isArray(item.pitfalls) ? item.pitfalls.map(escapeHtml).join('; ') : escapeHtml(item.pitfalls)}</div>` : '';
+  const hist = item.history ? `<div class="history">🕰 ${escapeHtml(item.history)}</div>` : '';
+  const rule = item.rule ? `<div class="sig">${escapeHtml(item.rule)}</div>` : '';
+  const prompt = item.prompt ? `<div class="label">Prompt yourself</div><p>${escapeHtml(item.prompt)}</p>` : '';
+  const methods = item.methods ? `<div class="label">Methods</div><ul>${Object.entries(item.methods).map(([k,v])=>`<li><strong>${escapeHtml(k)}:</strong> ${escapeHtml(v)}</li>`).join('')}</ul>` : '';
+  return `
+    <details class="detail">
+      <summary>
+        <span class="summary-icon">${item.icon||'•'}</span>
+        <span>${escapeHtml(item.name)}</span>
+        <span class="summary-zh">· ${escapeHtml(item.nameZh||'')}</span>
+      </summary>
+      <div class="detail-body">
+        <p>${escapeHtml(item.essence||'')}</p>
+        <p class="zh">${escapeHtml(item.essenceZh||'')}</p>
+        ${sig}${rule}${when}${methods}${canon}${pit}${hist}${prompt}
+        ${renderSources(item.sources)}
+      </div>
+    </details>`;
+}
+
+function renderAll() {
+  const items = window.__items__ || [];
+  root.innerHTML = items.map(renderDetail).join('');
+}
+
+renderAll();
+</script>
+<!-- Theme Toggle (injected into .fixed-nav) -->
+<style>
+.theme-toggle {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
+</body>
+</html>

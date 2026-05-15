@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Paradigms · 设计范式</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117; --card: #1a1d27; --card-hover: #222636;
+  --accent: #6c63ff; --accent2: #ff6b6b; --accent3: #4ecdc4; --accent4: #ffe66d;
+  --text: #e8e8f0; --text-dim: #8888a0; --border: #2a2d3a;
+  --font-sans: 'Noto Sans SC', sans-serif; --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+}
+*,*::before,*::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+nav.fixed-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; background: rgba(15,17,23,.75); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: .75rem 1.5rem; display: flex; align-items: center; gap: 1rem; font-size: .85rem; }
+nav.fixed-nav a { color: var(--text-dim); text-decoration: none; transition: color .2s; }
+nav.fixed-nav a:hover { color: var(--accent); }
+nav.fixed-nav .sep { color: var(--border); }
+nav.fixed-nav .crumb-current { color: var(--text); }
+
+.hero { min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 5rem 2rem 3rem; position: relative; }
+.hero-icon { font-size: 5rem; filter: drop-shadow(0 0 30px rgba(108,99,255,.3)); margin-bottom: 1.2rem; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.hero h1 { font-size: 3rem; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--accent3)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: .5rem; }
+.hero h2 { font-size: 1.5rem; font-weight: 300; color: var(--text-dim); margin-bottom: 1rem; }
+.hero .tagline { max-width: 720px; color: var(--text-dim); font-size: 1.05rem; }
+.hero .stats { display: flex; gap: 2.5rem; margin-top: 2.5rem; flex-wrap: wrap; justify-content: center; }
+.stat { text-align: center; }
+.stat .num { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent); }
+.stat .lbl { font-size: .85rem; color: var(--text-dim); margin-top: .25rem; }
+
+.section { max-width: 1200px; margin: 0 auto; padding: 3rem 1.5rem; }
+.section h3 { font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--accent4); border-left: 4px solid var(--accent); padding-left: .8rem; }
+.intro { color: var(--text-dim); max-width: 800px; margin-bottom: 2rem; font-size: 1rem; }
+.intro-zh { color: var(--text-dim); max-width: 800px; margin-top: .4rem; font-size: .95rem; opacity: .85; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.2rem; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.4rem; transition: all .25s; cursor: pointer; position: relative; overflow: hidden; }
+.card:hover { background: var(--card-hover); transform: translateY(-2px); border-color: var(--accent); }
+.card-icon { font-size: 1.6rem; margin-bottom: .6rem; }
+.card-title { font-size: 1.15rem; font-weight: 600; color: var(--text); margin-bottom: .15rem; }
+.card-title-zh { font-size: .9rem; color: var(--text-dim); margin-bottom: .8rem; }
+.card-essence { font-size: .9rem; color: var(--text-dim); line-height: 1.55; }
+.card-essence-zh { font-size: .85rem; color: var(--text-dim); opacity: .8; margin-top: .35rem; }
+
+details.detail { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem 1.4rem; margin-bottom: .8rem; transition: all .2s; }
+details.detail[open] { border-color: var(--accent); background: var(--card-hover); }
+details.detail > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: .8rem; font-size: 1.1rem; font-weight: 600; }
+details.detail > summary::-webkit-details-marker { display: none; }
+details.detail > summary::after { content: '+'; margin-left: auto; color: var(--text-dim); font-family: var(--font-mono); transition: transform .2s; }
+details.detail[open] > summary::after { content: '−'; }
+.summary-icon { font-size: 1.4rem; }
+.summary-zh { color: var(--text-dim); font-weight: 400; font-size: .9rem; }
+.detail-body { margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border); }
+.detail-body p { margin-bottom: .6rem; color: var(--text); font-size: .95rem; }
+.detail-body .zh { color: var(--text-dim); opacity: .85; font-size: .9rem; }
+.detail-body .sig { font-family: var(--font-mono); font-size: .85rem; background: rgba(108,99,255,.08); padding: .6rem .8rem; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--accent3); margin: .6rem 0; white-space: pre-wrap; overflow-x: auto; }
+.detail-body ul { list-style: none; padding-left: 0; }
+.detail-body ul li { padding: .15rem 0 .15rem 1.2rem; position: relative; color: var(--text-dim); font-size: .9rem; }
+.detail-body ul li::before { content: '▹'; position: absolute; left: 0; color: var(--accent3); }
+.label { font-size: .75rem; text-transform: uppercase; letter-spacing: .12em; color: var(--accent4); font-weight: 700; margin-top: .8rem; margin-bottom: .3rem; }
+.pitfall { background: rgba(255,107,107,.08); border-left: 3px solid var(--accent2); padding: .6rem .8rem; border-radius: 4px; color: var(--text); font-size: .9rem; margin: .5rem 0; }
+.history { background: rgba(255,230,109,.06); border-left: 3px solid var(--accent4); padding: .6rem .8rem; border-radius: 4px; color: var(--text-dim); font-size: .9rem; margin: .5rem 0; font-style: italic; }
+.sources { margin-top: .8rem; }
+.src-pill { display: inline-block; padding: .3rem .7rem; margin: .2rem .3rem .2rem 0; background: rgba(78,205,196,.08); border: 1px solid var(--accent3); color: var(--accent3); border-radius: 999px; font-size: .8rem; font-family: var(--font-mono); }
+.src-pill .note { color: var(--text-dim); margin-left: .4rem; font-family: var(--font-sans); }
+
+footer { padding: 3rem 1.5rem; text-align: center; color: var(--text-dim); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+footer a { color: var(--accent3); text-decoration: none; }
+
+@media (max-width: 600px) {
+  .hero h1 { font-size: 2.2rem; }
+  .hero h2 { font-size: 1.15rem; }
+  .grid { grid-template-columns: 1fr; }
+}
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
+</style>
+</head>
+<body>
+<nav class="fixed-nav">
+  <a href="../index.html">Hyperion</a>
+  <span class="sep">/</span>
+  <a href="index.html">Algo Methodology</a>
+  <span class="sep">/</span>
+  <span class="crumb-current">Design Paradigms</span>
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-toggle-icon" id="themeIcon"></span></button>
+</nav>
+
+<div class="hero">
+  <div class="hero-icon">🧩</div>
+  <h1>Design Paradigms</h1>
+  <h2>设计范式</h2>
+  <p class="tagline">Recurring strategies for assembling algorithms</p>
+  
+</div>
+
+<main class="section">
+  <p class="intro">An algorithm-design paradigm is a meta-recipe — a shape for the solution before the problem is even chosen. Knowing the paradigm cuts the search space of possible algorithms by orders of magnitude.</p>
+  <p class="intro-zh">设计范式是一种解题的元配方——在问题本身被选定之前，就已经规定了解的形状。掌握范式，能把可能算法的搜索空间砍掉好几个数量级。</p>
+  <div id="content"></div>
+</main>
+
+<footer>
+  <div>Hyperion · Algo Methodology · synthesized from 22 canonical algorithm books</div>
+  <div style="margin-top:.4rem;"><a href="index.html">← back to atlas</a></div>
+</footer>
+
+<script>
+window.__items__ = [
+  {
+    "id": "brute-force",
+    "name": "Brute Force & Enumeration",
+    "nameZh": "暴力枚举",
+    "icon": "🔨",
+    "essence": "Try every possibility. Always correct, usually slow — but the irreplaceable baseline.",
+    "essenceZh": "穷举所有可能性。总是正确，通常很慢——但它是不可替代的基线。",
+    "signature": "for each candidate c in S: if valid(c) return c",
+    "whenToUse": [
+      "No structure to exploit",
+      "S is small or pruning is cheap",
+      "Need ground-truth oracle for testing a fast algorithm"
+    ],
+    "canonical": "Subset-sum by enumerating 2^N subsets; selection sort.",
+    "pitfalls": "Don't dismiss it — Knuth: 'measure, don't guess.' For N≤25 it often beats a clever O(N log N) due to constant factors.",
+    "sources": [
+      {
+        "book": "skiena-adm",
+        "note": "Ch.1 — 'Algorithmic correctness vs speed' framing"
+      },
+      {
+        "book": "jeff-erickson",
+        "note": "Ch.2 backtracking starts from brute force, then prunes"
+      }
+    ]
+  },
+  {
+    "id": "incremental",
+    "name": "Incremental Construction",
+    "nameZh": "增量构造",
+    "icon": "📈",
+    "essence": "Process items one at a time; maintain a valid solution for the prefix seen so far.",
+    "essenceZh": "逐项处理，对已经看到的前缀始终维护一个合法解。",
+    "signature": "S = ∅; for x in input: S = extend(S, x)",
+    "whenToUse": [
+      "The 'extend' step is cheap",
+      "Order of input doesn't matter, or you can randomize it (→ randomized incremental construction)"
+    ],
+    "canonical": "Insertion sort; convex hull (Graham); online algorithms; Welzl's smallest enclosing circle.",
+    "pitfalls": "Worst case can be O(N²); randomizing input order often saves it.",
+    "sources": [
+      {
+        "book": "clrs3",
+        "note": "Ch.2 — insertion sort as the archetype"
+      },
+      {
+        "book": "taocp-v3",
+        "note": "extensive empirical analysis of incremental sort variants"
+      }
+    ]
+  },
+  {
+    "id": "divide-conquer",
+    "name": "Divide & Conquer",
+    "nameZh": "分治",
+    "icon": "✂️",
+    "essence": "Split the problem into independent sub-problems, recurse, combine.",
+    "essenceZh": "把问题切成相互独立的子问题，递归求解，再合并。",
+    "signature": "solve(P) = combine(solve(P₁), …, solve(Pₖ))",
+    "whenToUse": [
+      "Sub-problems are non-overlapping (else use DP)",
+      "Combine step is cheap relative to sub-problem size",
+      "Want easy parallelism"
+    ],
+    "canonical": "Merge sort; quicksort; FFT; Strassen matrix multiplication; closest pair of points.",
+    "pitfalls": "If sub-problems overlap, you're paying exponentially → use DP instead.",
+    "sources": [
+      {
+        "book": "clrs3",
+        "note": "Ch.4 — recurrence machinery (Master Theorem) lives here"
+      },
+      {
+        "book": "taocp-v3",
+        "note": "merge-sort variants exhaustively cataloged"
+      },
+      {
+        "book": "sedgewick-analysis",
+        "note": "Ch.7 trees & D&C analysis via generating functions"
+      },
+      {
+        "book": "jeff-erickson",
+        "note": "Ch.1 'recursion is just D&C with extra steps'"
+      }
+    ]
+  },
+  {
+    "id": "dynamic-programming",
+    "name": "Dynamic Programming",
+    "nameZh": "动态规划",
+    "icon": "🧬",
+    "essence": "When sub-problems overlap, give each one a name and look it up instead of recomputing.",
+    "essenceZh": "当子问题重叠时，给每个子问题命名并查表，而不是重复计算。",
+    "signature": "f(state) = best over choices ( cost(choice) + f(next-state) )",
+    "whenToUse": [
+      "Optimal substructure: optimal solution composes optimally",
+      "Overlapping sub-problems: same state revisited"
+    ],
+    "canonical": "Fibonacci memoization; LCS; matrix-chain order; Bellman-Ford; CYK parsing; knapsack; edit distance.",
+    "pitfalls": "Choosing the *state* is the entire art — if state is too rich, table is huge; too poor, optimal substructure breaks.",
+    "history": "Bellman (1953) coined 'dynamic programming' as politically palatable name — 'dynamic' to sound active, 'programming' as in tabular planning (not coding).",
+    "sources": [
+      {
+        "book": "clrs3",
+        "note": "Ch.15 — definitive textbook treatment, 5 worked examples"
+      },
+      {
+        "book": "jeff-erickson",
+        "note": "Ch.3 — best explanation of 'guess the state' I know of"
+      },
+      {
+        "book": "skiena-adm",
+        "note": "Ch.10 war stories on when DP wins"
+      },
+      {
+        "book": "algs4-en",
+        "note": "section 5.4 / shortest-paths as DP on DAG"
+      }
+    ]
+  },
+  {
+    "id": "greedy",
+    "name": "Greedy",
+    "nameZh": "贪心",
+    "icon": "🍰",
+    "essence": "At each step take the locally optimal choice; prove it stays globally optimal.",
+    "essenceZh": "每一步取局部最优，然后证明它能延续到全局最优。",
+    "signature": "S = ∅; while problem unsolved: S = S ∪ {best local choice}",
+    "whenToUse": [
+      "Matroid / exchange-argument structure",
+      "Sub-problem optimality after the greedy choice"
+    ],
+    "canonical": "Kruskal & Prim MST; Dijkstra; Huffman coding; interval scheduling; fractional knapsack.",
+    "pitfalls": "Greedy *feels* right far more often than it *is* right. Always demand a proof (exchange argument or matroid).",
+    "sources": [
+      {
+        "book": "clrs3",
+        "note": "Ch.16 — matroid theory framing"
+      },
+      {
+        "book": "algs4-en",
+        "note": "best Kruskal/Prim treatment"
+      },
+      {
+        "book": "jeff-erickson",
+        "note": "Ch.4 — emphasizes proof discipline"
+      }
+    ]
+  },
+  {
+    "id": "backtracking",
+    "name": "Backtracking",
+    "nameZh": "回溯",
+    "icon": "🌲",
+    "essence": "Brute force, but prune the search tree the moment a partial solution can't be extended.",
+    "essenceZh": "暴力搜索，但一旦发现某个部分解无法扩展，就立刻剪枝。",
+    "signature": "search(state): if final return; for choice: if feasible: search(state ⊕ choice); undo",
+    "whenToUse": [
+      "Decision / constraint problems (CSP, SAT, N-queens)",
+      "Solutions are paths in a tree, deep narrow tree preferred"
+    ],
+    "canonical": "N-queens; Sudoku; subset / permutation generation; exact cover (Dancing Links).",
+    "pitfalls": "Without smart pruning, backtracking degenerates to brute force.",
+    "sources": [
+      {
+        "book": "taocp-v4a",
+        "note": "the definitive treatment — Knuth's Dancing Links"
+      },
+      {
+        "book": "jeff-erickson",
+        "note": "Ch.2 — pedagogically best"
+      }
+    ]
+  },
+  {
+    "id": "branch-and-bound",
+    "name": "Branch & Bound",
+    "nameZh": "分支限界",
+    "icon": "🪓",
+    "essence": "Backtracking + an admissible bound that lets you prune sub-trees that can't beat the best-so-far.",
+    "essenceZh": "回溯 + 一个可采纳的上下界，用来剪掉不可能超过当前最优的子树。",
+    "signature": "search(node): if bound(node) ≥ best: return; …",
+    "whenToUse": [
+      "Optimization problems with cheap, tight bounds (LP relaxation, etc.)"
+    ],
+    "canonical": "TSP (Held–Karp lower bound); 0-1 knapsack with LP bound; ILP solvers.",
+    "pitfalls": "Bound must be cheap AND tight — slack bounds prune nothing.",
+    "sources": [
+      {
+        "book": "skiena-adm",
+        "note": "Ch.7 war stories on TSP"
+      }
+    ]
+  },
+  {
+    "id": "randomization",
+    "name": "Randomization",
+    "nameZh": "随机化",
+    "icon": "🎲",
+    "essence": "Inject randomness to neutralize adversarial input. Expected behavior beats worst-case behavior.",
+    "essenceZh": "引入随机性来消解对抗性输入。期望行为优于最坏情况。",
+    "signature": "Las Vegas: always correct, random time. Monte Carlo: random correctness, bounded time.",
+    "whenToUse": [
+      "Adversarial inputs",
+      "Hashing",
+      "Sampling-based estimation",
+      "Cryptographic primitives"
+    ],
+    "canonical": "Randomized quicksort; Treap; Skip list (Pugh); Miller–Rabin primality; Karger's min-cut; Rabin–Karp.",
+    "history": "Rabin (1976) introduced randomized algorithms to mainstream CS with the millionaire's problem and primality testing.",
+    "sources": [
+      {
+        "book": "clrs3",
+        "note": "Ch.5 'Probabilistic Analysis and Randomized Algorithms'"
+      },
+      {
+        "book": "taocp-v2",
+        "note": "Knuth's deep treatment of pseudo-randomness itself"
+      },
+      {
+        "book": "algs4-en",
+        "note": "skip lists, randomized BSTs"
+      }
+    ]
+  },
+  {
+    "id": "amortization",
+    "name": "Amortization",
+    "nameZh": "摊还",
+    "icon": "💳",
+    "essence": "Charge cheap operations a bit extra to bank credit for occasional expensive ones.",
+    "essenceZh": "让便宜的操作多付一点，存下信用来支付偶尔昂贵的操作。",
+    "signature": "Aggregate · Accounting · Potential function methods.",
+    "whenToUse": [
+      "A bound on a *sequence* of ops matters more than any single op",
+      "Self-adjusting structures (splay), dynamic arrays, union-find"
+    ],
+    "canonical": "Dynamic table doubling; binary counter increment; splay trees; union-find with path compression.",
+    "history": "Tarjan (1985) crystallized the potential method, unifying earlier ad-hoc analyses.",
+    "sources": [
+      {
+        "book": "clrs3",
+        "note": "Ch.17 — three methods compared side-by-side"
+      },
+      {
+        "book": "jeff-erickson",
+        "note": "intuitive accounting examples"
+      }
+    ]
+  },
+  {
+    "id": "reduction",
+    "name": "Reduction & Transformation",
+    "nameZh": "归约与变换",
+    "icon": "🔄",
+    "essence": "Solve A by transforming it into a B you already know how to solve.",
+    "essenceZh": "通过把 A 变换成已经会做的 B 来解决 A。",
+    "signature": "A →ₚ B; solve B; map answer back.",
+    "whenToUse": [
+      "Avoid reinventing — when in doubt, ask 'is this a graph problem? a flow problem? a sort?'",
+      "NP-hardness proofs"
+    ],
+    "canonical": "Shortest path → BFS/Dijkstra; bipartite matching → max-flow; 3-SAT → 3-Coloring; sorting → comparison decision tree.",
+    "history": "Cook (1971) + Karp (1972) made polynomial-time reduction the central proof tool of complexity theory.",
+    "sources": [
+      {
+        "book": "clrs3",
+        "note": "Ch.34 NP-completeness — reduction zoo"
+      },
+      {
+        "book": "skiena-adm",
+        "note": "Ch.6 — 'most problems are old problems in disguise'"
+      },
+      {
+        "book": "jeff-erickson",
+        "note": "Ch.12+ on NP-hardness reductions"
+      }
+    ]
+  },
+  {
+    "id": "sweep",
+    "name": "Sweep Line / Plane Sweep",
+    "nameZh": "扫描线",
+    "icon": "📏",
+    "essence": "Sweep a line across the plane (or time axis); maintain a dynamic structure of 'active' items.",
+    "essenceZh": "在平面或时间轴上扫一条线，维护一个 '当前活跃' 的动态结构。",
+    "signature": "events sorted by x; for e in events: update active(e); answer(e)",
+    "whenToUse": [
+      "Computational geometry (segment intersection, rectangles)",
+      "Interval problems"
+    ],
+    "canonical": "Bentley–Ottmann segment intersection; rectangle area union; event-driven simulations.",
+    "sources": [
+      {
+        "book": "clrs3",
+        "note": "Ch.33 computational geometry"
+      }
+    ]
+  },
+  {
+    "id": "doubling",
+    "name": "Doubling / Binary Lifting",
+    "nameZh": "倍增",
+    "icon": "🚀",
+    "essence": "Precompute answers for power-of-two jumps; compose them in O(log N).",
+    "essenceZh": "预处理 2 的幂次跳跃的答案，再以 O(log N) 拼起来。",
+    "signature": "up[k][v] = up[k-1][ up[k-1][v] ]",
+    "whenToUse": [
+      "k-th ancestor / LCA queries",
+      "Sparse tables for range min",
+      "Repeated function application"
+    ],
+    "canonical": "LCA with binary lifting; sparse table for RMQ; matrix exponentiation.",
+    "sources": [
+      {
+        "book": "taocp-v4a",
+        "note": "bitwise tricks in Sec.7.1"
+      }
+    ]
+  },
+  {
+    "id": "meet-in-the-middle",
+    "name": "Meet in the Middle",
+    "nameZh": "折半搜索",
+    "icon": "🤝",
+    "essence": "Split the search space into two halves, enumerate each in 2^(N/2), then merge.",
+    "essenceZh": "把搜索空间切成两半，各自 2^(N/2) 枚举，再合并。",
+    "signature": "L = enum(left); R = enum(right); for r in R: best(r, lookup(L, target − r))",
+    "whenToUse": [
+      "N around 30–40 where 2^N is infeasible but 2^(N/2) is fine"
+    ],
+    "canonical": "4-sum; subset-sum with N=40; double DES key search.",
+    "sources": [
+      {
+        "book": "jeff-erickson",
+        "note": "Ch.2 exercises"
+      }
+    ]
+  },
+  {
+    "id": "iterative-deepening",
+    "name": "Iterative Deepening",
+    "nameZh": "迭代加深",
+    "icon": "🔁",
+    "essence": "Run DFS to depth 1, then 2, then 3… BFS's optimality with DFS's memory.",
+    "essenceZh": "用深度 1、2、3…逐层 DFS——拥有 BFS 的最优性，DFS 的内存。",
+    "signature": "for d = 1..∞: if dfs_limited(d) returns: stop",
+    "whenToUse": [
+      "State space is huge, but solution is shallow",
+      "Memory-bounded search"
+    ],
+    "canonical": "IDA*; 15-puzzle; chess game tree.",
+    "sources": []
+  },
+  {
+    "id": "online-vs-offline",
+    "name": "Online vs Offline",
+    "nameZh": "在线与离线",
+    "icon": "📡",
+    "essence": "Offline: see all input first, then answer. Online: must answer each query before seeing the next.",
+    "essenceZh": "离线：先看完所有输入再回答。在线：必须先答再看下一个查询。",
+    "signature": "Compare online algorithm's cost vs the optimal offline (competitive ratio).",
+    "whenToUse": [
+      "Streaming, caching, scheduling, paging",
+      "When permutation of queries unlocks faster algorithms (offline)"
+    ],
+    "canonical": "LRU page replacement; ski-rental problem; Mo's algorithm (offline range queries).",
+    "history": "Sleator & Tarjan (1985) introduced competitive analysis.",
+    "sources": [
+      {
+        "book": "clrs4",
+        "note": "new chapter on online algorithms"
+      }
+    ]
+  },
+  {
+    "id": "relaxation",
+    "name": "Problem Relaxation",
+    "nameZh": "问题松弛",
+    "icon": "🧘",
+    "essence": "Solve an easier problem first (linear vs integer, fractional vs integral); use its answer as a guide or bound.",
+    "essenceZh": "先求解一个更容易的问题（线性 vs 整数、分数 vs 整数解），把它的答案当作指引或界。",
+    "signature": "LP-relaxation of ILP; rounding schemes.",
+    "whenToUse": [
+      "NP-hard optimization",
+      "Generate admissible heuristics for A*"
+    ],
+    "canonical": "LP-relaxation for TSP; approximation algorithms via rounding; A* heuristics from relaxed problems.",
+    "sources": [
+      {
+        "book": "clrs3",
+        "note": "Ch.35 approximation algorithms"
+      }
+    ]
+  }
+];
+
+const RENDER_MODE = 'list';
+const root = document.getElementById('content');
+
+function escapeHtml(s) { return (s||'').replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]); }
+
+function renderSources(srcs) {
+  if (!srcs || !srcs.length) return '';
+  return '<div class="sources">' + srcs.map(s =>
+    `<span class="src-pill">${escapeHtml(s.book)}<span class="note">${escapeHtml(s.note||'')}</span></span>`
+  ).join('') + '</div>';
+}
+
+function renderDetail(item) {
+  const sig = item.signature ? `<div class="sig">${escapeHtml(item.signature)}</div>` : '';
+  const when = item.whenToUse ? `<div class="label">When to use</div><ul>${item.whenToUse.map(w=>`<li>${escapeHtml(w)}</li>`).join('')}</ul>` : '';
+  const canon = item.canonical ? `<div class="label">Canonical example</div><p>${Array.isArray(item.canonical) ? item.canonical.map(escapeHtml).join('<br>') : escapeHtml(item.canonical)}</p>` : '';
+  const pit = item.pitfalls ? `<div class="pitfall"><strong>⚠ Pitfall:</strong> ${Array.isArray(item.pitfalls) ? item.pitfalls.map(escapeHtml).join('; ') : escapeHtml(item.pitfalls)}</div>` : '';
+  const hist = item.history ? `<div class="history">🕰 ${escapeHtml(item.history)}</div>` : '';
+  const rule = item.rule ? `<div class="sig">${escapeHtml(item.rule)}</div>` : '';
+  const prompt = item.prompt ? `<div class="label">Prompt yourself</div><p>${escapeHtml(item.prompt)}</p>` : '';
+  const methods = item.methods ? `<div class="label">Methods</div><ul>${Object.entries(item.methods).map(([k,v])=>`<li><strong>${escapeHtml(k)}:</strong> ${escapeHtml(v)}</li>`).join('')}</ul>` : '';
+  return `
+    <details class="detail">
+      <summary>
+        <span class="summary-icon">${item.icon||'•'}</span>
+        <span>${escapeHtml(item.name)}</span>
+        <span class="summary-zh">· ${escapeHtml(item.nameZh||'')}</span>
+      </summary>
+      <div class="detail-body">
+        <p>${escapeHtml(item.essence||'')}</p>
+        <p class="zh">${escapeHtml(item.essenceZh||'')}</p>
+        ${sig}${rule}${when}${methods}${canon}${pit}${hist}${prompt}
+        ${renderSources(item.sources)}
+      </div>
+    </details>`;
+}
+
+function renderAll() {
+  const items = window.__items__ || [];
+  root.innerHTML = items.map(renderDetail).join('');
+}
+
+renderAll();
+</script>
+<!-- Theme Toggle (injected into .fixed-nav) -->
+<style>
+.theme-toggle {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
+</body>
+</html>
