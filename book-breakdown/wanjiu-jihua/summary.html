@@ -1,0 +1,2188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>挽救计划 章回概览 / Chapter Summary</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* ========== CSS Variables ========== */
+        :root {
+            --bg: #0f1117;
+            --card: #1a1d27;
+            --card-hover: #222636;
+            --accent: #6c63ff;
+            --accent2: #ff6b6b;
+            --accent3: #4ecdc4;
+            --accent4: #ffe66d;
+            --text: #e8e8f0;
+            --text-dim: #8888a0;
+            --border: #2a2d3a;
+            --bg-rgb: 15,17,23;
+            --card-rgb: 26,29,39;
+            --text-rgb: 232,232,240;
+            --text-dim-rgb: 136,136,160;
+            --border-rgb: 42,45,58;
+            --accent-rgb: 108,99,255;
+            --accent2-rgb: 255,107,107;
+            --accent3-rgb: 78,205,196;
+            --accent4-rgb: 255,230,109;
+            --bg-hero: #13151f;
+            --glow: rgba(var(--accent-rgb),0.15);
+        }
+
+        /* ========== Reset & Base ========== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* ========== Scroll Progress Bar ========== */
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--accent3));
+            z-index: 9999;
+            transition: width 0.1s linear;
+        }
+
+        /* ========== Hero Section ========== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            padding: 2rem;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .hero-bg canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            animation: floatIcon 4s ease-in-out infinite;
+        }
+
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-15px) rotate(3deg); }
+            50% { transform: translateY(-5px) rotate(-2deg); }
+            75% { transform: translateY(-20px) rotate(1deg); }
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--text), var(--accent4));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: 1.3rem;
+            color: var(--text-dim);
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero .author {
+            font-size: 1rem;
+            color: var(--accent3);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 2rem;
+            letter-spacing: 0.05em;
+        }
+
+        .hero .tagline {
+            font-size: 1.05rem;
+            color: var(--text-dim);
+            font-weight: 300;
+            max-width: 500px;
+            margin: 0 auto 3rem;
+            line-height: 1.9;
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            animation: pulseHint 2.5s ease-in-out infinite;
+        }
+
+        .scroll-hint .arrow {
+            width: 20px;
+            height: 20px;
+            border-right: 2px solid var(--accent);
+            border-bottom: 2px solid var(--accent);
+            transform: rotate(45deg);
+        }
+
+        @keyframes pulseHint {
+            0%, 100% { opacity: 0.4; transform: translateX(-50%) translateY(0); }
+            50% { opacity: 1; transform: translateX(-50%) translateY(8px); }
+        }
+
+        /* ========== Container ========== */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* ========== Section Titles ========== */
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            margin-bottom: 3rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ========== Overview Stats ========== */
+        .overview-section {
+            padding: 5rem 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .stat-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 8px 30px var(--glow);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 2.2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent4);
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.95rem;
+            color: var(--text-dim);
+        }
+
+        .stat-card .stat-sub {
+            font-size: 0.8rem;
+            color: var(--accent3);
+            font-family: 'JetBrains Mono', monospace;
+            margin-top: 0.3rem;
+        }
+
+        /* ========== Chapter Cards ========== */
+        .chapters-section {
+            padding: 5rem 0;
+        }
+
+        .arc-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2.5rem 0 1.5rem;
+        }
+
+        .arc-header:first-child {
+            margin-top: 0;
+        }
+
+        .arc-badge {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--bg);
+            flex-shrink: 0;
+        }
+
+        .arc-badge.g1 { background: linear-gradient(135deg, var(--accent), #8b83ff); }
+        .arc-badge.g2 { background: linear-gradient(135deg, var(--accent2), #ff9a9a); }
+        .arc-badge.g3 { background: linear-gradient(135deg, var(--accent3), #7de8d9); }
+        .arc-badge.g4 { background: linear-gradient(135deg, var(--accent4), #fff099); }
+
+        .arc-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .arc-title-en {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            font-family: 'JetBrains Mono', monospace;
+            margin-left: 0.3rem;
+        }
+
+        .chapter-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 1.2rem;
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .chapter-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .chapter-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 4px 20px var(--glow);
+        }
+
+        .chapter-header {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            padding: 1.5rem 2rem;
+            user-select: none;
+        }
+
+        .chapter-badge {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--bg);
+            flex-shrink: 0;
+        }
+
+        .chapter-badge.g1 { background: linear-gradient(135deg, var(--accent), #8b83ff); }
+        .chapter-badge.g2 { background: linear-gradient(135deg, var(--accent2), #ff9a9a); }
+        .chapter-badge.g3 { background: linear-gradient(135deg, var(--accent3), #7de8d9); }
+        .chapter-badge.g4 { background: linear-gradient(135deg, var(--accent4), #fff099); }
+
+        .chapter-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chapter-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent3);
+            margin-bottom: 0.2rem;
+        }
+
+        .chapter-title {
+            font-size: 1.05rem;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .chapter-expand-icon {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            transition: transform 0.3s;
+            flex-shrink: 0;
+        }
+
+        .chapter-card.expanded .chapter-expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .chapter-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.3s;
+            padding: 0 2rem;
+        }
+
+        .chapter-card.expanded .chapter-details {
+            max-height: 800px;
+            padding: 0 2rem 1.8rem;
+            transition: max-height 0.5s ease-in, padding 0.3s;
+        }
+
+        .chapter-details .divider {
+            height: 1px;
+            background: var(--border);
+            margin-bottom: 1.2rem;
+        }
+
+        .chapter-details h4 {
+            font-size: 0.85rem;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .chapter-events {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .chapter-events li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.6rem;
+            font-size: 0.95rem;
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        .chapter-events li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.65em;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .character-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .char-pill {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .char-pill.core {
+            background: rgba(var(--accent4-rgb),0.15);
+            color: var(--accent4);
+            border: 1px solid rgba(var(--accent4-rgb),0.3);
+        }
+
+        .char-pill.police {
+            background: rgba(var(--accent-rgb),0.15);
+            color: var(--accent);
+            border: 1px solid rgba(var(--accent-rgb),0.3);
+        }
+
+        .char-pill.victim {
+            background: rgba(var(--accent2-rgb),0.15);
+            color: var(--accent2);
+            border: 1px solid rgba(var(--accent2-rgb),0.3);
+        }
+
+        .char-pill.other {
+            background: rgba(var(--accent3-rgb),0.12);
+            color: var(--accent3);
+            border: 1px solid rgba(var(--accent3-rgb),0.25);
+        }
+
+        /* ========== Timeline Section ========== */
+        .timeline-section {
+            padding: 5rem 0;
+        }
+
+        .timeline-wrapper {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(
+                to bottom,
+                transparent,
+                var(--accent) 10%,
+                var(--accent3) 50%,
+                var(--accent2) 90%,
+                transparent
+            );
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            width: 44%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            transition: border-color 0.3s;
+        }
+
+        .timeline-content:hover {
+            border-color: var(--accent);
+        }
+
+        .timeline-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 3px solid var(--bg);
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+            box-shadow: 0 0 12px var(--glow);
+        }
+
+        .timeline-year {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent4);
+            margin-bottom: 0.2rem;
+        }
+
+        .timeline-label {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .timeline-spacer {
+            width: 44%;
+        }
+
+        @media (max-width: 768px) {
+            .timeline-line {
+                left: 20px;
+            }
+
+            .timeline-item,
+            .timeline-item:nth-child(odd),
+            .timeline-item:nth-child(even) {
+                flex-direction: row;
+                padding-left: 45px;
+            }
+
+            .timeline-dot {
+                left: 20px;
+            }
+
+            .timeline-content {
+                width: 100%;
+            }
+
+            .timeline-spacer {
+                display: none;
+            }
+        }
+
+        /* ========== Themes Section ========== */
+        .themes-section {
+            padding: 5rem 0;
+        }
+
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .theme-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .theme-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .theme-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent3);
+            box-shadow: 0 8px 30px rgba(var(--accent3-rgb),0.1);
+        }
+
+        .theme-card .theme-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .theme-card .theme-title-zh {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .theme-card .theme-title-en {
+            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent3);
+            margin-bottom: 0.8rem;
+        }
+
+        .theme-card .theme-desc {
+            font-size: 0.92rem;
+            color: var(--text-dim);
+            line-height: 1.8;
+        }
+
+        /* ========== Character Legend ========== */
+        .legend-section {
+            padding: 3rem 0 5rem;
+        }
+
+        .legend-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 2.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: flex-start;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .legend-box.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .legend-group {
+            flex: 1 1 200px;
+        }
+
+        .legend-group-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.6rem;
+        }
+
+        .legend-group-title.core-label { color: var(--accent4); }
+        .legend-group-title.police-label { color: var(--accent); }
+        .legend-group-title.victim-label { color: var(--accent2); }
+        .legend-group-title.other-label { color: var(--accent3); }
+
+        .legend-group .legend-names {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            line-height: 1.8;
+        }
+
+        /* ========== Ending Quote ========== */
+        .ending-quote {
+            padding: 4rem 0 2rem;
+            text-align: center;
+        }
+
+        .ending-quote blockquote {
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+            font-weight: 300;
+            color: var(--text-dim);
+            line-height: 2;
+            padding: 2rem;
+            border-left: 3px solid var(--accent);
+            text-align: left;
+            background: var(--card);
+            border-radius: 0 12px 12px 0;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .ending-quote blockquote.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .ending-quote .quote-source {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent3);
+            margin-top: 1rem;
+            display: block;
+        }
+
+        /* ── Fixed Nav ── */
+        .fixed-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 9998; padding: 0.6rem 1.5rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.4rem; background: rgba(var(--bg-rgb),0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+        .fixed-nav.scrolled { border-bottom-color: var(--border); }
+        .fixed-nav a { color: var(--text-dim); text-decoration: none; transition: color 0.3s; }
+        .fixed-nav a:hover { color: var(--accent); }
+        .fixed-nav .sep { color: var(--text-dim); margin: 0 0.15rem; }
+
+        /* ========== Responsive ========== */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+            .hero .subtitle {
+                font-size: 1.05rem;
+            }
+            .chapter-header {
+                padding: 1.2rem 1.2rem;
+                gap: 0.8rem;
+            }
+            .chapter-details {
+                padding: 0 1.2rem;
+            }
+            .chapter-card.expanded .chapter-details {
+                padding: 0 1.2rem 1.5rem;
+            }
+            .chapter-badge {
+                width: 44px;
+                height: 44px;
+                font-size: 0.95rem;
+                border-radius: 12px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .themes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2.4rem;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    /* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
+</style>
+</head>
+<body>
+
+<nav class="fixed-nav" id="fixedNav">
+    <a href="../../index.html">Hyperion</a>
+    <span class="sep">/</span>
+    <a href="../index.html">Book Breakdowns</a>
+    <span class="sep">/</span>
+    <span class="current">挽救计划</span>
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-toggle-icon" id="themeIcon"></span></button>
+</nav>
+
+<!-- Scroll Progress Bar -->
+<div id="progress-bar"></div>
+
+<!-- ==================== HERO SECTION ==================== -->
+<section class="hero">
+    <div class="hero-bg">
+        <canvas id="hero-canvas"></canvas>
+    </div>
+    <div class="hero-content">
+        <div class="hero-icon">🚀</div>
+        <h1>挽救计划</h1>
+        <p class="subtitle">一场从失忆、科学与友谊中展开的双文明自救</p>
+        <p class="author">安迪·威尔</p>
+        <p class="tagline">Science, friendship, and sacrifice at interstellar scale</p>
+    </div>
+    <div class="scroll-hint">
+        <span>向下滚动</span>
+        <div class="arrow"></div>
+    </div>
+</section>
+
+<!-- ==================== OVERVIEW SECTION ==================== -->
+<section class="overview-section">
+    <div class="container">
+        <h2 class="section-title">作品概览</h2>
+        <p class="section-subtitle">Overview</p>
+
+        <div class="stats-grid">
+            <div class="stat-card" data-animate>
+                <div class="stat-icon">📖</div>
+                <div class="stat-value">30</div>
+                <div class="stat-label">章节</div>
+                <div class="stat-sub">失忆叙事 + 闪回结构</div>
+            </div>
+            <div class="stat-card" data-animate>
+                <div class="stat-icon">🌍</div>
+                <div class="stat-value">2</div>
+                <div class="stat-label">文明</div>
+                <div class="stat-sub">地球与 Erid</div>
+            </div>
+            <div class="stat-card" data-animate>
+                <div class="stat-icon">☀️</div>
+                <div class="stat-value">1</div>
+                <div class="stat-label">核心谜题</div>
+                <div class="stat-sub">如何阻止恒星变暗</div>
+            </div>
+            <div class="stat-card" data-animate>
+                <div class="stat-icon">🧭</div>
+                <div class="stat-value">9</div>
+                <div class="stat-label">可视化</div>
+                <div class="stat-sub">小说多视角拆解</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== TIMELINE SECTION ==================== -->
+<section class="timeline-section">
+    <div class="container">
+        <h2 class="section-title">时间线</h2>
+        <p class="section-subtitle"></p>
+
+        <div class="timeline-wrapper" id="timeline-container">
+            <div class="timeline-line"></div>
+            <!-- Timeline items rendered dynamically from JS data -->
+        </div>
+    </div>
+</section>
+
+<!-- ==================== CHAPTERS SECTION ==================== -->
+<section class="chapters-section">
+    <div class="container">
+        <h2 class="section-title">章节详解</h2>
+        <p class="section-subtitle">Chapter Breakdown</p>
+
+        <div id="chapters-container"></div>
+    </div>
+</section>
+
+<!-- ==================== THEMES SECTION ==================== -->
+<section class="themes-section">
+    <div class="container">
+        <h2 class="section-title">核心主题</h2>
+        <p class="section-subtitle">Themes</p>
+
+        <div id="themes-container" class="themes-grid"></div>
+    </div>
+</section>
+
+<!-- ==================== CHARACTER LEGEND ==================== -->
+<section class="legend-section">
+    <div class="container">
+        <h2 class="section-title">人物图例</h2>
+        <p class="section-subtitle">Character color legend</p>
+
+        <div id="legend-container" class="legend-box" data-animate></div>
+    </div>
+</section>
+
+<!-- ==================== ENDING QUOTE ==================== -->
+<section class="ending-quote">
+    <div class="container">
+        <blockquote data-animate>
+            科学不是让恐惧消失，而是让恐惧变成下一次实验。
+            <span class="quote-source">主题化摘句 / thematic paraphrase</span>
+        </blockquote>
+    </div>
+</section>
+
+<!-- ==================== BREADCRUMB NAVIGATION ==================== -->
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+const arcs = [
+  {
+    "id": "awakening",
+    "title": "失忆与问题",
+    "titleEn": "Awakening",
+    "chapters": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "yearRange": "Ch. 1-5"
+  },
+  {
+    "id": "contact",
+    "title": "接触与语言",
+    "titleEn": "Contact",
+    "chapters": [
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "yearRange": "Ch. 6-10"
+  },
+  {
+    "id": "science",
+    "title": "假说与样本",
+    "titleEn": "Science",
+    "chapters": [
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "yearRange": "Ch. 11-16"
+  },
+  {
+    "id": "crisis",
+    "title": "事故与真相",
+    "titleEn": "Crisis",
+    "chapters": [
+      17,
+      18,
+      19,
+      20
+    ],
+    "yearRange": "Ch. 17-20"
+  },
+  {
+    "id": "return",
+    "title": "返回与抉择",
+    "titleEn": "Return",
+    "chapters": [
+      21,
+      22,
+      23,
+      24,
+      25
+    ],
+    "yearRange": "Ch. 21-25"
+  },
+  {
+    "id": "sacrifice",
+    "title": "新家与余光",
+    "titleEn": "Sacrifice",
+    "chapters": [
+      26,
+      27,
+      28,
+      29,
+      30
+    ],
+    "yearRange": "Ch. 26-30"
+  }
+];
+
+const chapters = [
+  {
+    "number": 1,
+    "arcId": "awakening",
+    "timePeriod": "失忆与问题",
+    "title": "任务苏醒",
+    "events": [
+      "Grace 在陌生舱室醒来，失忆、虚弱，只知道自己被机器维持生命。",
+      "失忆醒来",
+      "发现两具同伴遗体",
+      "意识到自己在深空飞船上"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      }
+    ]
+  },
+  {
+    "number": 2,
+    "arcId": "awakening",
+    "timePeriod": "失忆与问题",
+    "title": "问题回忆",
+    "events": [
+      "记忆闪回显示太阳正在变暗，地球面临长期生态灾难。",
+      "太阳辐射异常下降",
+      "Astrophage 成为危机线索",
+      "科学界开始动员"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Eva Stratt",
+        "group": "earth"
+      }
+    ]
+  },
+  {
+    "number": 3,
+    "arcId": "awakening",
+    "timePeriod": "失忆与问题",
+    "title": "孤身任务",
+    "events": [
+      "Grace 发现自己在 Hail Mary 号上，必须靠实验重建任务目标。",
+      "确认 Tau Ceti 方向",
+      "检查实验设备",
+      "把记忆和现实拼接起来"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      }
+    ]
+  },
+  {
+    "number": 4,
+    "arcId": "awakening",
+    "timePeriod": "失忆与问题",
+    "title": "太阳之敌",
+    "events": [
+      "地球端研究确认 Astrophage 以恒星能量繁殖，威胁整个文明。",
+      "Astrophage 模型形成",
+      "Grace 解释能量转移",
+      "Stratt 获得非常规权力"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Eva Stratt",
+        "group": "earth"
+      }
+    ]
+  },
+  {
+    "number": 5,
+    "arcId": "awakening",
+    "timePeriod": "失忆与问题",
+    "title": "到达 Tau Ceti",
+    "events": [
+      "Grace 观测 Tau Ceti，发现这里的恒星没有被同样削弱。",
+      "抵达目标星系",
+      "发现异常稳定恒星",
+      "任务问题变成寻找差异"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      }
+    ]
+  },
+  {
+    "number": 6,
+    "arcId": "contact",
+    "timePeriod": "接触与语言",
+    "title": "意外访客",
+    "events": [
+      "一艘外星飞船出现，Grace 第一次确认人类并不孤独。",
+      "发现 Blip-A",
+      "双方谨慎接近",
+      "恐惧转向交流尝试"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      }
+    ]
+  },
+  {
+    "number": 7,
+    "arcId": "contact",
+    "timePeriod": "接触与语言",
+    "title": "语言的桥",
+    "events": [
+      "Grace 与 Rocky 用声音、数学和耐心建立第一套共同语言。",
+      "建立频率-意义映射",
+      "交换名字",
+      "信任开始形成"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      }
+    ]
+  },
+  {
+    "number": 8,
+    "arcId": "contact",
+    "timePeriod": "接触与语言",
+    "title": "两个末日",
+    "events": [
+      "Rocky 解释 Erid 星也被 Astrophage 威胁，双方拥有同一个倒计时。",
+      "共享母星危机",
+      "确认共同敌人",
+      "合作从选择变成必要"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      }
+    ]
+  },
+  {
+    "number": 9,
+    "arcId": "contact",
+    "timePeriod": "接触与语言",
+    "title": "工程互补",
+    "events": [
+      "人类科学与 Eridian 工程互补，两艘飞船成为联合实验室。",
+      "材料与大气差异显现",
+      "Rocky 建造连接通道",
+      "双方分工明确"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      }
+    ]
+  },
+  {
+    "number": 10,
+    "arcId": "contact",
+    "timePeriod": "接触与语言",
+    "title": "信任测试",
+    "events": [
+      "一次危险实验迫使 Grace 和 Rocky 把生命交到对方手里。",
+      "实验风险升级",
+      "Rocky 展示极端工程能力",
+      "Grace 学会依赖伙伴"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      }
+    ]
+  },
+  {
+    "number": 11,
+    "arcId": "science",
+    "timePeriod": "假说与样本",
+    "title": "寻找天敌",
+    "events": [
+      "他们推断 Tau Ceti 稳定的原因可能是 Astrophage 有捕食者。",
+      "提出生态链假说",
+      "采集样本计划形成",
+      "任务从观测转向捕获"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      }
+    ]
+  },
+  {
+    "number": 12,
+    "arcId": "science",
+    "timePeriod": "假说与样本",
+    "title": "Adrian 计划",
+    "events": [
+      "目标转向 Tau Ceti 系内的 Adrian 行星，那里可能藏着答案。",
+      "锁定 Adrian",
+      "设计采样轨道",
+      "风险评估与燃料约束"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      }
+    ]
+  },
+  {
+    "number": 13,
+    "arcId": "science",
+    "timePeriod": "假说与样本",
+    "title": "过去的选择",
+    "events": [
+      "闪回揭示 Grace 并非英雄起点，而是被迫卷入人类最后计划。",
+      "课堂科学家被征召",
+      "Stratt 压缩全球资源",
+      "道德边界不断后退"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Eva Stratt",
+        "group": "earth"
+      }
+    ]
+  },
+  {
+    "number": 14,
+    "arcId": "science",
+    "timePeriod": "假说与样本",
+    "title": "采样窗口",
+    "events": [
+      "Grace 和 Rocky 在极端环境边缘执行采样，第一次接近真正解法。",
+      "靠近 Adrian",
+      "采集大气样本",
+      "发现可疑微生物线索"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      }
+    ]
+  },
+  {
+    "number": 15,
+    "arcId": "science",
+    "timePeriod": "假说与样本",
+    "title": "Taumoeba",
+    "events": [
+      "他们识别出以 Astrophage 为食的微生物 Taumoeba，挽救计划有了实体。",
+      "确认捕食 Astrophage",
+      "命名 Taumoeba",
+      "希望从假说变成样本"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      },
+      {
+        "name": "Taumoeba",
+        "group": "lifeform"
+      }
+    ]
+  },
+  {
+    "number": 16,
+    "arcId": "science",
+    "timePeriod": "假说与样本",
+    "title": "培养难题",
+    "events": [
+      "Taumoeba 难以在飞船条件中稳定繁殖，科学答案仍需要工程落地。",
+      "调整环境参数",
+      "实验反复失败",
+      "Rocky 提供材料方案"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      },
+      {
+        "name": "Taumoeba",
+        "group": "lifeform"
+      }
+    ]
+  },
+  {
+    "number": 17,
+    "arcId": "crisis",
+    "timePeriod": "事故与真相",
+    "title": "泄漏与失控",
+    "events": [
+      "微小疏忽造成连锁事故，船体和样本安全受到威胁。",
+      "实验舱受损",
+      "资源被迫重新分配",
+      "Grace 承担判断压力"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      }
+    ]
+  },
+  {
+    "number": 18,
+    "arcId": "crisis",
+    "timePeriod": "事故与真相",
+    "title": "人类计划的阴影",
+    "events": [
+      "记忆揭示 Hail Mary 任务的残酷：返回样本可能比宇航员生命更重要。",
+      "甲壳虫探测器策略",
+      "候选船员训练",
+      "Stratt 坚持结果优先"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Eva Stratt",
+        "group": "earth"
+      },
+      {
+        "name": "Yao Li-Jie",
+        "group": "earth"
+      },
+      {
+        "name": "Ilyukhina",
+        "group": "earth"
+      },
+      {
+        "name": "DuBois",
+        "group": "earth"
+      }
+    ]
+  },
+  {
+    "number": 19,
+    "arcId": "crisis",
+    "timePeriod": "事故与真相",
+    "title": "伙伴受伤",
+    "events": [
+      "Rocky 遭遇危险，Grace 必须在科学任务和朋友生命之间选择。",
+      "Rocky 受困",
+      "Grace 冒险救援",
+      "关系越过合作成为友谊"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      }
+    ]
+  },
+  {
+    "number": 20,
+    "arcId": "crisis",
+    "timePeriod": "事故与真相",
+    "title": "盲点",
+    "events": [
+      "他们发现 Taumoeba 具有意料之外的适应性，可能逃出控制环境。",
+      "Taumoeba 适应新环境",
+      "容器安全被质疑",
+      "解决方案需要重新设计"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      },
+      {
+        "name": "Taumoeba",
+        "group": "lifeform"
+      }
+    ]
+  },
+  {
+    "number": 21,
+    "arcId": "return",
+    "timePeriod": "返回与抉择",
+    "title": "可送回的答案",
+    "events": [
+      "Grace 准备把 Taumoeba 装入返回探测器，地球得救的概率上升。",
+      "样本稳定化",
+      "甲壳虫准备发射",
+      "Grace 面对孤独返程"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      },
+      {
+        "name": "Taumoeba",
+        "group": "lifeform"
+      }
+    ]
+  },
+  {
+    "number": 22,
+    "arcId": "return",
+    "timePeriod": "返回与抉择",
+    "title": "记忆真相",
+    "events": [
+      "Grace 记起自己曾拒绝任务，所谓英雄其实包含恐惧与失败。",
+      "揭开被迫参任务",
+      "自我形象崩塌",
+      "责任从外力变成自选"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Eva Stratt",
+        "group": "earth"
+      }
+    ]
+  },
+  {
+    "number": 23,
+    "arcId": "return",
+    "timePeriod": "返回与抉择",
+    "title": "分离",
+    "events": [
+      "Grace 和 Rocky 完成关键交换，必须各自返回拯救自己的星球。",
+      "双方准备告别",
+      "样本分配完成",
+      "友谊被距离考验"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      }
+    ]
+  },
+  {
+    "number": 24,
+    "arcId": "return",
+    "timePeriod": "返回与抉择",
+    "title": "错误的胜利",
+    "events": [
+      "Grace 发现 Rocky 的样本可能失败，Erid 将无法获救。",
+      "发现 Taumoeba 逃逸问题",
+      "推断 Blip-A 危机",
+      "地球与 Erid 目标冲突"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      },
+      {
+        "name": "Taumoeba",
+        "group": "lifeform"
+      }
+    ]
+  },
+  {
+    "number": 25,
+    "arcId": "return",
+    "timePeriod": "返回与抉择",
+    "title": "第二次选择",
+    "events": [
+      "Grace 决定放弃回地球机会，转向救 Rocky 和 Erid。",
+      "重新计算航线",
+      "牺牲返乡可能",
+      "英雄主义变成主动选择"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      }
+    ]
+  },
+  {
+    "number": 26,
+    "arcId": "sacrifice",
+    "timePeriod": "新家与余光",
+    "title": "救援航线",
+    "events": [
+      "Grace 追上 Rocky，用人类科学补上 Eridian 盲区。",
+      "拦截 Blip-A",
+      "诊断样本失败",
+      "设计新密封方案"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      },
+      {
+        "name": "Taumoeba",
+        "group": "lifeform"
+      }
+    ]
+  },
+  {
+    "number": 27,
+    "arcId": "sacrifice",
+    "timePeriod": "新家与余光",
+    "title": "共同生还",
+    "events": [
+      "两种文明的技术和信任合并，终于把 Taumoeba 送上正确道路。",
+      "修复样本系统",
+      "恢复任务能力",
+      "Erid 获得生机"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      }
+    ]
+  },
+  {
+    "number": 28,
+    "arcId": "sacrifice",
+    "timePeriod": "新家与余光",
+    "title": "无法回家的路",
+    "events": [
+      "Grace 面临燃料、距离和时间现实，回地球几乎不再可能。",
+      "计算生存路线",
+      "接受不可逆选择",
+      "孤独被意义替代"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      }
+    ]
+  },
+  {
+    "number": 29,
+    "arcId": "sacrifice",
+    "timePeriod": "新家与余光",
+    "title": "Erid 的教室",
+    "events": [
+      "多年后 Grace 在 Erid 生活，成为孩子们的老师。",
+      "适应外星社会",
+      "教学成为归宿",
+      "个人生命进入新共同体"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      }
+    ]
+  },
+  {
+    "number": 30,
+    "arcId": "sacrifice",
+    "timePeriod": "新家与余光",
+    "title": "被挽救的光",
+    "events": [
+      "Grace 得知地球太阳恢复，两个文明都跨过灭绝边缘。",
+      "收到地球存活证据",
+      "确认计划成功",
+      "救援变成双向文明故事"
+    ],
+    "characters": [
+      {
+        "name": "Ryland Grace",
+        "group": "human"
+      },
+      {
+        "name": "Rocky",
+        "group": "eridian"
+      }
+    ]
+  }
+];
+
+const themes = [
+  {
+    "icon": "🔬",
+    "titleZh": "科学作为行动伦理",
+    "titleEn": "Science as Applied Ethics",
+    "desc": "科学在书中不是抽象知识，而是面对灭绝风险时仍愿意测量、假设、验证和修正的行动方式。"
+  },
+  {
+    "icon": "🤝",
+    "titleZh": "跨越不可翻译的友谊",
+    "titleEn": "Friendship Beyond Translation",
+    "desc": "Grace 与 Rocky 的关系从频率、数字和材料开始，最终证明共同工作可以先于完全理解。"
+  },
+  {
+    "icon": "🧠",
+    "titleZh": "记忆与自我修复",
+    "titleEn": "Memory and Self-Reconstruction",
+    "desc": "失忆结构让主角重新审判过去的自己，也让英雄主义从被迫叙事变成主动选择。"
+  },
+  {
+    "icon": "🌌",
+    "titleZh": "文明尺度的责任",
+    "titleEn": "Responsibility at Civilizational Scale",
+    "desc": "小说把个人生命、物种延续和另一个文明的命运压缩到同一个选择中。"
+  },
+  {
+    "icon": "🦠",
+    "titleZh": "生态而非武器",
+    "titleEn": "Ecology, Not Weaponry",
+    "desc": "真正的解法不是摧毁 Astrophage，而是理解它所处的生态链，并找到能恢复平衡的生命形式。"
+  }
+];
+
+const groupConfig = {
+  "human": {
+    "color": "#6c63ff",
+    "label": "人类主角"
+  },
+  "eridian": {
+    "color": "#f59e0b",
+    "label": "Eridian"
+  },
+  "earth": {
+    "color": "#22c55e",
+    "label": "地球计划"
+  },
+  "lifeform": {
+    "color": "#14b8a6",
+    "label": "关键生命"
+  },
+  "world": {
+    "color": "#60a5fa",
+    "label": "文明/星球"
+  },
+  "other": {
+    "color": "#94a3b8",
+    "label": "其他"
+  }
+};
+
+
+// ========== Dynamic Rendering ==========
+(function() {
+    'use strict';
+
+    const gradientClasses = ['g1', 'g2', 'g3', 'g4'];
+
+    // ---- Render Timeline ----
+    function renderTimeline() {
+        if (typeof timeline === 'undefined' || !timeline.length) return;
+        const container = document.getElementById('timeline-container');
+        timeline.forEach(function(item) {
+            const el = document.createElement('div');
+            el.className = 'timeline-item';
+            el.setAttribute('data-animate', '');
+            el.innerHTML =
+                '<div class="timeline-content">' +
+                    '<div class="timeline-year">' + item.year + '</div>' +
+                    '<div class="timeline-label">' + item.label + '</div>' +
+                '</div>' +
+                '<div class="timeline-dot"></div>' +
+                '<div class="timeline-spacer"></div>';
+            container.appendChild(el);
+        });
+    }
+
+    // ---- Render Chapters (grouped by arc) ----
+    function renderChapters() {
+        if (typeof chapters === 'undefined' || !chapters.length) return;
+        var container = document.getElementById('chapters-container');
+        var arcMap = {};
+
+        // Build arc lookup
+        if (typeof arcs !== 'undefined') {
+            arcs.forEach(function(arc) { arcMap[arc.id] = arc; });
+        }
+
+        // Group chapters by arcId
+        var grouped = {};
+        var arcOrder = [];
+        chapters.forEach(function(ch) {
+            var aid = ch.arcId || '_default';
+            if (!grouped[aid]) {
+                grouped[aid] = [];
+                arcOrder.push(aid);
+            }
+            grouped[aid].push(ch);
+        });
+
+        arcOrder.forEach(function(arcId, arcIndex) {
+            var arc = arcMap[arcId];
+
+            // Arc header
+            if (arc) {
+                var arcHeader = document.createElement('div');
+                arcHeader.className = 'arc-header';
+                var badgeClass = gradientClasses[arcIndex % gradientClasses.length];
+                arcHeader.innerHTML =
+                    '<span class="arc-badge ' + badgeClass + '">' + arc.id.toUpperCase() + '</span>' +
+                    '<span class="arc-title">' + arc.title +
+                        (arc.titleEn ? ' <span class="arc-title-en">' + arc.titleEn + '</span>' : '') +
+                    '</span>';
+                container.appendChild(arcHeader);
+            }
+
+            // Chapter cards within this arc
+            grouped[arcId].forEach(function(ch) {
+                var num = String(ch.number).padStart(2, '0');
+                var gClass = gradientClasses[(ch.number - 1) % gradientClasses.length];
+
+                // Build events list
+                var eventsHtml = '';
+                if (ch.events && ch.events.length) {
+                    eventsHtml = '<h4>// key events</h4><ul class="chapter-events">';
+                    ch.events.forEach(function(ev) {
+                        eventsHtml += '<li>' + ev + '</li>';
+                    });
+                    eventsHtml += '</ul>';
+                }
+
+                // Build character pills
+                var charsHtml = '';
+                if (ch.characters && ch.characters.length) {
+                    charsHtml = '<h4>// characters</h4><div class="character-tags">';
+                    ch.characters.forEach(function(c) {
+                        var group = 'other';
+                        if (typeof groupConfig !== 'undefined') {
+                            for (var g in groupConfig) {
+                                if (groupConfig[g] && groupConfig[g].indexOf(c) !== -1) {
+                                    group = g;
+                                    break;
+                                }
+                            }
+                        }
+                        charsHtml += '<span class="char-pill ' + group + '">' + c + '</span>';
+                    });
+                    charsHtml += '</div>';
+                }
+
+                var card = document.createElement('div');
+                card.className = 'chapter-card';
+                card.setAttribute('data-animate', '');
+                card.setAttribute('onclick', "this.classList.toggle('expanded')");
+                card.innerHTML =
+                    '<div class="chapter-header">' +
+                        '<div class="chapter-badge ' + gClass + '">' + num + '</div>' +
+                        '<div class="chapter-info">' +
+                            (ch.timePeriod ? '<div class="chapter-time">' + ch.timePeriod + '</div>' : '') +
+                            '<div class="chapter-title">' + ch.title + '</div>' +
+                        '</div>' +
+                        '<div class="chapter-expand-icon">▼</div>' +
+                    '</div>' +
+                    '<div class="chapter-details">' +
+                        '<div class="divider"></div>' +
+                        eventsHtml +
+                        charsHtml +
+                    '</div>';
+
+                container.appendChild(card);
+            });
+        });
+    }
+
+    // ---- Render Themes ----
+    function renderThemes() {
+        if (typeof themes === 'undefined' || !themes.length) return;
+        var container = document.getElementById('themes-container');
+        themes.forEach(function(t) {
+            var card = document.createElement('div');
+            card.className = 'theme-card';
+            card.setAttribute('data-animate', '');
+            card.innerHTML =
+                '<div class="theme-icon">' + (t.icon || '') + '</div>' +
+                '<div class="theme-title-zh">' + t.titleZh + '</div>' +
+                '<div class="theme-title-en">' + t.titleEn + '</div>' +
+                '<p class="theme-desc">' + t.desc + '</p>';
+            container.appendChild(card);
+        });
+    }
+
+    // ---- Render Character Legend ----
+    function renderLegend() {
+        if (typeof groupConfig === 'undefined') return;
+        var container = document.getElementById('legend-container');
+        var labelMap = {
+            core: { css: 'core-label', label: '核心双主角 / Core' },
+            police: { css: 'police-label', label: '警方 / Police' },
+            victim: { css: 'victim-label', label: '受害者 / Victims' },
+            other: { css: 'other-label', label: '其他关键人物 / Others' }
+        };
+
+        for (var group in groupConfig) {
+            if (!groupConfig[group] || !groupConfig[group].length) continue;
+            var info = labelMap[group] || { css: 'other-label', label: group };
+            var div = document.createElement('div');
+            div.className = 'legend-group';
+            div.innerHTML =
+                '<div class="legend-group-title ' + info.css + '">● ' + info.label + '</div>' +
+                '<div class="legend-names">' + groupConfig[group].join('、') + '</div>';
+            container.appendChild(div);
+        }
+    }
+
+    // ---- Execute Rendering ----
+    renderTimeline();
+    renderChapters();
+    renderThemes();
+    renderLegend();
+
+    // ========== Scroll Progress Bar ==========
+    var progressBar = document.getElementById('progress-bar');
+
+    function updateProgress() {
+        var scrollTop = window.scrollY;
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        progressBar.style.width = progress + '%';
+    }
+
+    window.addEventListener('scroll', updateProgress, { passive: true });
+
+    window.addEventListener('scroll', () => {
+        document.getElementById('fixedNav').classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // ========== IntersectionObserver: Fade-in on Scroll ==========
+    var animatedElements = document.querySelectorAll('[data-animate]');
+
+    var observerOptions = {
+        root: null,
+        rootMargin: '0px 0px -60px 0px',
+        threshold: 0.1
+    };
+
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry, index) {
+            if (entry.isIntersecting) {
+                // Stagger the animation for sibling elements
+                var siblings = entry.target.parentElement.querySelectorAll('[data-animate]');
+                var delay = 0;
+                siblings.forEach(function(sib, i) {
+                    if (sib === entry.target) {
+                        delay = i * 100;
+                    }
+                });
+
+                setTimeout(function() {
+                    entry.target.classList.add('visible');
+                }, delay);
+
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    animatedElements.forEach(function(el) {
+        observer.observe(el);
+    });
+
+    // ========== Theme Color Cache ==========
+    var _tc = {};
+    function _refreshTC() {
+      var s = getComputedStyle(document.documentElement);
+      _tc.bg = s.getPropertyValue('--bg-rgb').trim();
+      _tc.card = s.getPropertyValue('--card-rgb').trim();
+      _tc.text = s.getPropertyValue('--text-rgb').trim();
+      _tc.textDim = s.getPropertyValue('--text-dim-rgb').trim();
+      _tc.border = s.getPropertyValue('--border-rgb').trim();
+      _tc.accent = s.getPropertyValue('--accent-rgb').trim();
+      _tc.accent2 = s.getPropertyValue('--accent2-rgb').trim();
+      _tc.accent3 = s.getPropertyValue('--accent3-rgb').trim();
+      _tc.accent4 = s.getPropertyValue('--accent4-rgb').trim();
+    }
+    _refreshTC();
+    window.addEventListener('themechange', function() { _refreshTC(); });
+
+    // ========== Hero Canvas: Floating Particles ==========
+    var canvas = document.getElementById('hero-canvas');
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var animFrame;
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    function createParticles() {
+        particles = [];
+        var count = Math.floor((canvas.width * canvas.height) / 18000);
+        for (var i = 0; i < count; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 1.8 + 0.3,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3,
+                alpha: Math.random() * 0.4 + 0.1,
+                color: pickColor()
+            });
+        }
+    }
+
+    function pickColor() {
+        var colors = [
+            `rgba(${_tc.accent},`,   // accent
+            `rgba(${_tc.accent2},`,  // accent2
+            `rgba(${_tc.accent3},`,  // accent3
+            `rgba(${_tc.accent4},`,  // accent4
+            `rgba(${_tc.text},`   // text
+        ];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function drawParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (var i = 0; i < particles.length; i++) {
+            var p = particles[i];
+
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // Wrap around edges
+            if (p.x < -5) p.x = canvas.width + 5;
+            if (p.x > canvas.width + 5) p.x = -5;
+            if (p.y < -5) p.y = canvas.height + 5;
+            if (p.y > canvas.height + 5) p.y = -5;
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fillStyle = p.color + p.alpha + ')';
+            ctx.fill();
+        }
+
+        // Draw connections
+        for (var i = 0; i < particles.length; i++) {
+            for (var j = i + 1; j < particles.length; j++) {
+                var dx = particles[i].x - particles[j].x;
+                var dy = particles[i].y - particles[j].y;
+                var dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 100) {
+                    var alpha = (1 - dist / 100) * 0.08;
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = `rgba(${_tc.accent},` + alpha + ')';
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        animFrame = requestAnimationFrame(drawParticles);
+    }
+
+    resizeCanvas();
+    createParticles();
+    drawParticles();
+
+    window.addEventListener('resize', function() {
+        resizeCanvas();
+        createParticles();
+    });
+
+    // Pause animation when hero is not visible
+    var heroSection = document.querySelector('.hero');
+    var heroObserver = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) {
+            if (!animFrame) drawParticles();
+        } else {
+            if (animFrame) {
+                cancelAnimationFrame(animFrame);
+                animFrame = null;
+            }
+        }
+    }, { threshold: 0.05 });
+
+    heroObserver.observe(heroSection);
+
+})();
+</script>
+
+<!-- Theme Toggle (injected into .fixed-nav) -->
+<style>
+.theme-toggle {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>挽救计划 意象追踪 / Symbolic Motifs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --bg: #0f1117; --card: #1a1d27; --card-hover: #222636;
+    --accent: #6c63ff; --accent2: #ff6b6b; --accent3: #4ecdc4; --accent4: #ffe66d;
+    --text: #e8e8f0; --text-dim: #8888a0; --border: #2a2d3a; --glow: rgba(var(--accent-rgb),0.15);
+    --bg-rgb: 15,17,23; --card-rgb: 26,29,39;
+    --text-rgb: 232,232,240; --text-dim-rgb: 136,136,160;
+    --border-rgb: 42,45,58; --accent-rgb: 108,99,255;
+    --accent2-rgb: 255,107,107; --accent3-rgb: 78,205,196; --accent4-rgb: 255,230,109;
+    --bg-hero: #13151f;
+}
+
+html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'Noto Sans SC', sans-serif; }
+.app { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
+
+/* ── Hero ── */
+.hero {
+    height: 18vh; min-height: 130px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+    background: linear-gradient(180deg, var(--bg-hero) 0%, var(--bg) 100%);
+}
+.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.hero-content { position: relative; z-index: 1; text-align: center; }
+.hero h1 {
+    font-size: clamp(1.4rem, 3vw, 2.2rem); font-weight: 700;
+    background: linear-gradient(135deg, var(--accent3) 0%, var(--accent) 50%, var(--accent4) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero .subtitle { margin-top: 6px; font-size: clamp(0.8rem, 1.4vw, 1rem); color: var(--text-dim); font-weight: 300; }
+/* ── Fixed Nav ── */
+.fixed-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 9998; padding: 0.6rem 1.5rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.4rem; background: rgba(var(--bg-rgb),0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+.fixed-nav.scrolled { border-bottom-color: var(--border); }
+.fixed-nav a { color: var(--text-dim); text-decoration: none; transition: color 0.3s; }
+.fixed-nav a:hover { color: var(--accent); }
+.fixed-nav .sep { color: var(--text-dim); margin: 0 0.15rem; }
+
+/* ── Controls ── */
+.controls {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 14px; padding: 8px 20px;
+    background: rgba(var(--bg-rgb),0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border); flex-wrap: wrap;
+}
+.controls-label { font-size: 0.75rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+.sort-btn {
+    padding: 4px 10px; border-radius: 8px; border: 1px solid var(--border);
+    background: transparent; color: var(--text-dim); font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.75rem; cursor: pointer; transition: all 0.2s;
+}
+.sort-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Heatmap area ── */
+.heatmap-area { flex: 1; overflow: auto; position: relative; }
+.heatmap-area canvas { display: block; }
+
+/* ── Tooltip ── */
+.tooltip {
+    position: fixed; z-index: 30; background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px; max-width: 300px; pointer-events: none;
+    opacity: 0; transition: opacity 0.15s; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.tooltip.visible { opacity: 1; }
+.tooltip-symbol { font-size: 0.85rem; font-weight: 700; margin-bottom: 2px; }
+.tooltip-chapter { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 6px; }
+.tooltip-context { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+
+/* ── Sparkline panel ── */
+.sparkline-panel {
+    position: fixed; right: 0; top: 0; bottom: 0; width: 320px; z-index: 40;
+    background: var(--card); border-left: 1px solid var(--border);
+    transform: translateX(100%); transition: transform 0.3s ease;
+    overflow-y: auto; padding: 20px;
+}
+.sparkline-panel.visible { transform: translateX(0); }
+.sparkline-close { position: absolute; top: 12px; right: 16px; background: none; border: none; color: var(--text-dim); font-size: 1.4rem; cursor: pointer; }
+.sparkline-close:hover { color: var(--accent2); }
+.sparkline-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.sparkline-icon { font-size: 1.5rem; }
+.sparkline-name { font-size: 1.1rem; font-weight: 700; }
+.sparkline-name-en { font-size: 0.78rem; color: var(--text-dim); }
+.sparkline-canvas { width: 100%; height: 80px; margin-bottom: 12px; }
+.sparkline-occurrences { display: flex; flex-direction: column; gap: 6px; }
+.occ-row { display: flex; align-items: baseline; gap: 8px; font-size: 0.8rem; }
+.occ-ch { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--accent); min-width: 40px; }
+.occ-ctx { color: var(--text-dim); }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+    <nav class="fixed-nav" id="fixedNav">
+        <a href="../../index.html">Hyperion</a>
+        <span class="sep">/</span>
+        <a href="../index.html">Book Breakdowns</a>
+        <span class="sep">/</span>
+        <span class="current">挽救计划</span>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-toggle-icon" id="themeIcon"></span></button>
+</nav>
+
+    <section class="hero">
+        <canvas id="heroCanvas"></canvas>
+        <div class="hero-content">
+            <h1>意象追踪 / Symbolic Motifs</h1>
+            <p class="subtitle">挽救计划 — 贯穿全书的隐喻与象征</p>
+        </div>
+    </section>
+
+    <div class="controls">
+        <span class="controls-label">排序</span>
+        <button class="sort-btn active" data-sort="frequency" onclick="setSort('frequency',this)">按频率</button>
+        <button class="sort-btn" data-sort="first" onclick="setSort('first',this)">按首次出现</button>
+        <button class="sort-btn" data-sort="name" onclick="setSort('name',this)">按名称</button>
+    </div>
+
+    <div class="heatmap-area" id="heatmapArea">
+        <canvas id="heatmapCanvas"></canvas>
+    </div>
+</div>
+
+<div class="tooltip" id="tooltip">
+    <div class="tooltip-symbol" id="ttSymbol"></div>
+    <div class="tooltip-chapter" id="ttChapter"></div>
+    <div class="tooltip-context" id="ttContext"></div>
+</div>
+
+<div class="sparkline-panel" id="sparklinePanel">
+    <button class="sparkline-close" onclick="closeSparkline()">&times;</button>
+    <div class="sparkline-header">
+        <span class="sparkline-icon" id="spIcon"></span>
+        <div>
+            <div class="sparkline-name" id="spName"></div>
+            <div class="sparkline-name-en" id="spNameEn"></div>
+        </div>
+    </div>
+    <canvas class="sparkline-canvas" id="sparklineCanvas"></canvas>
+    <div class="sparkline-occurrences" id="spOccurrences"></div>
+</div>
+
+<script>
+const motifs = {
+  "symbols": [
+    {
+      "id": "sun",
+      "name": "太阳",
+      "nameEn": "Sunlight",
+      "icon": "☀️",
+      "color": "#fbbf24"
+    },
+    {
+      "id": "language",
+      "name": "语言",
+      "nameEn": "Language",
+      "icon": "🎵",
+      "color": "#f59e0b"
+    },
+    {
+      "id": "experiment",
+      "name": "实验",
+      "nameEn": "Experiment",
+      "icon": "🧪",
+      "color": "#14b8a6"
+    },
+    {
+      "id": "beetles",
+      "name": "甲壳虫",
+      "nameEn": "Beetle probes",
+      "icon": "🪲",
+      "color": "#22c55e"
+    },
+    {
+      "id": "sacrifice",
+      "name": "牺牲",
+      "nameEn": "Sacrifice",
+      "icon": "🫀",
+      "color": "#ef4444"
+    },
+    {
+      "id": "classroom",
+      "name": "教室",
+      "nameEn": "Classroom",
+      "icon": "🏫",
+      "color": "#60a5fa"
+    }
+  ],
+  "occurrences": [
+    {
+      "symbol": "sun",
+      "chapter": 1,
+      "intensity": 4,
+      "context": "Grace 在陌生舱室醒来，失忆、虚弱，只知道自己被机器维持生命。"
+    },
+    {
+      "symbol": "experiment",
+      "chapter": 1,
+      "intensity": 5,
+      "context": "Grace 在陌生舱室醒来，失忆、虚弱，只知道自己被机器维持生命。"
+    },
+    {
+      "symbol": "sun",
+      "chapter": 2,
+      "intensity": 5,
+      "context": "记忆闪回显示太阳正在变暗，地球面临长期生态灾难。"
+    },
+    {
+      "symbol": "experiment",
+      "chapter": 3,
+      "intensity": 4,
+      "context": "Grace 发现自己在 Hail Mary 号上，必须靠实验重建任务目标。"
+    },
+    {
+      "symbol": "sun",
+      "chapter": 4,
+      "intensity": 4,
+      "context": "地球端研究确认 Astrophage 以恒星能量繁殖，威胁整个文明。"
+    },
+    {
+      "symbol": "experiment",
+      "chapter": 4,
+      "intensity": 5,
+      "context": "地球端研究确认 Astrophage 以恒星能量繁殖，威胁整个文明。"
+    },
+    {
+      "symbol": "sun",
+      "chapter": 5,
+      "intensity": 5,
+      "context": "Grace 观测 Tau Ceti，发现这里的恒星没有被同样削弱。"
+    },
+    {
+      "symbol": "language",
+      "chapter": 6,
+      "intensity": 5,
+      "context": "一艘外星飞船出现，Grace 第一次确认人类并不孤独。"
+    },
+    {
+      "symbol": "language",
+      "chapter": 7,
+      "intensity": 3,
+      "context": "Grace 与 Rocky 用声音、数学和耐心建立第一套共同语言。"
+    },
+    {
+      "symbol": "language",
+      "chapter": 8,
+      "intensity": 4,
+      "context": "Rocky 解释 Erid 星也被 Astrophage 威胁，双方拥有同一个倒计时。"
+    },
+    {
+      "symbol": "sun",
+      "chapter": 8,
+      "intensity": 5,
+      "context": "Rocky 解释 Erid 星也被 Astrophage 威胁，双方拥有同一个倒计时。"
+    },
+    {
+      "symbol": "language",
+      "chapter": 9,
+      "intensity": 5,
+      "context": "人类科学与 Eridian 工程互补，两艘飞船成为联合实验室。"
+    },
+    {
+      "symbol": "experiment",
+      "chapter": 9,
+      "intensity": 4,
+      "context": "人类科学与 Eridian 工程互补，两艘飞船成为联合实验室。"
+    },
+    {
+      "symbol": "language",
+      "chapter": 10,
+      "intensity": 3,
+      "context": "一次危险实验迫使 Grace 和 Rocky 把生命交到对方手里。"
+    },
+    {
+      "symbol": "sacrifice",
+      "chapter": 10,
+      "intensity": 4,
+      "context": "一次危险实验迫使 Grace 和 Rocky 把生命交到对方手里。"
+    },
+    {
+      "symbol": "experiment",
+      "chapter": 11,
+      "intensity": 3,
+      "context": "他们推断 Tau Ceti 稳定的原因可能是 Astrophage 有捕食者。"
+    },
+    {
+      "symbol": "experiment",
+      "chapter": 12,
+      "intensity": 4,
+      "context": "目标转向 Tau Ceti 系内的 Adrian 行星，那里可能藏着答案。"
+    },
+    {
+      "symbol": "sacrifice",
+      "chapter": 13,
+      "intensity": 4,
+      "context": "闪回揭示 Grace 并非英雄起点，而是被迫卷入人类最后计划。"
+    },
+    {
+      "symbol": "experiment",
+      "chapter": 14,
+      "intensity": 3,
+      "context": "Grace 和 Rocky 在极端环境边缘执行采样，第一次接近真正解法。"
+    },
+    {
+      "symbol": "experiment",
+      "chapter": 15,
+      "intensity": 4,
+      "context": "他们识别出以 Astrophage 为食的微生物 Taumoeba，挽救计划有了实体。"
+    },
+    {
+      "symbol": "experiment",
+      "chapter": 16,
+      "intensity": 5,
+      "context": "Taumoeba 难以在飞船条件中稳定繁殖，科学答案仍需要工程落地。"
+    },
+    {
+      "symbol": "experiment",
+      "chapter": 17,
+      "intensity": 3,
+      "context": "微小疏忽造成连锁事故，船体和样本安全受到威胁。"
+    },
+    {
+      "symbol": "sacrifice",
+      "chapter": 17,
+      "intensity": 5,
+      "context": "微小疏忽造成连锁事故，船体和样本安全受到威胁。"
+    },
+    {
+      "symbol": "sacrifice",
+      "chapter": 18,
+      "intensity": 3,
+      "context": "记忆揭示 Hail Mary 任务的残酷：返回样本可能比宇航员生命更重要。"
+    },
+    {
+      "symbol": "beetles",
+      "chapter": 18,
+      "intensity": 4,
+      "context": "记忆揭示 Hail Mary 任务的残酷：返回样本可能比宇航员生命更重要。"
+    },
+    {
+      "symbol": "sacrifice",
+      "chapter": 19,
+      "intensity": 4,
+      "context": "Rocky 遭遇危险，Grace 必须在科学任务和朋友生命之间选择。"
+    },
+    {
+      "symbol": "language",
+      "chapter": 19,
+      "intensity": 3,
+      "context": "Rocky 遭遇危险，Grace 必须在科学任务和朋友生命之间选择。"
+    },
+    {
+      "symbol": "experiment",
+      "chapter": 20,
+      "intensity": 3,
+      "context": "他们发现 Taumoeba 具有意料之外的适应性，可能逃出控制环境。"
+    },
+    {
+      "symbol": "beetles",
+      "chapter": 21,
+      "intensity": 4,
+      "context": "Grace 准备把 Taumoeba 装入返回探测器，地球得救的概率上升。"
+    },
+    {
+      "symbol": "experiment",
+      "chapter": 21,
+      "intensity": 4,
+      "context": "Grace 准备把 Taumoeba 装入返回探测器，地球得救的概率上升。"
+    },
+    {
+      "symbol": "sacrifice",
+      "chapter": 22,
+      "intensity": 4,
+      "context": "Grace 记起自己曾拒绝任务，所谓英雄其实包含恐惧与失败。"
+    },
+    {
+      "symbol": "language",
+      "chapter": 23,
+      "intensity": 4,
+      "context": "Grace 和 Rocky 完成关键交换，必须各自返回拯救自己的星球。"
+    },
+    {
+      "symbol": "sacrifice",
+      "chapter": 23,
+      "intensity": 5,
+      "context": "Grace 和 Rocky 完成关键交换，必须各自返回拯救自己的星球。"
+    },
+    {
+      "symbol": "sacrifice",
+      "chapter": 24,
+      "intensity": 3,
+      "context": "Grace 发现 Rocky 的样本可能失败，Erid 将无法获救。"
+    },
+    {
+      "symbol": "beetles",
+      "chapter": 24,
+      "intensity": 4,
+      "context": "Grace 发现 Rocky 的样本可能失败，Erid 将无法获救。"
+    },
+    {
+      "symbol": "sacrifice",
+      "chapter": 25,
+      "intensity": 4,
+      "context": "Grace 决定放弃回地球机会，转向救 Rocky 和 Erid。"
+    },
+    {
+      "symbol": "sacrifice",
+      "chapter": 26,
+      "intensity": 5,
+      "context": "Grace 追上 Rocky，用人类科学补上 Eridian 盲区。"
+    },
+    {
+      "symbol": "experiment",
+      "chapter": 26,
+      "intensity": 3,
+      "context": "Grace 追上 Rocky，用人类科学补上 Eridian 盲区。"
+    },
+    {
+      "symbol": "beetles",
+      "chapter": 27,
+      "intensity": 4,
+      "context": "两种文明的技术和信任合并，终于把 Taumoeba 送上正确道路。"
+    },
+    {
+      "symbol": "experiment",
+      "chapter": 27,
+      "intensity": 4,
+      "context": "两种文明的技术和信任合并，终于把 Taumoeba 送上正确道路。"
+    },
+    {
+      "symbol": "sacrifice",
+      "chapter": 28,
+      "intensity": 4,
+      "context": "Grace 面临燃料、距离和时间现实，回地球几乎不再可能。"
+    },
+    {
+      "symbol": "classroom",
+      "chapter": 29,
+      "intensity": 5,
+      "context": "多年后 Grace 在 Erid 生活，成为孩子们的老师。"
+    },
+    {
+      "symbol": "language",
+      "chapter": 29,
+      "intensity": 4,
+      "context": "多年后 Grace 在 Erid 生活，成为孩子们的老师。"
+    },
+    {
+      "symbol": "sun",
+      "chapter": 30,
+      "intensity": 3,
+      "context": "Grace 得知地球太阳恢复，两个文明都跨过灭绝边缘。"
+    },
+    {
+      "symbol": "classroom",
+      "chapter": 30,
+      "intensity": 3,
+      "context": "Grace 得知地球太阳恢复，两个文明都跨过灭绝边缘。"
+    }
+  ]
+};
+
+
+// ══════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════
+const symbols = motifs.symbols;
+const occurrences = motifs.occurrences;
+const allChapters = [...new Set(occurrences.map(o => o.chapter))].sort((a, b) => a - b);
+const maxChapter = Math.max(...allChapters, 1);
+
+const CELL_W = 18;
+const CELL_H = 32;
+const LABEL_W = 160;
+const HEADER_H = 40;
+
+let sortMode = 'frequency';
+let hoveredCell = null;
+let selectedSymbol = null;
+
+// ══════════════════════════════════════════════════
+// THEME COLOR CACHE
+// ══════════════════════════════════════════════════
+var _tc = {};
+function _refreshTC() {
+  var s = getComputedStyle(document.documentElement);
+  _tc.bg = s.getPropertyValue('--bg-rgb').trim();
+  _tc.card = s.getPropertyValue('--card-rgb').trim();
+  _tc.text = s.getPropertyValue('--text-rgb').trim();
+  _tc.textDim = s.getPropertyValue('--text-dim-rgb').trim();
+  _tc.border = s.getPropertyValue('--border-rgb').trim();
+  _tc.accent = s.getPropertyValue('--accent-rgb').trim();
+}
+_refreshTC();
+window.addEventListener('themechange', function() { _refreshTC(); });
+
+// ══════════════════════════════════════════════════
+// DOM REFS
+// ══════════════════════════════════════════════════
+const $hero = document.getElementById('heroCanvas');
+const $heatmap = document.getElementById('heatmapCanvas');
+const $heatmapArea = document.getElementById('heatmapArea');
+const $tooltip = document.getElementById('tooltip');
+const $ttSymbol = document.getElementById('ttSymbol');
+const $ttChapter = document.getElementById('ttChapter');
+const $ttContext = document.getElementById('ttContext');
+const $sparkline = document.getElementById('sparklinePanel');
+const $spIcon = document.getElementById('spIcon');
+const $spName = document.getElementById('spName');
+const $spNameEn = document.getElementById('spNameEn');
+const $spCanvas = document.getElementById('sparklineCanvas');
+const $spOccs = document.getElementById('spOccurrences');
+
+// ══════════════════════════════════════════════════
+// UTILITY
+// ══════════════════════════════════════════════════
+function dpr() { return window.devicePixelRatio || 1; }
+function sizeCanvas(canvas, w, h) {
+    const r = dpr();
+    canvas.width = w * r; canvas.height = h * r;
+    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(r, 0, 0, r, 0, 0);
+    return ctx;
+}
+
+// Build occurrence lookup: symbolId → chapter → {intensity, context}
+const occMap = {};
+let maxIntensity = 1;
+occurrences.forEach(o => {
+    if (!occMap[o.symbol]) occMap[o.symbol] = {};
+    occMap[o.symbol][o.chapter] = o;
+    if (o.intensity > maxIntensity) maxIntensity = o.intensity;
+});
+
+function getSymbolFreq(sym) {
+    return occurrences.filter(o => o.symbol === sym.id).length;
+}
+
+function getSymbolFirst(sym) {
+    const occs = occurrences.filter(o => o.symbol === sym.id);
+    return occs.length > 0 ? Math.min(...occs.map(o => o.chapter)) : 999;
+}
+
+function getSortedSymbols() {
+    const sorted = [...symbols];
+    if (sortMode === 'frequency') {
+        sorted.sort((a, b) => getSymbolFreq(b) - getSymbolFreq(a));
+    } else if (sortMode === 'first') {
+        sorted.sort((a, b) => getSymbolFirst(a) - getSymbolFirst(b));
+    } else {
+        sorted.sort((a, b) => a.name.localeCompare(b.name, 'zh'));
+    }
+    return sorted;
+}
+
+// ══════════════════════════════════════════════════
+// HERO PARTICLES
+// ══════════════════════════════════════════════════
+function initHero() {
+    const heroSection = document.querySelector('.hero');
+    const w = heroSection.clientWidth; const h = heroSection.clientHeight;
+    const ctx = sizeCanvas($hero, w, h);
+    const particles = [];
+    const colors = symbols.map(s => s.color || '#6c63ff').slice(0, 6);
+    for (let i = 0; i < 40; i++) {
+        particles.push({
+            x: Math.random() * w, y: Math.random() * h,
+            r: Math.random() * 1.5 + 0.5, vx: (Math.random() - 0.5) * 0.2, vy: (Math.random() - 0.5) * 0.15,
+            alpha: Math.random() * 0.3 + 0.1,
+            color: colors[Math.floor(Math.random() * colors.length)],
+        });
+    }
+    function draw() {
+        ctx.clearRect(0, 0, w, h);
+        particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+            if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha; ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(draw);
+    }
+    draw();
+}
+
+// ══════════════════════════════════════════════════
+// HEATMAP DRAWING
+// ══════════════════════════════════════════════════
+function drawHeatmap() {
+    const sorted = getSortedSymbols();
+    const numCols = maxChapter;
+    const canvasW = LABEL_W + numCols * CELL_W + 40;
+    const canvasH = HEADER_H + sorted.length * CELL_H + 20;
+    const ctx = sizeCanvas($heatmap, canvasW, canvasH);
+    ctx.clearRect(0, 0, canvasW, canvasH);
+
+    // ── Column headers (chapters) ──
+    ctx.font = '9px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    for (let ch = 1; ch <= numCols; ch++) {
+        const x = LABEL_W + (ch - 1) * CELL_W + CELL_W / 2;
+        if (ch % 5 === 0 || ch === 1 || ch === numCols) {
+            ctx.fillStyle = `rgba(${_tc.textDim},0.5)`;
+            ctx.fillText(ch, x, HEADER_H - 4);
+        }
+        // Grid column line
+        ctx.beginPath(); ctx.moveTo(x, HEADER_H); ctx.lineTo(x, canvasH - 20);
+        ctx.strokeStyle = `rgba(${_tc.border},0.2)`; ctx.lineWidth = 0.5; ctx.stroke();
+    }
+
+    // ── Row labels + cells ──
+    sorted.forEach((sym, row) => {
+        const y = HEADER_H + row * CELL_H;
+        const cy = y + CELL_H / 2;
+        const isSelected = selectedSymbol === sym.id;
+
+        // Row background on hover/select
+        if (isSelected) {
+            ctx.fillStyle = `rgba(${_tc.accent},0.06)`;
+            ctx.fillRect(0, y, canvasW, CELL_H);
+        }
+
+        // Row separator
+        ctx.beginPath(); ctx.moveTo(LABEL_W, y); ctx.lineTo(canvasW - 20, y);
+        ctx.strokeStyle = `rgba(${_tc.border},0.3)`; ctx.lineWidth = 0.5; ctx.stroke();
+
+        // Label: icon + name
+        ctx.font = '11px "Noto Sans SC", sans-serif';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = isSelected ? sym.color || `rgb(${_tc.text})` : `rgba(${_tc.text},0.7)`;
+        const label = (sym.icon || '') + ' ' + sym.name;
+        ctx.fillText(label, LABEL_W - 10, cy);
+
+        // Frequency badge
+        const freq = getSymbolFreq(sym);
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.fillStyle = `rgba(${_tc.textDim},0.3)`;
+        ctx.textAlign = 'left';
+        ctx.fillText('×' + freq, LABEL_W - 8, cy + 10);
+
+        // Heatmap cells
+        for (let ch = 1; ch <= numCols; ch++) {
+            const occ = (occMap[sym.id] || {})[ch];
+            if (!occ) continue;
+            const x = LABEL_W + (ch - 1) * CELL_W + CELL_W / 2;
+            const normI = occ.intensity / maxIntensity;
+            const r = 2 + normI * (CELL_W / 2 - 3);
+            const color = sym.color || '#6c63ff';
+
+            // Glow
+            const grd = ctx.createRadialGradient(x, cy, 0, x, cy, r * 2);
+            grd.addColorStop(0, color + '44');
+            grd.addColorStop(1, color + '00');
+            ctx.beginPath(); ctx.arc(x, cy, r * 2, 0, Math.PI * 2);
+            ctx.fillStyle = grd; ctx.fill();
+
+            // Dot
+            ctx.beginPath(); ctx.arc(x, cy, r, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.globalAlpha = 0.3 + normI * 0.6;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            // Store hit data
+            occ._x = x; occ._y = cy; occ._r = Math.max(r, 6);
+            occ._sym = sym;
+        }
+    });
+
+    // Store row hit data for click-to-expand
+    sorted.forEach((sym, row) => {
+        sym._rowY = HEADER_H + row * CELL_H;
+        sym._rowH = CELL_H;
+    });
+}
+
+// ══════════════════════════════════════════════════
+// INTERACTIONS
+// ══════════════════════════════════════════════════
+function setSort(mode, btn) {
+    sortMode = mode;
+    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    drawHeatmap();
+}
+
+$heatmapArea.addEventListener('mousemove', (e) => {
+    const rect = $heatmap.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * dpr() / dpr();
+    const my = (e.clientY - rect.top) * dpr() / dpr();
+
+    let hit = null;
+    occurrences.forEach(o => {
+        if (o._x === undefined) return;
+        const dx = mx - o._x; const dy = my - o._y;
+        if (Math.sqrt(dx * dx + dy * dy) < o._r + 4) hit = o;
+    });
+
+    if (hit) {
+        hoveredCell = hit;
+        $ttSymbol.textContent = (hit._sym.icon || '') + ' ' + hit._sym.name;
+        $ttChapter.textContent = '第 ' + hit.chapter + ' 章 · 强度 ' + hit.intensity;
+        $ttContext.textContent = hit.context || '';
+        $tooltip.classList.add('visible');
+        $tooltip.style.left = (e.clientX + 16) + 'px';
+        $tooltip.style.top = (e.clientY - 10) + 'px';
+        $heatmapArea.style.cursor = 'pointer';
+    } else {
+        hoveredCell = null;
+        $tooltip.classList.remove('visible');
+        // Check if hovering over a row label area
+        const sorted = getSortedSymbols();
+        let overRow = false;
+        sorted.forEach(sym => {
+            if (mx < LABEL_W && my >= sym._rowY && my < sym._rowY + sym._rowH) {
+                overRow = true;
+                $heatmapArea.style.cursor = 'pointer';
+            }
+        });
+        if (!overRow) $heatmapArea.style.cursor = 'default';
+    }
+});
+
+$heatmapArea.addEventListener('mouseleave', () => {
+    hoveredCell = null;
+    $tooltip.classList.remove('visible');
+});
+
+$heatmapArea.addEventListener('click', (e) => {
+    const rect = $heatmap.getBoundingClientRect();
+    const mx = (e.clientX - rect.left);
+    const my = (e.clientY - rect.top);
+
+    // Click on row label → open sparkline panel
+    if (mx < LABEL_W) {
+        const sorted = getSortedSymbols();
+        sorted.forEach(sym => {
+            if (my >= sym._rowY && my < sym._rowY + sym._rowH) {
+                showSparkline(sym);
+            }
+        });
+        return;
+    }
+    // Click on cell → open sparkline for that symbol
+    if (hoveredCell && hoveredCell._sym) {
+        showSparkline(hoveredCell._sym);
+    }
+});
+
+// ══════════════════════════════════════════════════
+// SPARKLINE PANEL
+// ══════════════════════════════════════════════════
+function showSparkline(sym) {
+    selectedSymbol = sym.id;
+    $spIcon.textContent = sym.icon || '●';
+    $spName.textContent = sym.name;
+    $spNameEn.textContent = sym.nameEn || '';
+
+    // Draw sparkline
+    const w = 280; const h = 60;
+    const ctx = sizeCanvas($spCanvas, w, h);
+    ctx.clearRect(0, 0, w, h);
+    const color = sym.color || '#6c63ff';
+
+    // Build intensity array per chapter
+    const data = [];
+    for (let ch = 1; ch <= maxChapter; ch++) {
+        const occ = (occMap[sym.id] || {})[ch];
+        data.push(occ ? occ.intensity : 0);
+    }
+    const maxVal = Math.max(...data, 1);
+    const xStep = w / (data.length - 1 || 1);
+
+    // Area fill
+    ctx.beginPath();
+    ctx.moveTo(0, h);
+    data.forEach((v, i) => {
+        const x = i * xStep;
+        const y = h - (v / maxVal) * (h - 4);
+        if (i === 0) ctx.lineTo(x, y);
+        else {
+            const px = (i - 1) * xStep;
+            const py = h - (data[i - 1] / maxVal) * (h - 4);
+            const cpx = (px + x) / 2;
+            ctx.bezierCurveTo(cpx, py, cpx, y, x, y);
+        }
+    });
+    ctx.lineTo(w, h); ctx.closePath();
+    ctx.fillStyle = color + '22'; ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    data.forEach((v, i) => {
+        const x = i * xStep;
+        const y = h - (v / maxVal) * (h - 4);
+        if (i === 0) ctx.moveTo(x, y);
+        else {
+            const px = (i - 1) * xStep;
+            const py = h - (data[i - 1] / maxVal) * (h - 4);
+            const cpx = (px + x) / 2;
+            ctx.bezierCurveTo(cpx, py, cpx, y, x, y);
+        }
+    });
+    ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // Dots for non-zero
+    data.forEach((v, i) => {
+        if (v === 0) return;
+        const x = i * xStep;
+        const y = h - (v / maxVal) * (h - 4);
+        ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = color; ctx.fill();
+    });
+
+    // List occurrences
+    $spOccs.innerHTML = '';
+    const symOccs = occurrences.filter(o => o.symbol === sym.id).sort((a, b) => a.chapter - b.chapter);
+    symOccs.forEach(o => {
+        const row = document.createElement('div');
+        row.className = 'occ-row';
+        row.innerHTML = '<span class="occ-ch">Ch.' + o.chapter + '</span><span class="occ-ctx">' + (o.context || '') + '</span>';
+        $spOccs.appendChild(row);
+    });
+
+    $sparkline.classList.add('visible');
+    drawHeatmap();
+}
+
+function closeSparkline() {
+    $sparkline.classList.remove('visible');
+    selectedSymbol = null;
+    drawHeatmap();
+}
+
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSparkline(); });
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+let resizeTimer;
+window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { initHero(); drawHeatmap(); }, 100); });
+
+window.addEventListener('scroll', () => {
+    document.getElementById('fixedNav').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+document.fonts.ready.then(() => {
+    initHero();
+    drawHeatmap();
+});
+</script>
+<!-- Theme Toggle (injected into .fixed-nav) -->
+<style>
+.theme-toggle {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
+</body>
+</html>

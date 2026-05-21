@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>挽救计划 · 小说解构 | Project Hail Mary</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222636;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #ffe66d;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --border: #2a2d3a;
+    --bg-rgb: 15,17,23;
+    --card-rgb: 26,29,39;
+    --text-rgb: 232,232,240;
+    --text-dim-rgb: 136,136,160;
+    --border-rgb: 42,45,58;
+    --accent-rgb: 108,99,255;
+    --accent2-rgb: 255,107,107;
+    --accent3-rgb: 78,205,196;
+    --accent4-rgb: 255,230,109;
+    --bg-hero: #13151f;
+    --glow: rgba(var(--accent-rgb),0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ── Hero ── */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 30% 20%, rgba(var(--accent-rgb),0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(var(--accent2-rgb),0.06) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.hero-icon {
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+    animation: float 4s ease-in-out infinite;
+    filter: drop-shadow(0 0 30px rgba(var(--accent4-rgb),0.3));
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+.hero h1 {
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent4) 50%, var(--text) 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s ease-in-out infinite;
+    margin-bottom: 0.3rem;
+}
+
+@keyframes shimmer {
+    0%, 100% { background-position: 0% center; }
+    50% { background-position: 200% center; }
+}
+
+.hero .author {
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    color: var(--text-dim);
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    margin-bottom: 0.5rem;
+}
+
+.hero .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    color: var(--accent3);
+    opacity: 0.7;
+    margin-bottom: 3rem;
+}
+
+.meta-pills {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 3rem;
+}
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    background: var(--card);
+}
+
+.pill .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--accent4);
+}
+
+.scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    animation: bounce 2s infinite;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.scroll-hint .arrow { font-size: 1.2rem; }
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); opacity: 0.6; }
+    50% { transform: translateY(8px); opacity: 1; }
+}
+
+/* ── Navigation Cards ── */
+.nav-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem 6rem;
+}
+
+.nav-section h2 {
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 400;
+    color: var(--text-dim);
+    margin-bottom: 3rem;
+    letter-spacing: 0.1em;
+}
+
+.nav-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+}
+
+.nav-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem 1.6rem;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.nav-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 16px 16px 0 0;
+}
+
+.nav-card:hover {
+    background: var(--card-hover);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 40px var(--glow);
+    border-color: var(--accent);
+}
+
+.nav-card .card-icon { font-size: 2.2rem; margin-bottom: 1rem; }
+.nav-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.2rem; }
+.nav-card .card-en {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent3);
+    opacity: 0.7;
+    margin-bottom: 0.6rem;
+}
+.nav-card p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.6; }
+.nav-card .card-tag {
+    margin-top: auto;
+    padding-top: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    opacity: 0.6;
+}
+
+/* ── Stars background ── */
+.stars { position: fixed; inset: 0; pointer-events: none; z-index: -1; }
+.star {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: var(--text);
+    border-radius: 50%;
+    opacity: 0;
+    animation: twinkle var(--dur) ease-in-out infinite;
+    animation-delay: var(--delay);
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0; }
+    50% { opacity: var(--max-opacity); }
+}
+
+.footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .nav-grid { grid-template-columns: 1fr; }
+    .meta-pills { flex-direction: column; align-items: center; }
+}
+
+/* ── Fixed Nav ── */
+.fixed-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 9998; padding: 0.6rem 1.5rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.4rem; background: rgba(var(--bg-rgb),0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+.fixed-nav.scrolled { border-bottom-color: var(--border); }
+.fixed-nav a { color: var(--text-dim); text-decoration: none; transition: color 0.3s; }
+.fixed-nav a:hover { color: var(--accent); }
+.fixed-nav .sep { color: var(--text-dim); margin: 0 0.15rem; }
+/* ── RGB triplet defaults (dark) ── */
+:root {
+  --bg-rgb: 15,17,23;
+  --card-rgb: 26,29,39;
+  --card-hover-rgb: 34,38,54;
+  --text-rgb: 232,232,240;
+  --text-dim-rgb: 136,136,160;
+  --border-rgb: 42,45,58;
+  --accent-rgb: 108,99,255;
+  --accent2-rgb: 255,107,107;
+  --accent3-rgb: 78,205,196;
+  --accent4-rgb: 255,230,109;
+  --bg-hero: #13151f;
+  --code-bg: #12141c;
+  --code-border: #1e2030;
+}
+
+/* ── Light theme overrides ── */
+[data-theme="light"] {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+  --accent: #5b52e6;
+  --accent2: #e55d5d;
+  --accent3: #3cb8b0;
+  --accent4: #c49800;
+  --text: #1a1a2e;
+  --text-dim: #6e6e82;
+  --border: #dcdce5;
+  --glow: rgba(91,82,230,0.10);
+  --success: #059669;
+  --warning: #b45309;
+  --danger: #dc2626;
+
+  --bg-rgb: 245,245,247;
+  --card-rgb: 255,255,255;
+  --card-hover-rgb: 240,240,245;
+  --text-rgb: 26,26,46;
+  --text-dim-rgb: 110,110,130;
+  --border-rgb: 220,220,229;
+  --accent-rgb: 91,82,230;
+  --accent2-rgb: 229,93,93;
+  --accent3-rgb: 60,184,176;
+  --accent4-rgb: 196,152,0;
+  --bg-hero: #e8e8ed;
+  --code-bg: #f0f0f5;
+  --code-border: #dcdce5;
+}
+
+</style>
+</head>
+<body>
+
+<nav class="fixed-nav" id="fixedNav"><a href="../../index.html">Hyperion</a><span class="sep">/</span><a href="../index.html">Book Breakdowns</a><span class="sep">/</span><span style="color:var(--text)">挽救计划</span><button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-toggle-icon" id="themeIcon"></span></button>
+</nav>
+
+<div class="stars" id="stars"></div>
+
+<section class="hero">
+    <div class="hero-icon">🚀</div>
+    <h1>挽救计划</h1>
+    <div class="author">安迪·威尔</div>
+    <div class="subtitle">Project Hail Mary</div>
+    <div class="meta-pills" id="metaPills"></div>
+    <div class="scroll-hint">
+        <span>探索解构</span>
+        <span class="arrow">&darr;</span>
+    </div>
+</section>
+
+<section class="nav-section">
+    <h2>选择视角 / Choose a Lens</h2>
+    <div class="nav-grid" id="navGrid"></div>
+</section>
+
+<div class="footer">挽救计划 · 小说解构 &mdash; Built with Hyperion</div>
+
+<script>
+const meta = {
+  "title": "挽救计划",
+  "titleEn": "Project Hail Mary",
+  "author": "安迪·威尔",
+  "authorEn": "Andy Weir",
+  "icon": "🚀",
+  "slug": "wanjiu-jihua",
+  "subtitle": "一场从失忆、科学与友谊中展开的双文明自救",
+  "tagline": "Science, friendship, and sacrifice at interstellar scale",
+  "stats": [
+    {
+      "num": "30",
+      "label": "章节",
+      "icon": "📖",
+      "sub": "失忆叙事 + 闪回结构"
+    },
+    {
+      "num": "2",
+      "label": "文明",
+      "icon": "🌍",
+      "sub": "地球与 Erid"
+    },
+    {
+      "num": "1",
+      "label": "核心谜题",
+      "icon": "☀️",
+      "sub": "如何阻止恒星变暗"
+    },
+    {
+      "num": "9",
+      "label": "可视化",
+      "icon": "🧭",
+      "sub": "小说多视角拆解"
+    }
+  ],
+  "nav": {
+    "summary_desc": "按六段弧线追踪 Grace 从被迫执行到主动选择的转变。",
+    "summary_tag": "30 chapters / 6 arcs",
+    "characters_desc": "查看人类、Eridian 与微生物如何组成救援网络。",
+    "characters_tag": "Grace ↔ Rocky",
+    "timeline_desc": "把地球危机、飞船任务和 Erid 命运放在同一条时间线上。",
+    "timeline_tag": "crisis to rescue",
+    "emotions_desc": "观察孤独、紧张、希望与平静如何交替推进。",
+    "emotions_tag": "emotional orbit",
+    "motifs_desc": "追踪太阳、语言、实验、甲壳虫和牺牲等反复意象。",
+    "motifs_tag": "symbols of survival",
+    "spatial_desc": "从地球实验室到 Tau Ceti，再到 Erid 教室的空间迁移。",
+    "spatial_tag": "interstellar map",
+    "dialogue_desc": "分析 Grace 与 Rocky 的交流如何从噪声变成友谊。",
+    "dialogue_tag": "first contact language",
+    "distill_desc": "沉淀本书关于科学、责任和选择的核心启发。",
+    "distill_tag": "Feynman distill"
+  },
+  "quote": "科学不是让恐惧消失，而是让恐惧变成下一次实验。",
+  "quoteSource": "主题化摘句 / thematic paraphrase"
+};
+
+
+// ── Nav card definitions (static) ──
+const NAV_CARDS = [
+    { href: 'summary.html', icon: '📖', title: '章回概览', en: 'Chapter Summary',
+      descKey: 'summary_desc', tagKey: 'summary_tag' },
+    { href: 'characters.html', icon: '🕸️', title: '人物关系', en: 'Character Relationships',
+      descKey: 'characters_desc', tagKey: 'characters_tag' },
+    { href: 'timeline.html', icon: '⏳', title: '事件时间线', en: 'Event Timeline',
+      descKey: 'timeline_desc', tagKey: 'timeline_tag' },
+    { href: 'emotions.html', icon: '💓', title: '情感弧线', en: 'Emotional Arc',
+      descKey: 'emotions_desc', tagKey: 'emotions_tag' },
+    { href: 'motifs.html', icon: '🔮', title: '意象追踪', en: 'Symbolic Motifs',
+      descKey: 'motifs_desc', tagKey: 'motifs_tag' },
+    { href: 'spatial.html', icon: '🗺️', title: '空间地图', en: 'Spatial Map',
+      descKey: 'spatial_desc', tagKey: 'spatial_tag' },
+    { href: 'dialogue.html', icon: '💬', title: '对话网络', en: 'Dialogue Network',
+      descKey: 'dialogue_desc', tagKey: 'dialogue_tag' },
+    { href: 'distill.html', icon: '🧪', title: '读后蒸馏', en: 'Distill',
+      descKey: 'distill_desc', tagKey: 'distill_tag' },
+];
+
+// Gradient pairs for card top borders
+const GRADIENTS = [
+    'linear-gradient(90deg, #6c63ff, #4ecdc4)',
+    'linear-gradient(90deg, #ffe66d, #ff6b6b)',
+    'linear-gradient(90deg, #4ecdc4, #6c63ff)',
+    'linear-gradient(90deg, #ff6b6b, #ffe66d)',
+    'linear-gradient(90deg, #6c63ff, #ff6b6b)',
+    'linear-gradient(90deg, #4ecdc4, #ffe66d)',
+    'linear-gradient(90deg, #ffe66d, #4ecdc4)',
+];
+
+// Build stat pills from meta (if available)
+if (typeof meta !== 'undefined' && meta.stats) {
+    const pillsEl = document.getElementById('metaPills');
+    meta.stats.forEach(s => {
+        const pill = document.createElement('span');
+        pill.className = 'pill';
+        pill.innerHTML = '<span class="num">' + s.num + '</span> ' + s.label;
+        pillsEl.appendChild(pill);
+    });
+}
+
+// Build nav cards
+const navGrid = document.getElementById('navGrid');
+const navData = (typeof meta !== 'undefined' && meta.nav) ? meta.nav : {};
+
+NAV_CARDS.forEach((card, i) => {
+    const desc = navData[card.descKey] || '';
+    const tag = navData[card.tagKey] || '';
+    if (!desc) return; // skip cards with no description in data
+
+    const a = document.createElement('a');
+    a.href = card.href;
+    a.className = 'nav-card';
+    a.style.setProperty('--card-gradient', GRADIENTS[i % GRADIENTS.length]);
+    a.innerHTML =
+        '<div class="card-icon">' + card.icon + '</div>' +
+        '<h3>' + card.title + '</h3>' +
+        '<div class="card-en">' + card.en + '</div>' +
+        '<p>' + desc + '</p>' +
+        '<div class="card-tag">' + tag + '</div>';
+
+    // Dynamic top border gradient
+    const before = document.createElement('style');
+    before.textContent = '.nav-card:nth-child(' + (i + 1) + ')::before { background: ' + GRADIENTS[i % GRADIENTS.length] + '; }';
+    document.head.appendChild(before);
+
+    navGrid.appendChild(a);
+});
+
+// Generate twinkling stars
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 60; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.setProperty('--dur', (3 + Math.random() * 4) + 's');
+    star.style.setProperty('--delay', (Math.random() * 5) + 's');
+    star.style.setProperty('--max-opacity', (0.15 + Math.random() * 0.35).toString());
+    starsEl.appendChild(star);
+}
+
+window.addEventListener('scroll', () => {
+    document.getElementById('fixedNav').classList.toggle('scrolled', window.scrollY > 50);
+});
+</script>
+<!-- Theme Toggle (injected into .fixed-nav) -->
+<style>
+.theme-toggle {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+</style>
+<script>
+(function() {
+  var KEY = 'hyperion-theme';
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    icon.textContent = theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem(KEY, theme);
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  var saved = localStorage.getItem(KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    icon.textContent = '\u{2600}\u{FE0F}';
+  }
+
+  toggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Utility for canvas code: read theme-aware CSS var values
+  window.getThemeRGB = function(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+})();
+</script>
+
+</body>
+</html>
